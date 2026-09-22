@@ -13,7 +13,7 @@ import { LOCALES } from './locales/index.js';
  */
 export async function createSetupPage() {
 	const setupLocales = {};
-	for (const lang of ['zh-CN', 'zh-TW', 'en']) {
+	for (const lang of ['zh-TW', 'en', 'zh-CN']) {
 		setupLocales[lang] = {};
 		for (const [k, v] of Object.entries(LOCALES[lang] || {})) {
 			if (k.startsWith('setup')) {
@@ -23,11 +23,11 @@ export async function createSetupPage() {
 	}
 
 	const html = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>首次设置 - 2FA 密钥管理器</title>
+  <title>首次設定 - 888 2FA 金鑰管理器</title>
 
   <script>
     (function() {
@@ -58,26 +58,26 @@ export async function createSetupPage() {
         <div class="setup-icon" aria-hidden="true">${dialogIcon('lock')}</div>
         <div class="setup-lang-selector">
           <select id="setupLangSelect" class="setup-lang-select" aria-label="Language / 語言" onchange="changeSetupLanguage(this.value)">
-            <option value="zh-CN">简体中文</option>
-            <option value="zh-TW">繁體中文</option>
+            <option value="zh-TW" selected>繁體中文</option>
             <option value="en">English</option>
+            <option value="zh-CN">簡體中文</option>
           </select>
         </div>
       </div>
-      <h1 class="setup-title" id="setupTitle">设置管理密码</h1>
+      <h1 class="setup-title" id="setupTitle">設定管理密碼</h1>
       <p class="setup-description" id="setupDescription">
-        首次使用 2FA，请先设置登录密码。
+        首次使用 888 2FA，請先設定登入密碼。
       </p>
     </div>
 
     <div class="security-notice">
-      <strong id="secNoticeTitle">请妥善保管密码</strong>
-      <span id="secNoticeDesc">请设置一个强密码，并妥善保管。这是您登录管理密钥的唯一凭证。</span>
+      <strong id="secNoticeTitle">請妥善保管密碼</strong>
+      <span id="secNoticeDesc">請設定一個高強度密碼並妥善保管。這是您登入管理金鑰的唯一憑證。</span>
     </div>
 
     <div id="insecureWarning" class="insecure-warning" style="display: none;">
-      <strong id="insecureTitle">当前正通过 HTTP 访问</strong>
-      <span id="insecureDesc">浏览器无法在 HTTP 下保存登录状态，设置完成后会反复要求输入密码。请将地址栏中的 http:// 改为 https:// 后重新访问。</span>
+      <strong id="insecureTitle">目前正透過 HTTP 連線</strong>
+      <span id="insecureDesc">瀏覽器無法在 HTTP 連線下儲存登入狀態，設定完成後會反覆要求輸入密碼。請將網址列中的 http:// 改為 https:// 後重新載入。</span>
     </div>
 
     <div id="errorMessage" class="error-message" role="alert"></div>
@@ -85,19 +85,19 @@ export async function createSetupPage() {
 
     <form id="setupForm" onsubmit="handleSetup(event)">
       <div class="form-group">
-        <label class="form-label" for="password" id="passwordLabel">设置密码</label>
+        <label class="form-label" for="password" id="passwordLabel">設定密碼</label>
         <div class="password-input-wrapper">
           <input
             type="password"
             id="password"
             class="form-input"
-            placeholder="请输入密码"
+            placeholder="請輸入密碼"
             autocomplete="new-password"
             aria-describedby="passwordRequirements"
             required
             oninput="checkPasswordStrength()"
           >
-          <button type="button" class="toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility('password')" title="显示密码" aria-label="显示密码" aria-controls="password" aria-pressed="false">
+          <button type="button" class="toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility('password')" title="顯示密碼" aria-label="顯示密碼" aria-controls="password" aria-pressed="false">
             ${dialogIcon('eye')}
           </button>
         </div>
@@ -105,46 +105,46 @@ export async function createSetupPage() {
           <div class="password-strength-bar" id="passwordStrengthBar"></div>
         </div>
         <div class="password-requirements" id="passwordRequirements">
-          <strong id="reqTitle">密码要求：</strong>
+          <strong id="reqTitle">密碼要求：</strong>
           <ul>
-            <li id="reqMinLength">至少 8 个字符</li>
-            <li id="reqUppercase">包含大写字母（A-Z）</li>
-            <li id="reqLowercase">包含小写字母（a-z）</li>
-            <li id="reqNumber">包含数字（0-9）</li>
-            <li id="reqSpecial">包含特殊字符（如 !@#$%^&*）</li>
+            <li id="reqMinLength">至少 8 個字元</li>
+            <li id="reqUppercase">包含大寫字母（A-Z）</li>
+            <li id="reqLowercase">包含小寫字母（a-z）</li>
+            <li id="reqNumber">包含數字（0-9）</li>
+            <li id="reqSpecial">包含特殊符號（如 !@#$%^&*）</li>
           </ul>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="confirmPassword" id="confirmPasswordLabel">确认密码</label>
+        <label class="form-label" for="confirmPassword" id="confirmPasswordLabel">確認密碼</label>
         <div class="password-input-wrapper">
           <input
             type="password"
             id="confirmPassword"
             class="form-input"
-            placeholder="请再次输入密码"
+            placeholder="請再次輸入密碼"
             autocomplete="new-password"
             required
           >
-          <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn" onclick="togglePasswordVisibility('confirmPassword')" title="显示密码" aria-label="显示密码" aria-controls="confirmPassword" aria-pressed="false">
+          <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn" onclick="togglePasswordVisibility('confirmPassword')" title="顯示密碼" aria-label="顯示密碼" aria-controls="confirmPassword" aria-pressed="false">
             ${dialogIcon('eye')}
           </button>
         </div>
       </div>
 
       <button type="submit" class="submit-button" id="submitButton">
-        完成设置
+        完成設定
       </button>
     </form>
   </main>
 
   <script>
     const I18N = ${JSON.stringify(setupLocales)};
-    let currentLang = 'zh-CN';
+    let currentLang = 'zh-TW';
 
     function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['zh-CN'] && I18N['zh-CN'][key]) || key;
+      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['zh-TW'] && I18N['zh-TW'][key]) || key;
     }
 
     function applySetupLanguage(lang) {
@@ -222,21 +222,30 @@ export async function createSetupPage() {
     }
 
     (function initLang() {
-      let lang = 'zh-CN';
+      let lang = 'zh-TW';
       try {
         const saved = localStorage.getItem('language');
         if (saved && I18N[saved]) {
           lang = saved;
         } else {
-          const nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-          if (/^zh\b/i.test(nav)) {
-            if (/-(tw|hk|mo|hant)/i.test(nav)) {
-              lang = 'zh-TW';
-            } else {
+          const langs = (Array.isArray(navigator.languages) && navigator.languages.length > 0)
+            ? navigator.languages
+            : [navigator.language || navigator.userLanguage || 'zh-TW'];
+          for (const l of langs) {
+            if (!l) continue;
+            const lower = String(l).toLowerCase();
+            if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
               lang = 'zh-CN';
+              break;
             }
-          } else if (/^en\b/i.test(nav)) {
-            lang = 'en';
+            if (lower.startsWith('en')) {
+              lang = 'en';
+              break;
+            }
+            if (lower.startsWith('zh') || lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant')) {
+              lang = 'zh-TW';
+              break;
+            }
           }
         }
       } catch (e) {}

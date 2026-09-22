@@ -285,4 +285,8 @@ export const zhTW = {
 	loginFailedPrefix: '登入失敗：',
 	loginSuccessToast: '登入成功',
 	loginSuccessWithExpiry: '登入成功，有效期限 {expiry}',
+
+	// 頁尾
+	footerFeedback: '回報問題',
+	footerDocs: '使用文件',
 };

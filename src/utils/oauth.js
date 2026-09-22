@@ -235,10 +235,10 @@ export function createOAuthPopupResponse(request, payload) {
 	const appUrl = `${targetOrigin}/`;
 	const appearance = resolvePopupAppearance(payload);
 	const title = payload.title || appearance.title;
-	const description = payload.message || (payload.success ? '云盘授权已完成。' : '云盘授权未完成。');
+	const description = payload.message || (payload.success ? '雲端硬碟授權已完成。' : '雲端硬碟授權未完成。');
 
 	const html = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
   ${getStandaloneHead(
 		title,
@@ -255,8 +255,8 @@ export function createOAuthPopupResponse(request, payload) {
     <div class="page-icon">${dialogIcon(appearance.icon)}</div>
     <h1 class="page-title" id="oauth-title">${escapeHtml(title)}</h1>
     <p class="page-description">${escapeHtml(description)}</p>
-    <p class="page-notice">如果窗口没有自动关闭，请返回应用继续操作。</p>
-    <div class="page-actions"><a class="page-button" href="${escapeHtml(appUrl)}">返回应用</a></div>
+    <p class="page-notice">如果視窗沒有自動關閉，請返回應用程式繼續操作。</p>
+    <div class="page-actions"><a class="page-button" href="${escapeHtml(appUrl)}">返回應用程式</a></div>
   </main>
   <script>
     (function () {
@@ -268,8 +268,8 @@ export function createOAuthPopupResponse(request, payload) {
           window.close();
           return;
         }
-      } catch (error) {
-        console.error('OAuth popup notify failed', error);
+      } catch (e) {
+        // Fall back to link navigation when opener access fails
       }
     })();
   </script>
@@ -291,14 +291,14 @@ function resolvePopupAppearance(payload) {
 			return {
 				icon: 'warning',
 				color: 'warning',
-				title: '授权成功，但连接测试失败',
+				title: '授權成功，但連線測試失敗',
 				httpStatus: 200,
 			};
 		case 'error':
 			return {
 				icon: 'error',
 				color: 'danger',
-				title: '授权失败',
+				title: '授權失敗',
 				httpStatus: 400,
 			};
 		case 'success':
@@ -306,7 +306,7 @@ function resolvePopupAppearance(payload) {
 			return {
 				icon: 'check',
 				color: 'success',
-				title: '授权成功',
+				title: '授權成功',
 				httpStatus: 200,
 			};
 	}

@@ -12,11 +12,11 @@ export function createManifest(request) {
 	const url = new URL(request.url);
 	const baseUrl = `${url.protocol}//${url.host}`;
 
-	// 简化的 Manifest 配置，确保最佳兼容性
+	// 簡化的 Manifest 配置，確保最佳相容性
 	const manifest = {
-		name: '2FA - 两步验证密钥管理器',
-		short_name: '2FA',
-		description: '安全的两步验证密钥管理器，支持 TOTP、HOTP 验证码生成',
+		name: '888 2FA - 兩步驟驗證金鑰管理器',
+		short_name: '888 2FA',
+		description: '安全的兩步驟驗證金鑰管理器，支援 TOTP、HOTP 驗證碼生成',
 		start_url: '/',
 		display: 'standalone',
 		background_color: '#ffffff',
@@ -50,18 +50,18 @@ export function createManifest(request) {
 
 		// 移除 screenshots（非必需）
 
-		// 简化的快捷方式（无图标）
+		// 簡化的快捷方式
 		shortcuts: [
 			{
-				name: '添加密钥',
-				short_name: '添加',
-				description: '快速添加新的 2FA 密钥',
+				name: '新增金鑰',
+				short_name: '新增',
+				description: '快速新增 2FA 金鑰',
 				url: '/?action=add',
 			},
 			{
-				name: '扫描二维码',
-				short_name: '扫描',
-				description: '扫描二维码添加密钥',
+				name: '掃描 QR Code',
+				short_name: '掃描',
+				description: '掃描 QR Code 新增金鑰',
 				url: '/?action=scan',
 			},
 		],

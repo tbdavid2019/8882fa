@@ -112,7 +112,7 @@ describe('public OTP pages', () => {
 		const html = await response.text();
 		const h = runPage(html);
 		expect(response.status).toBe(200);
-		expect(html).toContain(`计数器：${counter}`);
+		expect(html).toContain(`計數器：${counter}`);
 		expect(h.elements.has('progress')).toBe(false);
 		expect(h.elements.has('nextToken')).toBe(false);
 		expect(h.setInterval).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe('public OTP pages', () => {
 		}
 		expect(h.location.reload).not.toHaveBeenCalled();
 		expect(h.fetch).not.toHaveBeenCalled();
-		expect(h.elements.get('copied').textContent).toBe('验证码已复制');
+		expect(h.elements.get('copied').textContent).toBe('驗證碼已複製');
 	});
 
 	it('copies current and next codes separately and preserves leading zeroes', async () => {
@@ -133,7 +133,7 @@ describe('public OTP pages', () => {
 		await h.elements.get('token').listeners.click();
 		await h.elements.get('nextToken').listeners.click();
 		expect(h.writeText.mock.calls.map((args) => args[0])).toEqual(['123456', '001234']);
-		expect(h.elements.get('copied').textContent).toBe('下一个验证码已复制');
+		expect(h.elements.get('copied').textContent).toBe('下一個驗證碼已複製');
 		expect(h.fetch).not.toHaveBeenCalled();
 	});
 
@@ -141,7 +141,7 @@ describe('public OTP pages', () => {
 		const h = await totpHarness();
 		h.advance(1000);
 		h.tick();
-		expect(h.elements.get('countdown').textContent).toBe('1 秒后更新');
+		expect(h.elements.get('countdown').textContent).toBe('1 秒後更新');
 		h.advance(2000);
 		h.tick();
 		h.tick();
@@ -187,7 +187,7 @@ describe('public OTP pages', () => {
 		expect(h.elements.get('nextToken').disabled).toBe(true);
 		await h.respond({}, { ok: false });
 		expect(h.elements.get('retry').hidden).toBe(false);
-		expect(h.elements.get('refreshMessage').textContent).toContain('检查网络');
+		expect(h.elements.get('refreshMessage').textContent).toContain('檢查網路');
 		h.tick();
 		expect(h.fetch).toHaveBeenCalledTimes(1);
 		h.elements.get('retry').listeners.click();
@@ -294,7 +294,7 @@ describe('public OTP pages', () => {
 		const h = runPage(await createQuickOtpPage('755224', { type: 'HOTP' }).text());
 		h.writeText.mockRejectedValue(new Error('Permission denied'));
 		await h.elements.get('token').listeners.click();
-		expect(h.elements.get('copied').textContent).toContain('复制失败');
+		expect(h.elements.get('copied').textContent).toContain('複製失敗');
 		expect(h.elements.get('tokenValue').textContent).toBe('755224');
 		expect(h.location.reload).not.toHaveBeenCalled();
 	});

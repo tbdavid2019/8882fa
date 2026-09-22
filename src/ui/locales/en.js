@@ -287,4 +287,8 @@ export const en = {
 	loginFailedPrefix: 'Login failed: ',
 	loginSuccessToast: 'Logged in successfully',
 	loginSuccessWithExpiry: 'Logged in successfully, valid for {expiry}',
+
+	// Footer
+	footerFeedback: 'Report Issue',
+	footerDocs: 'Documentation',
 };

@@ -7,28 +7,28 @@ import { getQuickOtpStyles } from './styles/quickOtp.js';
 export function createOtpEntryPage() {
 	return new Response(
 		`<!DOCTYPE html>
-<html lang="zh-CN">
-<head>${getStandaloneHead('OTP 生成 - 2FA', getQuickOtpStyles())}</head>
+<html lang="zh-TW">
+<head>${getStandaloneHead('OTP 生成 - 888 2FA', getQuickOtpStyles())}</head>
 <body>
   <main class="otp-shell" aria-labelledby="otpEntryTitle">
-    <a class="otp-brand" href="/">${dialogIcon('key')}<span>2FA</span></a>
-    <section class="standalone-card otp-card otp-entry" aria-label="输入验证器密钥">
+    <a class="otp-brand" href="/">${dialogIcon('key')}<span>888 2FA</span></a>
+    <section class="standalone-card otp-card otp-entry" aria-label="輸入驗證器金鑰">
       <header class="otp-header">
         <div class="otp-header-icon">${dialogIcon('lock')}</div>
         <div>
-          <h1 class="page-title" id="otpEntryTitle">生成验证码</h1>
-          <p class="otp-subtitle">查看当前与下一期验证码</p>
+          <h1 class="page-title" id="otpEntryTitle">生成驗證碼</h1>
+          <p class="otp-subtitle">查看目前與下一期驗證碼</p>
         </div>
       </header>
       <form id="otpEntryForm">
-        <label class="page-label" for="s">Base32 密钥</label>
-        <input class="page-input" id="s" name="secret" aria-describedby="otpEntryHint" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="粘贴或输入验证器密钥" required>
-        <p class="otp-entry-hint" id="otpEntryHint">支持粘贴带空格的密钥</p>
-        <button class="page-button" type="submit">生成验证码</button>
+        <label class="page-label" for="s">Base32 金鑰</label>
+        <input class="page-input" id="s" name="secret" aria-describedby="otpEntryHint" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="貼上或輸入驗證器金鑰" required>
+        <p class="otp-entry-hint" id="otpEntryHint">支援貼上帶空格的金鑰</p>
+        <button class="page-button" type="submit">生成驗證碼</button>
       </form>
     </section>
-    <nav class="otp-footer" aria-label="页面导航">
-      <a class="page-link" href="/">返回首页</a>
+    <nav class="otp-footer" aria-label="頁面導覽">
+      <a class="page-link" href="/">返回首頁</a>
     </nav>
   </main>
   <script>
@@ -79,52 +79,52 @@ export function createQuickOtpPage(otp, options = {}) {
 	const copyIcon =
 		'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
 	const htmlContent = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>${getStandaloneHead('验证码 - 2FA', getQuickOtpStyles())}</head>
+<html lang="zh-TW">
+<head>${getStandaloneHead('驗證碼 - 888 2FA', getQuickOtpStyles())}</head>
 <body>
   <main class="otp-shell" aria-labelledby="otpTitle">
-    <a class="otp-brand" href="/">${dialogIcon('key')}<span>2FA</span></a>
-    <section class="standalone-card otp-card" aria-label="验证码">
-      ${isHOTP ? '' : `<div class="progress-container"><div class="progress-bar" id="progress" role="progressbar" aria-label="验证码剩余有效期" aria-valuemin="0" aria-valuemax="100"></div></div>`}
+    <a class="otp-brand" href="/">${dialogIcon('key')}<span>888 2FA</span></a>
+    <section class="standalone-card otp-card" aria-label="驗證碼">
+      ${isHOTP ? '' : `<div class="progress-container"><div class="progress-bar" id="progress" role="progressbar" aria-label="驗證碼剩餘有效時間" aria-valuemin="0" aria-valuemax="100"></div></div>`}
       <header class="otp-header">
         <div class="otp-header-icon">${dialogIcon(isHOTP ? 'key' : 'clock')}</div>
         <div>
-          <h1 class="page-title" id="otpTitle">两步验证码</h1>
-          <p class="otp-subtitle">${isHOTP ? '基于计数器 · HOTP' : '每 ' + totalTime + ' 秒自动更新'}</p>
+          <h1 class="page-title" id="otpTitle">兩步驟驗證碼</h1>
+          <p class="otp-subtitle">${isHOTP ? '基於計數器 · HOTP' : '每 ' + totalTime + ' 秒自動更新'}</p>
         </div>
       </header>
       <div class="otp-current-label">
-        <span>当前验证码</span>
+        <span>目前驗證碼</span>
         ${isHOTP ? '' : '<p class="countdown" id="countdown"></p>'}
       </div>
-      <button class="token-button token" id="token" type="button" aria-label="复制当前验证码" title="复制当前验证码">
+      <button class="token-button token" id="token" type="button" aria-label="複製目前驗證碼" title="複製目前驗證碼">
         <span class="token-value" id="tokenValue">${current || '------'}</span>
         ${copyIcon}
       </button>
       ${
 				isHOTP
-					? `<p class="page-notice">计数器：${counterLabel}。此链接的验证码不会随时间变化，复制不会增加计数器。</p>`
+					? `<p class="page-notice">計數器：${counterLabel}。此連結的驗證碼不會隨時間變化，複製不會增加計數器。</p>`
 					: `<div class="otp-next">
-        <span class="otp-next-label">下一个验证码</span>
-        <button class="token-button next-token" id="nextToken" type="button" aria-label="复制下一个验证码" title="复制下一个验证码">
+        <span class="otp-next-label">下一個驗證碼</span>
+        <button class="token-button next-token" id="nextToken" type="button" aria-label="複製下一個驗證碼" title="複製下一個驗證碼">
           <span class="next-token-value" id="nextTokenValue">${next}</span>
           ${copyIcon}
         </button>
       </div>`
 			}
-      <p class="copied-message" id="copied" role="status" aria-live="polite">点击验证码即可复制</p>
+      <p class="copied-message" id="copied" role="status" aria-live="polite">點擊驗證碼即可複製</p>
       ${
 				isHOTP
 					? ''
 					: `<div class="refresh-status">
         <p id="refreshMessage" role="status" aria-live="polite"></p>
-        <button class="retry-button" id="retry" type="button" hidden>重试更新</button>
+        <button class="retry-button" id="retry" type="button" hidden>重試更新</button>
       </div>`
 			}
     </section>
-    <nav class="otp-footer" aria-label="页面导航">
-      <a class="page-link" href="/otp">输入其他密钥</a>
-      <a class="page-link" href="/">返回首页</a>
+    <nav class="otp-footer" aria-label="頁面導覽">
+      <a class="page-link" href="/otp">輸入其他金鑰</a>
+      <a class="page-link" href="/">返回首頁</a>
     </nav>
   </main>
   <script>${getQuickOtpScript({

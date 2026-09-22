@@ -284,4 +284,8 @@ export const zhCN = {
 	loginFailedPrefix: '登录失败：',
 	loginSuccessToast: '登录成功',
 	loginSuccessWithExpiry: '登录成功，有效期 {expiry}',
+
+	// 页脚
+	footerFeedback: '反馈问题',
+	footerDocs: '使用文档',
 };

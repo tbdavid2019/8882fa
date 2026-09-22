@@ -44,23 +44,23 @@ function buildCompleteHTML(lazyLoad = true) {
  */
 function getHTMLStart() {
 	return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>2FA - 密钥管理器</title>
+  <title>888 2FA - 金鑰管理器</title>
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
 
   <!-- PWA Meta Tags -->
-  <meta name="application-name" content="2FA">
-  <meta name="description" content="安全的两步验证密钥管理器，支持 TOTP、HOTP 验证码生成">
+  <meta name="application-name" content="888 2FA">
+  <meta name="description" content="安全的兩步驟驗證金鑰管理器，支援 TOTP、HOTP 驗證碼產生">
   <meta name="theme-color" content="#2196F3">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="2FA">
+  <meta name="apple-mobile-web-app-title" content="888 2FA">
   
   <!-- iOS Icons -->
   <link rel="apple-touch-icon" href="/icon-192.png">
@@ -97,16 +97,31 @@ function getHTMLStart() {
 
         let lang = localStorage.getItem('language') || 'auto';
         if (lang === 'auto') {
-          const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-          if (navLang.startsWith('zh-tw') || navLang.startsWith('zh-hk') || navLang.startsWith('zh-mo') || navLang.includes('hant')) lang = 'zh-TW';
-          else if (navLang.startsWith('zh')) lang = 'zh-CN';
-          else if (navLang.startsWith('en')) lang = 'en';
-          else lang = 'zh-CN';
+          const langs = (Array.isArray(navigator.languages) && navigator.languages.length > 0)
+            ? navigator.languages
+            : [navigator.language || navigator.userLanguage || 'zh-TW'];
+          lang = 'zh-TW';
+          for (const l of langs) {
+            if (!l) continue;
+            const lower = String(l).toLowerCase();
+            if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
+              lang = 'zh-CN';
+              break;
+            }
+            if (lower.startsWith('en')) {
+              lang = 'en';
+              break;
+            }
+            if (lower.startsWith('zh') || lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant')) {
+              lang = 'zh-TW';
+              break;
+            }
+          }
         }
         document.documentElement.setAttribute('lang', lang);
       } catch (e) {
-        // Fallback to light theme if localStorage access fails
         document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('lang', 'zh-TW');
       }
     })();
   </script>
@@ -1235,12 +1250,12 @@ function getHTMLBody() {
             </div>
             <div class="settings-divider"></div>
             <div class="settings-section">
-              <h3 class="settings-section-title" id="settingsLanguageTitle" data-i18n="languageTitle">界面语言</h3>
+              <h3 class="settings-section-title" id="settingsLanguageTitle" data-i18n="languageTitle">介面語言</h3>
               <select id="settingsLanguage" class="settings-select" aria-labelledby="settingsLanguageTitle" onchange="saveLanguagePreference(this.value)">
-                <option value="auto">跟随系统 (Auto)</option>
-                <option value="zh-TW">繁體中文</option>
-                <option value="zh-CN">简体中文</option>
-                <option value="en">English</option>
+                <option value="auto" data-i18n="langAuto">跟隨系統 (Auto)</option>
+                <option value="zh-TW" data-i18n="langZhTW" selected>繁體中文</option>
+                <option value="en" data-i18n="langEn">English</option>
+                <option value="zh-CN" data-i18n="langZhCN">簡體中文</option>
               </select>
             </div>
             <div class="settings-divider"></div>
@@ -1691,12 +1706,12 @@ function getHTMLBody() {
           GitHub
         </a>
         <span class="footer-separator">•</span>
-        <a href="https://github.com/tbdavid2019/8882fa/issues" target="_blank" rel="noopener noreferrer" class="footer-link">
-          反馈问题
+        <a href="https://github.com/tbdavid2019/8882fa/issues" target="_blank" rel="noopener noreferrer" class="footer-link" data-i18n="footerFeedback">
+          回報問題
         </a>
         <span class="footer-separator">•</span>
-        <a href="https://github.com/tbdavid2019/8882fa/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="footer-link">
-          使用文档
+        <a href="https://github.com/tbdavid2019/8882fa/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="footer-link" data-i18n="footerDocs">
+          使用說明
         </a>
       </div>
       <div class="footer-info">

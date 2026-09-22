@@ -32,7 +32,7 @@ describe('Service Worker offline navigation', () => {
 		expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8');
 		expect(html).toMatch(/^<!DOCTYPE html>/);
 		expect(html).toContain('name="viewport"');
-		expect(html).toContain('href="/">重新加载</a>');
+		expect(html).toContain('href="/">重新載入</a>');
 		const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 		expect(scripts).toHaveLength(1);
 		// eslint-disable-next-line no-new-func

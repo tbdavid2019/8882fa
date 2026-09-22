@@ -20,15 +20,15 @@ export function getQuickOtpScript({ isHOTP, period, remainingTime, validUntil, f
         await navigator.clipboard.writeText(value.textContent);
         if (request !== copyRequest) return;
         copiedEl.classList.remove('error');
-        copiedEl.textContent = next ? '下一个验证码已复制' : '验证码已复制';
+        copiedEl.textContent = next ? '下一個驗證碼已複製' : '驗證碼已複製';
       } catch {
         if (request !== copyRequest) return;
         copiedEl.classList.add('error');
-        copiedEl.textContent = '复制失败，请检查剪贴板权限';
+        copiedEl.textContent = '複製失敗，請檢查剪貼簿權限';
       }
       copyMessageTimer = setTimeout(function () {
         copiedEl.classList.remove('error');
-        copiedEl.textContent = '点击验证码即可复制';
+        copiedEl.textContent = '點擊驗證碼即可複製';
         copyMessageTimer = null;
       }, 2000);
     }
@@ -79,7 +79,7 @@ export function getQuickOtpScript({ isHOTP, period, remainingTime, validUntil, f
       if (value.textContent !== display) value.textContent = display;
       button.disabled = !canCopy;
       button.setAttribute('aria-busy', String(!canCopy));
-      button.setAttribute('aria-label', canCopy ? label : '正在更新验证码');
+      button.setAttribute('aria-label', canCopy ? label : '正在更新驗證碼');
     }
 
     function updateCountdown() {
@@ -109,11 +109,11 @@ export function getQuickOtpScript({ isHOTP, period, remainingTime, validUntil, f
       const valid = now >= rolloverAt - duration && now < safeUntil && !!current;
       const handoff = now >= safeUntil && now < rolloverAt && !!current && !!upcoming;
       const remaining = valid ? Math.max(0, safeUntil - now) : 0;
-      setCode(tokenEl, tokenValue, valid || handoff ? current : '', '复制当前验证码', valid);
-      setCode(nextEl, nextValue, valid || handoff ? upcoming : '', '复制下一个验证码', valid && !!upcoming);
+      setCode(tokenEl, tokenValue, valid || handoff ? current : '', '複製目前驗證碼', valid);
+      setCode(nextEl, nextValue, valid || handoff ? upcoming : '', '複製下一個驗證碼', valid && !!upcoming);
       progress.style.transform = 'scaleX(' + Math.min(1, remaining / duration) + ')';
       progress.setAttribute('aria-valuenow', String(Math.round(Math.min(1, remaining / duration) * 100)));
-      countdown.textContent = valid ? Math.ceil(remaining / 1000) + ' 秒后更新' : handoff ? '正在切换' : '正在更新';
+      countdown.textContent = valid ? Math.ceil(remaining / 1000) + ' 秒後更新' : handoff ? '正在切換' : '正在更新';
       if ((!current || !upcoming || !following || (failed && !valid)) && !document.hidden && !inFlight && now >= retryAt) void refreshCodes();
     }
 
@@ -157,7 +157,7 @@ export function getQuickOtpScript({ isHOTP, period, remainingTime, validUntil, f
       } catch {
         if (generation === clockGeneration) {
           failed = true;
-          refreshMessage.textContent = '暂时无法更新，请检查网络后重试';
+          refreshMessage.textContent = '暫時無法更新，請檢查網路後重試';
           retry.hidden = false;
         }
       } finally {
