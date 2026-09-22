@@ -72,7 +72,7 @@ async function buildRelease() {
  * @build ${buildDate}
  *
  * This is a bundled release version for easy deployment.
- * For source code, visit: https://github.com/wuzf/2fa
+ * For source code, visit: https://github.com/tbdavid2019/8882fa
  */
 `,
       },
@@ -104,7 +104,7 @@ async function buildRelease() {
       buildDate: buildDate,
       minified: shouldMinify,
       fileSizeKB: parseFloat(fileSizeKB),
-      repository: packageJson.repository?.url || 'https://github.com/wuzf/2fa',
+      repository: packageJson.repository?.url || 'https://github.com/tbdavid2019/8882fa',
     };
 
     writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
@@ -112,7 +112,7 @@ async function buildRelease() {
 
     // 生成部署说明
     const readmePath = join(outputDir, 'DEPLOY.md');
-    const deployReadme = `# 2FA Manager - 部署说明
+    const deployReadme = `# 888 2FA - 部署说明
 
 ## 📦 发布版本
 
@@ -192,7 +192,7 @@ wrangler secret put ENCRYPTION_KEY
 
 完成变量配置后，再参考网盘备份配置指南：
 
-- https://github.com/wuzf/2fa/blob/main/docs/CLOUD_DRIVE_SETUP.md
+- https://github.com/tbdavid2019/8882fa/blob/main/docs/CLOUD_DRIVE_SETUP.md
 
 ### 5. Service Worker 版本
 
@@ -212,10 +212,10 @@ wrangler secret put ENCRYPTION_KEY
 
 ## 📚 更多信息
 
-- [项目主页](https://github.com/wuzf/2fa)
-- [完整文档](https://github.com/wuzf/2fa/blob/main/README.md)
-- [部署指南](https://github.com/wuzf/2fa/blob/main/docs/DEPLOYMENT.md)
-- [网盘备份配置指南](https://github.com/wuzf/2fa/blob/main/docs/CLOUD_DRIVE_SETUP.md)
+- [项目主页](https://github.com/tbdavid2019/8882fa)
+- [完整文档](https://github.com/tbdavid2019/8882fa/blob/main/README.md)
+- [部署指南](https://github.com/tbdavid2019/8882fa/blob/main/docs/DEPLOYMENT.md)
+- [网盘备份配置指南](https://github.com/tbdavid2019/8882fa/blob/main/docs/CLOUD_DRIVE_SETUP.md)
 
 ## 📝 版本信息
 

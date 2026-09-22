@@ -5,7 +5,7 @@
 
 import { APP_VERSION } from '../../utils/version.js';
 
-const GITHUB_REPO = 'wuzf/2fa';
+const GITHUB_REPO = 'tbdavid2019/8882fa';
 // 检查结果缓存 24 小时，避免频繁请求 GitHub API（匿名限额 60 次/小时/IP）
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 

@@ -1,4 +1,4 @@
-# 🔐 2FA
+# 🔐 888 2FA (8882fa)
 
 基於 Cloudflare Workers 的兩步驟驗證金鑰管理系統。免費部署、全球加速、支援 PWA 離線使用。
 
@@ -18,13 +18,9 @@
 
 ## 🚀 快速部署
 
-### 線上體驗
-
-造訪示範網站（密碼 `2fa-Demo.`）：**[https://2fa-dev.wzf.workers.dev](https://2fa-dev.wzf.workers.dev)**
-
 ### 一鍵部署（推薦）
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wuzf/2fa)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
 > 推薦一鍵部署；所有使用者統一透過 **Sync Upstream** 原地升級，請勿透過刪除 Worker、刪除儲存庫或重新安裝的方式升級。
 
@@ -55,16 +51,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 #### 版本更新
 
-一鍵部署產生的是獨立儲存庫（非 Fork），升級統一使用 **Sync Upstream** 工作流程原地完成。
+本儲存庫（`tbdavid2019/8882fa`）為獨立維護專案。
 
-> ⚠️ **升級前務必先備份資料**：在執行版本更新前，請先透過 **批次匯出** 或 **還原配置 → 匯出備份** 將目前資料匯出至本機，以防操作失敗導致資料遺失。
+> ⚠️ **升級前務必先備份資料**：在執行版本更新前，建議先透過 **批次匯出** 或 **還原配置 → 匯出備份** 將目前資料匯出至本機，以防操作意外導致資料遺失。
 
-1. 開啟一鍵部署時在你 GitHub 上產生的 2fa 儲存庫
-2. 進入 **Actions** → **Sync Upstream**
-3. 點選 **Run workflow**，上游分支維持預設的 `main`，發起一次新執行
-4. 等待同步完成及 Cloudflare 自動部署，完成後重新整理應用程式即可
+如需更新版本：
 
-工作流程會自動保留你目前儲存庫裡的 Worker 名稱、KV 綁定與常見部署設定，並重新部署**同一個 Worker**。儲存庫中已有的工作流程檔案也會一併保留。
+1. 本機拉取最新程式碼：`git pull origin main`
+2. 執行部署：`npm run deploy`，或推送到 GitHub 儲存庫觸發 Cloudflare 自動建置部署。
+
+升級過程不會影響現有 Worker、KV 綁定或 Secrets。**若你已經設定了 `ENCRYPTION_KEY`，升級時無需重新填寫。**
 
 ---
 
@@ -158,6 +154,28 @@ TOTP 網頁同時顯示目前與下一期驗證碼，均可點選複製，到期
 
 ---
 
+## 🤝 參與貢獻
+
+歡迎提交 [Issue](https://github.com/tbdavid2019/8882fa/issues) 與 [Pull Request](https://github.com/tbdavid2019/8882fa/pulls)。
+
 ## 📄 授權條款
 
 本專案採用 [MIT License](LICENSE) 開源授權。
+
+## 🌟 Star History
+
+<p align="center">
+  <a href="https://github.com/tbdavid2019/8882fa/tree/star-history">
+    <img alt="Star History Chart" src="https://raw.githubusercontent.com/tbdavid2019/8882fa/refs/heads/star-history/star-history.svg" />
+  </a>
+</p>
+
+---
+
+<div align="center">
+
+**如果這個專案對您有幫助，請給一個 ⭐**
+
+Made with ❤️ by [tbdavid2019](https://github.com/tbdavid2019) (originally based on [wuzf/2fa](https://github.com/wuzf/2fa))
+
+</div>

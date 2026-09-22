@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   update:
-    if: github.repository == 'wuzf/2fa'
+    if: github.repository == 'tbdavid2019/8882fa'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

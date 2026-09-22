@@ -1,9 +1,9 @@
 {
-  "name": "2fa",
+  "name": "8882fa",
   "version": "1.9.0",
   "type": "module",
   "private": true,
-  "description": "2FA - OTP Generator using Cloudflare Workers",
+  "description": "888 2FA - Two Factor Authenticator using Cloudflare Workers (繁體中文 / 簡體中文 / English)",
   "scripts": {
     "deploy": "node scripts/deploy.js",
     "deploy:git": "node scripts/deploy.js --git",
@@ -64,6 +64,14 @@
     "cloudflare-workers",
     "authentication"
   ],
-  "author": "wuzf",
+  "author": "tbdavid2019",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbdavid2019/8882fa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tbdavid2019/8882fa/issues"
+  },
+  "homepage": "https://github.com/tbdavid2019/8882fa#readme",
   "license": "MIT"
 }

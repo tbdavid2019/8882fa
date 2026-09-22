@@ -1,4 +1,4 @@
-# 📚 2FA 项目文档
+# 📚 888 2FA 项目文档
 
 > 完整的项目文档、部署指南和开发文档。
 
@@ -41,9 +41,9 @@
 ## 🔗 其他资源
 
 - [项目主 README](../README.md) - 项目介绍和特性
-- [GitHub Issues](https://github.com/wuzf/2fa/issues) - 问题反馈
+- [GitHub Issues](https://github.com/tbdavid2019/8882fa/issues) - 问题反馈
 
 ---
 
-**维护者**: wuzf
+**维护者**: tbdavid2019
 **许可证**: MIT

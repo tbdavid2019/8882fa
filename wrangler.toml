@@ -1,4 +1,4 @@
-name = "2fa"
+name = "8882fa"
 main = "src/worker.js"
 compatibility_date = "2024-01-13"
 workers_dev = true
@@ -50,7 +50,7 @@ ENVIRONMENT = "production"
 # 开发/测试环境配置
 # ====================================
 [env.development]
-name = "2fa-dev"
+name = "8882fa-dev"
 
 # 绑定项不可继承，开发环境也需要显式声明。
 [[env.development.kv_namespaces]]

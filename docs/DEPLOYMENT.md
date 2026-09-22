@@ -13,7 +13,7 @@
 
 ### 第 1 步：部署 Worker
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wuzf/2fa)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
 1. 点击上方部署按钮，使用 GitHub 登录并授权
 2. 登录 Cloudflare 账户，点击 **Deploy** 等待部署完成
@@ -66,8 +66,8 @@
 ### 步骤 1：克隆项目并安装依赖
 
 ```bash
-git clone https://github.com/wuzf/2fa.git
-cd 2fa
+git clone https://github.com/tbdavid2019/8882fa.git
+cd 8882fa
 npm install
 ```
 
@@ -214,32 +214,16 @@ CORS 采用动态同源策略：仅允许与当前请求 Host 同源的来源（
 > ⚠️ **升级前请先备份数据**：通过应用内 **批量导出** 或 **还原配置 → 导出备份** 将数据导出到本地。
 > 正常升级**不要**删除 Worker、GitHub 仓库或 KV 命名空间，已配置的 Secrets（含 `ENCRYPTION_KEY`）会继续生效。
 
-### 一键部署用户：Sync Upstream 工作流
+### 版本更新
 
-一键部署创建的是独立仓库（非 Fork），统一使用 **Sync Upstream** 工作流原地升级。
+本仓库为独立维护项目（`tbdavid2019/8882fa`）。
 
-**升级步骤**：
+升级步骤：
 
-1. 打开一键部署时在您 GitHub 上生成的 2fa 仓库
-2. 进入 **Actions** → **Sync Upstream** → **Run workflow**
-3. 上游分支保持默认的 `main`，发起一次新运行
-4. 等待同步完成及 Cloudflare 自动部署，之后刷新应用即可
+1. 本地拉取最新代码：`git pull origin main`
+2. 运行部署：`npm run deploy`，或推送到 GitHub 仓库触发 Cloudflare 自动部署。
 
-工作流会自动合并您仓库中的 Worker 名称、KV 绑定等部署配置，保留仓库中已有的工作流文件。Cloudflare 会重新部署同一个 Worker；如未自动部署，在 **Deployments** 页面重新部署最新提交。
-
-**没有 Sync Upstream 入口时**：一键部署创建的仓库可能不包含工作流。此时才需要在自己的仓库中新增 `.github/workflows/sync-upstream.yml`，内容复制自上游文件 <https://github.com/wuzf/2fa/blob/main/.github/workflows/sync-upstream.yml>，提交一次即可。之后按上面步骤升级。
-
-工作流运行摘要中会展示 `wrangler.toml` 与上游的 diff，如果您维护了特殊配置，可据此确认合并结果。
-
-### 升级故障排查
-
-**Actions 成功、`package.json` 已更新，但 `src/utils/version.js` 仍是旧版本**：旧工作流的 `rsync -a` 只比较文件大小和修改时间。检出与克隆在同一秒完成时，大小相同但内容不同的文件可能被跳过。自 **v1.8.1** 起，包含 **Merge deployment config** 步骤的旧入口会自动按内容补齐遗漏，再合并原有部署配置；新版工作流同时使用 `--checksum` 避免漏同步。请选择 `main`（或 `v1.8.1`）发起一次新的 **Run workflow**，确认仓库中的版本文件更新，再等待 Cloudflare 部署该提交。无需手动编辑 YAML。不要只手动改版本号，因为其他同样大小的代码文件也可能漏更新。
-
-如需手动修正旧工作流，可在自己的 `.github/workflows/sync-upstream.yml` 中将 `rsync -a --delete` 改为 `rsync -a --checksum --delete`，保留其余参数和步骤，提交后发起新运行。若仓库版本已正确而页面仍旧，请检查 Cloudflare 是否成功部署最新提交，再刷新页面。
-
-**提示 `refusing to allow a GitHub App to create or update workflow ... without workflows permission`**：这是旧同步流程尝试更新工作流文件时触发的权限错误。修复发布到上游 `main` 后，包含 **Merge deployment config**（自动合并部署配置）步骤的现有 **Sync Upstream** 工作流会自动获得兼容修复，包括 [Issue #18](https://github.com/wuzf/2fa/issues/18) 对应的版本。直接选择 `main`，通过 **Run workflow** 发起一次新运行即可，无需手动修改 YAML、增加令牌权限或配置 PAT。不要选择不含修复的旧版本标签。
-
-同步会保留您仓库中原有的工作流文件，因此上游新增的统计等工作流不会影响应用升级。极早期、不包含自动合并部署配置步骤的入口无法自动获得这个修复，需要先将入口更新为上面的上游文件；完全没有入口的仓库也需要先完成一次安装。
+升级过程不会影响现有 Worker、KV 绑定或 Secrets。**如果您已经设置了 `ENCRYPTION_KEY`，升级时无需重新填写。**
 
 ### 命令行部署用户
 
@@ -350,4 +334,4 @@ npx wrangler kv namespace delete --namespace-id=your-kv-id
 
 ---
 
-**支持**：如有问题，请提交 [GitHub Issue](https://github.com/wuzf/2fa/issues)
+**支持**：如有问题，请提交 [GitHub Issue](https://github.com/tbdavid2019/8882fa/issues)

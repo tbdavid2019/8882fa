@@ -1,4 +1,4 @@
-# 🔐 2FA
+# 🔐 888 2FA (8882fa)
 
 A two-factor authentication key management system built on Cloudflare Workers. Free to deploy, globally accelerated, with PWA offline support.
 
@@ -6,9 +6,9 @@ A two-factor authentication key management system built on Cloudflare Workers. F
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange)
 
-**[简体中文](README.md)** · **[繁體中文](README_TC.md)**
+**[繁體中文](README_TC.md)** · **[简体中文](README.md)**
 
-**Key Features:** TOTP/HOTP code auto-generation · QR code scanning/image recognition/paste screenshot/drag & drop image to add keys · AES-GCM 256-bit encrypted storage · Bulk import from Google Authenticator, Aegis, 2FAS, Bitwarden, etc. · Multi-format export (TXT/JSON/CSV/HTML/Google migration QR codes) · Auto backup & restore · WebDAV/S3/OneDrive/Google Drive remote backup sync · Security/sync/preference settings · Multi-language support (Simplified Chinese / Traditional Chinese / English, with auto-detection) · Light/dark/follow-system themes · Fluent 2-inspired responsive UI
+**Key Features:** TOTP/HOTP code auto-generation · QR code scanning/image recognition/paste screenshot/drag & drop image to add keys · AES-GCM 256-bit encrypted storage · Bulk import from Google Authenticator, Aegis, 2FAS, Bitwarden, etc. · Multi-format export (TXT/JSON/CSV/HTML/Google migration QR codes) · Auto backup & restore · WebDAV/S3/OneDrive/Google Drive remote backup sync · Security/sync/preference settings · Multi-language support (Traditional Chinese / Simplified Chinese / English, with auto-detection) · Light/dark/follow-system themes · Fluent 2-inspired responsive UI
 
 ## 📸 Screenshots
 
@@ -18,13 +18,9 @@ A two-factor authentication key management system built on Cloudflare Workers. F
 
 ## 🚀 Quick Deployment
 
-### Live Demo
-
-Visit the demo site (password `2fa-Demo.`): **[https://2fa-dev.wzf.workers.dev](https://2fa-dev.wzf.workers.dev)**
-
 ### One-Click Deploy (Recommended)
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wuzf/2fa)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
 > One-click deploy is recommended. All users should upgrade in-place via the **Sync Upstream** workflow. Do not upgrade by deleting the Worker, deleting the repository, or reinstalling.
 
@@ -55,37 +51,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 #### Version Updates
 
-One-click deploy creates an independent repository (not a Fork). Upgrades are done in-place using the **Sync Upstream** workflow.
+This repository (`tbdavid2019/8882fa`) is maintained independently.
 
-> ⚠️ **Always back up your data before upgrading**: Before performing a version update, export your current data via **Bulk Export** or **Restore Config → Export Backup** to prevent data loss in case of failure.
+> ⚠️ **Always back up your data before upgrading**: Before performing a version update, export your current data via **Bulk Export** or **Restore Config → Export Backup** to prevent data loss in case of unexpected issues.
 
-1. Open the 2fa repository generated on your GitHub account during one-click deploy
-2. Go to **Actions** → **Sync Upstream**
-3. Click **Run workflow**, keep the upstream branch set to the default `main`, and start a new run
-4. Wait for synchronization and Cloudflare's automatic deployment to finish, then refresh the app
+To update:
 
-The workflow automatically preserves your repository's Worker name, KV bindings, and common deployment settings, and redeploys **the same Worker**. Existing workflow files in your repository are also preserved.
+1. Pull the latest code locally: `git pull origin main`
+2. Deploy: `npm run deploy`, or push to your GitHub repository to trigger automatic Cloudflare deployment.
 
-> **If Sync Upstream is missing**: A repository created by one-click deploy may not include workflows. Only in that case, add `.github/workflows/sync-upstream.yml` to your repository, copy its contents from <https://github.com/wuzf/2fa/blob/main/.github/workflows/sync-upstream.yml>, and commit it once. Then follow the upgrade steps above.
-
-> **If an earlier upgrade failed with `without workflows permission`**: Once the fix is published to upstream `main`, existing **Sync Upstream** workflows with the automatic deployment config merge step can upgrade using the steps above, without editing YAML or configuring a PAT. Start a new run with `main`; older release tags do not include the fix. For other cases, see [upgrade troubleshooting](docs/DEPLOYMENT.md#升级故障排查) (Chinese).
-
-This approach does not affect existing Workers, KV bindings, or Secrets. **If you've already set `ENCRYPTION_KEY`, you don't need to re-enter it during upgrades; if you haven't set it, you can still use this upgrade process.**
-
-> ⚠️ `ENCRYPTION_KEY` is the master key for decrypting existing data. Please make sure to save it to a password manager when first created. Cloudflare Secrets cannot be viewed after saving; normal upgrades don't require re-entry, but if you delete it without saving the original value, existing encrypted data cannot be recovered.
-
-> ⚠️ **Rolling back to a version before 1.8.0**: Since 1.8.0, HOTP counter increments are stored separately from the main data. Before rolling back, call the compaction endpoint once to write the counters back; otherwise HOTP counters revert to their values at upgrade time. See [rollback steps](docs/DEPLOYMENT.md#回滚到-180-之前的版本) (Chinese). Deployments that only use TOTP are not affected.
-
-#### Checking the Merge Result
-
-The `Sync Upstream` workflow is designed to always complete upgrades on **the same repository and the same Worker**. The workflow now automatically merges `wrangler.toml` and shows the diff with upstream in the summary, so you can confirm which values come from your local deployment config:
-
-1. Check the `wrangler.toml` diff in the GitHub Actions run summary
-2. Open `wrangler.toml` in your repository
-3. Confirm that the Worker name, KV bindings, routes, and existing deployment settings are still correct
-4. If you maintain very specific `wrangler.toml` configurations, make additional commits as needed
-
-> If Cloudflare doesn't automatically start redeployment, go to the **Deployments** page and redeploy the latest commit of your current repository — do not delete and reinstall.
+Upgrades do not affect existing Workers, KV bindings, or Secrets. **If you've already set `ENCRYPTION_KEY`, you don't need to re-enter it.**
 
 ## 📖 User Guide
 
@@ -207,7 +182,7 @@ TOTP pages show both the current and next codes, each available to copy, and upd
 
 ## 🤝 Contributing
 
-Welcome to submit [Issues](https://github.com/wuzf/2fa/issues) and [Pull Requests](https://github.com/wuzf/2fa/pulls). For development details, see the [Development Guide](docs/DEVELOPMENT.md).
+Welcome to submit [Issues](https://github.com/tbdavid2019/8882fa/issues) and [Pull Requests](https://github.com/tbdavid2019/8882fa/pulls). For development details, see the [Development Guide](docs/DEVELOPMENT.md).
 
 ## 📄 License
 
@@ -216,8 +191,8 @@ Welcome to submit [Issues](https://github.com/wuzf/2fa/issues) and [Pull Request
 ## 🌟 Star History
 
 <p align="center">
-  <a href="https://github.com/wuzf/2fa/tree/star-history">
-    <img alt="Star History Chart" src="https://raw.githubusercontent.com/wuzf/2fa/refs/heads/star-history/star-history.svg" />
+  <a href="https://github.com/tbdavid2019/8882fa/tree/star-history">
+    <img alt="Star History Chart" src="https://raw.githubusercontent.com/tbdavid2019/8882fa/refs/heads/star-history/star-history.svg" />
   </a>
 </p>
 
@@ -227,6 +202,6 @@ Welcome to submit [Issues](https://github.com/wuzf/2fa/issues) and [Pull Request
 
 **If this project helps you, please give it a ⭐**
 
-Made with ❤️ by [wuzf](https://github.com/wuzf)
+Made with ❤️ by [tbdavid2019](https://github.com/tbdavid2019) (originally based on [wuzf/2fa](https://github.com/wuzf/2fa))
 
 </div>

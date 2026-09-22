@@ -1,4 +1,4 @@
-# 🔐 2FA
+# 🔐 888 2FA (8882fa)
 
 基于 Cloudflare Workers 的两步验证密钥管理系统。免费部署、全球加速、支持 PWA 离线使用。
 
@@ -8,7 +8,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange)
 
-**主要特性：** TOTP/HOTP 验证码自动生成 · 二维码扫描/图片识别/粘贴截图/拖拽图片添加密钥 · AES-GCM 256 位加密存储 · 从 Google Authenticator、Aegis、2FAS、Bitwarden 等应用批量导入 · 多格式导出（TXT/JSON/CSV/HTML/Google 迁移二维码） · 自动备份与还原 · WebDAV/S3/OneDrive/Google Drive 远程备份同步 · 账户安全/同步/偏好设置 · 多语言支持（简体中文 / 繁體中文 / English，跟随系统自动检测） · 浅色/深色/跟随系统主题 · Fluent 2 风格响应式界面
+**主要特性：** TOTP/HOTP 验证码自动生成 · 二维码扫描/图片识别/粘贴截图/拖拽图片添加密钥 · AES-GCM 256 位加密存储 · 从 Google Authenticator、Aegis、2FAS、Bitwarden 等应用批量导入 · 多格式导出（TXT/JSON/CSV/HTML/Google 迁移二维码） · 自动备份与还原 · WebDAV/S3/OneDrive/Google Drive 远程备份同步 · 账户安全/同步/偏好设置 · 多语言支持（繁體中文 / 简体中文 / English，跟随系统自动检测） · 浅色/深色/跟随系统主题 · Fluent 2 风格响应式界面
 
 ## 📸 截图预览
 
@@ -18,13 +18,9 @@
 
 ## 🚀 快速部署
 
-### 在线体验
-
-访问演示站点（密码 `2fa-Demo.`）：**[https://2fa-dev.wzf.workers.dev](https://2fa-dev.wzf.workers.dev)**
-
 ### 一键部署（推荐）
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wuzf/2fa)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
 > 推荐一键部署；所有用户统一通过 **Sync Upstream** 原地升级，禁止通过删除 Worker、删除仓库或重装方式升级。
 
@@ -55,37 +51,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 #### 版本更新
 
-一键部署生成的是独立仓库（非 Fork），升级统一使用 **Sync Upstream** 工作流原地完成。
+本仓库（`tbdavid2019/8882fa`）为独立维护项目。
 
-> ⚠️ **升级前务必先备份数据**：在执行版本更新前，请先通过 **批量导出** 或 **还原配置 → 导出备份** 将当前数据导出到本地，以防操作失败导致数据丢失。
+> ⚠️ **升级前务必先备份数据**：在执行版本更新前，建议先通过 **批量导出** 或 **还原配置 → 导出备份** 将当前数据导出到本地，以防操作意外导致数据丢失。
 
-1. 打开一键部署时在你 GitHub 上生成的 2fa 仓库
-2. 进入 **Actions** → **Sync Upstream**
-3. 点击 **Run workflow**，上游分支保持默认的 `main`，发起一次新运行
-4. 等待同步完成及 Cloudflare 自动部署，之后刷新应用即可
+如需更新版本：
 
-工作流会自动保留你当前仓库里的 Worker 名称、KV 绑定和常见部署配置，并重新部署**同一个 Worker**。仓库中已有的工作流文件也会保留。
+1. 本地拉取最新代码：`git pull origin main`
+2. 运行部署：`npm run deploy`，或推送到 GitHub 仓库触发 Cloudflare 自动部署。
 
-> **没有 Sync Upstream 入口时**：一键部署创建的仓库可能不包含工作流。此时才需要在自己的仓库中新增 `.github/workflows/sync-upstream.yml`，内容复制自上游文件：<https://github.com/wuzf/2fa/blob/main/.github/workflows/sync-upstream.yml>，并提交一次。之后按上面步骤升级。
-
-> **之前因 `without workflows permission` 升级失败**：修复发布到上游 `main` 后，已有自动合并部署配置步骤的 **Sync Upstream** 可以直接按上面步骤升级，无需修改 YAML 或配置 PAT。请选择 `main` 发起新运行，不要选择不含修复的旧版本标签。其他情况见[升级故障排查](docs/DEPLOYMENT.md#升级故障排查)。
-
-这种方式不会动现有 Worker、KV 绑定或 Secrets。**如果你已经设置了 `ENCRYPTION_KEY`，升级时无需重新填写；如果你没设置，也照样用这套流程升级。**
-
-> ⚠️ `ENCRYPTION_KEY` 是解密现有数据的主密钥，请务必在首次创建时保存到密码管理器。Cloudflare Secret 保存后不会再次显示原值；正常升级不需要重新填写，但如果你把它删了又没保存原值，已有加密数据将无法恢复。
-
-> ⚠️ **回滚到 1.8.0 之前的版本**：1.8.0 起 HOTP 计数器的递增单独存储，回滚前需要先调用一次压实接口把计数器写回主数据，否则 HOTP 计数器会退回到升级时的值。步骤见[回滚到 1.8.0 之前的版本](docs/DEPLOYMENT.md#回滚到-180-之前的版本)。只用 TOTP 的部署不受影响。
-
-#### 如果你想检查合并结果
-
-`Sync Upstream` 的设计目标是始终在**同一仓库、同一 Worker**上完成升级。现在工作流会自动合并 `wrangler.toml`，并在摘要中展示与上游的差异，便于你确认哪些值来自本地部署配置：
-
-1. 在 GitHub Actions 的运行摘要里查看 `wrangler.toml` diff
-2. 打开当前仓库里的 `wrangler.toml`
-3. 确认 Worker 名称、KV 绑定、路由和现有部署设置仍然正确
-4. 如果你自己维护了非常特殊的 `wrangler.toml` 配置，再按需要补充提交
-
-> 如果 Cloudflare 没有自动开始重新部署，也是在 **Deployments** 页面重新部署当前仓库的最新提交，而不是删除后重装。
+升级过程不会影响现有 Worker、KV 绑定或 Secrets。**如果你已经设置了 `ENCRYPTION_KEY`，升级时无需重新填写。**
 
 ## 📖 使用指南
 
@@ -207,7 +182,7 @@ TOTP 网页同时显示当前和下一个验证码，均可点击复制，到期
 
 ## 🤝 参与贡献
 
-欢迎提交 [Issue](https://github.com/wuzf/2fa/issues) 和 [Pull Request](https://github.com/wuzf/2fa/pulls)。开发相关请参考 [开发指南](docs/DEVELOPMENT.md)。
+欢迎提交 [Issue](https://github.com/tbdavid2019/8882fa/issues) 和 [Pull Request](https://github.com/tbdavid2019/8882fa/pulls)。开发相关请参考 [开发指南](docs/DEVELOPMENT.md)。
 
 ## 📄 许可证
 
@@ -216,8 +191,8 @@ TOTP 网页同时显示当前和下一个验证码，均可点击复制，到期
 ## 🌟 Star History
 
 <p align="center">
-  <a href="https://github.com/wuzf/2fa/tree/star-history">
-    <img alt="Star History Chart" src="https://raw.githubusercontent.com/wuzf/2fa/refs/heads/star-history/star-history.svg" />
+  <a href="https://github.com/tbdavid2019/8882fa/tree/star-history">
+    <img alt="Star History Chart" src="https://raw.githubusercontent.com/tbdavid2019/8882fa/refs/heads/star-history/star-history.svg" />
   </a>
 </p>
 
@@ -227,6 +202,6 @@ TOTP 网页同时显示当前和下一个验证码，均可点击复制，到期
 
 **如果这个项目对您有帮助，请给一个 ⭐**
 
-Made with ❤️ by [wuzf](https://github.com/wuzf)
+Made with ❤️ by [tbdavid2019](https://github.com/tbdavid2019) (originally based on [wuzf/2fa](https://github.com/wuzf/2fa))
 
 </div>
