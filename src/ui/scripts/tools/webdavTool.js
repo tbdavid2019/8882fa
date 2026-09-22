@@ -38,7 +38,7 @@ export function getWebdavToolCode() {
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderWebdavCard(dest)).join('');
         } else {
-          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">暂无 WebDAV 目标，点击下方按钮添加</div>';
+          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('webdavEmptyList') : null) || '暂无 WebDAV 目标，点击下方按钮添加') + '</div>';
         }
 
         // 达到上限时隐藏添加按钮
@@ -48,17 +48,17 @@ export function getWebdavToolCode() {
         hideWebdavForm();
       } catch (error) {
         console.error('加载 WebDAV 配置失败:', error);
-        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">加载失败，请稍后重试</div>';
+        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || '加载失败，请稍后重试') + '</div>';
       }
     }
 
     function _renderWebdavCard(dest) {
       let statusDot = 'dest-status-dot-gray';
-      let statusText = '未推送';
+      let statusText = (typeof t === 'function' ? t('syncStatusNotPushed') : null) || '未推送';
 
       if (dest.status.lastError) {
         statusDot = 'dest-status-dot-red';
-        statusText = '失败: ' + dest.status.lastError.error;
+        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || '失败: ') + dest.status.lastError.error;
       } else if (dest.status.lastSuccess) {
         statusDot = 'dest-status-dot-green';
         statusText = new Date(dest.status.lastSuccess.timestamp).toLocaleString();
@@ -73,7 +73,7 @@ export function getWebdavToolCode() {
         + '<span class="dest-card-url">' + _escapeHtml(dest.config.url) + '</span>'
         + '</div>'
         + '<label class="dest-toggle" onclick="event.stopPropagation()">'
-        + '<input type="checkbox" aria-label="启用此同步目标" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleWebdavDest(\\'' + dest.id + '\\', this.checked)" />'
+        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || '启用此同步目标') + '" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleWebdavDest(\\'' + dest.id + '\\', this.checked)" />'
         + '<span class="dest-toggle-slider"></span>'
         + '</label>'
         + '</div>'
@@ -82,8 +82,8 @@ export function getWebdavToolCode() {
         + '<span class="dest-status-text">' + _escapeHtml(statusText) + '</span>'
         + '</div>'
         + '<div class="dest-card-actions">'
-        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editWebdavDest(\\'' + dest.id + '\\')" >编辑</button>'
-        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteWebdavDest(\\'' + dest.id + '\\', \\'' + _escapeHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >删除</button>'
+        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editWebdavDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || '编辑') + '</button>'
+        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteWebdavDest(\\'' + dest.id + '\\', \\'' + _escapeHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || '删除') + '</button>'
         + '</div>'
         + '</div>';
     }

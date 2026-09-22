@@ -89,7 +89,8 @@ export function getVersionCheckCode() {
       if (compareVersions(latest, window.APP_VERSION) > 0) {
         const badge = document.getElementById('footerUpdateBadge');
         if (badge) {
-          badge.textContent = '🆕 有新版本 ' + (latest.startsWith('v') ? latest : 'v' + latest);
+          const verStr = latest.startsWith('v') ? latest : 'v' + latest;
+          badge.textContent = (typeof t === 'function' ? t('newVersionBadge', { version: verStr }) : null) || ('🆕 有新版本 ' + verStr);
           badge.style.display = '';
         }
       }

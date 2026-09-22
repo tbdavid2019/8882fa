@@ -15,7 +15,7 @@ export function getI18nCode() {
 	return `    // ========== 国际化与多语言模块 (i18n) ==========
     const I18N_LOCALES = ${localesJSON};
     let currentLanguagePreference = 'auto';
-    let currentResolvedLanguage = 'zh-TW';
+    let currentResolvedLanguage = 'en';
 
     function resolveLanguage(pref) {
       if (pref && pref !== 'auto' && I18N_LOCALES[pref]) {
@@ -24,22 +24,22 @@ export function getI18nCode() {
       try {
         const langs = (typeof navigator !== 'undefined' && Array.isArray(navigator.languages) && navigator.languages.length > 0)
           ? navigator.languages
-          : [(typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) || 'zh-TW'];
+          : [(typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) || 'en'];
         for (const lang of langs) {
           if (!lang) continue;
           const lower = String(lang).toLowerCase();
-          if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
-            return 'zh-CN';
-          }
           if (lower.startsWith('en')) {
             return 'en';
           }
-          if (lower.startsWith('zh') || lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant')) {
+          if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant') || lower === 'zh') {
             return 'zh-TW';
+          }
+          if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
+            return 'zh-CN';
           }
         }
       } catch (e) {}
-      return 'zh-TW';
+      return 'en';
     }
 
     function initLanguage() {
@@ -54,6 +54,10 @@ export function getI18nCode() {
         document.documentElement.setAttribute('lang', currentResolvedLanguage);
       }
       applyTranslations();
+      const langSelect = typeof document !== 'undefined' ? document.getElementById('settingsLanguage') : null;
+      if (langSelect) {
+        langSelect.value = currentLanguagePreference;
+      }
     }
 
     function getLanguage() {
@@ -65,8 +69,8 @@ export function getI18nCode() {
     }
 
     function t(key, params) {
-      const activeDict = I18N_LOCALES[currentResolvedLanguage] || I18N_LOCALES['zh-TW'] || {};
-      const fallbackDict = I18N_LOCALES['zh-TW'] || {};
+      const activeDict = I18N_LOCALES[currentResolvedLanguage] || I18N_LOCALES['en'] || {};
+      const fallbackDict = I18N_LOCALES['en'] || I18N_LOCALES['zh-TW'] || {};
       let val = activeDict[key] !== undefined ? activeDict[key] : fallbackDict[key];
       if (val === undefined) {
         return key;
@@ -166,10 +170,17 @@ export function getI18nCode() {
     // 初始化语言
     initLanguage();
     if (typeof document !== 'undefined') {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { applyTranslations(); });
-      } else {
+      const onReady = function() {
         applyTranslations();
+        const langSelect = document.getElementById('settingsLanguage');
+        if (langSelect) {
+          langSelect.value = currentLanguagePreference;
+        }
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+      } else {
+        onReady();
       }
     }
 `;

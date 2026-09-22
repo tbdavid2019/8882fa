@@ -43,10 +43,10 @@ describe('settings module code generation', () => {
 		const html = await response.text();
 		const select = html.match(/<select\b[^>]*\bid="settingsOTPAnimationMode"[^>]*>[\s\S]*?<\/select>/)?.[0];
 
-		expect(html).toContain('<h3 class="settings-section-title" id="settingsOTPAnimationTitle">验证码交接动效</h3>');
+		expect(html).toMatch(/<h3\b[^>]*\bid="settingsOTPAnimationTitle"[^>]*>验证码交接动效<\/h3>/);
 		expect(select).toBeTruthy();
 		expect(select).toContain('onchange="applyOTPAnimationFromSettings(this.value)"');
-		const options = [...select.matchAll(/<option\s+value="([^"]+)">([^<]+)<\/option>/g)].map((match) => ({
+		const options = [...select.matchAll(/<option\s+value="([^"]+)"[^>]*>([^<]+)<\/option>/g)].map((match) => ({
 			value: match[1],
 			label: match[2],
 		}));

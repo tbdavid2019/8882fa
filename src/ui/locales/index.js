@@ -1,11 +1,11 @@
-import { zhCN } from './zh-CN.js';
-import { zhTW } from './zh-TW.js';
 import { en } from './en.js';
+import { zhTW } from './zh-TW.js';
+import { zhCN } from './zh-CN.js';
 
 export const LOCALES = {
-	'zh-CN': zhCN,
-	'zh-TW': zhTW,
 	en: en,
+	'zh-TW': zhTW,
+	'zh-CN': zhCN,
 };
 
-export { zhCN, zhTW, en };
+export { en, zhTW, zhCN };

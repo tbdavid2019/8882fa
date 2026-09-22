@@ -209,7 +209,7 @@ export function getBackupCode() {
         backupList = [];
         backupListCursor = null;
         backupListHasMore = false;
-        backupSelectElement.innerHTML = '<option value="">正在加载备份列表...</option>';
+        backupSelectElement.innerHTML = '<option value="">' + ((typeof t === 'function' ? t('backupLoadingList') : null) || '正在加载备份列表...') + '</option>';
         backupSelectElement.disabled = true;
       }
 
@@ -234,7 +234,7 @@ export function getBackupCode() {
         backupListHasMore = Boolean(data.pagination && data.pagination.hasMore && data.pagination.cursor);
 
         if (backupList.length === 0) {
-          backupSelectElement.innerHTML = '<option value="">暂无备份文件</option>';
+          backupSelectElement.innerHTML = '<option value="">' + ((typeof t === 'function' ? t('backupEmptyList') : null) || '暂无备份文件') + '</option>';
           backupSelectElement.disabled = true;
           resetBackupSelection();
           updateBackupListPagination();
@@ -272,7 +272,7 @@ export function getBackupCode() {
 
     function renderBackupSelect(backups, selectedBackupKey = '') {
       const backupSelectElement = document.getElementById('backupSelect');
-      backupSelectElement.innerHTML = '<option value="">请选择备份文件...</option>';
+      backupSelectElement.innerHTML = '<option value="">' + ((typeof t === 'function' ? t('restoreSelectPlaceholder') : null) || '请选择备份文件...') + '</option>';
 
       backups.forEach((backup, index) => {
         // 格式化日期为简洁格式，适配移动设备
@@ -419,7 +419,7 @@ export function getBackupCode() {
       const exportBackupBtn = document.getElementById('exportBackupBtn');
 
       previewElement.style.display = 'block';
-      previewContent.innerHTML = '<div class="loading-backup">正在加载备份内容...</div>';
+      previewContent.innerHTML = '<div class="loading-backup">' + ((typeof t === 'function' ? t('backupLoadingContent') : null) || '正在加载备份内容...') + '</div>';
 
       try {
         const isUploadedBackup = backup && backup.uploaded === true;

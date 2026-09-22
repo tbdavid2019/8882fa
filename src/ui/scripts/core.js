@@ -981,8 +981,8 @@ export function getCoreCode() {
       if (!secret) return;
       
       editingId = id;
-      document.getElementById('modalTitle').textContent = '编辑密钥';
-      document.getElementById('submitBtn').textContent = '更新';
+      document.getElementById('modalTitle').textContent = (typeof t === 'function' ? t('editSecretTitle') : null) || '编辑密钥';
+      document.getElementById('submitBtn').textContent = (typeof t === 'function' ? t('update') : null) || '更新';
       document.getElementById('secretId').value = id;
       document.getElementById('secretName').value = secret.name;
       document.getElementById('secretService').value = secret.account || '';

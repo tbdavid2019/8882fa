@@ -13,7 +13,7 @@ import { LOCALES } from './locales/index.js';
  */
 export async function createSetupPage() {
 	const setupLocales = {};
-	for (const lang of ['zh-TW', 'en', 'zh-CN']) {
+	for (const lang of ['en', 'zh-TW', 'zh-CN']) {
 		setupLocales[lang] = {};
 		for (const [k, v] of Object.entries(LOCALES[lang] || {})) {
 			if (k.startsWith('setup')) {
@@ -23,7 +23,7 @@ export async function createSetupPage() {
 	}
 
 	const html = `<!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -58,9 +58,9 @@ export async function createSetupPage() {
         <div class="setup-icon" aria-hidden="true">${dialogIcon('lock')}</div>
         <div class="setup-lang-selector">
           <select id="setupLangSelect" class="setup-lang-select" aria-label="Language / 語言" onchange="changeSetupLanguage(this.value)">
-            <option value="zh-TW" selected>繁體中文</option>
-            <option value="en">English</option>
-            <option value="zh-CN">簡體中文</option>
+            <option value="en" selected>English</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="zh-CN">简体中文</option>
           </select>
         </div>
       </div>
@@ -222,7 +222,7 @@ export async function createSetupPage() {
     }
 
     (function initLang() {
-      let lang = 'zh-TW';
+      let lang = 'en';
       try {
         const saved = localStorage.getItem('language');
         if (saved && I18N[saved]) {
@@ -230,20 +230,20 @@ export async function createSetupPage() {
         } else {
           const langs = (Array.isArray(navigator.languages) && navigator.languages.length > 0)
             ? navigator.languages
-            : [navigator.language || navigator.userLanguage || 'zh-TW'];
+            : [navigator.language || navigator.userLanguage || 'en'];
           for (const l of langs) {
             if (!l) continue;
             const lower = String(l).toLowerCase();
-            if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
-              lang = 'zh-CN';
-              break;
-            }
             if (lower.startsWith('en')) {
               lang = 'en';
               break;
             }
-            if (lower.startsWith('zh') || lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant')) {
+            if (lower.startsWith('zh-tw') || lower.startsWith('zh-hk') || lower.startsWith('zh-mo') || lower.includes('hant') || lower === 'zh') {
               lang = 'zh-TW';
+              break;
+            }
+            if (lower.startsWith('zh-cn') || lower.startsWith('zh-sg') || lower.includes('hans')) {
+              lang = 'zh-CN';
               break;
             }
           }

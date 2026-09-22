@@ -159,7 +159,7 @@ export function getAuthCode() {
       const credential = tokenInput.value.trim();
 
       if (!credential) {
-        errorDiv.textContent = '请输入密码';
+        errorDiv.textContent = (typeof t === 'function' ? t('loginErrorEmpty') : null) || '请输入密码';
         errorDiv.style.display = 'block';
         return;
       }
@@ -182,9 +182,9 @@ export function getAuthCode() {
 
           // 显示登录成功信息（包含过期时间）
           if (data.expiresIn) {
-            showCenterToast('✅', '登录成功，有效期 ' + data.expiresIn);
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: data.expiresIn }) : null) || ('登录成功，有效期 ' + data.expiresIn));
           } else {
-            showCenterToast('✅', '登录成功');
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccess') : null) || '登录成功');
           }
 
           // 重新加载密钥列表
@@ -198,7 +198,7 @@ export function getAuthCode() {
         }
       } catch (error) {
         console.error('登录失败:', error);
-        errorDiv.textContent = '登录失败：' + error.message;
+        errorDiv.textContent = ((typeof t === 'function' ? t('loginFailedPrefix') : null) || '登录失败：') + error.message;
         errorDiv.style.display = 'block';
       }
     }
@@ -255,7 +255,7 @@ export function getAuthCode() {
         secretsList.style.display = 'none';
       }
 
-      showCenterToast('⚠️', '登录已过期，请重新登录');
+      showCenterToast('⚠️', (typeof t === 'function' ? t('loginExpired') : null) || '登录已过期，请重新登录');
       setTimeout(() => {
         showLoginModal();
       }, 1500);
@@ -329,7 +329,7 @@ export function getAuthCode() {
 
       // 3. 反馈给用户
       if (serverSuccess) {
-        showCenterToast('👋', '已退出登录');
+        showCenterToast('👋', (typeof t === 'function' ? t('loggedOut') : null) || '已退出登录');
       } else {
         showCenterToast('⚠️', '已清除本地登录状态：' + serverErrorMessage);
       }

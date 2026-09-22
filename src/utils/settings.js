@@ -5,8 +5,8 @@
 export const KV_SETTINGS_KEY = 'settings';
 export const DEFAULT_EXPORT_FORMAT = 'json';
 export const VALID_EXPORT_FORMATS = ['txt', 'json', 'csv', 'html'];
-export const VALID_LANGUAGES = ['auto', 'zh-TW', 'zh-CN', 'en'];
-export const DEFAULT_LANGUAGE = 'auto';
+export const VALID_LANGUAGES = ['auto', 'en', 'zh-TW', 'zh-CN'];
+export const DEFAULT_LANGUAGE = 'en';
 
 export const DEFAULT_SETTINGS = {
 	jwtExpiryDays: 30,

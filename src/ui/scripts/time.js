@@ -338,10 +338,17 @@ export function getTimeCode() {
       }
 
       formatAge(ageMs) {
-        if (!Number.isFinite(ageMs) || ageMs < 60 * 1000) return '刚刚';
-        if (ageMs < 60 * 60 * 1000) return Math.floor(ageMs / (60 * 1000)) + ' 分钟前';
-        if (ageMs < 24 * 60 * 60 * 1000) return Math.floor(ageMs / (60 * 60 * 1000)) + ' 小时前';
-        return Math.floor(ageMs / (24 * 60 * 60 * 1000)) + ' 天前';
+        if (!Number.isFinite(ageMs) || ageMs < 60 * 1000) return (typeof t === 'function' ? t('timeJustNow') : null) || '刚刚';
+        if (ageMs < 60 * 60 * 1000) {
+          const mins = Math.floor(ageMs / (60 * 1000));
+          return (typeof t === 'function' ? t('timeMinutesAgo', { minutes: mins }) : null) || (mins + ' 分钟前');
+        }
+        if (ageMs < 24 * 60 * 60 * 1000) {
+          const hrs = Math.floor(ageMs / (60 * 60 * 1000));
+          return (typeof t === 'function' ? t('timeHoursAgo', { hours: hrs }) : null) || (hrs + ' 小时前');
+        }
+        const days = Math.floor(ageMs / (24 * 60 * 60 * 1000));
+        return (typeof t === 'function' ? t('timeDaysAgo', { days: days }) : null) || (days + ' 天前');
       }
 
       renderStatus() {

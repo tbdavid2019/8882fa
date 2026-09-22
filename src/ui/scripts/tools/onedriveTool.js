@@ -71,7 +71,7 @@ export function getOneDriveToolCode() {
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderOneDriveCard(dest)).join('');
         } else {
-          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">暂无 OneDrive 目标，点击下方按钮添加</div>';
+          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('oneDriveEmptyList') : null) || '暂无 OneDrive 目标，点击下方按钮添加') + '</div>';
         }
 
         const canAdd = data.count < data.maxAllowed;
@@ -80,28 +80,28 @@ export function getOneDriveToolCode() {
         hideOneDriveForm();
       } catch (error) {
         console.error('加载 OneDrive 配置失败:', error);
-        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">加载失败，请稍后重试</div>';
+        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || '加载失败，请稍后重试') + '</div>';
       }
     }
 
     function _renderOneDriveCard(dest) {
       let statusDot = 'dest-status-dot-gray';
-      let statusText = '未授权';
+      let statusText = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未授权';
 
       if (dest.status.lastError) {
         statusDot = 'dest-status-dot-red';
-        statusText = '失败: ' + dest.status.lastError.error;
+        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || '失败: ') + dest.status.lastError.error;
       } else if (dest.status.lastSuccess) {
         statusDot = 'dest-status-dot-green';
         statusText = new Date(dest.status.lastSuccess.timestamp).toLocaleString();
       } else if (dest.authorized) {
-        statusText = '已授权，等待首次推送';
+        statusText = (typeof t === 'function' ? t('syncStatusPushed') : null) || '已授权，等待首次推送';
       }
 
       const enabledClass = dest.enabled ? '' : 'dest-card-disabled';
       const accountText = dest.account && (dest.account.email || dest.account.displayName)
         ? ((dest.account.displayName || 'OneDrive 账户') + (dest.account.email ? ' · ' + dest.account.email : ''))
-        : '未授权';
+        : ((typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未授权');
 
       return '<div class="dest-card ' + enabledClass + '" data-id="' + dest.id + '">'
         + '<div class="dest-card-header">'
@@ -111,7 +111,7 @@ export function getOneDriveToolCode() {
         + '<span class="dest-card-url">应用目录: ' + _escapeOneDriveHtml(dest.config.folderPath || '/2FA-Backups') + '</span>'
         + '</div>'
         + '<label class="dest-toggle" onclick="event.stopPropagation()">'
-        + '<input type="checkbox" aria-label="启用此同步目标" ' + (dest.enabled ? 'checked' : '') + ' ' + (!dest.authorized ? 'disabled ' : '') + 'onchange="toggleOneDriveDest(\\'' + dest.id + '\\', this.checked)" />'
+        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || '启用此同步目标') + '" ' + (dest.enabled ? 'checked' : '') + ' ' + (!dest.authorized ? 'disabled ' : '') + 'onchange="toggleOneDriveDest(\\'' + dest.id + '\\', this.checked)" />'
         + '<span class="dest-toggle-slider"></span>'
         + '</label>'
         + '</div>'
@@ -120,9 +120,9 @@ export function getOneDriveToolCode() {
         + '<span class="dest-status-text">' + _escapeOneDriveHtml(statusText) + '</span>'
         + '</div>'
         + '<div class="dest-card-actions">'
-        + '<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); authorizeOneDriveDest(\\'' + dest.id + '\\')" >' + (dest.authorized ? '重新授权' : '授权') + '</button>'
-        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editOneDriveDest(\\'' + dest.id + '\\')" >编辑</button>'
-        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteOneDriveDest(\\'' + dest.id + '\\', \\'' + _escapeOneDriveHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >删除</button>'
+        + '<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); authorizeOneDriveDest(\\'' + dest.id + '\\')" >' + (dest.authorized ? ((typeof t === 'function' ? t('reauthorize') : null) || '重新授权') : ((typeof t === 'function' ? t('authorize') : null) || '授权')) + '</button>'
+        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editOneDriveDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || '编辑') + '</button>'
+        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteOneDriveDest(\\'' + dest.id + '\\', \\'' + _escapeOneDriveHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || '删除') + '</button>'
         + '</div>'
         + '</div>';
     }

@@ -109,7 +109,7 @@ export function getSearchCode() {
 
       const sortModeLabel = document.getElementById('sortModeLabel');
       if (sortModeLabel) {
-        sortModeLabel.textContent = isGrouped ? '组内排序' : '列表排序';
+        sortModeLabel.textContent = (typeof t === 'function' ? (isGrouped ? t('sortModeGrouped') : t('sortModeFlat')) : null) || (isGrouped ? '组内排序' : '列表排序');
       }
       scheduleSortMenuPlacementUpdate();
     }

@@ -293,7 +293,7 @@ describe('Settings API', () => {
 			const data = await resp.json();
 
 			expect(resp.status).toBe(400);
-			expect(data.message).toBe('语言偏好仅支持：auto, zh-TW, zh-CN, en');
+			expect(data.message).toBe('语言偏好仅支持：auto, en, zh-TW, zh-CN');
 		});
 
 		it('rejects non-string values', async () => {
