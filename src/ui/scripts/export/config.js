@@ -12,71 +12,100 @@ export function getExportConfigCode() {
     // ========== 导出配置模块 ==========
 
     // 需要二级选择的格式配置
-    const subFormatConfigs = {
-      'freeotp-plus-multi': {
-        title: '选择 FreeOTP+ 导出格式',
-        options: [
-          {
-            id: 'freeotp-plus',
-            icon: '🔓',
-            name: 'FreeOTP+ 原生',
-            ext: '.json',
-            desc: '社区版原生格式，明文JSON文件',
-            compat: 'FreeOTP+ (Android)'
-          },
-          {
-            id: 'freeotp-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      },
-      'aegis-multi': {
-        title: '选择 Aegis 导出格式',
-        options: [
-          {
-            id: 'aegis',
-            icon: '🔓',
-            name: 'Aegis 原生',
-            ext: '.json',
-            desc: 'Aegis Authenticator 完整格式',
-            compat: 'Aegis (Android)'
-          },
-          {
-            id: 'aegis-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      },
-      'authpro-multi': {
-        title: '选择 Authenticator Pro 导出格式',
-        options: [
-          {
-            id: 'authpro',
-            icon: '🔓',
-            name: 'Auth Pro 原生',
-            ext: '.authpro',
-            desc: 'Stratum 原生格式',
-            compat: 'Authenticator Pro'
-          },
-          {
-            id: 'authenticator-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      }
-    };
+    function getSubFormatConfig(multiFormatId) {
+      const _t = typeof t === 'function' ? t : (k) => null;
+      const configs = {
+        'freeotp-plus-multi': {
+          title: _t('exportFormatFreeotpTitle') || 'Select FreeOTP+ Export Format',
+          options: [
+            {
+              id: 'freeotp-plus',
+              icon: '🔓',
+              name: _t('exportFormatFreeotpNative') || 'FreeOTP+ Native',
+              ext: '.json',
+              desc: _t('exportFormatFreeotpNativeDesc') || 'Community edition native format, plain JSON file',
+              compat: 'FreeOTP+ (Android)'
+            },
+            {
+              id: 'freeotp-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'aegis-multi': {
+          title: _t('exportFormatAegisTitle') || 'Select Aegis Export Format',
+          options: [
+            {
+              id: 'aegis',
+              icon: '🔓',
+              name: _t('exportFormatAegisNative') || 'Aegis Native',
+              ext: '.json',
+              desc: _t('exportFormatAegisNativeDesc') || 'Aegis Authenticator full format',
+              compat: 'Aegis (Android)'
+            },
+            {
+              id: 'aegis-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'authpro-multi': {
+          title: _t('exportFormatAuthProTitle') || 'Select Authenticator Pro Export Format',
+          options: [
+            {
+              id: 'authpro',
+              icon: '🔓',
+              name: _t('exportFormatAuthProNative') || 'Auth Pro Native',
+              ext: '.authpro',
+              desc: _t('exportFormatAuthProNativeDesc') || 'Stratum native format',
+              compat: 'Authenticator Pro'
+            },
+            {
+              id: 'authenticator-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'bitwarden-auth-multi': {
+          title: _t('exportFormatBitwardenTitle') || 'Select Bitwarden Export Format',
+          options: [
+            {
+              id: 'bitwarden-auth-csv',
+              icon: '🔓',
+              name: _t('exportFormatBitwardenCsv') || 'CSV Format',
+              ext: '.csv',
+              desc: _t('exportFormatBitwardenCsvDesc') || 'Spreadsheet format, viewable in Excel',
+              compat: 'Bitwarden Authenticator'
+            },
+            {
+              id: 'bitwarden-auth-json',
+              icon: '🔓',
+              name: _t('exportFormatBitwardenJson') || 'JSON Format',
+              ext: '.json',
+              desc: _t('exportFormatBitwardenJsonDesc') || 'Structured data format',
+              compat: 'Bitwarden Authenticator'
+            }
+          ]
+        }
+      };
+      return configs[multiFormatId] || null;
+    }
+
+    const subFormatConfigs = new Proxy({}, {
+      get: (_, prop) => getSubFormatConfig(prop)
+    });
 
     /**
      * 根据排序选项对密钥进行排序
@@ -132,7 +161,7 @@ export function getExportConfigCode() {
         exportSecretsAsFormat(secretsToExport, format);
       } catch (error) {
         console.error('导出失败:', error);
-        showCenterToast('❌', '导出失败：' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportFailedWithReason', { error: error.message }) : null) || ('Export failed: ' + error.message)));
       }
     }
 `;

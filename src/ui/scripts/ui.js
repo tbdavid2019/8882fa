@@ -159,8 +159,8 @@ export function getUICode() {
     function showAddModal() {
       showModal('secretModal', () => {
         editingId = null;
-        document.getElementById('modalTitle').textContent = (typeof t === 'function' ? t('addSecretTitle') : null) || '添加新密钥';
-        document.getElementById('submitBtn').textContent = (typeof t === 'function' ? t('save') : null) || '保存';
+        document.getElementById('modalTitle').textContent = (typeof t === 'function' ? t('addSecretTitle') : null) || 'Add Key';
+        document.getElementById('submitBtn').textContent = (typeof t === 'function' ? t('save') : null) || 'Save';
         document.getElementById('secretForm').reset();
         document.getElementById('secretId').value = '';
       });
@@ -277,7 +277,7 @@ export function getUICode() {
           periodGroup.style.display = 'none';
           algorithmGroup.style.display = 'block';
           counterRow.style.display = 'block';
-          advancedInfo.textContent = (typeof t === 'function' ? t('secretAdvancedHotpHelp') : null) || 'HOTP使用计数器基准，每次生成后计数器自动递增';
+          advancedInfo.textContent = (typeof t === 'function' ? t('secretAdvancedHotpHelp') : null) || 'HOTP uses a counter basis; counter increments automatically after each generation';
           break;
 
         case 'TOTP':
@@ -287,7 +287,7 @@ export function getUICode() {
           periodGroup.style.display = 'block';
           algorithmGroup.style.display = 'block';
           counterRow.style.display = 'none';
-          advancedInfo.textContent = (typeof t === 'function' ? t('secretAdvancedHelp') : null) || '大多数2FA应用使用默认设置：TOTP、6位、30秒、SHA1算法';
+          advancedInfo.textContent = (typeof t === 'function' ? t('secretAdvancedHelp') : null) || 'Most 2FA apps use default settings: TOTP, 6 digits, 30s, SHA1 algorithm';
           break;
       }
     }

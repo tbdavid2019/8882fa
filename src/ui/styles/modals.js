@@ -90,7 +90,7 @@ export function getModalStyles() {
     }
 
     .modal.drag-over::after {
-      content: '松开鼠标识别二维码';
+      content: 'Release to scan QR code';
       position: fixed;
       top: 50%;
       left: 50%;
@@ -104,6 +104,14 @@ export function getModalStyles() {
       z-index: 999999;
       pointer-events: none;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    html[lang="zh-TW"] .modal.drag-over::after {
+      content: '放開滑鼠以識別 QR Code';
+    }
+
+    html[lang="zh-CN"] .modal.drag-over::after {
+      content: '松开鼠标识别二维码';
     }
 
     .modal-header {

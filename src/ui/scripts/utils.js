@@ -27,7 +27,7 @@ export function getUtilsCode() {
         s.onload = () => resolve();
         s.onerror = () => {
           __scriptLoadCache.delete(url); // 失败后允许下次重试
-          reject(new Error('脚本加载失败: ' + url));
+          reject(new Error('Script load failed: ' + url));
         };
         document.head.appendChild(s);
       });
@@ -112,10 +112,10 @@ export function getUtilsCode() {
 
     function showConfirmDialog(options) {
       const opts = options || {};
-      const title = opts.title || '确认操作';
+      const title = opts.title || ((typeof t === 'function' ? t('confirmActionTitle') : null) || 'Confirm Action');
       const message = opts.message || '';
-      const confirmText = opts.confirmText || '确认';
-      const cancelText = opts.cancelText || '取消';
+      const confirmText = opts.confirmText || ((typeof t === 'function' ? t('confirm') : null) || 'Confirm');
+      const cancelText = opts.cancelText || ((typeof t === 'function' ? t('cancel') : null) || 'Cancel');
       const danger = opts.danger === true;
 
       // 若已有确认框在等待用户操作，直接以 "取消" 语义返回，避免监听器叠加
@@ -399,27 +399,27 @@ export function getUtilsCode() {
 
           if (ext === 'json' || ext === '2fas') {
             types.push({
-              description: 'JSON 文件',
+              description: (typeof t === 'function' ? t('fileTypeJson') : null) || 'JSON File',
               accept: { 'application/json': ['.json', '.2fas'] }
             });
           } else if (ext === 'csv') {
             types.push({
-              description: 'CSV 文件',
+              description: (typeof t === 'function' ? t('fileTypeCsv') : null) || 'CSV File',
               accept: { 'text/csv': ['.csv'] }
             });
           } else if (ext === 'html' || ext === 'htm') {
             types.push({
-              description: 'HTML 文件',
+              description: (typeof t === 'function' ? t('fileTypeHtml') : null) || 'HTML File',
               accept: { 'text/html': ['.html', '.htm'] }
             });
           } else if (ext === 'txt') {
             types.push({
-              description: '文本文件',
+              description: (typeof t === 'function' ? t('fileTypeText') : null) || 'Text File',
               accept: { 'text/plain': ['.txt'] }
             });
           } else if (ext === 'xml') {
             types.push({
-              description: 'XML 文件',
+              description: (typeof t === 'function' ? t('fileTypeXml') : null) || 'XML File',
               accept: { 'application/xml': ['.xml'] }
             });
           }
@@ -506,11 +506,11 @@ export function getUtilsCode() {
           try {
             await ensureQRCodeGen();
           } catch (loadErr) {
-            throw new Error('QR码生成库加载失败');
+            throw new Error('Failed to load QR code generation library');
           }
         }
         if (typeof qrcode === 'undefined') {
-          throw new Error('QR码生成库未加载');
+          throw new Error('QR code generation library not loaded');
         }
 
         // 使用qrcode-generator库在客户端生成QR码
@@ -551,12 +551,12 @@ export function getUtilsCode() {
 
         // 转换为Data URL
         const dataURL = canvas.toDataURL('image/png');
-        console.log('✅ 客户端QR码生成成功（隐私安全）');
+        console.log('✅ Client QR code generated successfully');
         return dataURL;
 
       } catch (error) {
-        console.error('❌ 客户端QR码生成失败:', error);
-        throw new Error('QR码生成失败: ' + error.message);
+        console.error('❌ Client QR code generation failed:', error);
+        throw new Error('Failed to generate QR code: ' + error.message);
       }
     }
 
@@ -573,7 +573,7 @@ export function getUtilsCode() {
         // 主路径：直接触发懒加载（受 maxWaitTime 限制）
         await Promise.race([
           ensureQRCodeGen(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('QR码库加载超时')), maxWaitTime)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('QR code library load timeout')), maxWaitTime)),
         ]);
       } catch (err) {
         // 兜底：可能脚本由其他途径正在加载，再轮询一次
@@ -583,9 +583,14 @@ export function getUtilsCode() {
         }
         if (typeof qrcode === 'undefined') throw err;
       }
-      console.log('✅ QR码生成库已加载');
       return true;
     }
 
-    `;
+    async function ensureQRCodeGen() {
+      if (typeof qrcode !== 'undefined') return true;
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
+      console.log('✅ QR code generator library loaded');
+      return true;
+    }
+  `;
 }

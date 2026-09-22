@@ -32,11 +32,13 @@ describe('Service Worker offline navigation', () => {
 		expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8');
 		expect(html).toMatch(/^<!DOCTYPE html>/);
 		expect(html).toContain('name="viewport"');
-		expect(html).toContain('href="/">重新載入</a>');
+		expect(html).toContain('href="/">Reload</a>');
 		const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
-		expect(scripts).toHaveLength(1);
-		// eslint-disable-next-line no-new-func
+		expect(scripts).toHaveLength(2);
+		/* eslint-disable no-new-func */
 		expect(() => new Function(scripts[0][1])).not.toThrow();
+		expect(() => new Function(scripts[1][1])).not.toThrow();
+		/* eslint-enable no-new-func */
 	});
 
 	it('serves the cached app before falling back to the offline document', async () => {

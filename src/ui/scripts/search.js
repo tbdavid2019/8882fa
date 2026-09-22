@@ -109,7 +109,7 @@ export function getSearchCode() {
 
       const sortModeLabel = document.getElementById('sortModeLabel');
       if (sortModeLabel) {
-        sortModeLabel.textContent = (typeof t === 'function' ? (isGrouped ? t('sortModeGrouped') : t('sortModeFlat')) : null) || (isGrouped ? '组内排序' : '列表排序');
+        sortModeLabel.textContent = (typeof t === 'function' ? (isGrouped ? t('sortModeGrouped') : t('sortModeFlat')) : null) || (isGrouped ? 'Group Sort' : 'List Sort');
       }
       scheduleSortMenuPlacementUpdate();
     }
@@ -360,7 +360,7 @@ export function getSearchCode() {
         if (metadata.totalCount >= 2) {
           searchableFamilyNames.set(key, resolveServiceGroupName(metadata).toLowerCase());
         } else {
-          searchableFamilyNames.set(key, ((typeof t === 'function' ? t('otherServices') : null) || '其他服务').toLowerCase());
+          searchableFamilyNames.set(key, ((typeof t === 'function' ? t('otherServices') : null) || 'Other Services').toLowerCase());
         }
       });
 
@@ -376,13 +376,13 @@ export function getSearchCode() {
       const foundCount = filteredSecrets.length;
 
       if (foundCount === 0) {
-        searchStats.textContent = (typeof t === 'function' ? t('searchNoMatch') : null) || '未找到匹配的密钥';
+        searchStats.textContent = (typeof t === 'function' ? t('searchNoMatch') : null) || 'No matching keys found';
         searchStats.style.color = '#e74c3c';
       } else if (foundCount === totalCount) {
-        searchStats.textContent = (typeof t === 'function' ? t('searchShowAll', { count: totalCount }) : null) || ('显示所有 ' + totalCount + ' 个密钥');
+        searchStats.textContent = (typeof t === 'function' ? t('searchShowAll', { count: totalCount }) : null) || ('Showing all ' + totalCount + ' keys');
         searchStats.style.color = '#27ae60';
       } else {
-        searchStats.textContent = (typeof t === 'function' ? t('searchFoundCount', { found: foundCount, total: totalCount }) : null) || ('找到 ' + foundCount + ' 个匹配密钥（共 ' + totalCount + ' 个）');
+        searchStats.textContent = (typeof t === 'function' ? t('searchFoundCount', { found: foundCount, total: totalCount }) : null) || ('Found ' + foundCount + ' of ' + totalCount + ' keys');
         searchStats.style.color = '#3498db';
       }
       await renderFilteredSecrets();

@@ -288,7 +288,7 @@ export function getJSONParserCode() {
           algorithm: secret.algorithm || secret.algo || 'SHA1',
           counter: secret.counter || 0
         }),
-        '本应用 JSON'
+        'App JSON'
       );
     }
 
@@ -560,11 +560,11 @@ export function getJSONParserCode() {
           return parseProtonJSON(jsonData);
         }
 
-        throw new Error('未识别的 JSON 导入格式');
+        throw new Error((typeof t === 'function' ? t('unrecognizedJsonFormat') : null) || 'Unrecognized JSON import format');
       }
 
       if (!jsonData || typeof jsonData !== 'object') {
-        throw new Error('未识别的 JSON 导入格式');
+        throw new Error((typeof t === 'function' ? t('unrecognizedJsonFormat') : null) || 'Unrecognized JSON import format');
       }
 
       if (Array.isArray(jsonData.secrets)) {
@@ -607,7 +607,7 @@ export function getJSONParserCode() {
         return parse2FASJSON(jsonData);
       }
 
-      throw new Error('未识别的 JSON 导入格式');
+      throw new Error((typeof t === 'function' ? t('unrecognizedJsonFormat') : null) || 'Unrecognized JSON import format');
     }
 `;
 }

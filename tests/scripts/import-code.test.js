@@ -319,6 +319,6 @@ describe('import module code generation', () => {
 	it('throws a clear error for unsupported JSON structures', () => {
 		const api = createImportApi();
 
-		expect(() => api.parseJsonImport({ foo: 'bar' })).toThrow('未识别的 JSON 导入格式');
+		expect(() => api.parseJsonImport({ foo: 'bar' })).toThrow('Unrecognized JSON import format');
 	});
 });

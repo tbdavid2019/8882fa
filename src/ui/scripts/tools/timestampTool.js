@@ -92,11 +92,11 @@ export function getTimestampToolCode() {
       if (now !== lastTimestampSecond || currentPeriod !== lastTimestampPeriod) {
         const remaining = Math.ceil(remainingMs / 1000);
         document.getElementById('currentTimestamp').textContent = now;
-        document.getElementById('totpPeriod').textContent = currentPeriod + ' 秒';
+        document.getElementById('totpPeriod').textContent = (typeof t === 'function' ? t('timestampSeconds', { seconds: currentPeriod }) : null) || (currentPeriod + 's');
         document.getElementById('totpCounter').textContent = Math.floor(nowMs / periodMs);
-        document.getElementById('remainingTime').textContent = remaining + ' 秒';
+        document.getElementById('remainingTime').textContent = (typeof t === 'function' ? t('timestampSeconds', { seconds: remaining }) : null) || (remaining + 's');
         progressBar.setAttribute('aria-valuenow', String(Math.round(fraction * 100)));
-        progressBar.setAttribute('aria-valuetext', remaining + ' 秒');
+        progressBar.setAttribute('aria-valuetext', (typeof t === 'function' ? t('timestampSeconds', { seconds: remaining }) : null) || (remaining + 's'));
         lastTimestampSecond = now;
         lastTimestampPeriod = currentPeriod;
       }

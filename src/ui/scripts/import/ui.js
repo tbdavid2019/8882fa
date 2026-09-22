@@ -140,7 +140,7 @@ export function getImportUICode() {
       const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
 
       if (!isValidType) {
-        showCenterToast('❌', '不支持的文件格式');
+        showCenterToast('❌', (typeof t === 'function' ? t('unsupportedFormat') : null) || 'Unsupported file format');
         return;
       }
 
@@ -158,7 +158,7 @@ export function getImportUICode() {
         }, 100);
       };
       reader.onerror = function() {
-        showCenterToast('❌', '读取文件失败');
+        showCenterToast('❌', (typeof t === 'function' ? t('readFileFailed') : null) || 'Failed to read file');
       };
       reader.readAsArrayBuffer(file);
     }
@@ -169,11 +169,11 @@ export function getImportUICode() {
       const statInvalid = document.getElementById('statInvalid');
       const statTotal = document.getElementById('statTotal');
 
-      if (statValid) statValid.textContent = validCount + ' 有效';
-      if (statInvalid) statInvalid.textContent = invalidCount + ' 无效';
+      if (statValid) statValid.textContent = (typeof t === 'function' ? t('importValidCount', { count: validCount }) : null) || (validCount + ' valid');
+      if (statInvalid) statInvalid.textContent = (typeof t === 'function' ? t('importInvalidCount', { count: invalidCount }) : null) || (invalidCount + ' invalid');
       if (statTotal) {
         const total = validCount + invalidCount + (skippedCount || 0);
-        statTotal.textContent = '共 ' + total + ' 条';
+        statTotal.textContent = (typeof t === 'function' ? t('importTotalCount', { total: total }) : null) || ('Total ' + total);
       }
     }
 
@@ -199,13 +199,13 @@ export function getImportUICode() {
       setImportProgressVisible(false);
 
       const defaults = {
-        importProgressTitle: '导入进度',
+        importProgressTitle: (typeof t === 'function' ? t('importProgress') : null) || 'Import Progress',
         importProgressPercent: '0%',
-        importProgressStatus: '准备开始...',
+        importProgressStatus: (typeof t === 'function' ? t('importReady') : null) || 'Ready to start...',
         importProgressDetail: '0 / 0',
-        importProgressChunk: '分片 0 / 0',
-        importProgressSuccess: '成功 0',
-        importProgressFail: '失败 0'
+        importProgressChunk: (typeof t === 'function' ? t('importChunkProgress', { current: 0, total: 0 }) : null) || 'Batch 0 / 0',
+        importProgressSuccess: (typeof t === 'function' ? t('importSuccessStat', { count: 0 }) : null) || 'Success 0',
+        importProgressFail: (typeof t === 'function' ? t('importFailStat', { count: 0 }) : null) || 'Failed 0'
       };
 
       Object.keys(defaults).forEach(function(id) {
@@ -246,13 +246,13 @@ export function getImportUICode() {
       const fail = document.getElementById('importProgressFail');
       const progressFill = document.getElementById('importProgressFill');
 
-      if (title) title.textContent = (state && state.title) || '导入进度';
+      if (title) title.textContent = (state && state.title) || ((typeof t === 'function' ? t('importProgress') : null) || 'Import Progress');
       if (percentEl) percentEl.textContent = percent + '%';
-      if (status) status.textContent = (state && state.message) || '正在导入...';
+      if (status) status.textContent = (state && state.message) || ((typeof t === 'function' ? t('importExecuting') : null) || 'Importing...');
       if (detail) detail.textContent = processedItems + ' / ' + totalItems;
-      if (chunk) chunk.textContent = '分片 ' + chunkIndex + ' / ' + chunkCount;
-      if (success) success.textContent = '成功 ' + successCount;
-      if (fail) fail.textContent = '失败 ' + failCount;
+      if (chunk) chunk.textContent = (typeof t === 'function' ? t('importChunkProgress', { current: chunkIndex, total: chunkCount }) : null) || ('Batch ' + chunkIndex + ' / ' + chunkCount);
+      if (success) success.textContent = (typeof t === 'function' ? t('importSuccessStat', { count: successCount }) : null) || ('Success ' + successCount);
+      if (fail) fail.textContent = (typeof t === 'function' ? t('importFailStat', { count: failCount }) : null) || ('Failed ' + failCount);
       if (progressFill) progressFill.style.width = percent + '%';
     }
 
@@ -269,7 +269,7 @@ export function getImportUICode() {
         // 重置导入按钮
         const executeBtn = document.getElementById('executeImportBtn');
         executeBtn.disabled = true;
-        executeBtn.textContent = '导入';
+        executeBtn.textContent = (typeof t === 'function' ? t('importBtnText') : null) || 'Import';
         // 隐藏文件信息徽章
         const badge = document.getElementById('fileInfoBadge');
         if (badge) badge.style.display = 'none';
@@ -310,7 +310,7 @@ export function getImportUICode() {
         // 重置导入按钮
         const executeBtn = document.getElementById('executeImportBtn');
         executeBtn.disabled = true;
-        executeBtn.textContent = '导入';
+        executeBtn.textContent = (typeof t === 'function' ? t('importBtnText') : null) || 'Import';
         // 清空预览数据数组
         importPreviewData = [];
         resetImportRetryState();

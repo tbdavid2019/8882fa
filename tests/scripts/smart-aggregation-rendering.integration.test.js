@@ -554,8 +554,8 @@ describe('smart aggregation rendering integration', () => {
 		const list = document.getElementById('secretsList');
 		expect(list.classList.contains('is-grouped')).toBe(true);
 		expect(list.style.display).toBe('block');
-		expect(list.querySelectorAll('.service-group-title').map((node) => node.textContent)).toEqual(['Google', 'Microsoft', '其他服务']);
-		expect(list.querySelectorAll('.service-group-count').map((node) => node.textContent)).toEqual(['2 个', '2 个', '1 个']);
+		expect(list.querySelectorAll('.service-group-title').map((node) => node.textContent)).toEqual(['Google', 'Microsoft', 'Other Services']);
+		expect(list.querySelectorAll('.service-group-count').map((node) => node.textContent)).toEqual(['2', '2', '1']);
 		expect(list.querySelectorAll('.secret-card')).toHaveLength(TEST_SECRETS.length);
 		expect(groupedOption.classList.contains('active')).toBe(true);
 		expect(groupedOption.getAttribute('aria-pressed')).toBe('true');
@@ -582,12 +582,12 @@ describe('smart aggregation rendering integration', () => {
 		const list = document.getElementById('secretsList');
 		const stats = document.getElementById('searchStats');
 		const groupCount = list.querySelector('.service-group-count');
-		expect(stats.textContent).toBe('找到 1 个匹配密钥（共 5 个）');
+		expect(stats.textContent).toBe('Found 1 of 5 keys');
 		expect(stats.style.display).toBeUndefined();
 		expect(list.querySelectorAll('.service-group')).toHaveLength(1);
 		expect(list.querySelector('.service-group-title').textContent).toBe('Google');
 		expect(groupCount.textContent).toBe('1 / 2');
-		expect(groupCount.getAttribute('aria-label')).toBe('匹配 1 个，共 2 个');
+		expect(groupCount.getAttribute('aria-label')).toBe('Matched 1 of 2');
 		expect(list.querySelectorAll('.secret-card')).toHaveLength(1);
 		expect(list.querySelector('h3').textContent).toBe('Gmail');
 	});
@@ -699,10 +699,10 @@ describe('smart aggregation rendering integration', () => {
 			secret('discord', 'Discord', 'chat@example.com'),
 		]);
 
-		await api.filterSecrets('其他服务');
+		await api.filterSecrets('Other Services');
 
 		const list = document.getElementById('secretsList');
-		expect(list.querySelector('.service-group-title').textContent).toBe('其他服务');
+		expect(list.querySelector('.service-group-title').textContent).toBe('Other Services');
 		expect(list.querySelectorAll('h3').map((node) => node.textContent)).toEqual(['GitHub', 'Discord']);
 	});
 

@@ -174,7 +174,7 @@ describe('HOTP copy counter persistence', () => {
 			body: JSON.stringify(expectedSnapshot()),
 		});
 		expect(harness.api.getSecrets()[0].counter).toBe(43);
-		expect(harness.elements['counter-hotp-1'].textContent).toBe('计数器: 43');
+		expect(harness.elements['counter-hotp-1'].textContent).toMatch(/^(计数器|Counter): 43$/);
 		expect(harness.api.getCommittedHOTPToken('hotp-1', harness.api.getSecrets()[0])).toBe('234567');
 	});
 
@@ -191,11 +191,11 @@ describe('HOTP copy counter persistence', () => {
 		await expect(harness.api.copyOTP('hotp-1')).resolves.toBe(false);
 
 		expect(harness.api.getSecrets()[0].counter).toBe(42);
-		expect(harness.elements['counter-hotp-1'].textContent).toBe('计数器: 42');
+		expect(harness.elements['counter-hotp-1'].textContent).toMatch(/^(计数器|Counter): 42$/);
 		expect(harness.navigator.clipboard.writeText).toHaveBeenCalledWith('123456');
 		expect(harness.api.getCommittedHOTPToken('hotp-1', harness.api.getSecrets()[0])).toBe('123456');
 		expect(authenticatedFetch).toHaveBeenCalledTimes(2);
-		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', '验证码已复制，但本地计数器同步失败：write failed');
+		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', expect.stringMatching(/验证码已复制，但本地计数器同步失败：write failed|Code copied, but counter sync failed: write failed/));
 	});
 
 	it('refuses to copy or reserve while explicitly offline', async () => {
@@ -207,7 +207,7 @@ describe('HOTP copy counter persistence', () => {
 		expect(harness.navigator.clipboard.writeText).not.toHaveBeenCalled();
 		expect(authenticatedFetch).not.toHaveBeenCalled();
 		expect(harness.api.getSecrets()[0].counter).toBe(42);
-		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', '离线状态下无法安全复制 HOTP 验证码');
+		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', expect.stringMatching(/离线状态下无法安全复制 HOTP 验证码|Cannot safely copy HOTP code while offline/));
 	});
 
 	it('locks rapid repeated clicks until the first advance settles', async () => {
@@ -241,7 +241,7 @@ describe('HOTP copy counter persistence', () => {
 
 		expect(harness.navigator.clipboard.writeText).not.toHaveBeenCalled();
 		expect(authenticatedFetch).not.toHaveBeenCalled();
-		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', 'HOTP 计数器无效或已达到上限');
+		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', expect.stringMatching(/HOTP 计数器无效或已达到上限|HOTP counter is invalid or reached upper limit/));
 	});
 
 	it('reads a replacement secret after an earlier queued edit before copying', async () => {
@@ -454,6 +454,6 @@ describe('HOTP copy counter persistence', () => {
 		expect(harness.api.getSecrets()[0].counter).toBe(42);
 		expect(harness.api.getSecrets()[0].hotpCounterNamespace).toBe('generation-a');
 		expect(authenticatedFetch).toHaveBeenCalledTimes(2);
-		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', '验证码已复制，但本地计数器同步失败：服务器返回了无效的计数器状态');
+		expect(harness.showCenterToast).toHaveBeenCalledWith('⚠️', expect.stringMatching(/验证码已复制，但本地计数器同步失败：服务器返回了无效的计数器状态|Code copied, but counter sync failed: Server returned invalid counter state/));
 	});
 });

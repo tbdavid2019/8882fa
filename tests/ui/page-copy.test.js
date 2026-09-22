@@ -7,7 +7,7 @@ describe('settings page copy', () => {
 		const response = await createMainPage({ lazyLoad: false });
 		const html = await response.text();
 
-		expect(html).toContain('也会用于新创建的手动备份、自动备份和远程自动备份文件');
+		expect(html).toMatch(/也会用于新创建的手动备份|newly created manual/);
 		expect(html).not.toContain('不会改变内部备份的完整格式');
 	});
 
@@ -26,12 +26,12 @@ describe('settings page copy', () => {
 		const response = await createMainPage({ lazyLoad: false });
 		const html = await response.text();
 
-		expect(html).toContain('aria-label="显示与排序"');
+		expect(html).toMatch(/aria-label="(?:显示与排序|View & Sort)"/);
 		expect(html).toContain('class="view-mode-option active" data-view-mode="grouped" aria-pressed="true"');
 		expect(html).toContain('class="view-mode-option" data-view-mode="flat" aria-pressed="false"');
 		expect(html).toContain('class="sort-menu-section group-sort-only" id="groupSortSection"');
 		expect(html).toContain('class="group-sort-option active" data-group-sort="name-asc" aria-pressed="true"');
-		expect(html).toContain('id="sortModeLabel">组内排序');
+		expect(html).toMatch(/id="sortModeLabel"[^>]*>(?:组内排序|Sort Within Group|Group Sort)/);
 		expect(html).toContain('class="sort-option flat-sort-only" data-sort="name-asc"');
 		expect(html).toContain('class="sort-option flat-sort-only" data-sort="name-desc"');
 		expect(html).toContain('class="sort-options" role="group"');

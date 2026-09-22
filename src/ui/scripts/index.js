@@ -63,7 +63,7 @@ export function getModuleCode(moduleName) {
 
 	const moduleGetter = modules[moduleName];
 	if (!moduleGetter) {
-		throw new Error(`未知的模块: ${moduleName}`);
+		throw new Error(`Unknown module: ${moduleName}`);
 	}
 
 	return moduleGetter();

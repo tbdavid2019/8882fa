@@ -76,7 +76,7 @@ export function getStandardFormatsCode() {
           await exportAsOTPAuth(secretsData, { formatName: format });
           break;
         default:
-          showCenterToast('❌', '不支持的导出格式');
+          showCenterToast('❌', ((typeof t === 'function' ? t('unsupportedExportFormat') : null) || 'Unsupported export format'));
       }
     }
 
@@ -155,8 +155,8 @@ export function getStandardFormatsCode() {
 
           if (shouldFallbackToLocalStandardExport(response.status, errorData)) {
             const fallbackMessage = response.status === 413
-              ? '导出内容较大，已切换为本地兼容导出'
-              : '当前离线，已切换为本地兼容导出';
+              ? ((typeof t === 'function' ? t('exportFallbackLarge') : null) || 'Export payload is large, falling back to local compatible export')
+              : ((typeof t === 'function' ? t('exportFallbackOffline') : null) || 'Currently offline, falling back to local compatible export');
             await fallbackToLocalExport(fallbackMessage);
             return;
           }
@@ -193,7 +193,7 @@ export function getStandardFormatsCode() {
         const isNetworkFailure = error && (error.name === 'TypeError' || /Failed to fetch|NetworkError/i.test(errorMessage));
 
         if (isNetworkFailure) {
-          await fallbackToLocalExport('当前无法连接在线导出服务，已切换为本地兼容导出');
+          await fallbackToLocalExport((typeof t === 'function' ? t('exportFallbackNetwork') : null) || 'Unable to connect to online export service, falling back to local compatible export');
           return;
         }
 
@@ -236,7 +236,7 @@ export function getStandardFormatsCode() {
       const content = otpauthUrls.join('\\n');
       const saved = await downloadFile(content, filenamePrefix + '-' + formatName + '-' + getDateString() + '.txt', 'text/plain;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'OTPAuth 文本');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatOtpauthText') : null) || 'OTPAuth text');
       }
     }
 
@@ -272,14 +272,24 @@ export function getStandardFormatsCode() {
       const content = JSON.stringify(exportData, null, 2);
       const saved = await downloadFile(content, filenamePrefix + '-data-' + getDateString() + '.json', 'application/json;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'JSON 数据');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatJsonData') : null) || 'JSON data');
       }
     }
 
     // 导出为 CSV 格式
     async function exportAsCSV(sortedSecrets, options = {}) {
       const filenamePrefix = options.filenamePrefix || '2FA-secrets';
-      const headers = ['服务名称', '账户信息', '密钥', '类型', '位数', '周期(秒)', '算法', '计数器'];
+      const _t = typeof t === 'function' ? t : (k) => null;
+      const headers = [
+        _t('serviceName') || 'Service',
+        _t('accountInfo') || 'Account',
+        _t('keySecret') || 'Secret',
+        _t('keyType') || 'Type',
+        _t('keyDigits') || 'Digits',
+        _t('keyPeriod') || 'Period (s)',
+        _t('keyAlgorithm') || 'Algorithm',
+        _t('counterLabel') || 'Counter'
+      ];
       const csvRows = [headers.join(',')];
 
       sortedSecrets.forEach(secret => {
@@ -301,7 +311,7 @@ export function getStandardFormatsCode() {
       const bom = '\\uFEFF';
       const saved = await downloadFile(bom + content, filenamePrefix + '-table-' + getDateString() + '.csv', 'text/csv;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'CSV 表格');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatCsvTable') : null) || 'CSV table');
       }
     }
 
@@ -330,6 +340,23 @@ export function getStandardFormatsCode() {
         metadata: options.metadata || {}
       }, null, 2));
 
+      const _t = typeof t === 'function' ? t : (k) => null;
+      const unassignedText = _t('htmlBackupQrPlaceholder') || 'Not embedded';
+      const docTitle = _t('htmlBackupTitle') || '2FA Secrets Backup';
+      const createdTimeLabel = _t('exportCreatedTime') || 'Created';
+      const countLabel = _t('exportBackupCount') || 'Total Secrets';
+      const tableAriaLabel = _t('backupTableAriaLabel') || 'Backup secrets table';
+      const thService = _t('serviceName') || 'Service';
+      const thAccount = _t('accountInfo') || 'Account';
+      const thSecret = _t('keySecret') || 'Secret';
+      const thType = _t('keyType') || 'Type';
+      const thDigits = _t('keyDigits') || 'Digits';
+      const thPeriod = _t('keyPeriod') || 'Period (s)';
+      const thAlgorithm = _t('keyAlgorithm') || 'Algorithm';
+      const thCounter = _t('counterLabel') || 'Counter';
+      const thQr = _t('qrCode') || 'QR Code';
+      const htmlLang = (typeof currentLang === 'string' && currentLang) ? currentLang : 'en';
+
       const rowsHtml = normalizedSecrets.map(secret =>
         '        <tr>\\n' +
         '          <td>' + escapeHTML(secret.name) + '</td>\\n' +
@@ -340,34 +367,34 @@ export function getStandardFormatsCode() {
         '          <td>' + secret.period + '</td>\\n' +
         '          <td>' + escapeHTML(secret.algorithm) + '</td>\\n' +
         '          <td>' + secret.counter + '</td>\\n' +
-        '          <td class="qr-cell qr-cell-placeholder">未嵌入</td>\\n' +
+        '          <td class="qr-cell qr-cell-placeholder">' + escapeHTML(unassignedText) + '</td>\\n' +
         '        </tr>\\n'
       ).join('');
 
       const htmlContent = '<!DOCTYPE html>\\n' +
-        '<html lang="zh-CN">\\n' +
+        '<html lang="' + escapeHTML(htmlLang) + '">\\n' +
         '<head>\\n' +
-        ${JSON.stringify(getStandaloneHead('2FA 密钥备份', getBackupDocumentStyles())).replace(/</g, '\\u003c')} +
+        ${JSON.stringify(getStandaloneHead('2FA Secrets Backup', getBackupDocumentStyles())).replace(/</g, '\\u003c')} +
         '  <meta name="2fa-backup-meta" content="skippedInvalidCount=0">\\n' +
         '</head>\\n' +
         '<body data-skipped-invalid-count="0">\\n' +
-        '  <main class="backup-document"><header class="document-header"><h1>2FA 密钥备份</h1><div class="meta">\\n' +
-        '  <p>创建时间: ' + escapeHTML(exportTimestamp) + '</p>\\n' +
-        '  <p>备份数量: ' + normalizedSecrets.length + '</p>\\n' +
+        '  <main class="backup-document"><header class="document-header"><h1>' + escapeHTML(docTitle) + '</h1><div class="meta">\\n' +
+        '  <p>' + escapeHTML(createdTimeLabel) + ': ' + escapeHTML(exportTimestamp) + '</p>\\n' +
+        '  <p>' + escapeHTML(countLabel) + ': ' + normalizedSecrets.length + '</p>\\n' +
         '  </div></header>\\n' +
-        '  <div class="table-scroll" role="region" aria-label="备份密钥表格" tabindex="0">\\n' +
+        '  <div class="table-scroll" role="region" aria-label="' + escapeHTML(tableAriaLabel) + '" tabindex="0">\\n' +
         '  <table data-skipped-invalid-count="0">\\n' +
         '    <thead>\\n' +
         '      <tr>\\n' +
-        '        <th>服务名称</th>\\n' +
-        '        <th>账户信息</th>\\n' +
-        '        <th>密钥</th>\\n' +
-        '        <th>类型</th>\\n' +
-        '        <th>位数</th>\\n' +
-        '        <th>周期(秒)</th>\\n' +
-        '        <th>算法</th>\\n' +
-        '        <th>计数器</th>\\n' +
-        '        <th>二维码</th>\\n' +
+        '        <th>' + escapeHTML(thService) + '</th>\\n' +
+        '        <th>' + escapeHTML(thAccount) + '</th>\\n' +
+        '        <th>' + escapeHTML(thSecret) + '</th>\\n' +
+        '        <th>' + escapeHTML(thType) + '</th>\\n' +
+        '        <th>' + escapeHTML(thDigits) + '</th>\\n' +
+        '        <th>' + escapeHTML(thPeriod) + '</th>\\n' +
+        '        <th>' + escapeHTML(thAlgorithm) + '</th>\\n' +
+        '        <th>' + escapeHTML(thCounter) + '</th>\\n' +
+        '        <th>' + escapeHTML(thQr) + '</th>\\n' +
         '      </tr>\\n' +
         '    </thead>\\n' +
         '    <tbody>\\n' +

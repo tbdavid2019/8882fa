@@ -96,6 +96,6 @@ describe('URI-based authenticator exports', () => {
 		const result = await api[method]([account], 'AuditExport#2026');
 		expect(result).toBe(false);
 		expect(api.downloadFile).not.toHaveBeenCalled();
-		expect(api.showCenterToast).toHaveBeenCalledWith('❌', expect.stringContaining('改用 JSON'));
+		expect(api.showCenterToast).toHaveBeenCalledWith('❌', expect.stringMatching(/改用 JSON|use JSON/i));
 	});
 });

@@ -24,7 +24,7 @@ describe('backup module code generation', () => {
 
     expect(code).toContain('function getBackupStoredFormat(backup)');
     expect(code).toContain('const formatLabel = getBackupExportFormatLabel(getBackupStoredFormat(backup));');
-		expect(code).toContain("option.title = new Date(backup.created).toLocaleString('zh-CN') + ' | ' + formatLabel;");
+		expect(code).toContain("option.title = new Date(backup.created).toLocaleString() + ' | ' + formatLabel;");
 		expect(code).toContain('const previewSummary =');
 	});
 
@@ -49,7 +49,7 @@ describe('backup module code generation', () => {
     const code = getBackupCode();
 
     expect(code).toContain("'<td class=\"service-name\">' + escapeHTML(secret.name || '') + '</td>'");
-    expect(code).toContain("'<td class=\"account-info\">' + escapeHTML(secret.account || secret.service || '无账户信息') + '</td>'");
+    expect(code).toContain("'<td class=\"account-info\">' + escapeHTML(secret.account || secret.service || ((typeof t === 'function' ? t('noAccountInfo') : null) || 'No Account')) + '</td>'");
   });
 
   it('ignores stale preview responses when the user switches backups quickly', () => {

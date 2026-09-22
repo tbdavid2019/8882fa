@@ -23,7 +23,7 @@ export function getQRGenerateToolCode() {
     async function generateQRCode() {
       const content = document.getElementById('qrContentInput').value.trim();
       if (!content) {
-        showCenterToast('❌', '请输入要生成二维码的内容');
+        showCenterToast('❌', (typeof t === 'function' ? t('qrNoContentToGenerate') : null) || 'Please enter content to generate QR code');
         return;
       }
 
@@ -46,12 +46,12 @@ export function getQRGenerateToolCode() {
           resultSection.style.display = 'block';
         };
         qrImage.onerror = function() {
-          showCenterToast('❌', '二维码生成失败，请重试');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrGenerateFailed', { error: '' }) : null) || 'QR code generation failed, please try again');
         };
 
       } catch (error) {
-        console.error('二维码生成过程发生错误:', error);
-        showCenterToast('❌', '二维码生成失败: ' + error.message);
+        console.error('QR code generation error:', error);
+        showCenterToast('❌', ((typeof t === 'function' ? t('qrGenerateFailed', { error: error.message }) : null) || ('Failed to generate QR code: ' + error.message)));
       }
     }
 

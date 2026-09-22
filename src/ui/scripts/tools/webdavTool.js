@@ -38,7 +38,7 @@ export function getWebdavToolCode() {
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderWebdavCard(dest)).join('');
         } else {
-          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('webdavEmptyList') : null) || '暂无 WebDAV 目标，点击下方按钮添加') + '</div>';
+          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('webdavEmptyList') : null) || 'No WebDAV targets. Click button below to add') + '</div>';
         }
 
         // 达到上限时隐藏添加按钮
@@ -48,17 +48,17 @@ export function getWebdavToolCode() {
         hideWebdavForm();
       } catch (error) {
         console.error('加载 WebDAV 配置失败:', error);
-        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || '加载失败，请稍后重试') + '</div>';
+        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || 'Failed to load, please try again later') + '</div>';
       }
     }
 
     function _renderWebdavCard(dest) {
       let statusDot = 'dest-status-dot-gray';
-      let statusText = (typeof t === 'function' ? t('syncStatusNotPushed') : null) || '未推送';
+      let statusText = (typeof t === 'function' ? t('syncStatusNotPushed') : null) || 'Not pushed';
 
       if (dest.status.lastError) {
         statusDot = 'dest-status-dot-red';
-        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || '失败: ') + dest.status.lastError.error;
+        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || 'Failed: ') + dest.status.lastError.error;
       } else if (dest.status.lastSuccess) {
         statusDot = 'dest-status-dot-green';
         statusText = new Date(dest.status.lastSuccess.timestamp).toLocaleString();
@@ -73,7 +73,7 @@ export function getWebdavToolCode() {
         + '<span class="dest-card-url">' + _escapeHtml(dest.config.url) + '</span>'
         + '</div>'
         + '<label class="dest-toggle" onclick="event.stopPropagation()">'
-        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || '启用此同步目标') + '" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleWebdavDest(\\'' + dest.id + '\\', this.checked)" />'
+        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || 'Enable this sync target') + '" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleWebdavDest(\\'' + dest.id + '\\', this.checked)" />'
         + '<span class="dest-toggle-slider"></span>'
         + '</label>'
         + '</div>'
@@ -82,8 +82,8 @@ export function getWebdavToolCode() {
         + '<span class="dest-status-text">' + _escapeHtml(statusText) + '</span>'
         + '</div>'
         + '<div class="dest-card-actions">'
-        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editWebdavDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || '编辑') + '</button>'
-        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteWebdavDest(\\'' + dest.id + '\\', \\'' + _escapeHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || '删除') + '</button>'
+        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editWebdavDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || 'Edit') + '</button>'
+        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteWebdavDest(\\'' + dest.id + '\\', \\'' + _escapeHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || 'Delete') + '</button>'
         + '</div>'
         + '</div>';
     }
@@ -107,7 +107,7 @@ export function getWebdavToolCode() {
         document.getElementById('webdavUrl').value = '';
         document.getElementById('webdavUsername').value = '';
         document.getElementById('webdavPassword').value = '';
-        document.getElementById('webdavPassword').placeholder = '请输入密码';
+        document.getElementById('webdavPassword').placeholder = (typeof t === 'function' ? t('remoteEnterPasswordPlaceholder') : null) || 'Enter password';
         document.getElementById('webdavPath').value = '/';
       }
     }
@@ -130,12 +130,12 @@ export function getWebdavToolCode() {
         document.getElementById('webdavUrl').value = dest.config.url;
         document.getElementById('webdavUsername').value = dest.config.username;
         document.getElementById('webdavPassword').value = '';
-        document.getElementById('webdavPassword').placeholder = dest.config.hasPassword ? '已保存（留空保持不变）' : '请输入密码';
+        document.getElementById('webdavPassword').placeholder = dest.config.hasPassword ? ((typeof t === 'function' ? t('remoteSavedPasswordKeepPlaceholder') : null) || 'Saved (leave blank to keep)') : ((typeof t === 'function' ? t('remoteEnterPasswordPlaceholder') : null) || 'Enter password');
         document.getElementById('webdavPath').value = dest.config.path || '/';
 
         showWebdavForm(id);
       } catch (error) {
-        showCenterToast('❌', '加载配置失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Failed to load config: ' + error.message)));
       }
     }
 
@@ -148,13 +148,13 @@ export function getWebdavToolCode() {
       const path = document.getElementById('webdavPath').value.trim() || '/';
 
       if (!name || !url || !username) {
-        showCenterToast('⚠️', '请填写目标名称、服务器地址和用户名');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('webdavFillRequired') : null) || 'Please enter target name, server URL, and username');
         return;
       }
 
       const saveBtn = document.getElementById('webdavSaveBtn');
       const originalText = saveBtn.textContent;
-      saveBtn.textContent = '保存中...';
+      saveBtn.textContent = (typeof t === 'function' ? t('remoteSavingBtn') : null) || 'Saving...';
       saveBtn.disabled = true;
 
       try {
@@ -172,14 +172,14 @@ export function getWebdavToolCode() {
           if (data.warning) {
             showCenterToast('⚠️', data.warning);
           } else {
-            showCenterToast('✅', 'WebDAV 配置已保存');
+            showCenterToast('✅', (typeof t === 'function' ? t('webdavSaved') : null) || 'WebDAV configuration saved');
           }
           loadWebdavDestinations();
         } else {
-          showCenterToast('❌', data.message || '保存失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('saveFailed') : null) || 'Save failed');
         }
       } catch (error) {
-        showCenterToast('❌', '保存失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Save failed: ' + error.message)));
       } finally {
         saveBtn.textContent = originalText;
         saveBtn.disabled = false;
@@ -195,13 +195,13 @@ export function getWebdavToolCode() {
       const path = document.getElementById('webdavPath').value.trim() || '/';
 
       if (!name || !url || !username) {
-        showCenterToast('⚠️', '请填写目标名称、服务器地址和用户名');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('webdavFillRequired') : null) || 'Please enter target name, server URL, and username');
         return;
       }
 
       const testBtn = document.getElementById('webdavTestBtn');
       const originalText = testBtn.textContent;
-      testBtn.textContent = '测试中...';
+      testBtn.textContent = (typeof t === 'function' ? t('remoteTestingBtn') : null) || 'Testing...';
       testBtn.disabled = true;
 
       try {
@@ -216,12 +216,12 @@ export function getWebdavToolCode() {
         const data = await response.json();
 
         if (data.success) {
-          showCenterToast('✅', data.message || '连接成功');
+          showCenterToast('✅', data.message || (typeof t === 'function' ? t('remoteTestSuccess') : null) || 'Connection successful');
         } else {
-          showCenterToast('❌', data.message || '连接失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('remoteTestFailed') : null) || 'Connection failed');
         }
       } catch (error) {
-        showCenterToast('❌', '测试失败: ' + error.message);
+        showCenterToast('❌', (typeof t === 'function' ? t('remoteTestFailed') : null) || ('Test failed: ' + error.message));
       } finally {
         testBtn.textContent = originalText;
         testBtn.disabled = false;
@@ -230,10 +230,10 @@ export function getWebdavToolCode() {
 
     async function deleteWebdavDest(id, name) {
       const confirmed = await showConfirmDialog({
-        title: '删除 WebDAV 目标',
-        message: '确定要删除 WebDAV 目标「' + name + '」吗？\\n删除后该目标将不再接收备份推送。',
-        confirmText: '删除',
-        cancelText: '取消',
+        title: (typeof t === 'function' ? t('remoteDeleteConfirmTitle', { target: 'WebDAV' }) : null) || 'Delete WebDAV Target',
+        message: (typeof t === 'function' ? t('remoteDeleteConfirmMsg', { target: 'WebDAV', name: name }) : null) || ('Are you sure you want to delete WebDAV target "' + name + '"?\\nIt will no longer receive backup pushes.'),
+        confirmText: (typeof t === 'function' ? t('delete') : null) || 'Delete',
+        cancelText: (typeof t === 'function' ? t('cancel') : null) || 'Cancel',
         danger: true
       });
       if (!confirmed) {
@@ -247,13 +247,13 @@ export function getWebdavToolCode() {
         const data = await response.json();
 
         if (data.success) {
-          showCenterToast('✅', 'WebDAV 目标已删除');
+          showCenterToast('✅', (typeof t === 'function' ? t('remoteTargetDeleted', { target: 'WebDAV' }) : null) || 'WebDAV target deleted');
           loadWebdavDestinations();
         } else {
-          showCenterToast('❌', data.message || '删除失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: '' }) : null) || 'Delete failed');
         }
       } catch (error) {
-        showCenterToast('❌', '删除失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: error.message }) : null) || ('Delete failed: ' + error.message)));
       }
     }
 
@@ -270,11 +270,11 @@ export function getWebdavToolCode() {
           showCenterToast('✅', data.message);
           loadWebdavDestinations();
         } else {
-          showCenterToast('❌', data.message || '操作失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('operationFailed') : null) || 'Operation failed');
           loadWebdavDestinations();
         }
       } catch (error) {
-        showCenterToast('❌', '操作失败: ' + error.message);
+        showCenterToast('❌', (typeof t === 'function' ? t('operationFailed') : null) || ('Operation failed: ' + error.message));
         loadWebdavDestinations();
       }
     }

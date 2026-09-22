@@ -17,7 +17,7 @@ export function getPreviewImportCode() {
     function previewImport() {
       const text = document.getElementById('importText').value.trim();
       if (!text) {
-        showCenterToast('❌', '请先输入或选择要导入的内容');
+        showCenterToast('❌', (typeof t === 'function' ? t('importEmptyNotice') : null) || 'Please input or select content to import first');
         return;
       }
 
@@ -43,19 +43,20 @@ export function getPreviewImportCode() {
         freeotpBackupData = freeotpData;
         const tokenCount = Object.keys(freeotpData.tokenMeta).length;
 
+        const _t = typeof t === 'function' ? t : (k) => null;
         Object.entries(freeotpData.tokenMeta).forEach(([uuid, meta]) => {
           const item = document.createElement('div');
           item.className = 'import-preview-item valid';
 
           const issuer = meta.issuerExt || meta.issuerInt || '';
           const account = meta.label || '';
-          let displayInfo = issuer || '未知服务';
+          let displayInfo = issuer || (_t('importUnknownService') || 'Unknown Service');
           if (meta.type && meta.type !== 'TOTP') displayInfo += ' [' + meta.type + ']';
-          if (meta.digits && meta.digits !== 6) displayInfo += ' [' + meta.digits + '位]';
+          if (meta.digits && meta.digits !== 6) displayInfo += ' [' + meta.digits + (_t('digitsSuffix') || ' digits') + ']';
 
           item.innerHTML =
             '<div class="service-name">' + dialogIcon('lock') + ' ' + escapeHTML(displayInfo) + '</div>' +
-            '<div class="account-name">' + escapeHTML(account || '(需要密码解密)') + '</div>';
+            '<div class="account-name">' + escapeHTML(account || (_t('importNeedPasswordDecrypt') || '(Password required to decrypt)')) + '</div>';
 
           previewList.appendChild(item);
 
@@ -71,19 +72,24 @@ export function getPreviewImportCode() {
 
         const statsDiv = document.createElement('div');
         statsDiv.className = 'dialog-encrypted-import';
+        const freeotpTitle = _t('importFreeotpEncryptedBackup') || 'FreeOTP Encrypted Backup';
+        const freeotpCountMsg = (_t('importDetectedEncryptedSecrets') ? _t('importDetectedEncryptedSecrets').replace('{count}', tokenCount) : ('Detected ' + tokenCount + ' encrypted keys'));
+        const pwdPlaceholder = _t('importInputBackupPassword') || 'Enter backup password';
+        const pwdAria = _t('backupPasswordAriaLabel') || 'Backup password';
+        const decryptBtn = _t('decryptBtnText') || 'Decrypt';
         statsDiv.innerHTML =
-          '<strong>FreeOTP 加密备份</strong>' +
-          '<p>检测到 ' + tokenCount + ' 个加密密钥</p>' +
+          '<strong>' + escapeHTML(freeotpTitle) + '</strong>' +
+          '<p>' + escapeHTML(freeotpCountMsg) + '</p>' +
           '<div class="dialog-decrypt-controls">' +
-          '<input type="password" id="freeotpPassword" placeholder="输入备份密码" aria-label="备份密码">' +
-          '<button type="button" onclick="decryptAndPreviewFreeOTP()" class="btn btn-primary">解密</button>' +
+          '<input type="password" id="freeotpPassword" placeholder="' + escapeHTML(pwdPlaceholder) + '" aria-label="' + escapeHTML(pwdAria) + '">' +
+          '<button type="button" onclick="decryptAndPreviewFreeOTP()" class="btn btn-primary">' + escapeHTML(decryptBtn) + '</button>' +
           '</div>';
 
         previewList.insertBefore(statsDiv, previewList.firstChild);
         updateImportStats(validCount, 0, 0);
         previewDiv.style.display = 'block';
         executeBtn.disabled = true;
-        executeBtn.textContent = '需要先解密';
+        executeBtn.textContent = _t('importDecryptRequiredFirst') || 'Decryption required first';
         return;
       }
 
@@ -91,20 +97,26 @@ export function getPreviewImportCode() {
       if (isTOTPAuthenticatorBackup(text)) {
         totpAuthBackupData = text;
 
+        const _t = typeof t === 'function' ? t : (k) => null;
         const statsDiv = document.createElement('div');
         statsDiv.className = 'dialog-encrypted-import';
+        const totpTitle = _t('importTotpAuthEncryptedBackup') || 'TOTP Authenticator Encrypted Backup';
+        const totpCountMsg = _t('importDetectedTotpAuthBackup') || 'Detected encrypted TOTP Authenticator backup';
+        const pwdPlaceholder = _t('importInputBackupPassword') || 'Enter backup password';
+        const pwdAria = _t('backupPasswordAriaLabel') || 'Backup password';
+        const decryptBtn = _t('decryptBtnText') || 'Decrypt';
         statsDiv.innerHTML =
-          '<strong>TOTP Authenticator 加密备份</strong>' +
-          '<p>检测到加密的 TOTP Authenticator 备份</p>' +
+          '<strong>' + escapeHTML(totpTitle) + '</strong>' +
+          '<p>' + escapeHTML(totpCountMsg) + '</p>' +
           '<div class="dialog-decrypt-controls">' +
-          '<input type="password" id="totpAuthPassword" placeholder="输入备份密码" aria-label="备份密码">' +
-          '<button type="button" onclick="decryptAndPreviewTOTPAuth()" class="btn btn-primary">解密</button>' +
+          '<input type="password" id="totpAuthPassword" placeholder="' + escapeHTML(pwdPlaceholder) + '" aria-label="' + escapeHTML(pwdAria) + '">' +
+          '<button type="button" onclick="decryptAndPreviewTOTPAuth()" class="btn btn-primary">' + escapeHTML(decryptBtn) + '</button>' +
           '</div>';
 
         previewList.appendChild(statsDiv);
         previewDiv.style.display = 'block';
         executeBtn.disabled = true;
-        executeBtn.textContent = '需要先解密';
+        executeBtn.textContent = _t('importDecryptRequiredFirst') || 'Decryption required first';
         return;
       }
 
@@ -117,7 +129,7 @@ export function getPreviewImportCode() {
       if (isHtmlFormat) {
         const htmlLines = parseHTMLImport(text);
         if (htmlLines.length === 0) {
-          showCenterToast('❌', '未从HTML文件中提取到有效密钥');
+          showCenterToast('❌', ((typeof t === 'function' ? t('importNoValidKeysFromHtml') : null) || 'No valid keys extracted from HTML file'));
           return;
         }
         lines = htmlLines;
@@ -129,19 +141,19 @@ export function getPreviewImportCode() {
         try {
           jsonData = JSON.parse(text);
         } catch (jsonError) {
-          console.log('JSON解析失败，按OTPAuth URL格式解析:', jsonError.message);
+          console.log('JSON parse failed, parsing as OTPAuth URL format:', jsonError.message);
         }
 
         if (jsonData) {
           try {
           lines = parseJsonImport(jsonData);
           if (lines.length === 0) {
-            showCenterToast('❌', '未找到有效的密钥数据');
+            showCenterToast('❌', ((typeof t === 'function' ? t('importNoValidKeyDataFound') : null) || 'No valid key data found'));
             return;
           }
           } catch (parseError) {
-            console.error('JSON导入解析失败:', parseError);
-            showCenterToast('❌', parseError.message || '未识别的 JSON 导入格式');
+            console.error('JSON import parse failed:', parseError);
+            showCenterToast('❌', parseError.message || ((typeof t === 'function' ? t('unrecognizedJsonFormat') : null) || 'Unrecognized JSON import format'));
             return;
           }
         }
@@ -152,7 +164,7 @@ export function getPreviewImportCode() {
                (text.toLowerCase().includes('service') && text.toLowerCase().includes('secret') && text.includes(','))) {
         const csvLines = parseCSVImport(text);
         if (csvLines.length === 0) {
-          showCenterToast('❌', '未从CSV文件中提取到有效密钥');
+          showCenterToast('❌', ((typeof t === 'function' ? t('importNoValidKeysFromCsv') : null) || 'No valid keys extracted from CSV file'));
           return;
         }
         lines = csvLines;
@@ -185,15 +197,16 @@ export function getPreviewImportCode() {
                 const codeDisplay = JSON.parse(decodeURIComponent(codeDisplayParam));
                 isDeleted = codeDisplay.trashed === true;
               } catch (e) {
-                console.warn('解析 codeDisplay 失败:', e.message);
+                console.warn('Failed to parse codeDisplay:', e.message);
               }
             }
 
             if (isDeleted) {
+              const _t = typeof t === 'function' ? t : (k) => null;
               item.className += ' skipped';
               item.innerHTML =
-                '<div class="service-name">' + dialogIcon('info') + ' ' + escapeHTML(issuer || '未知服务') + '</div>' +
-                '<div class="account-name">已删除条目，跳过导入</div>';
+                '<div class="service-name">' + dialogIcon('info') + ' ' + escapeHTML(issuer || (_t('importUnknownService') || 'Unknown Service')) + '</div>' +
+                '<div class="account-name">' + escapeHTML(_t('importDeletedSkipped') || 'Deleted entry, skipped import') + '</div>';
               previewList.appendChild(item);
               skippedCount++;
               return;
@@ -222,15 +235,16 @@ export function getPreviewImportCode() {
               if (validateBase32(cleanedSecret)) {
                 item.className += ' valid';
 
+                const _t = typeof t === 'function' ? t : (k) => null;
                 let displayInfo = serviceName;
                 if (type === 'hotp') displayInfo += ' [HOTP]';
-                if (digits !== 6) displayInfo += ' [' + digits + '位]';
+                if (digits !== 6) displayInfo += ' [' + digits + (_t('digitsSuffix') || ' digits') + ']';
                 if (period !== 30 && type === 'totp') displayInfo += ' [' + period + 's]';
                 if (algorithm !== 'SHA1') displayInfo += ' [' + algorithm + ']';
 
                 item.innerHTML =
                   '<div class="service-name">' + dialogIcon('check') + ' ' + escapeHTML(displayInfo) + '</div>' +
-                  '<div class="account-name">' + escapeHTML(account || '(无账户)') + '</div>';
+                  '<div class="account-name">' + escapeHTML(account || (_t('importNoAccount') || '(No Account)')) + '</div>';
 
                 importPreviewData.push({
                   serviceName: serviceName,
@@ -247,18 +261,18 @@ export function getPreviewImportCode() {
 
                 validCount++;
               } else {
-                throw new Error('无效的Base32密钥格式');
+                throw new Error((typeof t === 'function' ? t('invalidBase32Secret') : null) || 'Invalid Base32 secret format');
               }
             } else {
-              throw new Error('缺少必要信息（密钥或服务名）');
+              throw new Error((typeof t === 'function' ? t('missingRequiredSecretOrService') : null) || 'Missing required information (secret or service name)');
             }
           } else {
-            throw new Error('不是有效的otpauth://格式');
+            throw new Error((typeof t === 'function' ? t('invalidOtpauthFormat') : null) || 'Not a valid otpauth:// format');
           }
         } catch (error) {
           item.className += ' invalid';
           item.innerHTML =
-            '<div class="service-name">' + dialogIcon('error') + ' 第' + (index + 1) + '行</div>' +
+            '<div class="service-name">' + dialogIcon('error') + ' ' + escapeHTML(((typeof t === 'function' ? t('rowPrefix') : null) || 'Row ') + (index + 1)) + '</div>' +
             '<div class="error-msg">' + escapeHTML(error.message) + '</div>';
 
           importPreviewData.push({
@@ -275,7 +289,7 @@ export function getPreviewImportCode() {
 
       updateImportStats(validCount, invalidCount, skippedCount);
       previewDiv.style.display = 'block';
-      executeBtn.textContent = '导入';
+      executeBtn.textContent = (typeof t === 'function' ? t('importBtnText') : null) || 'Import';
       executeBtn.disabled = validCount === 0;
     }
 `;
@@ -347,13 +361,13 @@ export function getExecuteImportCode() {
         : importPreviewData.filter(item => item.valid);
 
       if (validItems.length === 0) {
-        showCenterToast('❌', '没有有效的密钥可以导入');
+        showCenterToast('❌', (typeof t === 'function' ? t('importNoValidSecrets') : null) || 'No valid keys to import');
         return;
       }
 
       const executeBtn = document.getElementById('executeImportBtn');
       executeBtn.disabled = true;
-      executeBtn.textContent = '⏳ 导入中...';
+      executeBtn.textContent = (typeof t === 'function' ? t('importExecuting') : null) || '⏳ Importing...';
 
       // 跨轮累计的进度坐标系：
       //   - 首轮把当前 validItems.length 记为整批原始总数
@@ -370,8 +384,8 @@ export function getExecuteImportCode() {
 
       const totalChunks = Math.max(1, Math.ceil(validItems.length / BULK_IMPORT_CHUNK_SIZE));
       showImportProgress({
-        title: '批量导入中',
-        message: totalChunks > 1 ? ('准备导入第 1 / ' + totalChunks + ' 批...') : '准备导入...',
+        title: (typeof t === 'function' ? t('importBatchInProgress') : null) || 'Batch importing',
+        message: totalChunks > 1 ? ((typeof t === 'function' ? t('importBatchPreparing', { current: 1, total: totalChunks }) : null) || ('Preparing batch 1 / ' + totalChunks + '...')) : ((typeof t === 'function' ? t('importExecuting') : null) || 'Preparing import...'),
         totalItems: originalTotalItems,
         processedItems: priorProcessedItems,
         successCount: pendingImportPriorSuccessCount,
@@ -390,8 +404,8 @@ export function getExecuteImportCode() {
             const resultIndex = typeof itemResult.index === 'number' ? itemResult.index : 0;
             const srcItem = validItemsForResults[resultIndex];
             const line = srcItem && typeof srcItem.line === 'number' ? srcItem.line : resultIndex + 1;
-            const name = srcItem ? (srcItem.serviceName || '未知服务') : '未知服务';
-            failures.push({ line: line, name: name, error: itemResult.error || '未知错误' });
+            const name = srcItem ? (srcItem.serviceName || ((typeof t === 'function' ? t('importUnknownService') : null) || 'Unknown Service')) : ((typeof t === 'function' ? t('importUnknownService') : null) || 'Unknown Service');
+            failures.push({ line: line, name: name, error: itemResult.error || ((typeof t === 'function' ? t('importUnknownError') : null) || 'Unknown error') });
           }
         });
         return failures;
@@ -407,7 +421,7 @@ export function getExecuteImportCode() {
       let thisRunFailures = [];
 
       try {
-        console.log('开始批量导入', validItems.length, '个密钥');
+        console.log('Starting batch import of ' + validItems.length + ' keys');
 
         // importSecretsInChunks 的 progressState 以"本轮"为坐标，这里把它重映射到"整批累计"坐标系，
         // 让进度面板的 totalItems/processedItems 与 successCount/failCount 保持同一口径
@@ -432,16 +446,16 @@ export function getExecuteImportCode() {
             : resultIndex + 1;
 
           if (itemResult.success) {
-            const secretName = itemResult.secret && itemResult.secret.name ? itemResult.secret.name : (fallbackItem ? fallbackItem.serviceName : '未知服务');
-            console.log('✅ 第' + lineNumber + ' 行导入成功', secretName);
+            const secretName = itemResult.secret && itemResult.secret.name ? itemResult.secret.name : (fallbackItem ? fallbackItem.serviceName : ((typeof t === 'function' ? t('importUnknownService') : null) || 'Unknown Service'));
+            console.log('✅ Row ' + lineNumber + ' imported successfully', secretName);
           } else {
-            const name = fallbackItem ? (fallbackItem.serviceName || '未知服务') : '未知服务';
-            thisRunFailures.push({ line: lineNumber, name: name, error: itemResult.error || '未知错误' });
-            console.error('❌ 第' + lineNumber + ' 行导入失败', itemResult.error);
+            const name = fallbackItem ? (fallbackItem.serviceName || ((typeof t === 'function' ? t('importUnknownService') : null) || 'Unknown Service')) : ((typeof t === 'function' ? t('importUnknownService') : null) || 'Unknown Service');
+            thisRunFailures.push({ line: lineNumber, name: name, error: itemResult.error || ((typeof t === 'function' ? t('importUnknownError') : null) || 'Unknown error') });
+            console.error('❌ Row ' + lineNumber + ' import failed', itemResult.error);
           }
         });
       } catch (error) {
-        console.error('导入过程出错:', error);
+        console.error('Import process error:', error);
         await loadSecrets();
         const partialSuccessCount = typeof error?.partialSuccessCount === 'number' ? error.partialSuccessCount : 0;
         const partialFailCount = typeof error?.partialFailCount === 'number' ? error.partialFailCount : 0;
@@ -463,12 +477,12 @@ export function getExecuteImportCode() {
           const aggregateSuccess = pendingImportPriorSuccessCount;
           const aggregateFail = pendingImportPriorFailCount;
           const aggregateProcessed = pendingImportPriorProcessedItems;
-          showCenterToast('⚠️', '本轮已处理 ' + processedValidItems + ' 条（累计成功 ' + aggregateSuccess + '，累计失败 ' + aggregateFail + '），剩余 ' + remainingRetryItems.length + ' 条待继续：' + error.message);
+          showCenterToast('⚠️', ((typeof t === 'function' ? t('importResultSummary', { success: aggregateSuccess, fail: aggregateFail }) : null) || ('Import finished: ' + aggregateSuccess + ' succeeded, ' + aggregateFail + ' failed')));
           executeBtn.disabled = false;
-          executeBtn.textContent = remainingRetryItems.length > 0 ? '继续导入剩余项' : '导入';
+          executeBtn.textContent = remainingRetryItems.length > 0 ? ((typeof t === 'function' ? t('importContinueRemaining') : null) || 'Continue Remaining') : ((typeof t === 'function' ? t('importBtnText') : null) || 'Import');
           updateImportProgress({
-            title: '部分导入成功',
-            message: '已处理 ' + aggregateProcessed + ' / ' + originalTotalItems + '，剩余 ' + remainingRetryItems.length + ' 条待继续',
+            title: (typeof t === 'function' ? t('importPartialSuccess') : null) || 'Partially imported',
+            message: aggregateProcessed + ' / ' + originalTotalItems + ', ' + remainingRetryItems.length + ' remaining',
             totalItems: originalTotalItems,
             processedItems: aggregateProcessed,
             successCount: aggregateSuccess,
@@ -484,9 +498,9 @@ export function getExecuteImportCode() {
         if (!isRetryingPendingItems) {
           resetImportRetryState();
         }
-        showCenterToast('❌', '导入失败：' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('importFailed', { error: error.message }) : null) || ('Import failed: ' + error.message)));
         executeBtn.disabled = false;
-        executeBtn.textContent = isRetryingPendingItems ? '继续导入剩余项' : '导入';
+        executeBtn.textContent = isRetryingPendingItems ? ((typeof t === 'function' ? t('importContinueRemaining') : null) || 'Continue Remaining') : ((typeof t === 'function' ? t('importBtnText') : null) || 'Import');
         return;
       }
 
@@ -497,8 +511,8 @@ export function getExecuteImportCode() {
       const aggregateProcessed = priorProcessedItems + validItems.length;
 
       updateImportProgress({
-        title: '批量导入完成',
-        message: aggregateFail === 0 ? '导入完成' : '导入完成，存在失败项',
+        title: (typeof t === 'function' ? t('importBatchComplete') : null) || 'Batch import completed',
+        message: aggregateFail === 0 ? ((typeof t === 'function' ? t('importComplete') : null) || 'Import completed') : ((typeof t === 'function' ? t('importCompleteWithErrors') : null) || 'Import completed with errors'),
         totalItems: originalTotalItems,
         processedItems: aggregateProcessed,
         successCount: aggregateSuccess,
@@ -508,12 +522,12 @@ export function getExecuteImportCode() {
       });
 
       if (aggregateFail === 0) {
-        showCenterToast('✅', '成功导入 ' + aggregateSuccess + ' 个密钥');
+        showCenterToast('✅', (typeof t === 'function' ? t('importSuccessCount', { count: aggregateSuccess }) : null) || ('Successfully imported ' + aggregateSuccess + ' keys'));
       } else {
-        showCenterToast('⚠️', '导入完成: ' + aggregateSuccess + ' 成功, ' + aggregateFail + ' 失败');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('importResultSummary', { success: aggregateSuccess, fail: aggregateFail }) : null) || ('Import finished: ' + aggregateSuccess + ' succeeded, ' + aggregateFail + ' failed'));
         // 把累计失败明细打印出来，方便用户在 devtools 里核对（UI 层没有专门的汇总模态框）
         aggregateFailures.forEach(function(f) {
-          console.error('❌ 第' + f.line + ' 行导入失败（累计）', f.name, f.error);
+          console.error('❌ Line ' + f.line + ' import failed (cumulative):', f.name, f.error);
         });
       }
 
@@ -535,8 +549,8 @@ export function getExecuteImportCode() {
         const currentChunkNumber = chunkIndex + 1;
 
         reportImportProgress(onProgress, {
-          title: '批量导入中',
-          message: '正在处理第 ' + currentChunkNumber + ' / ' + chunkCount + ' 批...',
+          title: (typeof t === 'function' ? t('importBatchInProgress') : null) || 'Batch importing',
+          message: (typeof t === 'function' ? t('importBatchProcessing', { current: currentChunkNumber, total: chunkCount }) : null) || ('Processing batch ' + currentChunkNumber + ' / ' + chunkCount + '...'),
           totalItems: items.length,
           processedItems: processedItems,
           successCount: successCount,
@@ -546,7 +560,7 @@ export function getExecuteImportCode() {
         });
 
         try {
-          console.log('批量导入分片', (chunkIndex + 1) + '/' + chunks.length, '本片', chunk.length, '个密钥');
+          console.log('Batch import chunk', (chunkIndex + 1) + '/' + chunks.length, 'size:', chunk.length);
 
           const response = await authenticatedFetch('/api/secrets/batch', {
             method: 'POST',
@@ -579,8 +593,8 @@ export function getExecuteImportCode() {
 
             processedItems += chunk.length;
             reportImportProgress(onProgress, {
-              title: '批量导入中',
-              message: '已完成第 ' + currentChunkNumber + ' / ' + chunkCount + ' 批',
+              title: (typeof t === 'function' ? t('importBatchInProgress') : null) || 'Batch importing',
+              message: (typeof t === 'function' ? t('importBatchCompletedChunk', { current: currentChunkNumber, total: chunkCount }) : null) || ('Completed batch ' + currentChunkNumber + ' / ' + chunkCount),
               totalItems: items.length,
               processedItems: processedItems,
               successCount: successCount,
@@ -596,17 +610,17 @@ export function getExecuteImportCode() {
           // 由 catch 统一附加 partial 进度元数据，避免在多处重复组装同样的 meta
           let errorMessage;
           if (response.status === 429) {
-            errorMessage = '批量导入被限流，已停止后续提交，请稍后重试。';
+            errorMessage = (typeof t === 'function' ? t('importRateLimited') : null) || 'Batch import was rate-limited. Submissions paused. Please try again later.';
           } else if (response.status >= 500) {
-            errorMessage = '第 ' + currentChunkNumber + ' / ' + chunkCount + ' 批导入响应异常，当前批次结果可能未知，请刷新后核对已导入数据。';
+            errorMessage = 'Batch ' + currentChunkNumber + ' / ' + chunkCount + ' import response error, status unknown. Please refresh and check.';
           } else {
-            errorMessage = '第 ' + currentChunkNumber + ' / ' + chunkCount + ' 批导入失败：' + (await readBatchImportErrorMessage(response)) + '，已停止后续提交。';
+            errorMessage = 'Batch ' + currentChunkNumber + ' / ' + chunkCount + ' import failed: ' + (await readBatchImportErrorMessage(response));
           }
           throw new Error(errorMessage);
 
         } catch (error) {
           throw createChunkImportError(
-            (error && error.message) || ('第 ' + currentChunkNumber + ' / ' + chunkCount + ' 批请求失败，当前批次结果可能未知，请刷新后核对已导入数据。'),
+            (error && error.message) || (((typeof t === 'function' ? t('importChunkFailed', { current: currentChunkNumber, total: chunkCount }) : null) || ('Batch ' + currentChunkNumber + ' / ' + chunkCount + ' request failed. Current batch state may be uncertain, please refresh and verify.'))),
             {
               partialSuccessCount: successCount,
               partialFailCount: failCount,

@@ -52,7 +52,7 @@ export function getModuleLoaderCode() {
         if (moduleLoadState[moduleName].loaded) {
           return;
         } else {
-          throw new Error(\`模块 \${moduleName} 加载超时\`);
+          throw new Error(\`Module \${moduleName} load timed out\`);
         }
       }
 
@@ -62,13 +62,15 @@ export function getModuleLoaderCode() {
 
       try {
         // 显示加载提示
-        showLoadingToast(\`正在加载 \${getModuleDisplayName(moduleName)}...\`);
+        const modName = getModuleDisplayName(moduleName);
+        const loadingMsg = (typeof t === 'function' ? t('moduleLoadingToast', { module: modName }) : null) || ('Loading ' + modName + '...');
+        showLoadingToast(loadingMsg);
 
         // 从服务器获取模块代码
         const response = await authenticatedFetch(\`/modules/\${moduleName}.js\`);
 
         if (!response.ok) {
-          throw new Error(\`加载模块失败: \${response.statusText}\`);
+          throw new Error(\`Failed to load module: \${response.statusText}\`);
         }
 
         const code = await response.text();
@@ -89,7 +91,8 @@ export function getModuleLoaderCode() {
         console.error(\`❌ 加载模块 \${moduleName} 失败:\`, error);
         moduleLoadState[moduleName].loading = false;
         hideLoadingToast();
-        showCenterToast('❌', \`加载功能失败: \${error.message}\`);
+        const failMsg = (typeof t === 'function' ? t('moduleLoadFailed', { error: error.message }) : null) || ('Failed to load module: ' + error.message);
+        showCenterToast('❌', failMsg);
         throw error;
       } finally {
         moduleLoadState[moduleName].loading = false;
@@ -102,13 +105,14 @@ export function getModuleLoaderCode() {
      * @returns {string} 显示名称
      */
     function getModuleDisplayName(moduleName) {
+      const _t = typeof t === 'function' ? t : (k) => null;
       const displayNames = {
-        import: '导入功能',
-        export: '导出功能',
-        backup: '备份管理',
-        qrcode: '二维码功能',
-        tools: '工具集',
-        googleMigration: 'Google迁移'
+        import: _t('moduleDisplayNameImport') || 'Import',
+        export: _t('moduleDisplayNameExport') || 'Export',
+        backup: _t('moduleDisplayNameBackup') || 'Backup & Restore',
+        qrcode: _t('moduleDisplayNameQrcode') || 'QR Code',
+        tools: _t('moduleDisplayNameTools') || 'Tools',
+        googleMigration: _t('moduleDisplayNameGoogleMigration') || 'Google Migration'
       };
       return displayNames[moduleName] || moduleName;
     }
@@ -174,11 +178,12 @@ export function getModuleLoaderCode() {
               return result;
             }
           } else {
-            throw new Error(\`函数 \${functionName} 在模块 \${moduleName} 中未找到\`);
+            throw new Error(\`Function \${functionName} not found in module \${moduleName}\`);
           }
         } catch (error) {
-          console.error(\`调用 \${functionName} 失败:\`, error);
-          showCenterToast('❌', \`功能加载失败: \${error.message}\`);
+          console.error(\`Failed to call \${functionName}:\`, error);
+          const failMsg = (typeof t === 'function' ? t('moduleLoadFailed', { error: error.message }) : null) || ('Failed to load function: ' + error.message);
+          showCenterToast('❌', failMsg);
         }
       };
 

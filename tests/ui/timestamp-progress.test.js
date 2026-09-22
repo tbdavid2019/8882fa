@@ -90,7 +90,7 @@ describe('timestamp progress animation', () => {
 		h.tick(11_000);
 		expect(label.textContent).toBe('11');
 		expect(label.writes).toBe(initialWrites + 1);
-		expect(h.elements.get('remainingTime').textContent).toBe('19 秒');
+		expect(h.elements.get('remainingTime').textContent).toBe('19s');
 		expect(h.frames.size).toBe(1);
 	});
 
@@ -101,7 +101,7 @@ describe('timestamp progress animation', () => {
 		h.tick(30_000);
 		expect(h.fraction()).toBe(1);
 		expect(h.elements.get('totpCounter').textContent).toBe('1');
-		expect(h.elements.get('remainingTime').textContent).toBe('30 秒');
+		expect(h.elements.get('remainingTime').textContent).toBe('30s');
 		expect(h.elements.get('progressBar').attributes['aria-valuenow']).toBe('100');
 		h.tick(37_500);
 		expect(h.fraction()).toBe(0.75);
@@ -112,11 +112,11 @@ describe('timestamp progress animation', () => {
 		h.api.showTimestampModal();
 		h.api.setPeriod(60);
 		expect(h.fraction()).toBe(0.25);
-		expect(h.elements.get('totpPeriod').textContent).toBe('60 秒');
+		expect(h.elements.get('totpPeriod').textContent).toBe('60s');
 		expect(h.elements.get('period60Btn').classList.contains('active')).toBe(true);
 		h.api.setPeriod(120);
 		expect(h.fraction()).toBe(0.625);
-		expect(h.elements.get('remainingTime').textContent).toBe('75 秒');
+		expect(h.elements.get('remainingTime').textContent).toBe('75s');
 		expect(h.elements.get('period60Btn').classList.contains('active')).toBe(false);
 		expect(h.frames.size).toBe(1);
 	});

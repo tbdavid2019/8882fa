@@ -35,7 +35,7 @@ export function getQRDecodeToolCode() {
 
       container.style.display = 'block';
       error.style.display = 'none';
-      status.textContent = '正在启动摄像头...';
+      status.textContent = (typeof t === 'function' ? t('qrCameraStarting') : null) || 'Starting camera...';
       status.style.display = 'block';
 
       startDecodeCamera();
@@ -64,89 +64,64 @@ export function getQRDecodeToolCode() {
               });
             };
           } else {
-            throw new Error('您的浏览器不支持摄像头功能，请使用现代浏览器');
+            throw new Error((typeof t === 'function' ? t('qrBrowserNoCamera') : null) || 'Your browser does not support camera access. Please use a modern browser.');
           }
         }
 
         if (!navigator.mediaDevices.getUserMedia) {
-          throw new Error('您的浏览器不支持摄像头功能，请使用现代浏览器');
+          throw new Error((typeof t === 'function' ? t('qrBrowserNoCamera') : null) || 'Your browser does not support camera access. Please use a modern browser.');
         }
 
         // iPad 特殊处理：检查设备类型和权限
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isIPad = /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-        console.log('工具模块设备检测:', {
+        console.log('Device detection:', {
           userAgent: navigator.userAgent,
           isIOS,
           isIPad,
-          platform: navigator.platform,
-          maxTouchPoints: navigator.maxTouchPoints
+          hasMediaDevices: !!navigator.mediaDevices,
+          hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
         });
 
-        // 停止之前的流（如果存在）
-        if (decodeStream) {
-          decodeStream.getTracks().forEach(track => track.stop());
-          decodeStream = null;
-        }
-
-        // 尝试不同的摄像头配置 - iPad 优化
-        let configs;
-
-        if (isIPad || isIOS) {
-          // iPad/iOS 特殊配置
-          configs = [
-            {
-              video: {
-                facingMode: 'environment',
-                width: { ideal: 640, max: 1280 },  // 降低分辨率要求
-                height: { ideal: 480, max: 720 }
-              }
-            },
-            {
-              video: {
-                facingMode: 'user',
-                width: { ideal: 480, max: 640 },
-                height: { ideal: 360, max: 480 }
-              }
-            },
-            {
-              video: {
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-              }
-            },
-            {
-              video: true  // 最简单的配置
+        // 尝试多种配置以提高在不同设备上的兼容性
+        const configs = [
+          // 针对移动设备的配置（iPad/iPhone优化）
+          {
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { min: 320, ideal: 720, max: 1280 },
+              height: { min: 240, ideal: 720, max: 1280 }
             }
-          ];
-        } else {
-          // 其他设备的标准配置
-          configs = [
-            {
-              video: {
-                facingMode: 'environment',
-                width: { ideal: 1280, max: 1920 },
-                height: { ideal: 720, max: 1080 }
-              }
-            },
-            {
-              video: {
-                facingMode: 'user',
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-              }
-            },
-            {
-              video: true
+          },
+          // 降级配置1：降低分辨率
+          {
+            video: {
+              facingMode: 'environment',
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 }
             }
-          ];
-        }
+          },
+          // 降级配置2：只要后置摄像头
+          {
+            video: { facingMode: 'environment' }
+          },
+          // 降级配置3：前置摄像头（某些iPad可能默认只有前置或识别为前置）
+          {
+            video: { facingMode: 'user' }
+          },
+          // 最低配置：任意可用摄像头
+          {
+            video: true
+          }
+        ];
 
         let stream = null;
         for (let i = 0; i < configs.length; i++) {
           try {
+            console.log('Trying camera config:', i + 1);
             stream = await navigator.mediaDevices.getUserMedia(configs[i]);
+            console.log('Camera started successfully with config:', i + 1);
             break;
           } catch (e) {
             if (i === configs.length - 1) {
@@ -156,7 +131,7 @@ export function getQRDecodeToolCode() {
         }
 
         if (!stream) {
-          throw new Error('无法获取摄像头访问权限');
+          throw new Error((typeof t === 'function' ? t('qrCameraPermDenied') : null) || 'Unable to access camera');
         }
 
         decodeStream = stream;
@@ -165,7 +140,7 @@ export function getQRDecodeToolCode() {
         // 等待视频加载并播放
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
-            reject(new Error('摄像头加载超时'));
+            reject(new Error((typeof t === 'function' ? t('qrCameraLoadTimeout') : null) || 'Camera loading timed out'));
           }, 10000);
 
           video.onloadedmetadata = () => {
@@ -177,7 +152,7 @@ export function getQRDecodeToolCode() {
 
           video.onerror = () => {
             clearTimeout(timeout);
-            reject(new Error('摄像头播放失败'));
+            reject(new Error((typeof t === 'function' ? t('qrCameraPlayFailed') : null) || 'Camera playback failed'));
           };
         });
 
@@ -193,16 +168,16 @@ export function getQRDecodeToolCode() {
         }, 500);
 
       } catch (err) {
-        let errorMsg = '摄像头启动失败: ' + err.message;
+        let errorMsg = ((typeof t === 'function' ? t('qrCameraStartFailed', { error: err.message }) : null) || ('Camera failed to start: ' + err.message));
 
         if (err.name === 'NotAllowedError') {
-          errorMsg = '摄像头权限被拒绝，请在浏览器设置中允许摄像头访问';
+          errorMsg = (typeof t === 'function' ? t('qrCameraPermDenied') : null) || 'Camera access denied. Please allow camera access in browser settings.';
         } else if (err.name === 'NotFoundError') {
-          errorMsg = '未找到摄像头设备，请确保设备连接正常';
+          errorMsg = (typeof t === 'function' ? t('qrCameraNotFound') : null) || 'No camera found. Please ensure your device camera is connected.';
         } else if (err.name === 'NotReadableError') {
-          errorMsg = '摄像头被其他应用占用，请关闭其他摄像头应用';
+          errorMsg = (typeof t === 'function' ? t('qrCameraInUse') : null) || 'Camera is in use by another application. Please close other camera apps.';
         } else if (err.name === 'OverconstrainedError') {
-          errorMsg = '摄像头不支持请求的配置，请尝试其他设备';
+          errorMsg = (typeof t === 'function' ? t('qrCameraNotSupported') : null) || 'Camera does not support the requested configuration. Please try another device.';
         }
 
         errorMessage.textContent = errorMsg;
@@ -277,7 +252,7 @@ export function getQRDecodeToolCode() {
       resultContent.textContent = qrCodeData;
       resultSection.style.display = 'block';
 
-      showCenterToast('✅', '二维码解析成功');
+      showCenterToast('✅', (typeof t === 'function' ? t('qrDecodeSuccess') : null) || 'QR code decoded successfully');
     }
 
     function uploadImageForDecode() {
@@ -310,10 +285,10 @@ export function getQRDecodeToolCode() {
               if (code) {
                 processDecodeResult(code.data);
               } else {
-                showCenterToast('❌', '未在图片中找到二维码，请尝试其他图片');
+                showCenterToast('❌', (typeof t === 'function' ? t('qrNotFoundInImage') : null) || 'No QR code found in the image. Please try another image.');
               }
             } else {
-              showCenterToast('❌', '二维码解析库未加载');
+              showCenterToast('❌', (typeof t === 'function' ? t('qrLibNotLoaded') : null) || 'QR code decoding library not loaded');
             }
           };
           img.src = e.target.result;
@@ -326,22 +301,22 @@ export function getQRDecodeToolCode() {
     async function copyDecodeResult() {
       const content = document.getElementById('decodeResultContent').textContent;
       if (!content) {
-        showCenterToast('❌', '没有可复制的内容');
+        showCenterToast('❌', (typeof t === 'function' ? t('qrNoContentToCopy') : null) || 'No content to copy');
         return;
       }
 
       try {
         await navigator.clipboard.writeText(content);
-        showCenterToast('✅', '内容已复制到剪贴板');
+        showCenterToast('✅', (typeof t === 'function' ? t('qrContentCopied') : null) || 'Content copied to clipboard');
       } catch (error) {
-        showCenterToast('❌', '复制失败');
+        showCenterToast('❌', (typeof t === 'function' ? t('qrCopyFailed') : null) || 'Copy failed');
       }
     }
 
     async function generateDecodeQRCode() {
       const content = document.getElementById('decodeResultContent').textContent;
       if (!content) {
-        showCenterToast('❌', '没有可生成二维码的内容');
+        showCenterToast('❌', (typeof t === 'function' ? t('qrNoContentToGenerate') : null) || 'Please enter content to generate QR code');
         return;
       }
 
@@ -363,12 +338,12 @@ export function getQRDecodeToolCode() {
           document.getElementById('decodeQRSection').style.display = 'block';
         };
         qrImage.onerror = function() {
-          showCenterToast('❌', '二维码生成失败');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrGenerateFailed', { error: '' }) : null) || 'QR code generation failed');
         };
 
       } catch (error) {
-        console.error('二维码生成过程发生错误:', error);
-        showCenterToast('❌', '二维码生成失败: ' + error.message);
+        console.error('QR code generation error:', error);
+        showCenterToast('❌', ((typeof t === 'function' ? t('qrGenerateFailed', { error: error.message }) : null) || ('Failed to generate QR code: ' + error.message)));
       }
     }
 
@@ -388,16 +363,16 @@ export function getQRDecodeToolCode() {
         }
 
         if (!imageBlob) {
-          showCenterToast('❌', '剪贴板中没有图片，请先截图或复制图片');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrClipboardNoImage') : null) || 'No image in clipboard. Please take a screenshot or copy an image first.');
           return;
         }
 
         processImageBlobForDecode(imageBlob);
       } catch (error) {
         if (error.name === 'NotAllowedError') {
-          showCenterToast('❌', '请允许浏览器访问剪贴板');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrClipboardPermission') : null) || 'Please allow browser clipboard access');
         } else {
-          showCenterToast('❌', '读取剪贴板失败: ' + error.message);
+          showCenterToast('❌', ((typeof t === 'function' ? t('qrClipboardReadFailed', { error: error.message }) : null) || ('Failed to read clipboard: ' + error.message)));
         }
       }
     }
@@ -428,7 +403,7 @@ export function getQRDecodeToolCode() {
             try { await ensureJsQR(); } catch (_) {}
           }
           if (typeof jsQR === 'undefined') {
-            showCenterToast('❌', '二维码解析库未加载');
+            showCenterToast('❌', (typeof t === 'function' ? t('qrLibNotLoaded') : null) || 'QR code decoding library not loaded');
             return;
           }
 
@@ -450,11 +425,11 @@ export function getQRDecodeToolCode() {
           if (qrCode) {
             processDecodeResult(qrCode);
           } else {
-            showCenterToast('❌', '未在图片中找到二维码，请尝试其他图片');
+            showCenterToast('❌', (typeof t === 'function' ? t('qrNotFoundInImage') : null) || 'No QR code found in the image. Please try another image.');
           }
         };
         img.onerror = function() {
-          showCenterToast('❌', '图片加载失败');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrImageLoadFailed') : null) || 'Failed to load image');
         };
         img.src = e.target.result;
       };
@@ -491,7 +466,7 @@ export function getQRDecodeToolCode() {
         if (files.length > 0 && files[0].type.startsWith('image/')) {
           processImageBlobForDecode(files[0]);
         } else {
-          showCenterToast('❌', '请拖入图片文件');
+          showCenterToast('❌', (typeof t === 'function' ? t('qrDropImageOnly') : null) || 'Please drop an image file');
         }
       });
 

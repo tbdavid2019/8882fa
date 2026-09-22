@@ -14,7 +14,7 @@ export function getExportUICode() {
     // 导出所有密钥 - 显示格式选择
     function exportAllSecrets() {
       if (secrets.length === 0) {
-        showCenterToast('❌', '没有密钥可以导出');
+        showCenterToast('❌', ((typeof t === 'function' ? t('noSecretsToExport') : null) || 'No secrets available to export'));
         return;
       }
       showExportFormatModal();
@@ -57,7 +57,7 @@ export function getExportUICode() {
           '<div class="format-info">' +
           '  <div class="format-name">' + opt.name + ' <span class="format-ext">' + opt.ext + '</span></div>' +
           '  <div class="format-desc">' + opt.desc + '</div>' +
-          '  <div class="format-compat">兼容: ' + opt.compat + '</div>' +
+          '  <div class="format-compat">' + ((typeof t === 'function' ? t('compatPrefix') : null) || 'Compatible: ') + opt.compat + '</div>' +
           '</div>';
         optionsContainer.appendChild(optionDiv);
       });
@@ -111,7 +111,7 @@ export function getExportUICode() {
 
     // 显示导出成功提示
     function showExportSuccess(count, format) {
-      showCenterToast('✅', '成功导出 ' + count + ' 个密钥 (' + format + ')');
+      showCenterToast('✅', ((typeof t === 'function' ? t('exportSuccessWithCount', { count: count, format: format }) : null) || ('Exported ' + count + ' keys (' + format + ')')));
     }
 `;
 }

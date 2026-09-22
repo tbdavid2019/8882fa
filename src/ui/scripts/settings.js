@@ -85,17 +85,17 @@ export function getSettingsCode() {
         const webdavStatusEl = document.getElementById('settingsWebdavStatus');
         if (webdavStatusEl) {
           if (webdavData.count > 0) {
-            webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: webdavData.count }) : null) || ('已配置 ' + webdavData.count + ' 个目标');
+            webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: webdavData.count }) : null) || (webdavData.count + ' target(s) configured');
             webdavStatusEl.className = 'sync-status configured';
           } else {
-            webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未配置';
+            webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not configured';
             webdavStatusEl.className = 'sync-status not-configured';
           }
         }
       } catch {
         const webdavStatusEl = document.getElementById('settingsWebdavStatus');
         if (webdavStatusEl) {
-          webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || '加载失败';
+          webdavStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || 'Failed to load';
           webdavStatusEl.className = 'sync-status not-configured';
         }
       }
@@ -107,17 +107,17 @@ export function getSettingsCode() {
         const s3StatusEl = document.getElementById('settingsS3Status');
         if (s3StatusEl) {
           if (s3Data.count > 0) {
-            s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: s3Data.count }) : null) || ('已配置 ' + s3Data.count + ' 个目标');
+            s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: s3Data.count }) : null) || (s3Data.count + ' target(s) configured');
             s3StatusEl.className = 'sync-status configured';
           } else {
-            s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未配置';
+            s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not configured';
             s3StatusEl.className = 'sync-status not-configured';
           }
         }
       } catch {
         const s3StatusEl = document.getElementById('settingsS3Status');
         if (s3StatusEl) {
-          s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || '加载失败';
+          s3StatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || 'Failed to load';
           s3StatusEl.className = 'sync-status not-configured';
         }
       }
@@ -129,17 +129,17 @@ export function getSettingsCode() {
         const oneDriveStatusEl = document.getElementById('settingsOneDriveStatus');
         if (oneDriveStatusEl) {
           if (oneDriveData.count > 0) {
-            oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: oneDriveData.count }) : null) || ('已配置 ' + oneDriveData.count + ' 个目标');
+            oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: oneDriveData.count }) : null) || (oneDriveData.count + ' target(s) configured');
             oneDriveStatusEl.className = 'sync-status configured';
           } else {
-            oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未配置';
+            oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not configured';
             oneDriveStatusEl.className = 'sync-status not-configured';
           }
         }
       } catch {
         const oneDriveStatusEl = document.getElementById('settingsOneDriveStatus');
         if (oneDriveStatusEl) {
-          oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || '加载失败';
+          oneDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || 'Failed to load';
           oneDriveStatusEl.className = 'sync-status not-configured';
         }
       }
@@ -151,17 +151,17 @@ export function getSettingsCode() {
         const googleDriveStatusEl = document.getElementById('settingsGoogleDriveStatus');
         if (googleDriveStatusEl) {
           if (googleDriveData.count > 0) {
-            googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: googleDriveData.count }) : null) || ('已配置 ' + googleDriveData.count + ' 个目标');
+            googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusConfigured', { count: googleDriveData.count }) : null) || (googleDriveData.count + ' target(s) configured');
             googleDriveStatusEl.className = 'sync-status configured';
           } else {
-            googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未配置';
+            googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not configured';
             googleDriveStatusEl.className = 'sync-status not-configured';
           }
         }
       } catch {
         const googleDriveStatusEl = document.getElementById('settingsGoogleDriveStatus');
         if (googleDriveStatusEl) {
-          googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || '加载失败';
+          googleDriveStatusEl.textContent = (typeof t === 'function' ? t('syncStatusError') : null) || 'Failed to load';
           googleDriveStatusEl.className = 'sync-status not-configured';
         }
       }
@@ -219,21 +219,21 @@ export function getSettingsCode() {
 
       // 前端验证
       if (!currentPassword || !newPassword || !confirmPassword) {
-        resultEl.textContent = (typeof t === 'function' ? t('setupErrorEmpty') : null) || '请填写所有密码字段';
+        resultEl.textContent = (typeof t === 'function' ? t('setupErrorEmpty') : null) || 'Please fill in all password fields';
         resultEl.className = 'change-password-result error';
         resultEl.style.display = 'block';
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        resultEl.textContent = (typeof t === 'function' ? t('setupErrorMismatch') : null) || '两次输入的新密码不一致';
+        resultEl.textContent = (typeof t === 'function' ? t('setupErrorMismatch') : null) || 'The two entered passwords do not match';
         resultEl.className = 'change-password-result error';
         resultEl.style.display = 'block';
         return;
       }
 
       if (newPassword.length < 8) {
-        resultEl.textContent = (typeof t === 'function' ? t('setupErrorLength') : null) || '新密码长度至少为 8 位';
+        resultEl.textContent = (typeof t === 'function' ? t('setupErrorLength') : null) || 'New password must be at least 8 characters';
         resultEl.className = 'change-password-result error';
         resultEl.style.display = 'block';
         return;
@@ -241,7 +241,7 @@ export function getSettingsCode() {
 
       const btn = document.getElementById('changePasswordBtn');
       const originalText = btn.textContent;
-      btn.textContent = (typeof t === 'function' ? t('updating') : null) || '修改中...';
+      btn.textContent = (typeof t === 'function' ? t('updating') : null) || 'Updating...';
       btn.disabled = true;
       resultEl.style.display = 'none';
 
@@ -255,7 +255,7 @@ export function getSettingsCode() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          resultEl.textContent = data.message || (typeof t === 'function' ? t('changePasswordSuccess') : null) || '密码修改成功，请重新登录';
+          resultEl.textContent = data.message || (typeof t === 'function' ? t('changePasswordSuccess') : null) || 'Password changed successfully, please log in again';
           resultEl.className = 'change-password-result success';
           resultEl.style.display = 'block';
 
@@ -269,12 +269,12 @@ export function getSettingsCode() {
             logout();
           }, 2000);
         } else {
-          resultEl.textContent = data.message || (typeof t === 'function' ? t('changePasswordFail') : null) || '修改密码失败';
+          resultEl.textContent = data.message || (typeof t === 'function' ? t('changePasswordFail') : null) || 'Failed to change password';
           resultEl.className = 'change-password-result error';
           resultEl.style.display = 'block';
         }
       } catch (error) {
-        resultEl.textContent = (typeof t === 'function' ? t('networkError') : null) || '网络错误，请稍后重试';
+        resultEl.textContent = (typeof t === 'function' ? t('networkError') : null) || 'Network error, please try again later';
         resultEl.className = 'change-password-result error';
         resultEl.style.display = 'block';
       } finally {
@@ -314,7 +314,7 @@ export function getSettingsCode() {
       }
 
       const langSelect = document.getElementById('settingsLanguage');
-      const localLanguage = (typeof getLanguagePreference === 'function' ? getLanguagePreference() : (typeof localStorage !== 'undefined' ? localStorage.getItem('language') : null)) || 'auto';
+      const localLanguage = (typeof getLanguagePreference === 'function' ? getLanguagePreference() : (typeof localStorage !== 'undefined' ? localStorage.getItem('language') : null)) || 'en';
       if (langSelect) {
         langSelect.value = localLanguage;
       }
@@ -398,15 +398,15 @@ export function getSettingsCode() {
           const savedFormat = (data.settings && data.settings.defaultExportFormat) || selectedFormat;
           formatSelect.value = savedFormat;
           localStorage.setItem('defaultExportFormat', savedFormat);
-          showCenterToast('✅', (typeof t === 'function' ? t('defaultFormatSaved') : null) || '偏好格式已保存，批量导出和备份导出会优先使用该格式');
+          showCenterToast('✅', (typeof t === 'function' ? t('defaultFormatSaved') : null) || 'Default format saved. Batch export and backup will prioritize this format');
         } else {
-          showCenterToast('❌', data.message || (typeof t === 'function' ? t('defaultFormatSaveFailed') : null) || '保存偏好格式失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('defaultFormatSaveFailed') : null) || 'Failed to save default format');
         }
       } catch {
         if (requestId !== defaultExportFormatSaveRequestId) {
           return;
         }
-        showCenterToast('❌', (typeof t === 'function' ? t('networkError') : null) || '网络错误，请稍后重试');
+        showCenterToast('❌', (typeof t === 'function' ? t('networkError') : null) || 'Network error, please try again later');
       }
     }
 
@@ -426,7 +426,7 @@ export function getSettingsCode() {
         }));
         const data = await resp.json();
         if (resp.ok && data.success) {
-          const msg = (typeof t === 'function' ? t('languageSaved') : null) || '语言偏好已保存';
+          const msg = (typeof t === 'function' ? t('languageSaved') : null) || 'Language preference saved';
           if (typeof showCenterToast === 'function') {
             showCenterToast('✅', msg);
           }
@@ -451,17 +451,17 @@ export function getSettingsCode() {
       const valid = raw !== '' && Number.isInteger(value) && value >= state.min && value <= state.max;
       input.setAttribute('aria-invalid', String(!valid));
       if (!valid) {
-        showNumericPreferenceResult(key, '请输入 ' + state.min + '~' + state.max + ' 之间的整数', 'error');
+        showNumericPreferenceResult(key, (typeof t === 'function' ? t('numericRangeError', { min: state.min, max: state.max }) : null) || ('Please enter an integer between ' + state.min + ' and ' + state.max), 'error');
         return null;
       }
       return value;
     }
 
     function numericPreferenceSavedMessage(key, value) {
-      if (key === 'jwtExpiryDays') return (typeof t === 'function' ? t('jwtExpirySaved') : null) || '已保存，下次登录生效';
+      if (key === 'jwtExpiryDays') return (typeof t === 'function' ? t('jwtExpirySaved') : null) || 'Saved, takes effect next login';
       return value === 0
-        ? ((typeof t === 'function' ? t('maxBackupsSavedUnlimited') : null) || '已保存，备份不限数量')
-        : ((typeof t === 'function' ? t('maxBackupsSavedLimit', { value }) : null) || ('已保存，保留最新 ' + value + ' 条备份'));
+        ? ((typeof t === 'function' ? t('maxBackupsSavedUnlimited') : null) || 'Saved, unlimited backups')
+        : ((typeof t === 'function' ? t('maxBackupsSavedLimit', { value }) : null) || ('Saved, keeping latest ' + value + ' backups'));
     }
 
     // Input events debounce typing and spinner changes. Blur and Enter flush
@@ -471,7 +471,7 @@ export function getSettingsCode() {
       state.version += 1;
       state.dirty = true;
       if (state.timer !== null) clearTimeout(state.timer);
-      showNumericPreferenceResult(key, (typeof t === 'function' ? t('waitingToSave') : null) || '等待保存…');
+      showNumericPreferenceResult(key, (typeof t === 'function' ? t('waitingToSave') : null) || 'Waiting to save...');
       state.timer = setTimeout(() => {
         state.timer = null;
         saveNumericPreference(key);
@@ -496,7 +496,7 @@ export function getSettingsCode() {
             break;
           }
 
-          showNumericPreferenceResult(key, (typeof t === 'function' ? t('saving') : null) || '保存中…');
+          showNumericPreferenceResult(key, (typeof t === 'function' ? t('saving') : null) || 'Saving...');
           try {
             const resp = await enqueuePreferenceSave(() => authenticatedFetch('/api/settings', {
               method: 'POST',
@@ -514,7 +514,7 @@ export function getSettingsCode() {
             } else {
               state.savedValue = null;
               if (state.version === version) {
-                showNumericPreferenceResult(key, data.message || (typeof t === 'function' ? t('saveFailedRetry') : null) || '保存失败，请稍后重试', 'error');
+                showNumericPreferenceResult(key, data.message || (typeof t === 'function' ? t('saveFailedRetry') : null) || 'Failed to save, please try again later', 'error');
                 break;
               }
             }
@@ -522,7 +522,7 @@ export function getSettingsCode() {
             // A lost response does not prove the server left the old value intact.
             state.savedValue = null;
             if (state.version === version) {
-              showNumericPreferenceResult(key, (typeof t === 'function' ? t('networkErrorRetry') : null) || '网络错误，未保存，请稍后重试', 'error');
+              showNumericPreferenceResult(key, (typeof t === 'function' ? t('networkErrorRetry') : null) || 'Network error, not saved, please try again later', 'error');
               break;
             }
           }

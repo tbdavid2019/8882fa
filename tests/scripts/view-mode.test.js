@@ -197,12 +197,12 @@ describe('view mode preference', () => {
 
 		expect(groupSortOnly.every((element) => element.hidden === false)).toBe(true);
 		expect(flatSortOnly.every((element) => element.hidden === true)).toBe(true);
-		expect(sortModeLabel.textContent).toBe('组内排序');
+		expect(sortModeLabel.textContent).toBe('Group Sort');
 
 		await api.selectViewMode('flat');
 		expect(groupSortOnly.every((element) => element.hidden === true)).toBe(true);
 		expect(flatSortOnly.every((element) => element.hidden === false)).toBe(true);
-		expect(sortModeLabel.textContent).toBe('列表排序');
+		expect(sortModeLabel.textContent).toBe('List Sort');
 	});
 
 	it('migrates a legacy service-name preference without losing it in grouped mode', async () => {

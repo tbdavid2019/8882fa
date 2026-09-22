@@ -108,7 +108,7 @@ export function getPWACode() {
         case 'SYNC_FAILED':
           // 单个操作同步失败
           console.error('❌ 离线操作同步失败:', message.operationType, message.error);
-          showCenterToast('⚠️', \`同步失败: \${message.operationType}\`);
+          showCenterToast('⚠️', (typeof t === 'function' ? t('pwaSyncFailed', { type: message.operationType }) : null) || ('Sync failed: ' + message.operationType));
           break;
 
         case 'SYNC_COMPLETE':
@@ -116,7 +116,7 @@ export function getPWACode() {
           console.log(\`🎉 同步完成: 成功 \${message.successCount} 个, 失败 \${message.failCount} 个\`);
 
           if (message.successCount > 0) {
-            showCenterToast('✅', \`已同步 \${message.successCount} 个离线操作\`);
+            showCenterToast('✅', (typeof t === 'function' ? t('pwaSyncSuccessCount', { count: message.successCount }) : null) || ('Synced ' + message.successCount + ' offline actions'));
             // 刷新密钥列表
             if (typeof loadSecrets === 'function') {
               loadSecrets();
@@ -124,7 +124,7 @@ export function getPWACode() {
           }
 
           if (message.failCount > 0) {
-            showCenterToast('⚠️', \`\${message.failCount} 个操作同步失败\`);
+            showCenterToast('⚠️', (typeof t === 'function' ? t('pwaSyncFailCount', { count: message.failCount }) : null) || (message.failCount + ' actions failed to sync'));
           }
 
           // 网络传输失败只延后同步；在线信号可能滞后，保留页面重试机会。
@@ -132,7 +132,7 @@ export function getPWACode() {
             setTimeout(() => {
               navigator.serviceWorker.ready
                 .then(requestPendingOperationSync)
-                .catch(error => console.warn('重试离线同步失败:', error));
+                .catch(error => console.warn('Failed to retry offline sync:', error));
             }, 30000);
           }
           break;
@@ -171,14 +171,14 @@ export function getPWACode() {
       }
 
       section.style.display = '';
-      btn.textContent = '安装到桌面';
+      btn.textContent = (typeof t === 'function' ? t('pwaInstallDesktop') : null) || 'Install App';
 
       if (deferredPrompt) {
         btn.disabled = false;
-        btn.title = '点击安装到桌面';
+        btn.title = (typeof t === 'function' ? t('pwaInstallTooltip') : null) || 'Click to install to desktop / home screen';
       } else {
         btn.disabled = true;
-        btn.title = '暂不可用（浏览器未触发安装提示）';
+        btn.title = (typeof t === 'function' ? t('pwaInstallUnavailable') : null) || 'Unavailable (browser install prompt not triggered)';
       }
     }
 
@@ -191,18 +191,18 @@ export function getPWACode() {
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = '安装中…';
+        btn.textContent = (typeof t === 'function' ? t('pwaInstalling') : null) || 'Installing…';
       }
 
       try {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(\`用户选择: \${outcome}\`);
+        console.log('PWA user choice:', outcome);
 
         if (outcome === 'accepted') {
-          showCenterToast('✅', '已发起安装');
+          showCenterToast('✅', (typeof t === 'function' ? t('pwaInstallStarted') : null) || 'Install started');
         } else {
-          showCenterToast('❌', '已取消安装');
+          showCenterToast('❌', (typeof t === 'function' ? t('pwaInstallCancelled') : null) || 'Install cancelled');
         }
       } finally {
         deferredPrompt = null;
@@ -217,7 +217,7 @@ export function getPWACode() {
       console.log('✅ PWA 应用已成功安装');
       deferredPrompt = null;
       updateSettingsPwaInstallButton();
-      showCenterToast('✅', '应用已安装到桌面');
+      showCenterToast('✅', (typeof t === 'function' ? t('pwaInstallSuccess') : null) || 'App installed successfully');
     });
 
     /**
@@ -247,7 +247,7 @@ export function getPWACode() {
         setTimeout(() => offlineBanner.remove(), 300);
       }
 
-      showCenterToast('🌐', '网络已恢复，正在同步...');
+      showCenterToast('🌐', (typeof t === 'function' ? t('pwaNetworkOnline') : null) || 'Network restored, syncing...');
 
       // 手动触发同步（作为备用，如果 Background Sync 不可用）
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -264,7 +264,7 @@ export function getPWACode() {
       document.body.classList.add('offline-mode');
       showOfflineBanner();
 
-      showCenterToast('📡', '已离线，操作将保存待同步');
+      showCenterToast('📡', (typeof t === 'function' ? t('pwaNetworkOffline') : null) || 'Offline, operations will be saved for sync');
     });
 
     /**
@@ -280,10 +280,9 @@ export function getPWACode() {
       const banner = document.createElement('div');
       banner.id = 'offline-banner';
       banner.className = 'offline-banner';
-      banner.innerHTML = \`
-        <span class="offline-banner-icon">📡</span>
-        <span class="offline-banner-text">离线模式 - 操作将在网络恢复后自动同步</span>
-      \`;
+      banner.innerHTML =
+        '<span class="offline-banner-icon">📡</span>' +
+        '<span class="offline-banner-text">' + ((typeof t === 'function' ? t('pwaOfflineBanner') : null) || 'Offline mode - operations will sync automatically once connected') + '</span>';
       document.body.prepend(banner); // 添加到页面顶部
 
       // 添加显示动画

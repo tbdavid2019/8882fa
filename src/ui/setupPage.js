@@ -27,7 +27,7 @@ export async function createSetupPage() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>首次設定 - 888 2FA 金鑰管理器</title>
+  <title>Initial Setup - 888 2FA Key Manager</title>
 
   <script>
     (function() {
@@ -64,20 +64,20 @@ export async function createSetupPage() {
           </select>
         </div>
       </div>
-      <h1 class="setup-title" id="setupTitle">設定管理密碼</h1>
+      <h1 class="setup-title" id="setupTitle">Set Admin Password</h1>
       <p class="setup-description" id="setupDescription">
-        首次使用 888 2FA，請先設定登入密碼。
+        First time using 888 2FA, please set your master password.
       </p>
     </div>
 
     <div class="security-notice">
-      <strong id="secNoticeTitle">請妥善保管密碼</strong>
-      <span id="secNoticeDesc">請設定一個高強度密碼並妥善保管。這是您登入管理金鑰的唯一憑證。</span>
+      <strong id="secNoticeTitle">Keep your password safe</strong>
+      <span id="secNoticeDesc">Please set a strong password and save it securely. It is your only credential to manage your keys.</span>
     </div>
 
     <div id="insecureWarning" class="insecure-warning" style="display: none;">
-      <strong id="insecureTitle">目前正透過 HTTP 連線</strong>
-      <span id="insecureDesc">瀏覽器無法在 HTTP 連線下儲存登入狀態，設定完成後會反覆要求輸入密碼。請將網址列中的 http:// 改為 https:// 後重新載入。</span>
+      <strong id="insecureTitle">Currently Accessing via HTTP</strong>
+      <span id="insecureDesc">Browsers cannot persist login sessions over HTTP. You will be asked for your password repeatedly after setup. Please change http:// to https:// in your address bar and reload.</span>
     </div>
 
     <div id="errorMessage" class="error-message" role="alert"></div>
@@ -85,19 +85,19 @@ export async function createSetupPage() {
 
     <form id="setupForm" onsubmit="handleSetup(event)">
       <div class="form-group">
-        <label class="form-label" for="password" id="passwordLabel">設定密碼</label>
+        <label class="form-label" for="password" id="passwordLabel">Set Password</label>
         <div class="password-input-wrapper">
           <input
             type="password"
             id="password"
             class="form-input"
-            placeholder="請輸入密碼"
+            placeholder="Enter password"
             autocomplete="new-password"
             aria-describedby="passwordRequirements"
             required
             oninput="checkPasswordStrength()"
           >
-          <button type="button" class="toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility('password')" title="顯示密碼" aria-label="顯示密碼" aria-controls="password" aria-pressed="false">
+          <button type="button" class="toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility('password')" title="Show password" aria-label="Show password" aria-controls="password" aria-pressed="false">
             ${dialogIcon('eye')}
           </button>
         </div>
@@ -105,46 +105,46 @@ export async function createSetupPage() {
           <div class="password-strength-bar" id="passwordStrengthBar"></div>
         </div>
         <div class="password-requirements" id="passwordRequirements">
-          <strong id="reqTitle">密碼要求：</strong>
+          <strong id="reqTitle">Password requirements:</strong>
           <ul>
-            <li id="reqMinLength">至少 8 個字元</li>
-            <li id="reqUppercase">包含大寫字母（A-Z）</li>
-            <li id="reqLowercase">包含小寫字母（a-z）</li>
-            <li id="reqNumber">包含數字（0-9）</li>
-            <li id="reqSpecial">包含特殊符號（如 !@#$%^&*）</li>
+            <li id="reqMinLength">At least 8 characters</li>
+            <li id="reqUppercase">Contains uppercase letter (A-Z)</li>
+            <li id="reqLowercase">Contains lowercase letter (a-z)</li>
+            <li id="reqNumber">Contains number (0-9)</li>
+            <li id="reqSpecial">Contains special character (e.g. !@#$%^&*)</li>
           </ul>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="confirmPassword" id="confirmPasswordLabel">確認密碼</label>
+        <label class="form-label" for="confirmPassword" id="confirmPasswordLabel">Confirm Password</label>
         <div class="password-input-wrapper">
           <input
             type="password"
             id="confirmPassword"
             class="form-input"
-            placeholder="請再次輸入密碼"
+            placeholder="Re-enter password"
             autocomplete="new-password"
             required
           >
-          <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn" onclick="togglePasswordVisibility('confirmPassword')" title="顯示密碼" aria-label="顯示密碼" aria-controls="confirmPassword" aria-pressed="false">
+          <button type="button" class="toggle-password" id="toggleConfirmPasswordBtn" onclick="togglePasswordVisibility('confirmPassword')" title="Show password" aria-label="Show password" aria-controls="confirmPassword" aria-pressed="false">
             ${dialogIcon('eye')}
           </button>
         </div>
       </div>
 
       <button type="submit" class="submit-button" id="submitButton">
-        完成設定
+        Complete Setup
       </button>
     </form>
   </main>
 
   <script>
     const I18N = ${JSON.stringify(setupLocales)};
-    let currentLang = 'zh-TW';
+    let currentLang = 'en';
 
     function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['zh-TW'] && I18N['zh-TW'][key]) || key;
+      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['en'] && I18N['en'][key]) || (I18N['zh-TW'] && I18N['zh-TW'][key]) || key;
     }
 
     function applySetupLanguage(lang) {

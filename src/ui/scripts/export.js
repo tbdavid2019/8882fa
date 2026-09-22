@@ -33,7 +33,8 @@ export function getExportCode() {
         return;
       }
 
-      defaultBtn.textContent = '按默认格式导出 (' + getDefaultExportFormatLabel(format) + ')';
+      const formatLabel = getDefaultExportFormatLabel(format);
+      defaultBtn.textContent = (typeof t === 'function' ? t('exportDefaultFormatWithLabel', { format: formatLabel }) : null) || ('Export in default format (' + formatLabel + ')');
       defaultBtn.disabled = false;
     }
 
@@ -47,7 +48,7 @@ export function getExportCode() {
 
     function exportAllSecrets() {
       if (secrets.length === 0) {
-        showCenterToast('❌', '没有密钥可以导出');
+        showCenterToast('❌', (typeof t === 'function' ? t('noSecretsToExport') : null) || 'No keys to export');
         return;
       }
 
@@ -77,98 +78,106 @@ export function getExportCode() {
     // ==================== 二级格式选择配置 ====================
 
     // 需要二级选择的格式配置
-    const subFormatConfigs = {
-      'freeotp-plus-multi': {
-        title: '选择 FreeOTP+ 导出格式',
-        options: [
-          {
-            id: 'freeotp-plus',
-            icon: '🔓',
-            name: 'FreeOTP+ 原生',
-            ext: '.json',
-            desc: '社区版原生格式，明文JSON文件',
-            compat: 'FreeOTP+ (Android)'
-          },
-          {
-            id: 'freeotp-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      },
-      'aegis-multi': {
-        title: '选择 Aegis 导出格式',
-        options: [
-          {
-            id: 'aegis',
-            icon: '🔓',
-            name: 'Aegis 原生',
-            ext: '.json',
-            desc: 'Aegis Authenticator 完整格式',
-            compat: 'Aegis (Android)'
-          },
-          {
-            id: 'aegis-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      },
-      'authpro-multi': {
-        title: '选择 Authenticator Pro 导出格式',
-        options: [
-          {
-            id: 'authpro',
-            icon: '🔓',
-            name: 'Auth Pro 原生',
-            ext: '.authpro',
-            desc: 'Stratum 原生格式',
-            compat: 'Authenticator Pro'
-          },
-          {
-            id: 'authenticator-txt',
-            icon: '🔓',
-            name: '标准格式',
-            ext: '.txt',
-            desc: 'OTPAuth URL格式，兼容所有验证器',
-            compat: '通用'
-          }
-        ]
-      },
-      'bitwarden-auth-multi': {
-        title: '选择 Bitwarden Authenticator 导出格式',
-        options: [
-          {
-            id: 'bitwarden-auth-csv',
-            icon: '🔓',
-            name: 'CSV 格式',
-            ext: '.csv',
-            desc: '表格格式，可用Excel打开',
-            compat: 'Bitwarden Authenticator'
-          },
-          {
-            id: 'bitwarden-auth-json',
-            icon: '🔓',
-            name: 'JSON 格式',
-            ext: '.json',
-            desc: '结构化数据格式',
-            compat: 'Bitwarden Authenticator'
-          }
-        ]
-      }
-    };
+    function getSubFormatConfig(multiFormatId) {
+      const _t = typeof t === 'function' ? t : () => null;
+      const configs = {
+        'freeotp-plus-multi': {
+          title: _t('exportFormatFreeotpTitle') || 'Select FreeOTP+ Export Format',
+          options: [
+            {
+              id: 'freeotp-plus',
+              icon: '🔓',
+              name: _t('exportFormatFreeotpNative') || 'FreeOTP+ Native',
+              ext: '.json',
+              desc: _t('exportFormatFreeotpNativeDesc') || 'Community edition native format, plain JSON file',
+              compat: 'FreeOTP+ (Android)'
+            },
+            {
+              id: 'freeotp-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'aegis-multi': {
+          title: _t('exportFormatAegisTitle') || 'Select Aegis Export Format',
+          options: [
+            {
+              id: 'aegis',
+              icon: '🔓',
+              name: _t('exportFormatAegisNative') || 'Aegis Native',
+              ext: '.json',
+              desc: _t('exportFormatAegisNativeDesc') || 'Aegis Authenticator full format',
+              compat: 'Aegis (Android)'
+            },
+            {
+              id: 'aegis-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'authpro-multi': {
+          title: _t('exportFormatAuthProTitle') || 'Select Authenticator Pro Export Format',
+          options: [
+            {
+              id: 'authpro',
+              icon: '🔓',
+              name: _t('exportFormatAuthProNative') || 'Auth Pro Native',
+              ext: '.authpro',
+              desc: _t('exportFormatAuthProNativeDesc') || 'Stratum native format',
+              compat: 'Authenticator Pro'
+            },
+            {
+              id: 'authenticator-txt',
+              icon: '🔓',
+              name: _t('exportFormatStandard') || 'Standard Format',
+              ext: '.txt',
+              desc: _t('exportFormatStandardDesc') || 'OTPAuth URL format, compatible with all authenticators',
+              compat: _t('exportFormatCompatGeneral') || 'Universal'
+            }
+          ]
+        },
+        'bitwarden-auth-multi': {
+          title: _t('exportFormatBitwardenTitle') || 'Select Bitwarden Export Format',
+          options: [
+            {
+              id: 'bitwarden-auth-csv',
+              icon: '🔓',
+              name: _t('exportFormatBitwardenCsv') || 'CSV Format',
+              ext: '.csv',
+              desc: _t('exportFormatBitwardenCsvDesc') || 'Spreadsheet format, viewable in Excel',
+              compat: 'Bitwarden Authenticator'
+            },
+            {
+              id: 'bitwarden-auth-json',
+              icon: '🔓',
+              name: _t('exportFormatBitwardenJson') || 'JSON Format',
+              ext: '.json',
+              desc: _t('exportFormatBitwardenJsonDesc') || 'Structured data format',
+              compat: 'Bitwarden Authenticator'
+            }
+          ]
+        }
+      };
+      return configs[multiFormatId] || null;
+    }
+
+    const subFormatConfigs = new Proxy({}, {
+      get: (_, prop) => getSubFormatConfig(prop)
+    });
 
     // 显示二级格式选择模态框
     function showSubFormatModal(multiFormatId) {
       const config = subFormatConfigs[multiFormatId];
       if (!config) {
-        console.error('未找到格式配置:', multiFormatId);
+        console.error('Format configuration not found:', multiFormatId);
         return;
       }
 
@@ -249,8 +258,8 @@ export function getExportCode() {
         // 调用通用导出函数
         exportSecretsAsFormat(secretsToExport, format);
       } catch (error) {
-        console.error('导出失败:', error);
-        showCenterToast('❌', '导出失败：' + error.message);
+        console.error('Export failed:', error);
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportFailedWithReason', { error: error.message }) : null) || ('Export failed: ' + error.message)));
       }
     }
 
@@ -384,7 +393,7 @@ export function getExportCode() {
           await exportAsOTPAuth(secretsData, { formatName: 'freeotp-txt' });
           break;
         default:
-          showCenterToast('❌', '不支持的导出格式');
+          showCenterToast('❌', ((typeof t === 'function' ? t('unsupportedExportFormat') : null) || 'Unsupported export format'));
       }
     }
 
@@ -464,8 +473,8 @@ export function getExportCode() {
 
           if (shouldFallbackToLocalStandardExport(response.status, errorData)) {
             const fallbackMessage = response.status === 413
-              ? '导出内容较大，已切换为本地兼容导出'
-              : '当前离线，已切换为本地兼容导出';
+              ? ((typeof t === 'function' ? t('exportFallbackLarge') : null) || 'Export data is large, switched to local compatible export')
+              : ((typeof t === 'function' ? t('exportFallbackOffline') : null) || 'Currently offline, switched to local compatible export');
             await fallbackToLocalExport(fallbackMessage);
             return;
           }
@@ -502,7 +511,7 @@ export function getExportCode() {
         const isNetworkFailure = error && (error.name === 'TypeError' || /Failed to fetch|NetworkError/i.test(errorMessage));
 
         if (isNetworkFailure) {
-          await fallbackToLocalExport('当前无法连接在线导出服务，已切换为本地兼容导出');
+          await fallbackToLocalExport((typeof t === 'function' ? t('exportFallbackNetwork') : null) || 'Unable to connect to online export service, switched to local compatible export');
           return;
         }
 
@@ -545,7 +554,7 @@ export function getExportCode() {
       const content = otpauthUrls.join('\\n');
       const saved = await downloadFile(content, filenamePrefix + '-' + formatName + '-' + getDateString() + '.txt', 'text/plain;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'OTPAuth 文本');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatOtpauthText') : null) || 'OTPAuth text');
       }
     }
 
@@ -583,15 +592,25 @@ export function getExportCode() {
       const content = JSON.stringify(exportData, null, 2);
       const saved = await downloadFile(content, filenamePrefix + '-data-' + getDateString() + '.json', 'application/json;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'JSON 数据');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatJsonData') : null) || 'JSON data');
       }
     }
 
     // 导出为 CSV 格式
     async function exportAsCSV(sortedSecrets, options = {}) {
       const filenamePrefix = options.filenamePrefix || '2FA-secrets';
+      const _t = typeof t === 'function' ? t : (k) => null;
       // CSV header
-      const headers = ['服务名称', '账户信息', '密钥', '类型', '位数', '周期(秒)', '算法', '计数器'];
+      const headers = [
+        _t('serviceName') || 'Service',
+        _t('accountInfo') || 'Account',
+        _t('keySecret') || 'Secret',
+        _t('keyType') || 'Type',
+        _t('keyDigits') || 'Digits',
+        _t('keyPeriod') || 'Period (s)',
+        _t('keyAlgorithm') || 'Algorithm',
+        _t('counterLabel') || 'Counter'
+      ];
       const csvRows = [headers.join(',')];
 
       // CSV rows
@@ -615,7 +634,7 @@ export function getExportCode() {
       const bom = '\\uFEFF';
       const saved = await downloadFile(bom + content, filenamePrefix + '-table-' + getDateString() + '.csv', 'text/csv;charset=utf-8');
       if (saved) {
-        showExportSuccess(sortedSecrets.length, 'CSV 表格');
+        showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatCsvTable') : null) || 'CSV table');
       }
     }
 
@@ -634,7 +653,7 @@ export function getExportCode() {
       const shouldEmbedQRCodes = sortedSecrets.length <= MAX_EMBEDDED_QR_SECRETS;
 
       try {
-        showCenterToast('📋', '正在准备数据...');
+        showCenterToast('📋', (typeof t === 'function' ? t('preparingData') : null) || 'Preparing data...');
 
         const invalidSecrets = [];
         const secretsData = sortedSecrets.map((secret, index) => {
@@ -692,13 +711,13 @@ export function getExportCode() {
         if (skippedInvalidCount > 0) {
           const preview = invalidSecrets
             .slice(0, 3)
-            .map(item => '第' + item.index + '条' + (item.name ? '（' + item.name + '）' : '') + '缺少有效密钥')
-            .join('；');
+            .map(item => ((typeof t === 'function' ? t('itemNumberPrefix') : null) || 'Item #') + item.index + (item.name ? ' (' + item.name + ')' : '') + ((typeof t === 'function' ? t('missingValidSecret') : null) || ' missing valid secret'))
+            .join('; ');
           const remainingCount = skippedInvalidCount - Math.min(skippedInvalidCount, 3);
           throw new Error(
-            '当前存在无效密钥，已阻止导出 HTML 备份：' +
+            ((typeof t === 'function' ? t('invalidSecretsBlockedHtml') : null) || 'Invalid keys detected, blocked HTML backup export: ') +
               preview +
-              (remainingCount > 0 ? '；另有' + remainingCount + '条' : '')
+              (remainingCount > 0 ? '; and ' + remainingCount + ' more' : '')
           );
         }
 
@@ -721,11 +740,12 @@ export function getExportCode() {
           }))
         }, null, 2));
 
+        const _t = typeof t === 'function' ? t : (k) => null;
         const qrDescription = shouldEmbedQRCodes
-          ? '每行二维码可直接扫码导入支持 OTPAuth 的验证器。'
-          : '当前导出共有 ' + sortedSecrets.length + ' 条密钥，超过 ' + MAX_EMBEDDED_QR_SECRETS + ' 条二维码内嵌上限，已保留完整可恢复数据和密钥表格，但未嵌入二维码。';
-        const formatLabel = shouldEmbedQRCodes ? 'HTML（含二维码）' : 'HTML（未嵌入二维码）';
-        const qrPlaceholder = '数量过多，未嵌入';
+          ? (_t('htmlBackupQrNote') || 'Scan each QR code row to import directly into authenticators supporting OTPAuth.')
+          : (_t('htmlBackupQrExcessNote') ? _t('htmlBackupQrExcessNote').replace('{count}', sortedSecrets.length) : ('Export contains ' + sortedSecrets.length + ' keys, exceeding QR code embed limit. Recovery data and secrets are preserved.'));
+        const formatLabel = shouldEmbedQRCodes ? (_t('htmlWithQr') || 'HTML (with QR)') : (_t('htmlWithoutQr') || 'HTML (no QR)');
+        const qrPlaceholder = _t('htmlBackupQrPlaceholder') || 'Too many keys, QR codes omitted';
         const qrDataUrls = [];
 
         if (shouldEmbedQRCodes) {
@@ -736,7 +756,7 @@ export function getExportCode() {
 
           for (let i = 0; i < secretsData.length; i += BATCH_SIZE) {
             const batch = secretsData.slice(i, i + BATCH_SIZE);
-            showCenterToast('⏳', '正在生成二维码... (' + (i + batch.length) + '/' + totalCount + ')');
+            showCenterToast('⏳', ((typeof t === 'function' ? t('generatingQrCode') : null) || 'Generating QR code...') + ' (' + (i + batch.length) + '/' + totalCount + ')');
 
             const batchQrUrls = await Promise.all(
               batch.map(data => generateQRCodeDataURL(data.otpauthUrl))
@@ -745,10 +765,10 @@ export function getExportCode() {
             qrDataUrls.push(...batchQrUrls);
           }
         } else {
-          showCenterToast('ℹ️', '密钥数量较多，HTML 将保留表格与可恢复数据，不嵌入二维码');
+          showCenterToast('ℹ️', ((typeof t === 'function' ? t('exportHtmlNoQrToast') : null) || 'Key count is large, HTML will retain table and recoverable data without embedding QR codes'));
         }
 
-        showCenterToast('🔨', '正在生成HTML文件...');
+        showCenterToast('🔨', ((typeof t === 'function' ? t('generatingHtmlFile') : null) || 'Generating HTML file...'));
 
         const rowsHtml = secretsData.map((data, index) => {
           const qrCellHtml = shouldEmbedQRCodes
@@ -768,37 +788,53 @@ export function getExportCode() {
             '        </tr>\\n';
         }).join('');
 
+        const docTitle = _t('htmlBackupTitle') || '2FA Secrets Backup';
+        const exportTimeLabel = _t('exportTime') || 'Export Time';
+        const keyCountLabel = _t('keyCount') || 'Key Count';
+        const formatTextLabel = _t('formatLabel') || 'Format';
+        const tableAriaLabel = _t('backupTableAriaLabel') || 'Backup secrets table';
+        const thService = _t('serviceName') || 'Service';
+        const thAccount = _t('accountInfo') || 'Account';
+        const thSecret = _t('keySecret') || 'Secret';
+        const thType = _t('keyType') || 'Type';
+        const thDigits = _t('keyDigits') || 'Digits';
+        const thPeriod = _t('keyPeriod') || 'Period (s)';
+        const thAlgorithm = _t('keyAlgorithm') || 'Algorithm';
+        const thCounter = _t('counterLabel') || 'Counter';
+        const thQr = _t('qrCode') || 'QR Code';
+        const htmlLang = (typeof currentLang === 'string' && currentLang) ? currentLang : 'en';
+
         const htmlContent = '<!DOCTYPE html>\\n' +
-          '<html lang="zh-CN">\\n' +
+          '<html lang="' + escapeHTML(htmlLang) + '">\\n' +
           '<head>\\n' +
-          ${JSON.stringify(getStandaloneHead('2FA 密钥备份', getBackupDocumentStyles())).replace(/</g, '\\u003c')} +
+          ${JSON.stringify(getStandaloneHead('2FA Secrets Backup', getBackupDocumentStyles())).replace(/</g, '\\u003c')} +
           '  <meta name="2fa-backup-meta" content="skippedInvalidCount=0">\\n' +
           '  <meta name="robots" content="noindex, nofollow">\\n' +
           '  <meta name="googlebot" content="noindex, nofollow">\\n' +
           '</head>\\n' +
           '<body data-skipped-invalid-count="0">\\n' +
           '  <main class="backup-document">\\n' +
-          '    <header class="document-header"><h1>2FA 密钥备份</h1>\\n' +
+          '    <header class="document-header"><h1>' + escapeHTML(docTitle) + '</h1>\\n' +
           '    <div class="meta">\\n' +
-          '      <p>导出时间: ' + exportDate.toLocaleString('zh-CN', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}) + '</p>\\n' +
-          '      <p>密钥数量: ' + sortedSecrets.length + ' 个</p>\\n' +
-          '      <p>格式: ' + escapeHTML(formatLabel) + '</p>\\n' +
+          '      <p>' + escapeHTML(exportTimeLabel) + ': ' + escapeHTML(exportTimestamp) + '</p>\\n' +
+          '      <p>' + escapeHTML(keyCountLabel) + ': ' + sortedSecrets.length + '</p>\\n' +
+          '      <p>' + escapeHTML(formatTextLabel) + ': ' + escapeHTML(formatLabel) + '</p>\\n' +
           '      <p>' + escapeHTML(qrDescription) + '</p>\\n' +
           '    </div>\\n' +
           '    </header>\\n' +
-          '    <div class="table-scroll" role="region" aria-label="备份密钥表格" tabindex="0">\\n' +
+          '    <div class="table-scroll" role="region" aria-label="' + escapeHTML(tableAriaLabel) + '" tabindex="0">\\n' +
           '    <table data-skipped-invalid-count="0">\\n' +
           '      <thead>\\n' +
           '        <tr>\\n' +
-          '          <th>服务名称</th>\\n' +
-          '          <th>账户名称</th>\\n' +
-          '          <th>密钥</th>\\n' +
-          '          <th>类型</th>\\n' +
-          '          <th>位数</th>\\n' +
-          '          <th>周期</th>\\n' +
-          '          <th>算法</th>\\n' +
-          '          <th>计数器</th>\\n' +
-          '          <th>二维码</th>\\n' +
+          '          <th>' + escapeHTML(thService) + '</th>\\n' +
+          '          <th>' + escapeHTML(thAccount) + '</th>\\n' +
+          '          <th>' + escapeHTML(thSecret) + '</th>\\n' +
+          '          <th>' + escapeHTML(thType) + '</th>\\n' +
+          '          <th>' + escapeHTML(thDigits) + '</th>\\n' +
+          '          <th>' + escapeHTML(thPeriod) + '</th>\\n' +
+          '          <th>' + escapeHTML(thAlgorithm) + '</th>\\n' +
+          '          <th>' + escapeHTML(thCounter) + '</th>\\n' +
+          '          <th>' + escapeHTML(thQr) + '</th>\\n' +
           '        </tr>\\n' +
           '      </thead>\\n' +
           '      <tbody>\\n' +
@@ -818,11 +854,11 @@ export function getExportCode() {
 
         const saved = await downloadFile(htmlContent, filenamePrefix + '-backup-' + getDateString() + '.html', 'text/html;charset=utf-8');
         if (saved) {
-          showExportSuccess(sortedSecrets.length, 'HTML 网页');
+          showExportSuccess(sortedSecrets.length, (typeof t === 'function' ? t('exportFormatHtmlPage') : null) || 'HTML page');
         }
       } catch (error) {
-        console.error('HTML导出失败:', error);
-        showCenterToast('❌', 'HTML导出失败: ' + error.message);
+        console.error('HTML export failed:', error);
+        showCenterToast('❌', ((typeof t === 'function' ? t('htmlExportFailed', { error: error.message }) : null) || ('HTML export failed: ' + error.message)));
       }
     }
 
@@ -1075,7 +1111,7 @@ export function getExportCode() {
      */
     async function exportAsLastPass(sortedSecrets, options = {}) {
       if (sortedSecrets.some(secret => String(secret.type || 'TOTP').toUpperCase() === 'HOTP')) {
-        showCenterToast('❌', '当前 LastPass 导出格式无法保留 HOTP 计数器，请改用 JSON、Aegis 或 FreeOTP');
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportLastPassNoHotp') : null) || 'Current LastPass export format cannot preserve HOTP counters, please use JSON, Aegis or FreeOTP instead'));
         return false;
       }
       const filenamePrefix = options.filenamePrefix || 'LastPass Authenticator';
@@ -1423,12 +1459,12 @@ export function getExportCode() {
     async function executeFreeOTPExport() {
       const password = document.getElementById('freeotpExportPassword').value;
       if (!password) {
-        showCenterToast('❌', '请输入加密密码');
+        showCenterToast('❌', ((typeof t === 'function' ? t('enterPassword') : null) || 'Please enter encryption password'));
         return;
       }
 
       try {
-        showCenterToast('⏳', '正在生成加密备份...');
+        showCenterToast('⏳', ((typeof t === 'function' ? t('generatingEncryptedBackup') : null) || 'Generating encrypted backup...'));
 
         // 获取排序后的密钥
         const sortSelect = document.getElementById('exportSortOrder');
@@ -1438,7 +1474,7 @@ export function getExportCode() {
         await exportAsFreeOTPEncrypted(secretsToExport, password);
         hideFreeOTPExportModal();
       } catch (error) {
-        showCenterToast('❌', '导出失败：' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportFailedWithReason', { error: error.message }) : null) || ('Export failed: ' + error.message)));
       }
     }
 
@@ -1785,7 +1821,7 @@ export function getExportCode() {
     async function executeTOTPAuthExport() {
       const password = document.getElementById('totpAuthExportPassword').value;
       if (!password) {
-        showCenterToast('❌', '请输入加密密码');
+        showCenterToast('❌', ((typeof t === 'function' ? t('enterPassword') : null) || 'Please enter encryption password'));
         return;
       }
 
@@ -1798,7 +1834,7 @@ export function getExportCode() {
         if (await exportAsTOTPAuthenticatorEncrypted(secretsToExport, password) === false) return;
         hideTOTPAuthExportModal();
       } catch (error) {
-        showCenterToast('❌', '导出失败：' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportFailedWithReason', { error: error.message }) : null) || ('Export failed: ' + error.message)));
       }
     }
 
@@ -1836,7 +1872,7 @@ export function getExportCode() {
     async function exportAsTOTPAuthenticatorEncrypted(sortedSecrets, password) {
       if (sortedSecrets.some(secret => String(secret.type || 'TOTP').toUpperCase() === 'HOTP' ||
           String(secret.algorithm || 'SHA1').toUpperCase() !== 'SHA1')) {
-        showCenterToast('❌', '当前 TOTP Authenticator 导出仅支持 SHA1 TOTP，请改用 JSON、Aegis 或 FreeOTP 保留完整参数');
+        showCenterToast('❌', ((typeof t === 'function' ? t('exportTotpSha1Only') : null) || 'Current TOTP Authenticator export only supports SHA1 TOTP, please use JSON, Aegis or FreeOTP to keep all parameters'));
         return false;
       }
       const filenamePrefix = '2FA-secrets';
@@ -1922,8 +1958,9 @@ export function getExportCode() {
     }
 
     function showExportSuccess(count, format) {
-      const formatName = format || '密钥';
-      showCenterToast('✅', '已导出 ' + count + ' 个密钥（' + formatName + '）');
+      const formatName = format || ((typeof t === 'function' ? t('secret') : null) || 'key');
+      const msg = (typeof t === 'function' ? t('exportSuccessWithCount', { count: count, format: formatName }) : null) || ('Exported ' + count + ' keys (' + formatName + ')');
+      showCenterToast('✅', msg);
     }
 `;
 }

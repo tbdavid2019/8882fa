@@ -309,7 +309,7 @@ describe('generated Service Worker offline replay behavior', () => {
 		const operation = queuedUpdate();
 		const harness = await createServiceWorkerHarness([operation]);
 		harness.fetch.mockRejectedValue(new TypeError('Failed to fetch'));
-		await expect(harness.dispatch('sync', { tag: 'sync-operations' })).rejects.toThrow('网络不可用');
+		await expect(harness.dispatch('sync', { tag: 'sync-operations' })).rejects.toThrow(/网络不可用|Network unavailable/i);
 		expect(harness.pending.get(operation.id)).toEqual(operation);
 		harness.fetch.mockResolvedValue({ ok: true });
 		await harness.dispatch('sync', { tag: 'sync-operations' });

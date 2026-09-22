@@ -164,7 +164,7 @@ export function getTimeCode() {
           });
 
           if (!response.ok) {
-            throw new Error('时间接口返回状态 ' + response.status);
+            throw new Error('Time API returned status ' + response.status);
           }
           const data = await response.json();
           const monotonicEndMs = this.monotonicNow();
@@ -173,18 +173,18 @@ export function getTimeCode() {
           const wallElapsedMs = wallEndMs - wallStartMs;
 
           if (!Number.isFinite(rttMs) || rttMs < 0 || rttMs > CLOCK_SYNC_MAX_RTT_MS) {
-            throw new Error('时间同步网络延迟过高');
+            throw new Error('Time sync network latency is too high');
           }
           if (
             !Number.isFinite(wallElapsedMs) ||
             wallElapsedMs < 0 ||
             Math.abs(wallElapsedMs - rttMs) > CLOCK_SYNC_SAMPLE_WALL_DRIFT_TOLERANCE_MS
           ) {
-            throw new Error('时间同步期间设备时钟发生跳变');
+            throw new Error('Device clock jumped during time sync');
           }
 
           if (!data || !this.isValidServerTime(data.serverTimeMs)) {
-            throw new Error('时间接口返回了无效时间');
+            throw new Error('Time API returned invalid time');
           }
 
           const localMidpointMs = wallStartMs + rttMs / 2;
@@ -338,17 +338,17 @@ export function getTimeCode() {
       }
 
       formatAge(ageMs) {
-        if (!Number.isFinite(ageMs) || ageMs < 60 * 1000) return (typeof t === 'function' ? t('timeJustNow') : null) || '刚刚';
+        if (!Number.isFinite(ageMs) || ageMs < 60 * 1000) return (typeof t === 'function' ? t('timeJustNow') : null) || 'just now';
         if (ageMs < 60 * 60 * 1000) {
           const mins = Math.floor(ageMs / (60 * 1000));
-          return (typeof t === 'function' ? t('timeMinutesAgo', { minutes: mins }) : null) || (mins + ' 分钟前');
+          return (typeof t === 'function' ? t('timeMinutesAgo', { minutes: mins }) : null) || (mins + ' minutes ago');
         }
         if (ageMs < 24 * 60 * 60 * 1000) {
           const hrs = Math.floor(ageMs / (60 * 60 * 1000));
-          return (typeof t === 'function' ? t('timeHoursAgo', { hours: hrs }) : null) || (hrs + ' 小时前');
+          return (typeof t === 'function' ? t('timeHoursAgo', { hours: hrs }) : null) || (hrs + ' hours ago');
         }
         const days = Math.floor(ageMs / (24 * 60 * 60 * 1000));
-        return (typeof t === 'function' ? t('timeDaysAgo', { days: days }) : null) || (days + ' 天前');
+        return (typeof t === 'function' ? t('timeDaysAgo', { days: days }) : null) || (days + ' days ago');
       }
 
       renderStatus() {
@@ -364,17 +364,18 @@ export function getTimeCode() {
 
         // 首次校准落地前不提示：页面刚加载时缓存偏移已生效但校准仍在进行，
         // 此时提示会在校准成功后立即消失，表现为刷新时的一次闪烁。
+        const _t = typeof t === 'function' ? t : (k) => null;
         if (!this.hasSettledSync) {
           message = '';
         } else if (this.status === 'local') {
-          message = '无法校准服务器时间，OTP 正在使用设备时间，可能不正确。';
+          message = _t('timeCannotCalibrate') || 'Unable to calibrate server time. OTP is using device time and may be inaccurate.';
         } else if (this.status === 'cached') {
           const ageText = this.formatAge(ageMs);
           message = isStale
-            ? '正在使用 ' + ageText + ' 的时间校准缓存，OTP 可能不准确。'
-            : '正在使用上次时间校准（' + ageText + '）。如设备时间已调整，OTP 可能不准确；联网后将自动更新。';
+            ? (_t('timeUsingCache', { age: ageText }) || ('Using time calibration cache from ' + ageText + '. OTP may be inaccurate.'))
+            : (_t('timeUsingCache', { age: ageText }) || ('Using last time calibration (' + ageText + '). If device time changed, OTP may be inaccurate; will update automatically when online.'));
         } else if (isStale) {
-          message = '服务器时间已超过 24 小时未校准，OTP 可能不准确。';
+          message = _t('timeExpired24h') || 'Server time has not been calibrated for more than 24 hours, OTP may be inaccurate.';
         }
 
         warning.hidden = !message;
@@ -441,7 +442,13 @@ export function getTimeCode() {
     async function retryClockSync() {
       const success = await trustedClock.sync();
       if (typeof showCenterToast === 'function') {
-        showCenterToast(success ? '✓' : '!', success ? '时间校准成功' : '时间校准失败，请检查网络连接');
+        const _t = typeof t === 'function' ? t : (k) => null;
+        showCenterToast(
+          success ? '✓' : '!',
+          success
+            ? (_t('timeCalibSuccess') || 'Time calibrated successfully')
+            : (_t('timeCalibFailed') || 'Time calibration failed, please check network connection')
+        );
       }
       return success;
     }

@@ -62,7 +62,7 @@ describe('OTP link copying', () => {
 			digits: '8',
 			period: '60',
 		});
-		expect(showCenterToast).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('验证器 URI'));
+		expect(showCenterToast).toHaveBeenCalledWith(expect.any(String), expect.stringMatching(/验证器 URI|Authenticator URI/i));
 	});
 
 	it('copies a URI without an account using the standard TOTP defaults', async () => {
@@ -112,7 +112,7 @@ describe('OTP link copying', () => {
 			await api.copyOTPPageURL('test');
 
 			expect(writeText).toHaveBeenCalledWith('https://custom.example:8443/otp/JBSWY3DPEHPK3PXP');
-			expect(showCenterToast).toHaveBeenCalledWith(expect.any(String), expect.stringContaining('验证码链接'));
+			expect(showCenterToast).toHaveBeenCalledWith(expect.any(String), expect.stringMatching(/验证码链接|code link copied/i));
 		},
 	);
 
@@ -165,7 +165,7 @@ describe('OTP link copying', () => {
 		await api[method]('missing');
 
 		expect(writeText).not.toHaveBeenCalled();
-		expect(showCenterToast).toHaveBeenCalledWith('❌', '未找到密钥');
+		expect(showCenterToast).toHaveBeenCalledWith('❌', expect.stringMatching(/未找到密钥|Key not found/i));
 	});
 
 	it.each(['copyOTPAuthURL', 'copyOTPPageURL'])('%s reports a rejected clipboard write', async (method) => {

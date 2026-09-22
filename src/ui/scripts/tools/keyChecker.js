@@ -24,7 +24,7 @@ export function getKeyCheckerToolCode() {
     function checkSecret() {
       const secret = document.getElementById('keyCheckInput').value.trim().toUpperCase();
       if (!secret) {
-        showCenterToast('❌', '请输入要检查的密钥');
+        showCenterToast('❌', (typeof t === 'function' ? t('keyCheckerEnterKey') : null) || 'Please enter a key to check');
         return;
       }
 
@@ -45,14 +45,14 @@ export function getKeyCheckerToolCode() {
       // 检查长度
       result.lengthValid = secret.length >= 8;
       if (!result.lengthValid) {
-        result.suggestions.push('密钥长度至少需要8个字符');
+        result.suggestions.push((typeof t === 'function' ? t('keyCheckerLengthSuggestion') : null) || 'Key length must be at least 8 characters');
       }
 
       // 检查字符集
       const base32Regex = /^[A-Z2-7]+=*$/;
       result.charsetValid = base32Regex.test(secret);
       if (!result.charsetValid) {
-        result.suggestions.push('只能包含A-Z和2-7的字符');
+        result.suggestions.push((typeof t === 'function' ? t('keyCheckerCharsetSuggestion') : null) || 'Can only contain characters A-Z and 2-7');
       }
 
       // 检查填充
@@ -60,13 +60,13 @@ export function getKeyCheckerToolCode() {
       const paddingLength = secret.length - withoutPadding.length;
       result.paddingValid = paddingLength === 0 || paddingLength <= 6;
       if (!result.paddingValid) {
-        result.suggestions.push('填充字符(=)不能超过6个');
+        result.suggestions.push((typeof t === 'function' ? t('keyCheckerPaddingSuggestion') : null) || 'Padding characters (=) cannot exceed 6');
       }
 
       // 检查长度是否为8的倍数（考虑填充）
       const totalLength = withoutPadding.length + paddingLength;
       if (totalLength % 8 !== 0) {
-        result.suggestions.push('填充后的总长度必须是8的倍数');
+        result.suggestions.push((typeof t === 'function' ? t('keyCheckerMultipleSuggestion') : null) || 'Total length after padding must be a multiple of 8');
       }
 
       // 整体有效性
@@ -79,28 +79,38 @@ export function getKeyCheckerToolCode() {
       const resultDiv = document.getElementById('checkResultContent');
       const resultSection = document.getElementById('keyCheckResult');
 
+      const validText = result.isValid ? ((typeof t === 'function' ? t('keyCheckerValid') : null) || 'Secret is valid') : ((typeof t === 'function' ? t('keyCheckerInvalid') : null) || 'Secret is invalid');
+      const lengthReqText = result.lengthValid ? ((typeof t === 'function' ? t('keyCheckerMeetsReq') : null) || '(Meets requirements)') : ((typeof t === 'function' ? t('keyCheckerNotMeetsReq') : null) || '(Does not meet requirements)');
+      const charsetText = result.charsetValid ? ((typeof t === 'function' ? t('keyCheckerBase32Ok') : null) || 'Compliant with Base32 specification') : ((typeof t === 'function' ? t('keyCheckerBase32Bad') : null) || 'Contains illegal characters');
+      const paddingText = result.paddingValid ? ((typeof t === 'function' ? t('keyCheckerPaddingOk') : null) || 'Padding correct') : ((typeof t === 'function' ? t('keyCheckerPaddingBad') : null) || 'Padding incorrect');
+      const lengthLabel = (typeof t === 'function' ? t('keyCheckerLengthLabel') : null) || 'Length:';
+      const charsetLabel = (typeof t === 'function' ? t('keyCheckerCharsetLabel') : null) || 'Charset:';
+      const paddingLabel = (typeof t === 'function' ? t('keyCheckerPaddingLabel') : null) || 'Padding:';
+      const charsText = (typeof t === 'function' ? t('keyCheckerChars', { length: result.length }) : null) || (result.length + ' chars');
+
       let html = '<div style="display: flex; align-items: center; margin-bottom: 15px;">' +
         '<span style="font-size: var(--dialog-section-size); margin-right: 10px;">' + dialogIcon(result.isValid ? 'check' : 'error') + '</span>' +
-        '<span style="font-size: var(--dialog-section-size); font-weight: 600; color: ' + (result.isValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + (result.isValid ? '密钥有效' : '密钥无效') + '</span>' +
+        '<span style="font-size: var(--dialog-section-size); font-weight: 600; color: ' + (result.isValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + validText + '</span>' +
         '</div>' +
         '<div style="margin-bottom: 15px;">' +
         '<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">' +
-        '<span style="font-weight: 600;">长度:</span>' +
-        '<span style="color: ' + (result.lengthValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + result.length + ' 字符 ' + (result.lengthValid ? '(符合要求)' : '(不符合要求)') + '</span>' +
+        '<span style="font-weight: 600;">' + lengthLabel + '</span>' +
+        '<span style="color: ' + (result.lengthValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + charsText + ' ' + lengthReqText + '</span>' +
         '</div>' +
         '<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">' +
-        '<span style="font-weight: 600;">字符集:</span>' +
-        '<span style="color: ' + (result.charsetValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + (result.charsetValid ? '符合Base32规范' : '包含非法字符') + '</span>' +
+        '<span style="font-weight: 600;">' + charsetLabel + '</span>' +
+        '<span style="color: ' + (result.charsetValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + charsetText + '</span>' +
         '</div>' +
         '<div style="display: flex; justify-content: space-between;">' +
-        '<span style="font-weight: 600;">填充:</span>' +
-        '<span style="color: ' + (result.paddingValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + (result.paddingValid ? '填充正确' : '填充错误') + '</span>' +
+        '<span style="font-weight: 600;">' + paddingLabel + '</span>' +
+        '<span style="color: ' + (result.paddingValid ? 'var(--dialog-success)' : 'var(--dialog-danger)') + ';">' + paddingText + '</span>' +
         '</div>' +
         '</div>';
 
       if (!result.isValid && result.suggestions.length > 0) {
+        const suggestionsTitle = (typeof t === 'function' ? t('keyCheckerSuggestionsTitle') : null) || 'Suggestions:';
         html += '<div style="margin-top: 15px; padding: 10px; background: var(--dialog-warning-bg); border-radius: 6px;">' +
-          '<div style="font-weight: 600; margin-bottom: 8px; color: var(--dialog-warning);">改进建议:</div>' +
+          '<div style="font-weight: 600; margin-bottom: 8px; color: var(--dialog-warning);">' + suggestionsTitle + '</div>' +
           '<div style="font-size: var(--dialog-caption-size); color: var(--dialog-warning);">' +
           result.suggestions.map(suggestion => '• ' + suggestion).join('<br>') +
           '</div>' +

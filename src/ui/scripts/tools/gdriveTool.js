@@ -40,7 +40,7 @@ export function getGoogleDriveToolCode() {
         _googleDriveExpectedCallbackOrigin = null;
         loadGoogleDriveDestinations();
         const icon = data.severity === 'warning' ? '⚠️' : (data.success ? '✅' : '❌');
-        showCenterToast(icon, data.message || (data.success ? 'Google Drive 授权成功' : 'Google Drive 授权失败'));
+        showCenterToast(icon, data.message || (data.success ? ((typeof t === 'function' ? t('syncGdriveAuthSuccess') : null) || 'Google Drive authorized successfully') : ((typeof t === 'function' ? t('syncGdriveAuthFailed') : null) || 'Google Drive authorization failed')));
       });
     }
 
@@ -64,14 +64,14 @@ export function getGoogleDriveToolCode() {
             warningEl.style.display = 'none';
           } else {
             warningEl.style.display = 'block';
-            warningEl.textContent = '服务端未配置 Google Drive OAuth 凭据。当前仍可新增、查看和编辑目标，但暂时无法完成授权或启用同步。';
+            warningEl.textContent = (typeof t === 'function' ? t('remoteMissingCredentialsWarning', { target: 'Google Drive' }) : null) || 'Server has not configured Google Drive OAuth credentials. You can still view and edit targets, but authorization is not available yet.';
           }
         }
 
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderGoogleDriveCard(dest)).join('');
         } else {
-          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('googleDriveEmptyList') : null) || '暂无 Google Drive 目标，点击下方按钮添加') + '</div>';
+          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('googleDriveEmptyList') : null) || 'No Google Drive targets yet. Click button below to add.') + '</div>';
         }
 
         const canAdd = data.count < data.maxAllowed;
@@ -79,39 +79,39 @@ export function getGoogleDriveToolCode() {
         addBtn.style.display = canAdd ? 'block' : 'none';
         hideGoogleDriveForm();
       } catch (error) {
-        console.error('加载 Google Drive 配置失败:', error);
-        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || '加载失败，请稍后重试') + '</div>';
+        console.error('Failed to load Google Drive config:', error);
+        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || 'Failed to load, please try again later') + '</div>';
       }
     }
 
     function _renderGoogleDriveCard(dest) {
       let statusDot = 'dest-status-dot-gray';
-      let statusText = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未授权';
+      let statusText = (typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not authorized';
 
       if (dest.status.lastError) {
         statusDot = 'dest-status-dot-red';
-        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || '失败: ') + dest.status.lastError.error;
+        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || 'Failed: ') + dest.status.lastError.error;
       } else if (dest.status.lastSuccess) {
         statusDot = 'dest-status-dot-green';
         statusText = new Date(dest.status.lastSuccess.timestamp).toLocaleString();
       } else if (dest.authorized) {
-        statusText = (typeof t === 'function' ? t('syncStatusPushed') : null) || '已授权，等待首次推送';
+        statusText = (typeof t === 'function' ? t('syncStatusAuthorizedWaitingPush') : null) || 'Authorized, waiting for first push';
       }
 
       const enabledClass = dest.enabled ? '' : 'dest-card-disabled';
       const accountText = dest.account && (dest.account.email || dest.account.displayName)
-        ? ((dest.account.displayName || 'Google 账户') + (dest.account.email ? ' · ' + dest.account.email : ''))
-        : ((typeof t === 'function' ? t('syncStatusNotConfigured') : null) || '未授权');
+        ? ((dest.account.displayName || 'Google Account') + (dest.account.email ? ' · ' + dest.account.email : ''))
+        : ((typeof t === 'function' ? t('syncStatusNotConfigured') : null) || 'Not authorized');
 
       return '<div class="dest-card ' + enabledClass + '" data-id="' + dest.id + '">'
         + '<div class="dest-card-header">'
         + '<div class="dest-card-info">'
         + '<span class="dest-card-name">' + _escapeGoogleDriveHtml(dest.name) + '</span>'
         + '<span class="dest-card-url">' + _escapeGoogleDriveHtml(accountText) + '</span>'
-        + '<span class="dest-card-url">备份目录: ' + _escapeGoogleDriveHtml(dest.config.folderPath || '/2FA-Backups') + '</span>'
+        + '<span class="dest-card-url">' + ((typeof t === 'function' ? t('gdriveFolder') : null) || 'Folder: ') + _escapeGoogleDriveHtml(dest.config.folderPath || '/2FA-Backups') + '</span>'
         + '</div>'
         + '<label class="dest-toggle" onclick="event.stopPropagation()">'
-        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || '启用此同步目标') + '" ' + (dest.enabled ? 'checked' : '') + ' ' + (!dest.authorized ? 'disabled ' : '') + 'onchange="toggleGoogleDriveDest(\\'' + dest.id + '\\', this.checked)" />'
+        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || 'Enable this sync target') + '" ' + (dest.enabled ? 'checked' : '') + ' ' + (!dest.authorized ? 'disabled ' : '') + 'onchange="toggleGoogleDriveDest(\\'' + dest.id + '\\', this.checked)" />'
         + '<span class="dest-toggle-slider"></span>'
         + '</label>'
         + '</div>'
@@ -120,9 +120,9 @@ export function getGoogleDriveToolCode() {
         + '<span class="dest-status-text">' + _escapeGoogleDriveHtml(statusText) + '</span>'
         + '</div>'
         + '<div class="dest-card-actions">'
-        + '<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); authorizeGoogleDriveDest(\\'' + dest.id + '\\')" >' + (dest.authorized ? ((typeof t === 'function' ? t('reauthorize') : null) || '重新授权') : ((typeof t === 'function' ? t('authorize') : null) || '授权')) + '</button>'
-        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editGoogleDriveDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || '编辑') + '</button>'
-        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteGoogleDriveDest(\\'' + dest.id + '\\', \\'' + _escapeGoogleDriveHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || '删除') + '</button>'
+        + '<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); authorizeGoogleDriveDest(\\'' + dest.id + '\\')" >' + (dest.authorized ? ((typeof t === 'function' ? t('reauthorize') : null) || 'Reauthorize') : ((typeof t === 'function' ? t('authorize') : null) || 'Authorize')) + '</button>'
+        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editGoogleDriveDest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || 'Edit') + '</button>'
+        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteGoogleDriveDest(\\'' + dest.id + '\\', \\'' + _escapeGoogleDriveHtml(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || 'Delete') + '</button>'
         + '</div>'
         + '</div>';
     }
@@ -160,7 +160,7 @@ export function getGoogleDriveToolCode() {
         document.getElementById('googleDriveFolderPath').value = dest.config.folderPath || '/2FA-Backups';
         showGoogleDriveForm(id);
       } catch (error) {
-        showCenterToast('❌', '加载 Google Drive 配置失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Failed to load config: ' + error.message)));
       }
     }
 
@@ -170,7 +170,7 @@ export function getGoogleDriveToolCode() {
       const folderPath = document.getElementById('googleDriveFolderPath').value.trim() || '/2FA-Backups';
 
       if (!name) {
-        showCenterToast('⚠️', '请填写目标名称');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('gdriveFillRequired') : null) || 'Please enter target name');
         return null;
       }
 
@@ -185,7 +185,7 @@ export function getGoogleDriveToolCode() {
 
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.message || '保存失败');
+        throw new Error(data.message || (typeof t === 'function' ? t('saveFailed') : null) || 'Save failed');
       }
 
       if (data.warning) {
@@ -198,17 +198,17 @@ export function getGoogleDriveToolCode() {
     async function saveGoogleDriveConfig() {
       const saveBtn = document.getElementById('googleDriveSaveBtn');
       const originalText = saveBtn.textContent;
-      saveBtn.textContent = '保存中...';
+      saveBtn.textContent = (typeof t === 'function' ? t('remoteSavingBtn') : null) || 'Saving...';
       saveBtn.disabled = true;
 
       try {
         const data = await _upsertGoogleDriveConfig();
         if (!data) return;
 
-        showCenterToast('✅', 'Google Drive 配置已保存');
+        showCenterToast('✅', (typeof t === 'function' ? t('saved') : null) || 'Google Drive configuration saved');
         loadGoogleDriveDestinations();
       } catch (error) {
-        showCenterToast('❌', '保存失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Save failed: ' + error.message)));
       } finally {
         saveBtn.textContent = originalText;
         saveBtn.disabled = false;
@@ -222,7 +222,7 @@ export function getGoogleDriveToolCode() {
       const originalText = hadFormButton ? authBtn.textContent : '';
 
       if (hadFormButton) {
-        authBtn.textContent = '准备授权...';
+        authBtn.textContent = (typeof t === 'function' ? t('remoteAuthorizingBtn') : null) || 'Preparing authorization...';
         authBtn.disabled = true;
       }
 
@@ -244,7 +244,7 @@ export function getGoogleDriveToolCode() {
 
         if (!response.ok || !data.success || !data.authorizeUrl) {
           if (popup && !popup.closed) popup.close();
-          throw new Error(data.message || '启动授权失败');
+          throw new Error(data.message || (typeof t === 'function' ? t('remoteAuthFailed', { target: 'Google Drive' }) : null) || 'Failed to start authorization');
         }
 
         _googleDriveExpectedCallbackOrigin = _resolveGoogleDriveCallbackOrigin(data.callbackOrigin);
@@ -255,11 +255,11 @@ export function getGoogleDriveToolCode() {
           window.location.href = data.authorizeUrl;
         }
 
-        showCenterToast('ℹ️', '请在弹出窗口中完成 Google Drive 授权');
+        showCenterToast('ℹ️', (typeof t === 'function' ? t('remoteAuthPopupHint', { target: 'Google Drive' }) : null) || 'Please complete Google Drive authorization in the popup window');
         loadGoogleDriveDestinations();
       } catch (error) {
         _googleDriveExpectedCallbackOrigin = null;
-        showCenterToast('❌', '授权失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteAuthFailed', { target: 'Google Drive' }) : null) || ('Authorization failed: ' + error.message)));
       } finally {
         if (hadFormButton) {
           authBtn.textContent = originalText;
@@ -279,10 +279,10 @@ export function getGoogleDriveToolCode() {
 
     async function deleteGoogleDriveDest(id, name) {
       const confirmed = await showConfirmDialog({
-        title: '删除 Google Drive 目标',
-        message: '确定要删除 Google Drive 目标"' + name + '"吗？\\n删除后该目标将不再接收备份推送。',
-        confirmText: '删除',
-        cancelText: '取消',
+        title: (typeof t === 'function' ? t('remoteDeleteConfirmTitle', { target: 'Google Drive' }) : null) || 'Delete Google Drive Target',
+        message: (typeof t === 'function' ? t('remoteDeleteConfirmMsg', { target: 'Google Drive', name: name }) : null) || ('Are you sure you want to delete Google Drive target "' + name + '"?\\nIt will no longer receive backup pushes.'),
+        confirmText: (typeof t === 'function' ? t('delete') : null) || 'Delete',
+        cancelText: (typeof t === 'function' ? t('cancel') : null) || 'Cancel',
         danger: true
       });
       if (!confirmed) {
@@ -296,13 +296,13 @@ export function getGoogleDriveToolCode() {
         const data = await response.json();
 
         if (data.success) {
-          showCenterToast('✅', 'Google Drive 目标已删除');
+          showCenterToast('✅', (typeof t === 'function' ? t('remoteTargetDeleted', { target: 'Google Drive' }) : null) || 'Google Drive target deleted');
           loadGoogleDriveDestinations();
         } else {
-          showCenterToast('❌', data.message || '删除失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: '' }) : null) || 'Delete failed');
         }
       } catch (error) {
-        showCenterToast('❌', '删除失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: error.message }) : null) || ('Delete failed: ' + error.message)));
       }
     }
 
@@ -318,11 +318,11 @@ export function getGoogleDriveToolCode() {
         if (data.success) {
           showCenterToast('✅', data.message);
         } else {
-          showCenterToast('❌', data.message || '操作失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('operationFailed') : null) || 'Operation failed');
         }
         loadGoogleDriveDestinations();
       } catch (error) {
-        showCenterToast('❌', '操作失败: ' + error.message);
+        showCenterToast('❌', (typeof t === 'function' ? t('operationFailed') : null) || ('Operation failed: ' + error.message));
         loadGoogleDriveDestinations();
       }
     }

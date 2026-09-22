@@ -34,7 +34,7 @@ export function getGoogleMigrationCode() {
         const dataParam = url.searchParams.get('data');
 
         if (!dataParam) {
-          showScannerError('迁移二维码中缺少数据');
+          showScannerError((typeof t === 'function' ? t('googleMigrationMissingData') : null) || 'Migration QR code missing data');
           return;
         }
 
@@ -50,7 +50,7 @@ export function getGoogleMigrationCode() {
         const secrets = parseGoogleMigrationPayload(bytes);
 
         if (secrets.length === 0) {
-          showScannerError('未能从迁移二维码中解析出任何密钥');
+          showScannerError((typeof t === 'function' ? t('googleMigrationNoKeysFound') : null) || 'Failed to parse any keys from migration QR code');
           return;
         }
 
@@ -64,7 +64,7 @@ export function getGoogleMigrationCode() {
 
       } catch (error) {
         console.error('解析 Google 迁移二维码失败:', error);
-        showScannerError('解析 Google 迁移二维码失败: ' + error.message);
+        showScannerError(((typeof t === 'function' ? t('googleMigrationParseFailed', { error: error.message }) : null) || ('Failed to parse Google migration QR code: ' + error.message)));
       }
     }
 
@@ -404,7 +404,7 @@ export function getGoogleMigrationCode() {
      */
     function showExportToGoogleModal() {
       if (!secrets || secrets.length === 0) {
-        showCenterToast('⚠️', '没有可导出的密钥');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('googleNoSecretsToExport') : null) || 'No keys available to export');
         return;
       }
 
@@ -419,21 +419,21 @@ export function getGoogleMigrationCode() {
 
       content.innerHTML =
         '<div class="modal-header">' +
-          '<h2>导出到 Google Authenticator</h2>' +
-          '<button class="close-btn" type="button" aria-label="关闭弹窗" onclick="closeExportToGoogleModal()">' + dialogIcon('close') + '</button>' +
+          '<h2>' + ((typeof t === 'function' ? t('googleExportTitle') : null) || 'Export to Google Authenticator') + '</h2>' +
+          '<button class="close-btn" type="button" aria-label="' + ((typeof t === 'function' ? t('closeModalAriaLabel') : null) || 'Close dialog') + '" onclick="closeExportToGoogleModal()">' + dialogIcon('close') + '</button>' +
         '</div>' +
         '<div class="modal-body">' +
-          '<p style="margin-bottom: 15px; color: var(--text-secondary);">选择要导出的密钥（共 <strong>' + secrets.length + '</strong> 个）</p>' +
+          '<p style="margin-bottom: 15px; color: var(--text-secondary);">' + ((typeof t === 'function' ? t('googleExportSelectLabel', { count: secrets.length }) : null) || ('Select keys to export (total <strong>' + secrets.length + '</strong>):')) + '</p>' +
           '<div style="margin-bottom: 15px; display: flex; gap: 10px;">' +
-            '<button class="btn btn-secondary btn-sm" onclick="selectAllExportSecrets(true)">全选</button>' +
-            '<button class="btn btn-secondary btn-sm" onclick="selectAllExportSecrets(false)">取消全选</button>' +
+            '<button class="btn btn-secondary btn-sm" onclick="selectAllExportSecrets(true)">' + ((typeof t === 'function' ? t('googleExportSelectAll') : null) || 'Select All') + '</button>' +
+            '<button class="btn btn-secondary btn-sm" onclick="selectAllExportSecrets(false)">' + ((typeof t === 'function' ? t('googleExportDeselectAll') : null) || 'Deselect All') + '</button>' +
           '</div>' +
           '<div class="export-secret-list" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-primary); border-radius: 8px; margin-bottom: 15px;">' +
             secrets.map(function(s, i) {
               return '<div class="export-secret-item" style="padding: 12px; border-bottom: 1px solid var(--border-primary); display: flex; align-items: center; gap: 10px;">' +
                 '<input type="checkbox" id="export-' + i + '" checked style="width: 18px; height: 18px;">' +
                 '<div style="flex: 1; min-width: 0;">' +
-                  '<div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.name || '未知服务') + '</div>' +
+                  '<div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.name || ((typeof t === 'function' ? t('unknownService') : null) || 'Unknown Service')) + '</div>' +
                   '<div style="font-size: var(--dialog-caption-size); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.account || '') + '</div>' +
                 '</div>' +
                 '<span style="font-size: var(--dialog-caption-size); padding: 2px 6px; background: var(--bg-tertiary); border-radius: 4px; color: var(--text-tertiary);">' + escapeHTML(s.type || 'TOTP') + '</span>' +
@@ -441,8 +441,8 @@ export function getGoogleMigrationCode() {
             }).join('') +
           '</div>' +
           '<div style="display: flex; gap: 10px;">' +
-            '<button class="btn btn-secondary" style="flex: 1;" onclick="closeExportToGoogleModal()">取消</button>' +
-            '<button class="btn btn-primary" style="flex: 1;" onclick="generateExportQRCodes()">生成二维码</button>' +
+            '<button class="btn btn-secondary" style="flex: 1;" onclick="closeExportToGoogleModal()">' + ((typeof t === 'function' ? t('cancel') : null) || 'Cancel') + '</button>' +
+            '<button class="btn btn-primary" style="flex: 1;" onclick="generateExportQRCodes()">' + ((typeof t === 'function' ? t('googleExportGenerateQrBtn') : null) || 'Generate QR Code') + '</button>' +
           '</div>' +
         '</div>';
 
@@ -486,7 +486,7 @@ export function getGoogleMigrationCode() {
       });
 
       if (selectedSecrets.length === 0) {
-        showCenterToast('⚠️', '请至少选择一个密钥');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('googleExportSelectAtLeastOne') : null) || 'Please select at least one key');
         return;
       }
 
@@ -543,28 +543,28 @@ export function getGoogleMigrationCode() {
       modal.innerHTML =
         '<div class="modal-content fab-modal-sm-content">' +
           '<div class="modal-header">' +
-            '<h2>扫描导入到 Google Authenticator</h2>' +
-            '<button class="close-btn" type="button" aria-label="关闭弹窗" onclick="closeExportQRCodeModal()">' + dialogIcon('close') + '</button>' +
+            '<h2>' + ((typeof t === 'function' ? t('googleScanModalTitle') : null) || 'Scan to Import to Google Authenticator') + '</h2>' +
+            '<button class="close-btn" type="button" aria-label="' + ((typeof t === 'function' ? t('closeModalAriaLabel') : null) || 'Close dialog') + '" onclick="closeExportQRCodeModal()">' + dialogIcon('close') + '</button>' +
           '</div>' +
           '<div class="modal-body">' +
             (totalPages > 1 ?
-              '<p style="margin-bottom: 10px; color: var(--text-secondary);">第 ' + (currentPage + 1) + '/' + totalPages + ' 个二维码（密钥 ' + startIndex + '-' + endIndex + '/' + totalSecrets + '）</p>' :
-              '<p style="margin-bottom: 10px; color: var(--text-secondary);">共 ' + totalSecrets + ' 个密钥</p>'
+              '<p style="margin-bottom: 10px; color: var(--text-secondary);">' + ((typeof t === 'function' ? t('googleScanStepLabel', { current: currentPage + 1, total: totalPages }) : null) || ('QR code ' + (currentPage + 1) + '/' + totalPages)) + '</p>' :
+              '<p style="margin-bottom: 10px; color: var(--text-secondary);">' + ((typeof t === 'function' ? t('googleScanTotalSecrets', { count: totalSecrets }) : null) || ('Total ' + totalSecrets + ' keys')) + '</p>'
             ) +
             '<div class="qr-code-container" style="display: flex; justify-content: center; align-items: center; min-height: 250px; background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px;">' +
-              '<div style="color: #666;">生成中...</div>' +
+              '<div style="color: #666;">' + ((typeof t === 'function' ? t('generatingQrCode') : null) || 'Generating...') + '</div>' +
             '</div>' +
             '<div style="margin-bottom: 15px; font-size: var(--dialog-caption-size); color: var(--text-tertiary);">' +
-              '用 Google Authenticator 扫描此二维码' +
-              (totalPages > 1 ? '<br>（需要依次扫描所有 ' + totalPages + ' 个二维码）' : '') +
+              ((typeof t === 'function' ? t('googleScanInstruction') : null) || 'Scan this QR code with Google Authenticator') +
+              (totalPages > 1 ? '<br>' + ((typeof t === 'function' ? t('googleScanMultiHint', { total: totalPages }) : null) || (' (Scan all ' + totalPages + ' QR codes in order)')) : '') +
             '</div>' +
             (totalPages > 1 ?
               '<div style="display: flex; gap: 10px; margin-bottom: 15px;">' +
-                '<button class="btn btn-secondary" style="flex: 1;" onclick="showExportQRCodePage(' + (currentPage - 1) + ')" ' + (currentPage === 0 ? 'disabled' : '') + '>上一个</button>' +
-                '<button class="btn btn-secondary" style="flex: 1;" onclick="showExportQRCodePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '>下一个</button>' +
+                '<button class="btn btn-secondary" style="flex: 1;" onclick="showExportQRCodePage(' + (currentPage - 1) + ')" ' + (currentPage === 0 ? 'disabled' : '') + '>' + ((typeof t === 'function' ? t('prev') : null) || 'Previous') + '</button>' +
+                '<button class="btn btn-secondary" style="flex: 1;" onclick="showExportQRCodePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '>' + ((typeof t === 'function' ? t('next') : null) || 'Next') + '</button>' +
               '</div>' : ''
             ) +
-            '<button class="btn btn-primary" style="width: 100%;" onclick="closeExportQRCodeModal()">完成</button>' +
+            '<button class="btn btn-primary" style="width: 100%;" onclick="closeExportQRCodeModal()">' + ((typeof t === 'function' ? t('googleScanDoneBtn') : null) || 'Done') + '</button>' +
           '</div>' +
         '</div>';
 
@@ -586,7 +586,7 @@ export function getGoogleMigrationCode() {
       } catch (error) {
         console.error('生成二维码失败:', error);
         const container = modal.querySelector('.qr-code-container');
-        container.innerHTML = '<div style="color: #e74c3c;">生成失败: ' + error.message + '</div>';
+        container.innerHTML = '<div style="color: #e74c3c;">' + ((typeof t === 'function' ? t('failedToGenerate') : null) || 'Failed to generate: ') + escapeHTML(error.message) + '</div>';
       }
     }
 
@@ -637,17 +637,17 @@ export function getGoogleMigrationCode() {
 
       content.innerHTML =
         '<div class="modal-header">' +
-          '<h2>Google Authenticator 导入</h2>' +
-          '<button class="close-btn" type="button" aria-label="关闭弹窗" onclick="closeMigrationPreview()">' + dialogIcon('close') + '</button>' +
+          '<h2>' + ((typeof t === 'function' ? t('googleImportTitle') : null) || 'Google Authenticator Import') + '</h2>' +
+          '<button class="close-btn" type="button" aria-label="' + ((typeof t === 'function' ? t('closeModalAriaLabel') : null) || 'Close dialog') + '" onclick="closeMigrationPreview()">' + dialogIcon('close') + '</button>' +
         '</div>' +
         '<div class="modal-body">' +
-          '<p style="margin-bottom: 15px; color: var(--text-secondary);">检测到 <strong>' + parsedSecrets.length + '</strong> 个密钥，确认导入？</p>' +
+          '<p style="margin-bottom: 15px; color: var(--text-secondary);">' + ((typeof t === 'function' ? t('googleImportDetected', { count: parsedSecrets.length }) : null) || ('Detected <strong>' + parsedSecrets.length + '</strong> keys. Confirm import?')) + '</p>' +
           '<div class="migration-preview-list" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-primary); border-radius: 8px; margin-bottom: 15px;">' +
             parsedSecrets.map(function(s, i) {
               return '<div class="migration-preview-item" style="padding: 12px; border-bottom: 1px solid var(--border-primary); display: flex; align-items: center; gap: 10px;">' +
                 '<input type="checkbox" id="migrate-' + i + '" checked style="width: 18px; height: 18px;">' +
                 '<div style="flex: 1; min-width: 0;">' +
-                  '<div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.issuer || s.name || '未知服务') + '</div>' +
+                  '<div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.issuer || s.name || ((typeof t === 'function' ? t('unknownService') : null) || 'Unknown Service')) + '</div>' +
                   '<div style="font-size: var(--dialog-caption-size); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHTML(s.name || '') + '</div>' +
                 '</div>' +
                 '<span style="font-size: var(--dialog-caption-size); padding: 2px 6px; background: var(--bg-tertiary); border-radius: 4px; color: var(--text-tertiary);">' + escapeHTML(s.type || 'TOTP') + '</span>' +
@@ -655,8 +655,8 @@ export function getGoogleMigrationCode() {
             }).join('') +
           '</div>' +
           '<div style="display: flex; gap: 10px;">' +
-            '<button class="btn btn-secondary" style="flex: 1;" onclick="closeMigrationPreview()">取消</button>' +
-            '<button class="btn btn-primary" style="flex: 1;" onclick="confirmGoogleMigration()">导入选中</button>' +
+            '<button class="btn btn-secondary" style="flex: 1;" onclick="closeMigrationPreview()">' + ((typeof t === 'function' ? t('cancel') : null) || 'Cancel') + '</button>' +
+            '<button class="btn btn-primary" style="flex: 1;" onclick="confirmGoogleMigration()">' + ((typeof t === 'function' ? t('googleImportConfirmBtn') : null) || 'Import Selected') + '</button>' +
           '</div>' +
         '</div>';
 
@@ -704,23 +704,23 @@ export function getGoogleMigrationCode() {
 
       content.innerHTML =
         '<div class="modal-header">' +
-          '<h2>导入结果</h2>' +
-          '<button class="close-btn" type="button" aria-label="关闭弹窗" onclick="closeImportResultModal()">' + dialogIcon('close') + '</button>' +
+          '<h2>' + ((typeof t === 'function' ? t('googleResultTitle') : null) || 'Import Results') + '</h2>' +
+          '<button class="close-btn" type="button" aria-label="' + ((typeof t === 'function' ? t('closeModalAriaLabel') : null) || 'Close dialog') + '" onclick="closeImportResultModal()">' + dialogIcon('close') + '</button>' +
         '</div>' +
         '<div class="modal-body">' +
           '<div style="text-align: center; margin-bottom: 20px;">' +
             '<div class="dialog-result-icon">' + dialogIcon(failCount ? 'warning' : 'check') + '</div>' +
             '<div style="font-size: var(--dialog-body-size); color: var(--text-primary);">' +
-              '成功 <span style="color: var(--dialog-success); font-weight: bold;">' + successCount + '</span> 个，' +
-              '失败 <span style="color: var(--dialog-danger); font-weight: bold;">' + failCount + '</span> 个' +
+              ((typeof t === 'function' ? t('googleResultSuccess', { count: successCount }) : null) || ('Success: <span style="color: var(--dialog-success); font-weight: bold;">' + successCount + '</span>')) + ', ' +
+              ((typeof t === 'function' ? t('googleResultFail', { count: failCount }) : null) || ('Failed: <span style="color: var(--dialog-danger); font-weight: bold;">' + failCount + '</span>')) +
             '</div>' +
           '</div>' +
           '<div style="background: var(--bg-secondary); border-radius: 8px; padding: 15px; margin-bottom: 15px;">' +
-            '<div style="font-weight: 600; margin-bottom: 10px; color: var(--dialog-danger);">失败详情：</div>' +
+            '<div style="font-weight: 600; margin-bottom: 10px; color: var(--dialog-danger);">' + ((typeof t === 'function' ? t('googleResultFailDetails') : null) || 'Failure Details:') + '</div>' +
             '<div style="font-size: var(--dialog-caption-size); color: var(--text-secondary); white-space: pre-wrap; line-height: 1.6;">' + escapeHTML(failedDetails) + '</div>' +
           '</div>' +
           '<div class="dialog-result-actions">' +
-            '<button class="btn btn-primary" onclick="closeImportResultModal()">确定</button>' +
+            '<button class="btn btn-primary" onclick="closeImportResultModal()">' + ((typeof t === 'function' ? t('ok') : null) || 'OK') + '</button>' +
           '</div>' +
         '</div>';
 
@@ -813,7 +813,7 @@ export function getGoogleMigrationCode() {
           }
         } catch (error) {
           failCount++;
-          const errorMessage = error && error.message ? error.message : '未知错误';
+          const errorMessage = error && error.message ? error.message : 'Unknown error';
           results.push({
             index: globalIndex,
             success: false,
@@ -919,7 +919,7 @@ export function getGoogleMigrationCode() {
     async function confirmGoogleMigration() {
       const pendingSecrets = window.pendingMigrationSecrets;
       if (!pendingSecrets || pendingSecrets.length === 0) {
-        showCenterToast('❌', '没有可导入的密钥');
+        showCenterToast('❌', (typeof t === 'function' ? t('googleNoSecretsToExport') : null) || 'No keys to import');
         closeMigrationPreview();
         return;
       }
@@ -930,13 +930,13 @@ export function getGoogleMigrationCode() {
       });
 
       if (selectedSecrets.length === 0) {
-        showCenterToast('⚠️', '请至少选择一个密钥');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('googleExportSelectAtLeastOne') : null) || 'Please select at least one key');
         return;
       }
 
       window.pendingMigrationSecrets = selectedSecrets.slice();
       closeMigrationPreview(true);
-      showCenterToast('⏳', '正在导入 ' + selectedSecrets.length + ' 个密钥...');
+      showCenterToast('⏳', (typeof t === 'function' ? t('googleImportingWithCount', { count: selectedSecrets.length }) : null) || ('Importing ' + selectedSecrets.length + ' keys...'));
 
       const secretsToImport = selectedSecrets.map(function(secret) {
         let serviceName = secret.issuer || '';
@@ -949,7 +949,7 @@ export function getGoogleMigrationCode() {
         }
 
         if (!serviceName) {
-          serviceName = accountName || '导入的密钥';
+          serviceName = accountName || ((typeof t === 'function' ? t('importedSecret') : null) || 'Imported Key');
         }
 
         return {
@@ -958,6 +958,7 @@ export function getGoogleMigrationCode() {
           secret: secret.secret,
           type: secret.type,
           digits: secret.digits,
+          period: secret.period,
           algorithm: secret.algorithm,
           counter: secret.counter || 0
         };
@@ -970,8 +971,8 @@ export function getGoogleMigrationCode() {
       const priorFailuresAtStart = Array.isArray(window.pendingMigrationPriorFailures) ? window.pendingMigrationPriorFailures.slice() : [];
 
       function buildFailureLine(originalSecret, errMsg) {
-        const name = originalSecret ? (originalSecret.issuer || originalSecret.name || '未知') : '未知';
-        return '• ' + name + ': ' + (errMsg || '未知错误');
+        const name = originalSecret ? (originalSecret.issuer || originalSecret.name || 'Unknown') : 'Unknown';
+        return '• ' + name + ': ' + (errMsg || 'Unknown error');
       }
 
       try {
@@ -997,7 +998,7 @@ export function getGoogleMigrationCode() {
         window.pendingMigrationPriorFailures = [];
 
         if (aggregateFail === 0) {
-          showCenterToast('✅', '成功导入 ' + aggregateSuccess + ' 个密钥');
+          showCenterToast('✅', (typeof t === 'function' ? t('googleImportSuccessSummary', { count: aggregateSuccess }) : null) || ('Successfully imported ' + aggregateSuccess + ' keys'));
         } else {
           showImportResultModal(aggregateSuccess, aggregateFail, aggregateFailureLines.join('\\n'));
         }
@@ -1031,9 +1032,9 @@ export function getGoogleMigrationCode() {
           window.pendingMigrationPriorFailures = aggregateFailureLines;
 
           if (aggregateSuccess > 0) {
-            showCenterToast('⚠️', '累计成功 ' + aggregateSuccess + ' 条，剩余 ' + remainingSecrets.length + ' 条待继续：' + error.message);
+            showCenterToast('⚠️', (typeof t === 'function' ? t('googleImportPartialSuccess', { count: aggregateSuccess, remaining: remainingSecrets.length, error: error.message }) : null) || ('Imported ' + aggregateSuccess + ' keys, ' + remainingSecrets.length + ' remaining: ' + error.message));
           } else {
-            showCenterToast('❌', '导入中断，剩余 ' + remainingSecrets.length + ' 条未处理：' + error.message);
+            showCenterToast('❌', (typeof t === 'function' ? t('googleImportInterrupted', { remaining: remainingSecrets.length, error: error.message }) : null) || ('Import interrupted, ' + remainingSecrets.length + ' keys remaining: ' + error.message));
           }
           showGoogleMigrationPreview(remainingSecrets);
         } else if (aggregateSuccess > 0 || aggregateFail > 0) {
@@ -1044,14 +1045,14 @@ export function getGoogleMigrationCode() {
           window.pendingMigrationPriorFailures = [];
 
           if (aggregateFail === 0) {
-            showCenterToast('⚠️', '已成功导入 ' + aggregateSuccess + ' 条，后续已停止：' + error.message);
+            showCenterToast('⚠️', (typeof t === 'function' ? t('googleImportStopped', { count: aggregateSuccess, error: error.message }) : null) || ('Imported ' + aggregateSuccess + ' keys, subsequent stopped: ' + error.message));
           } else {
             showImportResultModal(aggregateSuccess, aggregateFail, aggregateFailureLines.join('\\n'));
           }
         } else {
           // 首轮未产生任何结果就失败：重新打开预览，让用户整批重试
           // （showGoogleMigrationPreview 会把 selectedSecrets 写回 window.pendingMigrationSecrets）
-          showCenterToast('❌', '导入失败: ' + error.message);
+          showCenterToast('❌', (typeof t === 'function' ? t('importFailed', { error: error.message }) : null) || ('Import failed: ' + error.message));
           showGoogleMigrationPreview(selectedSecrets);
         }
       }

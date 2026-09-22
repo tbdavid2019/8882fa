@@ -361,8 +361,8 @@ self.addEventListener('fetch', event => {
             if (operationType === 'UNKNOWN') {
               return new Response(
                 JSON.stringify({
-                  error: '离线不可用',
-                  detail: '当前请求需要在线完成，无法加入离线同步队列',
+                  error: 'Offline Unavailable',
+                  detail: 'This request requires an active connection and cannot be queued offline.',
                   offline: true,
                   queued: false
                 }),
@@ -402,7 +402,7 @@ self.addEventListener('fetch', event => {
                 success: true,
                 queued: true,
                 operationId: operationId,
-                message: '您处于离线状态，操作已保存，网络恢复后将自动同步',
+                message: 'You are currently offline. Operation saved and will sync automatically once connected.',
                 offline: true
               }),
               {
@@ -416,8 +416,8 @@ self.addEventListener('fetch', event => {
             // 如果保存失败，返回标准错误
             return new Response(
               JSON.stringify({
-                error: '网络连接失败',
-                detail: '无法连接到服务器，且无法保存离线操作',
+                error: 'Network connection failed',
+                detail: 'Unable to connect to server, and failed to save offline operation.',
                 offline: true
               }),
               {
@@ -432,8 +432,8 @@ self.addEventListener('fetch', event => {
         // GET 请求失败时返回标准错误（不保存到队列）
         return new Response(
           JSON.stringify({
-            error: '网络连接失败',
-            detail: '无法连接到服务器，请检查网络连接',
+            error: 'Network connection failed',
+            detail: 'Unable to connect to server, please check your network connection.',
             offline: true
           }),
           {
@@ -558,7 +558,7 @@ self.addEventListener('fetch', event => {
     fetch(request, { redirect: 'follow' }).catch(err => {
       console.error('[SW] 请求失败:', url.pathname, err);
       // 返回离线页面或错误信息
-      return new Response('离线模式：无法访问此资源', {
+      return new Response('Offline mode: unable to access this resource', {
         status: 503,
         statusText: 'Service Unavailable',
         headers: { 'Content-Type': 'text/plain; charset=utf-8' }
@@ -581,7 +581,7 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   const title = data.title || '2FA';
   const options = {
-    body: data.body || '您有新的通知',
+    body: data.body || 'You have a new notification',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     vibrate: [200, 100, 200],
@@ -617,7 +617,7 @@ self.addEventListener('sync', event => {
     event.waitUntil(syncPendingOperations().then(result => {
       // Background Sync 以 Promise 拒绝判断是否需要稍后重试。
       if (result && result.deferredCount > 0) {
-        throw new Error('网络不可用，离线操作等待重试');
+        throw new Error('Network unavailable, offline operations pending retry');
       }
     }));
   }

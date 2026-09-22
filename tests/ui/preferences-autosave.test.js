@@ -87,7 +87,7 @@ describe('numeric preference autosave', () => {
 		await vi.advanceTimersByTimeAsync(1);
 		expect(h.posts()).toEqual([{ jwtExpiryDays: 45 }]);
 		expect(h.settings.jwtExpiryDays).toBe(45);
-		expect(h.elements.get('settingsJwtExpiryResult').textContent).toBe('已保存，下次登录生效');
+		expect(h.elements.get('settingsJwtExpiryResult').textContent).toBe('Saved, takes effect next login');
 	});
 
 	it('flushes on blur or Enter once and supports zero as unlimited backups', async () => {
@@ -100,7 +100,7 @@ describe('numeric preference autosave', () => {
 		await vi.advanceTimersByTimeAsync(1000);
 		expect(h.posts()).toEqual([{ jwtExpiryDays: 60 }, { maxBackups: 0 }]);
 		expect(h.api.event.preventDefault).toHaveBeenCalledOnce();
-		expect(h.elements.get('settingsMaxBackupsResult').textContent).toBe('已保存，备份不限数量');
+		expect(h.elements.get('settingsMaxBackupsResult').textContent).toBe('Saved, unlimited backups');
 	});
 
 	it('does not save untouched defaults or repeat an already confirmed value', async () => {
@@ -175,7 +175,7 @@ describe('numeric preference autosave', () => {
 		await vi.advanceTimersByTimeAsync(0);
 		expect(h.posts()).toEqual([{ jwtExpiryDays: 45 }, { jwtExpiryDays: 47 }]);
 		expect(h.elements.get('settingsJwtExpiryDays').value).toBe('47');
-		expect(h.elements.get('settingsJwtExpiryResult').textContent).toBe('保存中…');
+		expect(h.elements.get('settingsJwtExpiryResult').textContent).toBe('Saving...');
 		pending[1].resolve(reply({ success: true }));
 		await vi.advanceTimersByTimeAsync(0);
 		load.resolve(reply({ jwtExpiryDays: 30, maxBackups: 100 }));
@@ -225,7 +225,7 @@ describe('numeric preference autosave', () => {
 					if (failure === 'network') {
 						throw new Error('Connection lost');
 					}
-					return reply({ success: false, message: '暂时无法保存' }, false);
+					return reply({ success: false, message: 'Temporarily unable to save' }, false);
 				}
 				Object.assign(settings, JSON.parse(options.body));
 				return reply({ success: true, settings });
@@ -234,7 +234,7 @@ describe('numeric preference autosave', () => {
 		h.input('settingsMaxBackups', '80');
 		await vi.advanceTimersByTimeAsync(500);
 		expect(h.elements.get('settingsMaxBackupsResult').className).toContain('error');
-		expect(h.elements.get('settingsMaxBackupsResult').textContent).toContain(failure === 'network' ? '未保存' : '暂时无法保存');
+		expect(h.elements.get('settingsMaxBackupsResult').textContent).toContain(failure === 'network' ? 'not saved' : 'Temporarily unable to save');
 		fail = false;
 		await h.blur('settingsMaxBackups');
 		expect(h.settings.maxBackups).toBe(80);

@@ -209,7 +209,7 @@ export function getCoreCode() {
         }
 
         if (!response.ok) {
-          throw new Error('加载失败: ' + response.statusText);
+          throw new Error('Failed to load: ' + response.statusText);
         }
 
         const loadedSecrets = await response.json();
@@ -235,8 +235,8 @@ export function getCoreCode() {
             await renderSecrets();
 
             // 提示用户正在使用缓存数据
-            const cacheTime = new Date(timestamp).toLocaleString('zh-CN');
-            showCenterToast('💾', '网络异常，显示缓存数据（' + cacheTime + '）');
+            const cacheTime = typeof formatI18nDate === 'function' ? formatI18nDate(timestamp) : new Date(timestamp).toLocaleString();
+            showCenterToast('💾', (typeof t === 'function' ? t('cachedDataNotice', { time: cacheTime }) : null) || 'Network error, displaying cached data (' + cacheTime + ')');
 
             console.log('使用缓存数据，缓存时间:', cacheTime);
             return;
@@ -286,23 +286,23 @@ export function getCoreCode() {
       const nameHTML = escapeHTML(secret.name).replace(/"/g, '&quot;');
       const accountHTML = escapeHTML(secret.account || '').replace(/"/g, '&quot;');
 
-      const cardCopyTooltip = (typeof t === 'function' ? t('cardCopyTooltip') : null) || '点击卡片复制验证码';
-      const cardMenuTriggerTitle = (typeof t === 'function' ? t('cardMenuTriggerTitle') : null) || '账户操作';
-      const cardMenuQRCode = (typeof t === 'function' ? t('cardMenuQRCode') : null) || '二维码';
-      const cardMenuQRCodeTitle = (typeof t === 'function' ? t('cardMenuQRCodeTitle') : null) || '显示验证器二维码';
-      const cardMenuCopyURI = (typeof t === 'function' ? t('cardMenuCopyURI') : null) || '复制 URI';
-      const cardMenuCopyURITitle = (typeof t === 'function' ? t('cardMenuCopyURITitle') : null) || '用于导入验证器的 otpauth:// 配置';
-      const cardMenuCopyLink = (typeof t === 'function' ? t('cardMenuCopyLink') : null) || '复制链接';
-      const cardMenuCopyLinkTitle = (typeof t === 'function' ? t('cardMenuCopyLinkTitle') : null) || '在浏览器中打开并查看验证码';
-      const cardMenuEdit = (typeof t === 'function' ? t('cardMenuEdit') : null) || '编辑';
-      const cardMenuEditTitle = (typeof t === 'function' ? t('cardMenuEditTitle') : null) || '编辑密钥';
-      const cardMenuDelete = (typeof t === 'function' ? t('cardMenuDelete') : null) || '删除';
-      const cardMenuDeleteTitle = (typeof t === 'function' ? t('cardMenuDeleteTitle') : null) || '删除密钥';
-      const copyOtpBtnTitle = (typeof t === 'function' ? t('copyOtpBtnTitle') : null) || '点击复制验证码';
-      const copyOtpBtnAriaLabel = (typeof t === 'function' ? t('copyOtpBtnAriaLabel') : null) || '复制当前验证码';
-      const otpNextLabel = (typeof t === 'function' ? t('otpNextLabel') : null) || '下一个';
-      const copyNextOtpBtnTitle = (typeof t === 'function' ? t('copyNextOtpBtnTitle') : null) || '点击复制下一个验证码';
-      const counterLabel = (typeof t === 'function' ? t('counterLabel') : null) || '计数器: ';
+      const cardCopyTooltip = (typeof t === 'function' ? t('cardCopyTooltip') : null) || 'Click card to copy code';
+      const cardMenuTriggerTitle = (typeof t === 'function' ? t('cardMenuTriggerTitle') : null) || 'Account actions';
+      const cardMenuQRCode = (typeof t === 'function' ? t('cardMenuQRCode') : null) || 'QR Code';
+      const cardMenuQRCodeTitle = (typeof t === 'function' ? t('cardMenuQRCodeTitle') : null) || 'Show authenticator QR code';
+      const cardMenuCopyURI = (typeof t === 'function' ? t('cardMenuCopyURI') : null) || 'Copy URI';
+      const cardMenuCopyURITitle = (typeof t === 'function' ? t('cardMenuCopyURITitle') : null) || 'otpauth:// configuration for import';
+      const cardMenuCopyLink = (typeof t === 'function' ? t('cardMenuCopyLink') : null) || 'Copy Link';
+      const cardMenuCopyLinkTitle = (typeof t === 'function' ? t('cardMenuCopyLinkTitle') : null) || 'Open in browser to view code';
+      const cardMenuEdit = (typeof t === 'function' ? t('cardMenuEdit') : null) || 'Edit';
+      const cardMenuEditTitle = (typeof t === 'function' ? t('cardMenuEditTitle') : null) || 'Edit key';
+      const cardMenuDelete = (typeof t === 'function' ? t('cardMenuDelete') : null) || 'Delete';
+      const cardMenuDeleteTitle = (typeof t === 'function' ? t('cardMenuDeleteTitle') : null) || 'Delete key';
+      const copyOtpBtnTitle = (typeof t === 'function' ? t('copyOtpBtnTitle') : null) || 'Click to copy code';
+      const copyOtpBtnAriaLabel = (typeof t === 'function' ? t('copyOtpBtnAriaLabel') : null) || 'Copy current code';
+      const otpNextLabel = (typeof t === 'function' ? t('otpNextLabel') : null) || 'Next';
+      const copyNextOtpBtnTitle = (typeof t === 'function' ? t('copyNextOtpBtnTitle') : null) || 'Click to copy next code';
+      const counterLabel = (typeof t === 'function' ? t('counterLabel') : null) || 'Counter: ';
 
       return '<div class="secret-card" onclick="copyOTPFromCard(event, &quot;' + secret.id + '&quot;)" title="' + cardCopyTooltip + '">' +
         // TOTP 显示进度条，HOTP 不显示
@@ -359,10 +359,10 @@ export function getCoreCode() {
       const hasFilteredCount = Boolean(currentSearchQuery) && group.matchedCount !== group.totalCount;
       const countText = hasFilteredCount
         ? group.matchedCount + ' / ' + group.totalCount
-        : (typeof t === 'function' ? t('groupCountText', { count: group.totalCount }) : group.totalCount + ' 个');
+        : (typeof t === 'function' ? t('groupCountText', { count: group.totalCount }) : String(group.totalCount));
       const countLabel = hasFilteredCount
-        ? (typeof t === 'function' ? t('groupMatchedCountLabel', { matched: group.matchedCount, total: group.totalCount }) : '匹配 ' + group.matchedCount + ' 个，共 ' + group.totalCount + ' 个')
-        : (typeof t === 'function' ? t('groupCountLabel', { count: group.totalCount }) : '共 ' + group.totalCount + ' 个');
+        ? (typeof t === 'function' ? t('groupMatchedCountLabel', { matched: group.matchedCount, total: group.totalCount }) : 'Matched ' + group.matchedCount + ' of ' + group.totalCount)
+        : (typeof t === 'function' ? t('groupCountLabel', { count: group.totalCount }) : group.totalCount + ' items');
 
       return '<section class="service-group" aria-labelledby="' + headingId + '">' +
         '<div class="service-group-header">' +
@@ -407,9 +407,9 @@ export function getCoreCode() {
         secretsList.style.display = 'none';
         emptyState.innerHTML =
           '<div class="icon" aria-hidden="true">${dialogIcon('search')}</div>' +
-          '<h3>未找到匹配的密钥</h3>' +
-          '<p>尝试使用不同的关键字搜索</p>' +
-          '<button type="button" class="workspace-action" onclick="clearSearch()">清除搜索</button>';
+          '<h3>' + ((typeof t === 'function' ? t('noMatchingSecretsTitle') : null) || 'No matching keys found') + '</h3>' +
+          '<p>' + ((typeof t === 'function' ? t('noMatchingSecretsDesc') : null) || 'Try searching with different keywords') + '</p>' +
+          '<button type="button" class="workspace-action" onclick="clearSearch()">' + ((typeof t === 'function' ? t('clearSearchBtn') : null) || 'Clear Search') + '</button>';
         emptyState.style.display = 'block';
         return;
       }
@@ -420,9 +420,9 @@ export function getCoreCode() {
         secretsList.style.display = 'none';
         emptyState.innerHTML =
           '<div class="icon" aria-hidden="true">${dialogIcon('key')}</div>' +
-          '<h3>还没有密钥</h3>' +
-          '<p>添加账户的两步验证密钥，在这里获取验证码</p>' +
-          '<button type="button" class="workspace-action" onclick="showAddModal()">添加密钥</button>';
+          '<h3>' + ((typeof t === 'function' ? t('noSecretsTitle') : null) || 'No keys yet') + '</h3>' +
+          '<p>' + ((typeof t === 'function' ? t('noSecretsDesc') : null) || 'Add two-factor authentication keys to get verification codes') + '</p>' +
+          '<button type="button" class="workspace-action" onclick="showAddModal()">' + ((typeof t === 'function' ? t('emptyAddBtn') : null) || 'Add Key') + '</button>';
         emptyState.style.display = 'block';
         return;
       }
@@ -534,8 +534,8 @@ export function getCoreCode() {
             console.warn('重新加载 HOTP 计数器失败:', reconcileError);
           }
           const message = error.hotpCopied
-            ? '验证码已复制，但本地计数器同步失败：'
-            : '验证码未复制，计数器状态已重新对账：';
+            ? ((typeof t === 'function' ? t('hotpCounterSyncFailedCopied') : null) || 'Code copied, but counter sync failed: ')
+            : ((typeof t === 'function' ? t('hotpCounterSyncFailedNotCopied') : null) || 'Code not copied, counter state reconciled: ');
           showCenterToast('⚠️', message + error.message);
           return false;
         });
@@ -554,7 +554,7 @@ export function getCoreCode() {
       const secret = secrets.find(item => String(item.id) === String(secretId));
       const snapshot = getHOTPGenerationSnapshot(secret);
       if (!snapshot) {
-        showCenterToast('⚠️', 'HOTP 计数器无效或已达到上限');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('hotpCounterInvalid') : null) || 'HOTP counter is invalid or reached upper limit');
         return false;
       }
 
@@ -565,12 +565,12 @@ export function getCoreCode() {
       const otpText = getCommittedHOTPToken(secretId, secret);
       if (!otpText) {
         // 恢复计算失败或被取消的 HOTP；本次不等待计算后自动复制，避免丢失用户激活。
-        updateOTP(secretId, null, secret).catch(error => console.warn('刷新 HOTP 失败:', error));
-        showCenterToast('⏳', '验证码正在更新，请稍后重试');
+        updateOTP(secretId, null, secret).catch(error => console.warn('Failed to refresh HOTP:', error));
+        showCenterToast('⏳', (typeof t === 'function' ? t('hotpUpdatingWait') : null) || 'Code is updating, please try again shortly');
         return false;
       }
       if (navigator.onLine === false) {
-        showCenterToast('⚠️', '离线状态下无法安全复制 HOTP 验证码');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('hotpOfflineWarning') : null) || 'Cannot safely copy HOTP code while offline');
         return false;
       }
 
@@ -600,7 +600,7 @@ export function getCoreCode() {
       }
 
       if (!copied) {
-        showCenterToast('⚠️', '复制失败，HOTP 计数器已安全推进，请使用新验证码重试');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('hotpCopyFailedRetry') : null) || 'Copy failed, HOTP counter safely advanced, please retry with new code');
         return false;
       }
 
@@ -638,7 +638,7 @@ export function getCoreCode() {
         !matchesHOTPGenerationSnapshot(queuedSecret, snapshot) ||
         queuedCounter !== snapshot.counter
       ) {
-        throw new Error('密钥已发生变化，已取消旧验证码的计数器更新');
+        throw new Error('Secret changed, cancelled counter update for previous code');
       }
 
       const response = await authenticatedFetch(
@@ -658,19 +658,19 @@ export function getCoreCode() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || result.error || '服务器拒绝更新计数器');
+        throw new Error(result.message || result.error || 'Server rejected counter update');
       }
 
       const queuedOffline = result.queued === true && result.offline === true;
       if (queuedOffline) {
-        throw new Error('离线状态下无法安全推进 HOTP 计数器');
+        throw new Error('Cannot safely advance HOTP counter while offline');
       }
       const responseSecret = result.data && result.data.secret;
       if (
         (!matchesHOTPGenerationSnapshot(responseSecret, snapshot) ||
           responseSecret.counter !== snapshot.nextCounter)
       ) {
-        throw new Error('服务器返回了无效的计数器状态');
+        throw new Error('Server returned invalid counter state');
       }
 
       const currentSecret = secrets.find(item => String(item.id) === snapshot.id);
@@ -682,7 +682,7 @@ export function getCoreCode() {
         (currentCounter !== snapshot.counter &&
           currentCounter !== snapshot.nextCounter)
       ) {
-        throw new Error('密钥状态已更新，请刷新后重试');
+        throw new Error('Secret state updated, please refresh and retry');
       }
     }
 
@@ -696,22 +696,22 @@ export function getCoreCode() {
         (currentCounter !== snapshot.counter &&
           currentCounter !== snapshot.nextCounter)
       ) {
-        throw new Error('密钥状态已更新，请刷新后重试');
+        throw new Error('Secret state updated, please refresh and retry');
       }
       // 使 POST 期间启动的 GET 失效，再提交本地新 counter。
       secretLoadGeneration += 1;
       currentSecret.counter = snapshot.nextCounter;
       cacheSecretsLocally();
       const counterElement = document.getElementById('counter-' + snapshot.id);
-      if (counterElement) counterElement.textContent = '计数器: ' + snapshot.nextCounter;
+      if (counterElement) counterElement.textContent = ((typeof t === 'function' ? t('counterLabel') : null) || 'Counter: ') + snapshot.nextCounter;
       await updateOTP(snapshot.id, null, currentSecret);
     }
 
     function showOTPCopyFeedback(secretId) {
       const secret = secrets.find(s => s.id === secretId);
-      const serviceName = secret ? secret.name : '验证码';
-      
-      showCenterToast('✅', serviceName + ' 验证码已复制到剪贴板');
+      const serviceName = secret ? secret.name : ((typeof t === 'function' ? t('otpCode') : null) || 'Code');
+      const msg = (typeof t === 'function' ? t('otpCopiedToClipboard', { name: serviceName }) : null) || (serviceName + ' code copied to clipboard');
+      showCenterToast('✅', msg);
     }
 
     async function copyNextOTP(secretId) {
@@ -750,9 +750,9 @@ export function getCoreCode() {
 
     function showNextOTPCopyFeedback(secretId) {
       const secret = secrets.find(s => s.id === secretId);
-      const serviceName = secret ? secret.name : '验证码';
-
-      showCenterToast('⏭️', serviceName + ' 下一个验证码已复制到剪贴板');
+      const serviceName = secret ? secret.name : ((typeof t === 'function' ? t('otpCode') : null) || 'Code');
+      const msg = (typeof t === 'function' ? t('nextOtpCopiedToClipboard', { name: serviceName }) : null) || (serviceName + ' next code copied to clipboard');
+      showCenterToast('⏭️', msg);
     }
 
     function isCopyableOTPValue(secretId, value) {
@@ -767,7 +767,7 @@ export function getCoreCode() {
     async function copyOTPAuthURL(secretId) {
       const secret = secrets.find(s => s.id === secretId);
       if (!secret) {
-        showCenterToast('❌', '未找到密钥');
+        showCenterToast('❌', (typeof t === 'function' ? t('secretNotFound') : null) || 'Key not found');
         return;
       }
 
@@ -814,10 +814,12 @@ export function getCoreCode() {
 
         // 复制到剪贴板
         await navigator.clipboard.writeText(otpauthURL);
-        showCenterToast('🔗', secret.name + ' 验证器 URI 已复制到剪贴板');
+        const uriMsg = (typeof t === 'function' ? t('uriCopiedToClipboard', { name: secret.name }) : null) || (secret.name + ' authenticator URI copied to clipboard');
+        showCenterToast('🔗', uriMsg);
       } catch (err) {
         console.error('复制验证器 URI 失败:', err);
-        showCenterToast('❌', '复制验证器 URI 失败: ' + err.message);
+        const errToast = (typeof t === 'function' ? t('uriCopyFailed', { error: err.message }) : null) || ('Failed to copy authenticator URI: ' + err.message);
+        showCenterToast('❌', errToast);
       }
     }
 
@@ -825,7 +827,7 @@ export function getCoreCode() {
     async function copyOTPPageURL(secretId) {
       const secret = secrets.find(s => s.id === secretId);
       if (!secret) {
-        showCenterToast('❌', '未找到密钥');
+        showCenterToast('❌', (typeof t === 'function' ? t('secretNotFound') : null) || 'Key not found');
         return;
       }
 
@@ -846,10 +848,12 @@ export function getCoreCode() {
         if (algorithm !== 'SHA1') url.searchParams.set('algorithm', algorithm);
 
         await navigator.clipboard.writeText(url.toString());
-        showCenterToast('🔗', secret.name + ' 验证码链接已复制到剪贴板');
+        const linkMsg = (typeof t === 'function' ? t('linkCopiedToClipboard', { name: secret.name }) : null) || (secret.name + ' code link copied to clipboard');
+        showCenterToast('🔗', linkMsg);
       } catch (err) {
         console.error('复制验证码链接失败:', err);
-        showCenterToast('❌', '复制验证码链接失败: ' + err.message);
+        const errToast = (typeof t === 'function' ? t('linkCopyFailed', { error: err.message }) : null) || ('Failed to copy code link: ' + err.message);
+        showCenterToast('❌', errToast);
       }
     }
 
@@ -981,8 +985,8 @@ export function getCoreCode() {
       if (!secret) return;
       
       editingId = id;
-      document.getElementById('modalTitle').textContent = (typeof t === 'function' ? t('editSecretTitle') : null) || '编辑密钥';
-      document.getElementById('submitBtn').textContent = (typeof t === 'function' ? t('update') : null) || '更新';
+      document.getElementById('modalTitle').textContent = (typeof t === 'function' ? t('editSecretTitle') : null) || 'Edit Key';
+      document.getElementById('submitBtn').textContent = (typeof t === 'function' ? t('update') : null) || 'Update';
       document.getElementById('secretId').value = id;
       document.getElementById('secretName').value = secret.name;
       document.getElementById('secretService').value = secret.account || '';
@@ -1022,10 +1026,10 @@ export function getCoreCode() {
       if (!secret) return;
 
       const confirmed = await showConfirmDialog({
-        title: '删除密钥',
-        message: '确定要删除 "' + secret.name + '" 吗？\\n该操作无法撤销。',
-        confirmText: '删除',
-        cancelText: '取消',
+        title: (typeof t === 'function' ? t('deleteSecretTitle') : null) || 'Delete Secret',
+        message: (typeof t === 'function' ? t('deleteSecretConfirm', { name: secret.name }) : null) || ('Are you sure you want to delete "' + secret.name + '"?\\nThis action cannot be undone.'),
+        confirmText: (typeof t === 'function' ? t('delete') : null) || 'Delete',
+        cancelText: (typeof t === 'function' ? t('cancel') : null) || 'Cancel',
         danger: true
       });
       if (!confirmed) {
@@ -1047,7 +1051,7 @@ export function getCoreCode() {
             // 检查是否为离线排队响应
             if (result.queued && result.offline) {
               console.log('📥 [离线模式] 删除操作已排队，等待同步:', result.operationId);
-              showCenterToast('📥', result.message || '操作已保存，网络恢复后自动同步');
+              showCenterToast('📥', result.message || (typeof t === 'function' ? t('offlineDeleteQueued') : null) || 'Operation saved, will sync automatically when online');
 
               // 离线模式下，暂时不更新本地状态，等待同步完成后由 PWA 模块刷新
               return;
@@ -1064,11 +1068,11 @@ export function getCoreCode() {
 
             console.log('✅ [保存队列] 删除成功:', secret.name);
           } else {
-            showCenterToast('❌', '删除失败，请重试');
+            showCenterToast('❌', (typeof t === 'function' ? t('deleteFailed') : null) || 'Failed to delete, please try again');
           }
         } catch (error) {
           console.error('❌ [保存队列] 删除失败:', error);
-          showCenterToast('❌', '删除失败：' + error.message);
+          showCenterToast('❌', (typeof t === 'function' ? t('deleteFailedWithReason', { error: error.message }) : null) || ('Delete failed: ' + error.message));
         }
       }).catch(err => {
         console.error('❌ [保存队列] 队列执行错误:', err);
@@ -1127,20 +1131,20 @@ export function getCoreCode() {
       const counter = counterValue === '' ? 0 : Number(counterValue);
 
       if (!name || !secret) {
-        showCenterToast('❌', '请填写服务名称和密钥');
+        showCenterToast('❌', (typeof t === 'function' ? t('pleaseFillNameAndKey') : null) || 'Please fill in service name and secret');
         return;
       }
       if (
         type.toUpperCase() === 'HOTP' &&
         (!Number.isSafeInteger(counter) || counter < 0)
       ) {
-        showCenterToast('❌', 'HOTP 计数器必须是 0 到 9007199254740991 之间的整数');
+        showCenterToast('❌', (typeof t === 'function' ? t('hotpCounterRangeError') : null) || 'HOTP counter must be an integer between 0 and 9007199254740991');
         return;
       }
 
       const submitBtn = document.getElementById('submitBtn');
       const originalText = submitBtn.textContent;
-      submitBtn.textContent = '保存中...';
+      submitBtn.textContent = (typeof t === 'function' ? t('saving') : null) || 'Saving...';
       submitBtn.disabled = true;
 
       // 🔒 关键修复：使用队列确保保存操作串行执行，避免并发覆盖
@@ -1160,7 +1164,7 @@ export function getCoreCode() {
             counter
           };
 
-          const action = editingId ? '更新' : '新增';
+          const action = editingId ? 'Update' : 'Create';
           console.log('🔄 [保存队列] 提交保存请求:', action, name, { period, digits, algorithm });
 
           if (editingId) {
@@ -1183,7 +1187,7 @@ export function getCoreCode() {
             // 检查是否为离线排队响应
             if (result.queued && result.offline) {
               console.log('📥 [离线模式] 操作已排队，等待同步:', result.operationId);
-              showCenterToast('📥', result.message || '操作已保存，网络恢复后自动同步');
+              showCenterToast('📥', result.message || (typeof t === 'function' ? t('offlineSaveQueued') : null) || 'Operation saved, will sync automatically when online');
 
               // 离线模式下，暂时不更新本地状态，等待同步完成后由 PWA 模块刷新
               hideSecretModal();
@@ -1207,12 +1211,12 @@ export function getCoreCode() {
             hideSecretModal();
           } else {
             const error = await response.json();
-            const errorMessage = error.message || error.error || '保存失败，请重试';
+            const errorMessage = error.message || error.error || ((typeof t === 'function' ? t('saveFailed') : null) || 'Failed to save, please try again');
             showCenterToast('❌', errorMessage);
           }
         } catch (error) {
           console.error('❌ [保存队列] 保存失败:', error);
-          showCenterToast('❌', '保存失败：' + error.message);
+          showCenterToast('❌', (typeof t === 'function' ? t('saveFailedWithReason', { error: error.message }) : null) || ('Save failed: ' + error.message));
         } finally {
           submitBtn.textContent = originalText;
           submitBtn.disabled = false;
@@ -1225,6 +1229,26 @@ export function getCoreCode() {
       });
     }
 
+    // 切换调试模式
+    function toggleDebugMode() {
+      debugMode = !debugMode;
+      console.log('Debug mode ' + (debugMode ? 'enabled' : 'disabled'));
+      const statusLabel = debugMode ? ((typeof t === 'function' ? t('enabled') : null) || 'Enabled') : ((typeof t === 'function' ? t('disabled') : null) || 'Disabled');
+      showCenterToast('ℹ️', (typeof t === 'function' ? t('debugModeStatus', { status: statusLabel }) : null) || ('Debug Mode: ' + statusLabel));
+    }
+
+    // 手动刷新所有验证码（用于调试或强制同步）
+    function forceRefreshAllOTPs() {
+      console.log('Manually refreshing all OTP codes');
+      if (typeof updateOTPSecretsInBatch === 'function') {
+        updateOTPSecretsInBatch(secrets, { includeHOTP: true });
+      } else {
+        secrets.forEach(secret => {
+          updateOTP(secret.id, null, secret);
+        });
+      }
+      showCenterToast('ℹ️', (typeof t === 'function' ? t('allOtpsRefreshed') : null) || 'All codes manually refreshed');
+    }
 
     // 键盘快捷键
     document.addEventListener('keydown', function(e) {
@@ -1245,26 +1269,12 @@ export function getCoreCode() {
       
       if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();
-        debugMode = !debugMode;
-        console.log('Debug mode ' + (debugMode ? 'enabled' : 'disabled'));
-        
-        showCenterToast('ℹ️', '调试模式: ' + (debugMode ? '开启' : '关闭'));
-
+        toggleDebugMode();
       }
       
       if (e.ctrlKey && e.key === 'r') {
         e.preventDefault();
-        console.log('Manually refreshing all OTP codes');
-        if (typeof updateOTPSecretsInBatch === 'function') {
-          updateOTPSecretsInBatch(secrets, { includeHOTP: true });
-        } else {
-          secrets.forEach(secret => {
-            updateOTP(secret.id, null, secret);
-          });
-        }
-        
-        showCenterToast('ℹ️', '已手动刷新所有验证码');
-
+        forceRefreshAllOTPs();
       }
     });
 

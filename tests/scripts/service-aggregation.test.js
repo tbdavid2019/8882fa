@@ -211,7 +211,7 @@ describe('automatic service grouping', () => {
 	it('creates groups for families with at least two entries and puts singletons last', () => {
 		const groups = api.groupSecretsByServiceFamily(allSecrets, allSecrets);
 
-		expect(groups.map((group) => group.name)).toEqual(['Google', 'Microsoft', '其他服务']);
+		expect(groups.map((group) => group.name)).toEqual(['Google', 'Microsoft', 'Other Services']);
 		expect(groups.map((group) => group.totalCount)).toEqual([3, 2, 2]);
 		expect(groups.at(-1).key).toBe(api.OTHER_SERVICE_GROUP_KEY);
 		expect(groups.flatMap((group) => group.items.map((item) => item.id)).sort()).toEqual(allSecrets.map((item) => item.id).sort());
@@ -221,8 +221,8 @@ describe('automatic service grouping', () => {
 		const ascendingGroups = api.groupSecretsByServiceFamily(allSecrets, allSecrets, 'name-asc');
 		const descendingGroups = api.groupSecretsByServiceFamily(allSecrets, allSecrets, 'name-desc');
 
-		expect(ascendingGroups.map((group) => group.name)).toEqual(['Google', 'Microsoft', '其他服务']);
-		expect(descendingGroups.map((group) => group.name)).toEqual(['Microsoft', 'Google', '其他服务']);
+		expect(ascendingGroups.map((group) => group.name)).toEqual(['Google', 'Microsoft', 'Other Services']);
+		expect(descendingGroups.map((group) => group.name)).toEqual(['Microsoft', 'Google', 'Other Services']);
 	});
 
 	it('uses totals from the full list when a search only leaves part of a family visible', () => {
@@ -268,7 +268,7 @@ describe('automatic service grouping', () => {
 		];
 		const groups = api.groupSecretsByServiceFamily(mixedSecrets, mixedSecrets);
 
-		expect(groups.map((group) => group.name)).toEqual(['WeChat Work', '其他服务']);
+		expect(groups.map((group) => group.name)).toEqual(['WeChat Work', 'Other Services']);
 		expect(groups[0].items.map((item) => item.id)).toEqual(['wechat-work', 'wechat-work-host']);
 		expect(groups[1].items.map((item) => item.id)).toEqual(['wechat', 'qq']);
 	});
@@ -286,7 +286,7 @@ describe('automatic service grouping', () => {
 		mutableSecrets.push(secret('three', 'Gmail'));
 		const appendedMetadata = api.getServiceFamilyMetadata(mutableSecrets);
 		expect(appendedMetadata).not.toBe(renamedMetadata);
-		expect(api.groupSecretsByServiceFamily(mutableSecrets, mutableSecrets).map((group) => group.name)).toEqual(['Google', '其他服务']);
+		expect(api.groupSecretsByServiceFamily(mutableSecrets, mutableSecrets).map((group) => group.name)).toEqual(['Google', 'Other Services']);
 	});
 
 	it('invalidates cached identities when an item is replaced with the same service name', () => {

@@ -276,12 +276,12 @@ export function getServiceAggregationCode() {
     }
 
     function resolveServiceIdentity(serviceName) {
-      const originalName = String(serviceName || '').trim() || '未知服务';
+      const originalName = String(serviceName || '').trim() || ((typeof t === 'function' ? t('unknownService') : null) || 'Unknown Service');
       if (SERVICE_IDENTITY_CACHE.has(originalName)) {
         return SERVICE_IDENTITY_CACHE.get(originalName);
       }
 
-      const normalizedName = splitServiceWords(originalName).join(' ') || normalizeServiceExactName(originalName) || '未知服务';
+      const normalizedName = splitServiceWords(originalName).join(' ') || normalizeServiceExactName(originalName) || ((typeof t === 'function' ? t('unknownService') : null) || 'Unknown Service');
       const serviceDomain = resolveServiceDomain(originalName);
 
       let identity;
@@ -312,7 +312,7 @@ export function getServiceAggregationCode() {
 
     function humanizeFamilyDomain(domain) {
       const brand = String(domain || '').split('.')[0].replace(/[-_]+/g, ' ').trim();
-      if (!brand) return '其他服务';
+      if (!brand) return (typeof t === 'function' ? t('otherServices') : null) || 'Other Services';
       return brand.charAt(0).toLocaleUpperCase() + brand.slice(1);
     }
 
@@ -329,7 +329,7 @@ export function getServiceAggregationCode() {
         return humanizeFamilyDomain(metadata.domain);
       }
 
-      return metadata.originalNames[0] || '其他服务';
+      return metadata.originalNames[0] || ((typeof t === 'function' ? t('otherServices') : null) || 'Other Services');
     }
 
     function isServiceGroupMetadataCacheValid(cached, allSecrets) {
@@ -392,7 +392,7 @@ export function getServiceAggregationCode() {
       const groupedFamilies = new Map();
       const otherGroup = {
         key: OTHER_SERVICE_GROUP_KEY,
-        name: '其他服务',
+        name: (typeof t === 'function' ? t('otherServices') : null) || 'Other Services',
         items: [],
         matchedCount: 0,
         totalCount: 0,

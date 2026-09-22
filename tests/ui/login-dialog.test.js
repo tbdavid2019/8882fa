@@ -86,7 +86,7 @@ describe('login dialog with the generated page DOM', () => {
 
 		await expect(context.handleLoginSubmit()).resolves.toBeUndefined();
 		expect(fetch).not.toHaveBeenCalled();
-		expect(elements.get('loginError').textContent).toBe('请输入密码');
+		expect(elements.get('loginError').textContent).toMatch(/请输入密码|Please enter password/i);
 		expect(elements.get('loginError').style.display).toBe('block');
 	});
 
@@ -117,7 +117,7 @@ describe('login dialog with the generated page DOM', () => {
 		fetch.mockRejectedValue(new Error('Network unavailable'));
 
 		await expect(context.handleLoginSubmit()).resolves.toBeUndefined();
-		expect(elements.get('loginError').textContent).toBe('登录失败：Network unavailable');
+		expect(elements.get('loginError').textContent).toMatch(/(登录失败|Login failed)[:：]\s*Network unavailable/i);
 		expect(elements.get('loginError').style.display).toBe('block');
 	});
 
@@ -128,7 +128,7 @@ describe('login dialog with the generated page DOM', () => {
 		fetch.mockResolvedValue({ ok: true, json: async () => ({ success: true, expiresIn: '30 天' }) });
 
 		await expect(context.handleLoginSubmit()).resolves.toBeUndefined();
-		expect(showCenterToast).toHaveBeenCalledWith('✅', '登录成功，有效期 30 天');
+		expect(showCenterToast).toHaveBeenCalledWith('✅', expect.stringMatching(/登录成功，有效期 30 天|Login successful, valid for 30 天/i));
 		expect(loadSecrets).toHaveBeenCalledOnce();
 		expect(elements.get('loginModal').classList.contains('show')).toBe(false);
 		vi.advanceTimersByTime(300);

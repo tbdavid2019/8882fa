@@ -78,8 +78,9 @@ export function getAuthCode() {
 
       tokenInput.type = visible ? 'text' : 'password';
       toggleButton.classList.toggle('is-visible', visible);
-      toggleButton.setAttribute('aria-label', visible ? '隐藏密码' : '显示密码');
-      toggleButton.title = visible ? '隐藏密码' : '显示密码';
+      const label = visible ? ((typeof t === 'function' ? t('hidePassword') : null) || 'Hide password') : ((typeof t === 'function' ? t('showPassword') : null) || 'Show password');
+      toggleButton.setAttribute('aria-label', label);
+      toggleButton.title = label;
     }
 
     function toggleLoginPasswordVisibility() {
@@ -159,7 +160,7 @@ export function getAuthCode() {
       const credential = tokenInput.value.trim();
 
       if (!credential) {
-        errorDiv.textContent = (typeof t === 'function' ? t('loginErrorEmpty') : null) || '请输入密码';
+        errorDiv.textContent = (typeof t === 'function' ? t('loginErrorEmpty') : null) || 'Please enter password';
         errorDiv.style.display = 'block';
         return;
       }
@@ -182,23 +183,23 @@ export function getAuthCode() {
 
           // 显示登录成功信息（包含过期时间）
           if (data.expiresIn) {
-            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: data.expiresIn }) : null) || ('登录成功，有效期 ' + data.expiresIn));
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: data.expiresIn }) : null) || ('Login successful, valid for ' + data.expiresIn));
           } else {
-            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccess') : null) || '登录成功');
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccess') : null) || 'Login successful');
           }
 
           // 重新加载密钥列表
           loadSecrets();
         } else {
           // 登录失败
-          errorDiv.textContent = data.message || '密码错误，请重试';
+          errorDiv.textContent = data.message || ((typeof t === 'function' ? t('loginFailedInvalidPassword') : null) || 'Incorrect password, please try again');
           errorDiv.style.display = 'block';
           tokenInput.value = '';
           tokenInput.focus();
         }
       } catch (error) {
         console.error('登录失败:', error);
-        errorDiv.textContent = ((typeof t === 'function' ? t('loginFailedPrefix') : null) || '登录失败：') + error.message;
+        errorDiv.textContent = ((typeof t === 'function' ? t('loginFailedPrefix') : null) || 'Login failed: ') + error.message;
         errorDiv.style.display = 'block';
       }
     }
@@ -255,7 +256,7 @@ export function getAuthCode() {
         secretsList.style.display = 'none';
       }
 
-      showCenterToast('⚠️', (typeof t === 'function' ? t('loginExpired') : null) || '登录已过期，请重新登录');
+      showCenterToast('⚠️', (typeof t === 'function' ? t('loginExpired') : null) || 'Session expired, please login again');
       setTimeout(() => {
         showLoginModal();
       }, 1500);
@@ -281,13 +282,13 @@ export function getAuthCode() {
         } else {
           // 透传服务端错误信息（包括 403 CSRF 拒绝、429 限流等）
           const data = await response.json().catch(() => ({}));
-          serverErrorMessage = data.message || ('服务器返回 ' + response.status);
+          serverErrorMessage = data.message || ('Server returned ' + response.status);
           console.warn('退出登录服务端响应异常:', response.status, serverErrorMessage);
         }
       } catch (error) {
         // 网络错误不阻塞本地登出；HttpOnly Cookie 由浏览器最终随过期清除
         console.error('退出登录网络错误:', error);
-        serverErrorMessage = error.message || '网络错误';
+        serverErrorMessage = error.message || 'Network error';
       }
 
       // 2. 无论服务端是否确认，都清理本地状态，确保用户视觉上已登出
@@ -329,9 +330,9 @@ export function getAuthCode() {
 
       // 3. 反馈给用户
       if (serverSuccess) {
-        showCenterToast('👋', (typeof t === 'function' ? t('loggedOut') : null) || '已退出登录');
+        showCenterToast('👋', (typeof t === 'function' ? t('loggedOut') : null) || 'Logged out');
       } else {
-        showCenterToast('⚠️', '已清除本地登录状态：' + serverErrorMessage);
+        showCenterToast('⚠️', ((typeof t === 'function' ? t('loggedOut') : null) || 'Logged out') + ': ' + serverErrorMessage);
       }
 
       setTimeout(() => {

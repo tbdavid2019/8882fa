@@ -44,7 +44,7 @@ export function getS3ToolCode() {
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderS3Card(dest)).join('');
         } else {
-          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('s3EmptyList') : null) || '暂无 S3 目标，点击下方按钮添加') + '</div>';
+          listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('s3EmptyList') : null) || 'No S3 targets. Click button below to add') + '</div>';
         }
 
         // 达到上限时隐藏添加按钮
@@ -54,17 +54,17 @@ export function getS3ToolCode() {
         hideS3Form();
       } catch (error) {
         console.error('加载 S3 配置失败:', error);
-        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || '加载失败，请稍后重试') + '</div>';
+        listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger-color); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('loadFailedRetry') : null) || 'Failed to load, please try again later') + '</div>';
       }
     }
 
     function _renderS3Card(dest) {
       let statusDot = 'dest-status-dot-gray';
-      let statusText = (typeof t === 'function' ? t('syncStatusNotPushed') : null) || '未推送';
+      let statusText = (typeof t === 'function' ? t('syncStatusNotPushed') : null) || 'Not pushed';
 
       if (dest.status.lastError) {
         statusDot = 'dest-status-dot-red';
-        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || '失败: ') + dest.status.lastError.error;
+        statusText = ((typeof t === 'function' ? t('syncStatusFailedPrefix') : null) || 'Failed: ') + dest.status.lastError.error;
       } else if (dest.status.lastSuccess) {
         statusDot = 'dest-status-dot-green';
         statusText = new Date(dest.status.lastSuccess.timestamp).toLocaleString();
@@ -79,7 +79,7 @@ export function getS3ToolCode() {
         + '<span class="dest-card-url">' + _escapeS3Html(dest.config.endpoint + '/' + dest.config.bucket) + '</span>'
         + '</div>'
         + '<label class="dest-toggle" onclick="event.stopPropagation()">'
-        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || '启用此同步目标') + '" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleS3Dest(\\'' + dest.id + '\\', this.checked)" />'
+        + '<input type="checkbox" aria-label="' + ((typeof t === 'function' ? t('enableSyncTargetAriaLabel') : null) || 'Enable this sync target') + '" ' + (dest.enabled ? 'checked' : '') + ' onchange="toggleS3Dest(\\'' + dest.id + '\\', this.checked)" />'
         + '<span class="dest-toggle-slider"></span>'
         + '</label>'
         + '</div>'
@@ -88,8 +88,8 @@ export function getS3ToolCode() {
         + '<span class="dest-status-text">' + _escapeS3Html(statusText) + '</span>'
         + '</div>'
         + '<div class="dest-card-actions">'
-        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editS3Dest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || '编辑') + '</button>'
-        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteS3Dest(\\'' + dest.id + '\\', \\'' + _escapeS3Html(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || '删除') + '</button>'
+        + '<button class="btn btn-sm" onclick="event.stopPropagation(); editS3Dest(\\'' + dest.id + '\\')" >' + ((typeof t === 'function' ? t('edit') : null) || 'Edit') + '</button>'
+        + '<button class="btn btn-sm btn-danger-outline" onclick="event.stopPropagation(); deleteS3Dest(\\'' + dest.id + '\\', \\'' + _escapeS3Html(dest.name).replace(/'/g, "\\\\'") + '\\')" >' + ((typeof t === 'function' ? t('delete') : null) || 'Delete') + '</button>'
         + '</div>'
         + '</div>';
     }
@@ -109,7 +109,7 @@ export function getS3ToolCode() {
         document.getElementById('s3Region').value = 'auto';
         document.getElementById('s3AccessKeyId').value = '';
         document.getElementById('s3SecretAccessKey').value = '';
-        document.getElementById('s3SecretAccessKey').placeholder = '请输入 Secret Access Key';
+        document.getElementById('s3SecretAccessKey').placeholder = (typeof t === 'function' ? t('remoteEnterSecretKeyPlaceholder') : null) || 'Enter Secret Access Key';
         document.getElementById('s3Prefix').value = '';
       }
     }
@@ -134,12 +134,12 @@ export function getS3ToolCode() {
         document.getElementById('s3Region').value = dest.config.region || 'auto';
         document.getElementById('s3AccessKeyId').value = dest.config.accessKeyId;
         document.getElementById('s3SecretAccessKey').value = '';
-        document.getElementById('s3SecretAccessKey').placeholder = dest.config.hasSecretKey ? '已保存（留空保持不变）' : '请输入 Secret Access Key';
+        document.getElementById('s3SecretAccessKey').placeholder = dest.config.hasSecretKey ? ((typeof t === 'function' ? t('remoteSavedPasswordKeepPlaceholder') : null) || 'Saved (leave blank to keep unchanged)') : ((typeof t === 'function' ? t('remoteEnterSecretKeyPlaceholder') : null) || 'Enter Secret Access Key');
         document.getElementById('s3Prefix').value = dest.config.prefix || '';
 
         showS3Form(id);
       } catch (error) {
-        showCenterToast('❌', '加载配置失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Failed to load config: ' + error.message)));
       }
     }
 
@@ -154,13 +154,13 @@ export function getS3ToolCode() {
       const prefix = document.getElementById('s3Prefix').value.trim();
 
       if (!name || !endpoint || !bucket || !accessKeyId) {
-        showCenterToast('⚠️', '请填写目标名称、Endpoint、Bucket 和 Access Key ID');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('s3FillRequired') : null) || 'Please enter target name, Endpoint, Bucket, and Access Key ID');
         return;
       }
 
       const saveBtn = document.getElementById('s3SaveBtn');
       const originalText = saveBtn.textContent;
-      saveBtn.textContent = '保存中...';
+      saveBtn.textContent = (typeof t === 'function' ? t('remoteSavingBtn') : null) || 'Saving...';
       saveBtn.disabled = true;
 
       try {
@@ -178,14 +178,14 @@ export function getS3ToolCode() {
           if (data.warning) {
             showCenterToast('⚠️', data.warning);
           } else {
-            showCenterToast('✅', 'S3 配置已保存');
+            showCenterToast('✅', (typeof t === 'function' ? t('s3Saved') : null) || 'S3 configuration saved');
           }
           loadS3Destinations();
         } else {
-          showCenterToast('❌', data.message || '保存失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('saveFailed') : null) || 'Save failed');
         }
       } catch (error) {
-        showCenterToast('❌', '保存失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetSaveFailed', { error: error.message }) : null) || ('Save failed: ' + error.message)));
       } finally {
         saveBtn.textContent = originalText;
         saveBtn.disabled = false;
@@ -203,13 +203,13 @@ export function getS3ToolCode() {
       const prefix = document.getElementById('s3Prefix').value.trim();
 
       if (!name || !endpoint || !bucket || !accessKeyId) {
-        showCenterToast('⚠️', '请填写目标名称、Endpoint、Bucket 和 Access Key ID');
+        showCenterToast('⚠️', (typeof t === 'function' ? t('s3FillRequired') : null) || 'Please enter target name, Endpoint, Bucket, and Access Key ID');
         return;
       }
 
       const testBtn = document.getElementById('s3TestBtn');
       const originalText = testBtn.textContent;
-      testBtn.textContent = '测试中...';
+      testBtn.textContent = (typeof t === 'function' ? t('remoteTestingBtn') : null) || 'Testing...';
       testBtn.disabled = true;
 
       try {
@@ -224,12 +224,12 @@ export function getS3ToolCode() {
         const data = await response.json();
 
         if (data.success) {
-          showCenterToast('✅', data.message || '连接成功');
+          showCenterToast('✅', data.message || (typeof t === 'function' ? t('remoteTestSuccess') : null) || 'Connection successful');
         } else {
-          showCenterToast('❌', data.message || '连接失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('remoteTestFailed') : null) || 'Connection failed');
         }
       } catch (error) {
-        showCenterToast('❌', '测试失败: ' + error.message);
+        showCenterToast('❌', (typeof t === 'function' ? t('remoteTestFailed') : null) || ('Test failed: ' + error.message));
       } finally {
         testBtn.textContent = originalText;
         testBtn.disabled = false;
@@ -238,10 +238,10 @@ export function getS3ToolCode() {
 
     async function deleteS3Dest(id, name) {
       const confirmed = await showConfirmDialog({
-        title: '删除 S3 目标',
-        message: '确定要删除 S3 目标「' + name + '」吗？\\n删除后该目标将不再接收备份推送。',
-        confirmText: '删除',
-        cancelText: '取消',
+        title: (typeof t === 'function' ? t('remoteDeleteConfirmTitle', { target: 'S3' }) : null) || 'Delete S3 Target',
+        message: (typeof t === 'function' ? t('remoteDeleteConfirmMsg', { target: 'S3', name: name }) : null) || ('Are you sure you want to delete S3 target "' + name + '"?\\nIt will no longer receive backup pushes.'),
+        confirmText: (typeof t === 'function' ? t('delete') : null) || 'Delete',
+        cancelText: (typeof t === 'function' ? t('cancel') : null) || 'Cancel',
         danger: true
       });
       if (!confirmed) {
@@ -255,13 +255,13 @@ export function getS3ToolCode() {
         const data = await response.json();
 
         if (data.success) {
-          showCenterToast('✅', 'S3 目标已删除');
+          showCenterToast('✅', (typeof t === 'function' ? t('remoteTargetDeleted', { target: 'S3' }) : null) || 'S3 target deleted');
           loadS3Destinations();
         } else {
-          showCenterToast('❌', data.message || '删除失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: '' }) : null) || 'Delete failed');
         }
       } catch (error) {
-        showCenterToast('❌', '删除失败: ' + error.message);
+        showCenterToast('❌', ((typeof t === 'function' ? t('remoteTargetDeleteFailed', { error: error.message }) : null) || ('Delete failed: ' + error.message)));
       }
     }
 
@@ -278,11 +278,11 @@ export function getS3ToolCode() {
           showCenterToast('✅', data.message);
           loadS3Destinations();
         } else {
-          showCenterToast('❌', data.message || '操作失败');
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('operationFailed') : null) || 'Operation failed');
           loadS3Destinations();
         }
       } catch (error) {
-        showCenterToast('❌', '操作失败: ' + error.message);
+        showCenterToast('❌', (typeof t === 'function' ? t('operationFailed') : null) || ('Operation failed: ' + error.message));
         loadS3Destinations();
       }
     }

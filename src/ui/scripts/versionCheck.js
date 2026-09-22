@@ -90,7 +90,7 @@ export function getVersionCheckCode() {
         const badge = document.getElementById('footerUpdateBadge');
         if (badge) {
           const verStr = latest.startsWith('v') ? latest : 'v' + latest;
-          badge.textContent = (typeof t === 'function' ? t('newVersionBadge', { version: verStr }) : null) || ('🆕 有新版本 ' + verStr);
+          badge.textContent = (typeof t === 'function' ? t('newVersionBadge', { version: verStr }) : null) || ('🆕 New version ' + verStr);
           badge.style.display = '';
         }
       }
