@@ -1,7 +1,7 @@
 /**
  * Verify that editing a secret triggers remote-sync fan-out (WebDAV/S3/OneDrive/Google Drive).
  * This test exists to guard the behavior requested in the bug report:
- *   "编辑密钥中的账户名称时，WebDAV/S3/OneDrive/GoogleDrive 也要同步触发"
+ *   "編輯金鑰中的賬戶名稱時，WebDAV/S3/OneDrive/GoogleDrive 也要同步觸發"
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

@@ -1,7 +1,7 @@
 /**
  * Favicon 代理 API
- * 在 Worker 层代理 favicon 请求，支持多个上游源
- * 解决中国网络环境无法访问 Google Favicon API 的问题
+ * 在 Worker 層代理 favicon 請求，支援多個上游源
+ * 解決中國網路環境無法訪問 Google Favicon API 的問題
  */
 
 import { createErrorResponse } from '../utils/response.js';
@@ -9,13 +9,13 @@ import { getLogger } from '../utils/logger.js';
 
 /**
  * Favicon API 上游源配置
- * 按优先级排序，失败时自动降级到下一个源
+ * 按優先順序排序，失敗時自動降級到下一個源
  *
- * 🌐 源选择说明：
- * 1. Google - 国际用户首选（中国大陆可能无法访问）
- * 2. Yandex - 俄罗斯搜索引擎（全球包括中国通常可访问）
- * 3. Direct HTTPS - 直接访问网站标准位置的favicon
- * 4. Direct HTTP - 兜底方案（某些老旧网站仍使用HTTP）
+ * 🌐 源選擇說明：
+ * 1. Google - 國際使用者首選（中國大陸可能無法訪問）
+ * 2. Yandex - 俄羅斯搜尋引擎（全球包括中國通常可訪問）
+ * 3. Direct HTTPS - 直接訪問網站標準位置的favicon
+ * 4. Direct HTTP - 兜底方案（某些老舊網站仍使用HTTP）
  */
 const FAVICON_SOURCES = [
 	{
@@ -41,21 +41,21 @@ const FAVICON_SOURCES = [
 ];
 
 /**
- * 处理 favicon 代理请求
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量
+ * 處理 favicon 代理請求
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數
  * @param {string} domain - 域名
- * @returns {Response} favicon 图片响应
+ * @returns {Response} favicon 圖片響應
  */
 export async function handleFaviconProxy(request, env, domain) {
 	const logger = getLogger(env);
 
-	// 验证域名格式
+	// 驗證域名格式
 	if (!domain || !isValidDomain(domain)) {
 		return createErrorResponse('无效域名', '请提供有效的域名', 400, request);
 	}
 
-	// 尝试从多个源获取 favicon
+	// 嘗試從多個源獲取 favicon
 	let lastError = null;
 
 	for (const source of FAVICON_SOURCES) {
@@ -63,7 +63,7 @@ export async function handleFaviconProxy(request, env, domain) {
 			const faviconUrl = source.url(domain);
 			logger.debug(`尝试从 ${source.name} 获取 favicon`, { domain, url: faviconUrl });
 
-			// 使用 AbortController 实现超时
+			// 使用 AbortController 實現超時
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), source.timeout);
 
@@ -78,24 +78,24 @@ export async function handleFaviconProxy(request, env, domain) {
 
 				clearTimeout(timeoutId);
 
-				// 检查响应状态
+				// 檢查響應狀態
 				if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
 					logger.info(`成功从 ${source.name} 获取 favicon`, { domain });
 
-					// 克隆响应并添加缓存头
+					// 克隆響應並新增快取頭
 					return new Response(response.body, {
 						status: response.status,
 						statusText: response.statusText,
 						headers: {
 							'Content-Type': response.headers.get('content-type') || 'image/x-icon',
-							'Cache-Control': 'public, max-age=86400', // 缓存24小时
+							'Cache-Control': 'public, max-age=86400', // 快取24小時
 							'X-Favicon-Source': source.name,
 							'Access-Control-Allow-Origin': '*',
 						},
 					});
 				}
 
-				// 非图片响应或错误状态，尝试下一个源
+				// 非圖片響應或錯誤狀態，嘗試下一個源
 				lastError = new Error(`${source.name} 返回非成功状态: ${response.status}`);
 				logger.warn(`${source.name} 获取失败`, { domain, status: response.status });
 			} catch (fetchError) {
@@ -115,10 +115,10 @@ export async function handleFaviconProxy(request, env, domain) {
 		}
 	}
 
-	// 所有源都失败，返回错误
+	// 所有源都失敗，返回錯誤
 	logger.error('所有 favicon 源都失败', { domain, lastError: lastError?.message });
 
-	// 返回 404，但不返回错误 JSON（让客户端的 img onerror 处理）
+	// 返回 404，但不返回錯誤 JSON（讓客戶端的 img onerror 處理）
 	return new Response('', {
 		status: 404,
 		statusText: 'Not Found',
@@ -131,15 +131,15 @@ export async function handleFaviconProxy(request, env, domain) {
 }
 
 /**
- * 验证域名格式
+ * 驗證域名格式
  * @param {string} domain - 域名
  * @returns {boolean} 是否有效
  */
 function isValidDomain(domain) {
-	// 基本的域名格式验证
+	// 基本的域名格式驗證
 	const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-	// 检查是否包含危险字符
+	// 檢查是否包含危險字元
 	if (domain.includes('..') || domain.includes('//') || domain.includes('@')) {
 		return false;
 	}

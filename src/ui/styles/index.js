@@ -1,6 +1,6 @@
 /**
- * 样式模块集成
- * 将所有样式模块组合成完整的 <style> 标签
+ * 樣式模組整合
+ * 將所有樣式模組組合成完整的 <style> 標籤
  */
 
 import { getVariables } from './variables.js';
@@ -12,8 +12,8 @@ import { getDialogStyles } from './dialogs.js';
 import { getWorkspaceStyles } from './workspace.js';
 
 /**
- * 获取完整的样式内容
- * @returns {string} 完整的 <style>...</style> 标签
+ * 獲取完整的樣式內容
+ * @returns {string} 完整的 <style>...</style> 標籤
  */
 export function getStyles() {
 	return `

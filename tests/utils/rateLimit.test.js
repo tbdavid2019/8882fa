@@ -1,6 +1,6 @@
 /**
- * Rate Limiting 功能测试
- * 测试固定窗口计数器算法、客户端识别、响应生成
+ * Rate Limiting 功能測試
+ * 測試固定視窗計數器演算法、客戶端識別、響應生成
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -16,7 +16,7 @@ import {
 
 describe('Rate Limiting Utils', () => {
 
-  // 模拟 KV 存储
+  // 模擬 KV 儲存
   class MockKV {
     constructor() {
       this.store = new Map();
@@ -37,7 +37,7 @@ describe('Rate Limiting Utils', () => {
     async put(key, value, options = {}) {
       this.store.set(key, value);
 
-      // 模拟 TTL 过期
+      // 模擬 TTL 過期
       if (options.expirationTtl) {
         setTimeout(() => {
           this.store.delete(key);
@@ -54,7 +54,7 @@ describe('Rate Limiting Utils', () => {
     }
   }
 
-  // 模拟环境
+  // 模擬環境
   function createMockEnv() {
     return {
       SECRETS_KV: new MockKV(),
@@ -62,7 +62,7 @@ describe('Rate Limiting Utils', () => {
     };
   }
 
-  // 创建模拟请求
+  // 建立模擬請求
   function createMockRequest(headers = {}) {
     return {
       headers: new Headers(headers)
@@ -88,17 +88,17 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 5, windowSeconds: 60 };
 
-      // 第 1 次请求
+      // 第 1 次請求
       let result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(4);
 
-      // 第 2 次请求
+      // 第 2 次請求
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(3);
 
-      // 第 3 次请求
+      // 第 3 次請求
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(2);
@@ -109,12 +109,12 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 3, windowSeconds: 60 };
 
-      // 发送 3 次请求（达到限制）
+      // 傳送 3 次請求（達到限制）
       await checkRateLimit(key, env, config);
       await checkRateLimit(key, env, config);
       await checkRateLimit(key, env, config);
 
-      // 第 4 次请求应该被拒绝
+      // 第 4 次請求應該被拒絕
       const result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(false);
       expect(result.remaining).toBe(0);
@@ -123,35 +123,35 @@ describe('Rate Limiting Utils', () => {
     it('窗口过期后应该重置计数', async () => {
       const env = createMockEnv();
       const key = 'test-client';
-      const config = { maxAttempts: 3, windowSeconds: 1 }; // 1 秒窗口
+      const config = { maxAttempts: 3, windowSeconds: 1 }; // 1 秒視窗
 
-      // 第 1 次请求
+      // 第 1 次請求
       const result1 = await checkRateLimit(key, env, config);
       expect(result1.remaining).toBe(2);
 
-      // 等待窗口过期
+      // 等待視窗過期
       await new Promise(resolve => setTimeout(resolve, 1100));
 
-      // 新窗口第 1 次请求
+      // 新視窗第 1 次請求
       const result2 = await checkRateLimit(key, env, config);
       expect(result2.allowed).toBe(true);
-      expect(result2.remaining).toBe(2); // 重置为 3 - 1 = 2
+      expect(result2.remaining).toBe(2); // 重置為 3 - 1 = 2
     });
 
     it('不同客户端应该独立计数', async () => {
       const env = createMockEnv();
       const config = { maxAttempts: 3, windowSeconds: 60 };
 
-      // 客户端 A
+      // 客戶端 A
       await checkRateLimit('client-a', env, config);
       await checkRateLimit('client-a', env, config);
       await checkRateLimit('client-a', env, config);
 
-      // 客户端 A 达到限制
+      // 客戶端 A 達到限制
       const resultA = await checkRateLimit('client-a', env, config);
       expect(resultA.allowed).toBe(false);
 
-      // 客户端 B 应该仍然可以请求
+      // 客戶端 B 應該仍然可以請求
       const resultB = await checkRateLimit('client-b', env, config);
       expect(resultB.allowed).toBe(true);
       expect(resultB.remaining).toBe(2);
@@ -163,7 +163,7 @@ describe('Rate Limiting Utils', () => {
       const result = await checkRateLimit('test-client', env);
 
       expect(result.allowed).toBe(true);
-      expect(result.limit).toBe(5); // 默认 maxAttempts
+      expect(result.limit).toBe(5); // 預設 maxAttempts
       expect(result.remaining).toBe(4);
     });
 
@@ -184,7 +184,7 @@ describe('Rate Limiting Utils', () => {
 
     it('resetAt 时间应该正确计算', async () => {
       const env = createMockEnv();
-      const windowSeconds = 120; // 2 分钟
+      const windowSeconds = 120; // 2 分鐘
       const before = Date.now();
 
       const result = await checkRateLimit('test-client', env, {
@@ -194,7 +194,7 @@ describe('Rate Limiting Utils', () => {
 
       const after = Date.now();
 
-      // resetAt 应该在 now + windowSeconds 范围内
+      // resetAt 應該在 now + windowSeconds 範圍內
       expect(result.resetAt).toBeGreaterThanOrEqual(before + windowSeconds * 1000);
       expect(result.resetAt).toBeLessThanOrEqual(after + windowSeconds * 1000);
     });
@@ -220,18 +220,18 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 2, windowSeconds: 60 };
 
-      // 发送 2 次请求（达到限制）
+      // 傳送 2 次請求（達到限制）
       await checkRateLimit(key, env, config);
       await checkRateLimit(key, env, config);
 
-      // 验证已达到限制
+      // 驗證已達到限制
       let result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(false);
 
       // 重置限流
       await resetRateLimit(key, env);
 
-      // 重置后应该可以再次请求
+      // 重置後應該可以再次請求
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(1); // 2 - 1
@@ -275,18 +275,18 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 5, windowSeconds: 60 };
 
-      // 发送 2 次请求
+      // 傳送 2 次請求
       await checkRateLimit(key, env, config);
       await checkRateLimit(key, env, config);
 
-      // 获取信息（不应增加计数）
+      // 獲取資訊（不應增加計數）
       const info = await getRateLimitInfo(key, env, 5);
 
       expect(info.count).toBe(2);
       expect(info.remaining).toBe(3);
       expect(info.limit).toBe(5);
 
-      // 再次获取信息，计数应该不变
+      // 再次獲取資訊，計數應該不變
       const info2 = await getRateLimitInfo(key, env, 5);
       expect(info2.count).toBe(2);
     });
@@ -296,13 +296,13 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 5, windowSeconds: 1, algorithm: 'fixed-window' };
 
-      // 发送请求
+      // 傳送請求
       await checkRateLimit(key, env, config);
 
-      // 等待窗口过期
+      // 等待視窗過期
       await new Promise(resolve => setTimeout(resolve, 1100));
 
-      // 获取信息
+      // 獲取資訊
       const info = await getRateLimitInfo(key, env, { maxAttempts: 5, algorithm: 'fixed-window' });
       expect(info.count).toBe(0);
       expect(info.remaining).toBe(5);
@@ -328,10 +328,10 @@ describe('Rate Limiting Utils', () => {
       const key = 'test-client';
       const config = { maxAttempts: 2, windowSeconds: 60 };
 
-      // 达到限制
+      // 達到限制
       await checkRateLimit(key, env, config);
       await checkRateLimit(key, env, config);
-      await checkRateLimit(key, env, config); // 被拒绝
+      await checkRateLimit(key, env, config); // 被拒絕
 
       const info = await getRateLimitInfo(key, env, 2);
       expect(info.remaining).toBe(0);
@@ -372,7 +372,7 @@ describe('Rate Limiting Utils', () => {
     });
 
     it('应该计算正确的 Retry-After 值', async () => {
-      const resetAt = Date.now() + 45000; // 45 秒后
+      const resetAt = Date.now() + 45000; // 45 秒後
       const rateLimitInfo = {
         allowed: false,
         remaining: 0,
@@ -475,7 +475,7 @@ describe('Rate Limiting Utils', () => {
 
       const identifier = getClientIdentifier(request, 'token');
       expect(identifier).toBe('token:abcdef1234567890');
-      expect(identifier).toHaveLength(22); // 'token:' + 16 字符
+      expect(identifier).toHaveLength(22); // 'token:' + 16 字元
     });
 
     it('没有 token 时应该返回 no-token', () => {
@@ -603,16 +603,16 @@ describe('Rate Limiting Utils', () => {
         'CF-Connecting-IP': '203.0.113.1'
       });
 
-      // 发送 5 次请求（达到限制）
+      // 傳送 5 次請求（達到限制）
       for (let i = 0; i < 5; i++) {
         await wrappedHandler(request, env);
       }
 
-      // 第 6 次应该被拒绝
+      // 第 6 次應該被拒絕
       const response = await wrappedHandler(request, env);
 
       expect(response.status).toBe(429);
-      expect(mockHandler).toHaveBeenCalledTimes(5); // 只调用了 5 次
+      expect(mockHandler).toHaveBeenCalledTimes(5); // 只調用了 5 次
     });
 
     it('应该在响应中添加 rate limit headers', async () => {
@@ -654,13 +654,13 @@ describe('Rate Limiting Utils', () => {
         'CF-Connecting-IP': '198.51.100.1'
       });
 
-      // 使用相同的自定义 key，即使 IP 不同也会共享限制
+      // 使用相同的自定義 key，即使 IP 不同也會共享限制
       for (let i = 0; i < 5; i++) {
         await wrappedHandler(request1, env);
       }
 
       const response = await wrappedHandler(request2, env);
-      expect(response.status).toBe(429); // 被拒绝，因为共享 key
+      expect(response.status).toBe(429); // 被拒絕，因為共享 key
     });
 
     it('应该支持自定义 key 函数', async () => {
@@ -709,7 +709,7 @@ describe('Rate Limiting Utils', () => {
       }
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(1000); // 100 次检查应该在 1 秒内
+      expect(end - start).toBeLessThan(1000); // 100 次檢查應該在 1 秒內
     });
 
     it('应该处理并发请求', async () => {
@@ -724,7 +724,7 @@ describe('Rate Limiting Utils', () => {
 
       const results = await Promise.all(promises);
 
-      // 所有请求都应该被允许
+      // 所有請求都應該被允許
       results.forEach(result => {
         expect(result.allowed).toBe(true);
       });
@@ -779,7 +779,7 @@ describe('Rate Limiting Utils', () => {
       const result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(false);
 
-      // 等待窗口过期
+      // 等待視窗過期
       await new Promise(resolve => setTimeout(resolve, 1100));
 
       const result2 = await checkRateLimit(key, env, config);
@@ -802,34 +802,34 @@ describe('Rate Limiting Utils', () => {
       const key = 'integration-test';
       const config = { maxAttempts: 3, windowSeconds: 2 };
 
-      // 场景 1: 正常请求
+      // 場景 1: 正常請求
       let result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(2);
 
-      // 场景 2: 继续请求
+      // 場景 2: 繼續請求
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(1);
 
-      // 场景 3: 达到限制
+      // 場景 3: 達到限制
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(0);
 
-      // 场景 4: 被拒绝
+      // 場景 4: 被拒絕
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(false);
       expect(result.remaining).toBe(0);
 
-      // 场景 5: 获取信息不应增加计数
+      // 場景 5: 獲取資訊不應增加計數
       const info = await getRateLimitInfo(key, env, 3);
       expect(info.count).toBe(3);
 
-      // 场景 6: 重置
+      // 場景 6: 重置
       await resetRateLimit(key, env);
 
-      // 场景 7: 重置后可以再次请求
+      // 場景 7: 重置後可以再次請求
       result = await checkRateLimit(key, env, config);
       expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(2);
@@ -839,7 +839,7 @@ describe('Rate Limiting Utils', () => {
       const env = createMockEnv();
       const config = { maxAttempts: 5, windowSeconds: 60 };
 
-      // 10 个不同客户端同时请求
+      // 10 個不同客戶端同時請求
       const promises = [];
       for (let i = 0; i < 10; i++) {
         promises.push(checkRateLimit(`client-${i}`, env, config));
@@ -847,7 +847,7 @@ describe('Rate Limiting Utils', () => {
 
       const results = await Promise.all(promises);
 
-      // 每个客户端都应该独立计数
+      // 每個客戶端都應該獨立計數
       results.forEach(result => {
         expect(result.allowed).toBe(true);
         expect(result.remaining).toBe(4);

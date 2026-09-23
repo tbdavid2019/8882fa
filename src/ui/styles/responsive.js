@@ -1,18 +1,18 @@
 ﻿/**
- * 响应式样式模块
- * CSS 变量会自动处理颜色主题切换,此文件仅包含响应式布局调整
+ * 響應式樣式模組
+ * CSS 變數會自動處理顏色主題切換,此檔案僅包含響應式佈局調整
  */
 export function getResponsiveStyles() {
 	return `
-      /* ========== 全局 Select 和 Option 样式修复 ========== */
-      /* 修复 iOS/Safari/iPad 下拉列表显示问题 */
+      /* ========== 全域性 Select 和 Option 樣式修復 ========== */
+      /* 修復 iOS/Safari/iPad 下拉式清單顯示問題 */
       select.backup-select {
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
       }
 
-      /* 强制所有 option 元素不换行 */
+      /* 強制所有 option 元素不換行 */
       select.backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -21,7 +21,7 @@ export function getResponsiveStyles() {
         display: block;
       }
 
-      /* 还原配置样式 */
+      /* 還原配置樣式 */
       .restore-instructions {
         padding: 20px;
         margin-bottom: 25px;
@@ -135,7 +135,7 @@ export function getResponsiveStyles() {
         display: block;
       }
 
-      /* Safari/iPad 特殊处理 */
+      /* Safari/iPad 特殊處理 */
       @supports (-webkit-touch-callout: none) {
         .backup-select {
           -webkit-appearance: none;
@@ -154,7 +154,7 @@ export function getResponsiveStyles() {
         box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -384,7 +384,7 @@ export function getResponsiveStyles() {
         font-size: 13px;
       }
       
-      /* 实用工具移动端优化 */
+      /* 實用工具移動端最佳化 */
       .tools-list {
         margin-top: 15px;
       }
@@ -472,7 +472,7 @@ export function getResponsiveStyles() {
       
       .otp-main {
         gap: 12px;
-        /* Chrome兼容性修复 */
+        /* Chrome相容性修復 */
         display: -webkit-flex;
         -webkit-align-items: center;
         -webkit-justify-content: space-between;
@@ -481,7 +481,7 @@ export function getResponsiveStyles() {
       .otp-next-container {
         min-width: 70px;
         padding: 6px 8px;
-        /* Chrome兼容性修复 */
+        /* Chrome相容性修復 */
         display: -webkit-flex;
         -webkit-flex-direction: column;
         -webkit-justify-content: center;
@@ -513,7 +513,7 @@ export function getResponsiveStyles() {
       
       .modal-content {
         padding: 20px;
-        /* 小屏幕移动端模态框滚动条样式 */
+        /* 小螢幕移動端模態框捲軸樣式 */
         scrollbar-width: thin;
         scrollbar-color: var(--scrollbar-thumb) transparent;
       }
@@ -556,9 +556,9 @@ export function getResponsiveStyles() {
       }
     }
     
-    /* 大屏幕手机和小平板适配 */
+    /* 大螢幕手機和小平板適配 */
     @media (min-width: 481px) and (max-width: 767px) {
-      /* 容器宽度适配 */
+      /* 容器寬度適配 */
       .container {
         max-width: 600px;
       }
@@ -594,11 +594,11 @@ export function getResponsiveStyles() {
       }
     }
 
-    /* 平板和中等桌面屏幕适配 */
+    /* 平板和中等桌面螢幕適配 */
     @media (min-width: 768px) and (max-width: 1199px) {
-      /* iPad 和平板优化 */
+      /* iPad 和平板最佳化 */
 
-      /* 还原配置模态框优化 */
+      /* 還原配置模態框最佳化 */
       #restoreModal .modal-content {
         padding: 20px;
         max-width: 88vw;
@@ -630,7 +630,7 @@ export function getResponsiveStyles() {
         display: block;
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -647,12 +647,12 @@ export function getResponsiveStyles() {
         max-width: 100%;
       }
 
-      /* 容器宽度适配 */
+      /* 容器寬度適配 */
       .container {
         max-width: 750px;
       }
 
-      /* iPad 和平板动态多列卡片布局 */
+      /* iPad 和平板動態多列卡片佈局 */
       .secrets-list,
       .service-group-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -665,7 +665,7 @@ export function getResponsiveStyles() {
         text-align: center;
       }
 
-      /* 确保备份表格在中等屏幕端正确显示 */
+      /* 確保備份表格在中等螢幕端正確顯示 */
       .backup-table {
         width: 100%;
         border-collapse: collapse;
@@ -755,7 +755,7 @@ export function getResponsiveStyles() {
         min-width: 140px;
       }
 
-      /* 中等屏幕备份操作按钮样式 */
+      /* 中等螢幕備份操作按鈕樣式 */
       .backup-actions {
         display: flex;
         justify-content: space-between;
@@ -764,7 +764,7 @@ export function getResponsiveStyles() {
         gap: 12px;
       }
 
-      /* 中等屏幕下拉框优化 */
+      /* 中等螢幕下拉框最佳化 */
       .backup-select {
         width: 100%;
         min-width: 100%;
@@ -784,7 +784,7 @@ export function getResponsiveStyles() {
         appearance: none;
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -799,9 +799,9 @@ export function getResponsiveStyles() {
     
 
     
-    /* 大屏幕桌面端适配 */
+    /* 大螢幕桌面端適配 */
     @media (min-width: 1200px) {
-      /* 还原配置模态框优化 */
+      /* 還原配置模態框最佳化 */
       #restoreModal .modal-content {
         max-width: 700px;
       }
@@ -882,7 +882,7 @@ export function getResponsiveStyles() {
         border-radius: 0;
       }
 
-      /* 确保备份表格在大屏幕端正确显示 */
+      /* 確保備份表格在大螢幕端正確顯示 */
       .backup-table {
         width: 100%;
         border-collapse: collapse;
@@ -972,7 +972,7 @@ export function getResponsiveStyles() {
         min-width: 140px;
       }
 
-      /* 大屏幕备份操作按钮样式 */
+      /* 大螢幕備份操作按鈕樣式 */
       .backup-actions {
         display: flex;
         justify-content: space-between;
@@ -981,7 +981,7 @@ export function getResponsiveStyles() {
         gap: 15px;
       }
 
-      /* 大屏幕下拉框优化 */
+      /* 大螢幕下拉框最佳化 */
       .backup-select {
         width: 100%;
         min-width: 100%;
@@ -1002,7 +1002,7 @@ export function getResponsiveStyles() {
         appearance: none;
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -1015,7 +1015,7 @@ export function getResponsiveStyles() {
       }
     }
 
-    /* 中间提示组件样式 */
+    /* 中間提示元件樣式 */
     .center-toast {
       position: fixed;
       top: 50%;
@@ -1063,7 +1063,7 @@ export function getResponsiveStyles() {
       line-height: 1.5;
     }
 
-    /* 响应式设计 */
+    /* 響應式設計 */
     @media (max-width: 480px) {
       .toast-content {
         padding: 14px 20px;
@@ -1091,9 +1091,9 @@ export function getResponsiveStyles() {
     }
 
     @media (min-width: 768px) and (max-width: 1024px) {
-      /* iPad 专用样式优化 */
+      /* iPad 專用樣式最佳化 */
 
-      /* 还原配置模态框优化 */
+      /* 還原配置模態框最佳化 */
       #restoreModal .modal-content {
         padding: 20px;
         max-width: 92vw;
@@ -1136,7 +1136,7 @@ export function getResponsiveStyles() {
         appearance: none;
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap;
         overflow: hidden;
@@ -1153,7 +1153,7 @@ export function getResponsiveStyles() {
         max-width: 100%;
       }
 
-      /* Toast 样式 */
+      /* Toast 樣式 */
       .toast-content {
         padding: 18px 28px;
         font-size: 17px;
@@ -1179,7 +1179,7 @@ export function getResponsiveStyles() {
       }
     }
 
-    /* ========== 扫描二维码页面样式 ========== */
+    /* ========== 掃描二維碼頁面樣式 ========== */
     .scanner-section {
       padding: 20px 0;
     }
@@ -1208,7 +1208,7 @@ export function getResponsiveStyles() {
       margin-bottom: 0;
     }
 
-    /* ========== 扫描器底部操作区（紧凑布局）========== */
+    /* ========== 掃描器底部操作區（緊湊佈局）========== */
     .scanner-bottom-actions {
       display: flex;
       align-items: center;
@@ -1246,7 +1246,7 @@ export function getResponsiveStyles() {
       width: auto !important;
     }
 
-    /* P1.6 手机端 btn-compact 至少 44px 高，保证触控 */
+    /* P1.6 手機端 btn-compact 至少 44px 高，保證觸控 */
     @media (max-width: 768px) {
       .btn-compact {
         min-height: 44px !important;
@@ -1261,7 +1261,7 @@ export function getResponsiveStyles() {
       line-height: 1.4;
     }
 
-    /* 旧样式保留兼容 */
+    /* 舊樣式保留相容 */
     .continuous-scan-toggle {
       margin: 16px 0;
       padding: 12px 16px;
@@ -1300,7 +1300,7 @@ export function getResponsiveStyles() {
       margin-left: 28px;
     }
 
-    /* 扫描计数器 */
+    /* 掃描計數器 */
     .scan-counter {
       text-align: center;
       padding: 10px 16px;
@@ -1433,7 +1433,7 @@ export function getResponsiveStyles() {
       font-size: 13px;
       line-height: 1.4;
       font-weight: 500;
-      white-space: pre-line; /* 支持换行符显示 */
+      white-space: pre-line; /* 支援換行符顯示 */
     }
 
     .scanner-error::before {
@@ -1467,7 +1467,7 @@ export function getResponsiveStyles() {
       box-shadow: var(--shadow-md);
     }
 
-    /* 响应式设计 */
+    /* 響應式設計 */
     @media (max-width: 600px) {
       .scanner-section {
         padding: 20px 0;

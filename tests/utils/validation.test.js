@@ -1,6 +1,6 @@
 /**
- * 数据验证功能测试
- * 测试 Base32 验证、OTP 参数验证、密钥数据验证
+ * 資料驗證功能測試
+ * 測試 Base32 驗證、OTP 引數驗證、金鑰資料驗證
  */
 
 import { describe, it, expect } from 'vitest';
@@ -45,7 +45,7 @@ describe('Validation Utils', () => {
         'INVALID1',        // 包含 1
         'INVALID8',        // 包含 8
         'INVALID9',        // 包含 9
-        'invalid@#$',      // 特殊字符
+        'invalid@#$',      // 特殊字元
       ];
 
       invalidSecrets.forEach(secret => {
@@ -54,28 +54,28 @@ describe('Validation Utils', () => {
     });
 
     it('应该拒绝过短的密钥', () => {
-      const result = validateBase32('JBSWY3D'); // 7 字符
+      const result = validateBase32('JBSWY3D'); // 7 字元
       expect(result.valid).toBe(false);
       expect(result.error).toContain('过短');
     });
 
     it('应该对弱密钥发出警告', () => {
-      const result = validateBase32('JBSWY3DP'); // 8 字符，80位以下
+      const result = validateBase32('JBSWY3DP'); // 8 字元，80位以下
       expect(result.valid).toBe(true);
       expect(result.warning).toBeDefined();
       expect(result.warning).toContain('弱');
     });
 
     it('应该对中等强度密钥发出建议', () => {
-      // 需要 80-127 位，使用 17 字符 = (17*5/8) = 10.625 字节 = 10 字节 = 80 位
-      const result = validateBase32('JBSWY3DPEHPK3PXPA'); // 17 字符 = 80 位
+      // 需要 80-127 位，使用 17 字元 = (17*5/8) = 10.625 位元組 = 10 位元組 = 80 位
+      const result = validateBase32('JBSWY3DPEHPK3PXPA'); // 17 字元 = 80 位
       expect(result.valid).toBe(true);
       expect(result.warning).toBeDefined();
       expect(result.warning).toContain('一般');
     });
 
     it('应该接受强密钥且无警告', () => {
-      // 21+ 字符 = 128+ 位
+      // 21+ 字元 = 128+ 位
       const result = validateBase32('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
       expect(result.valid).toBe(true);
       expect(result.warning).toBeUndefined();
@@ -88,16 +88,16 @@ describe('Validation Utils', () => {
 
     it('应该自动转换为大写并去除空格', () => {
       const result = validateBase32('jbswy3dp ehpk 3pxp');
-      // 验证会清理输入，转换为大写并去除空格
+      // 驗證會清理輸入，轉換為大寫並去除空格
       expect(result.valid).toBe(true);
     });
 
     it('应该正确计算密钥位长度', () => {
-      // Base32: 每 8 个字符编码 5 个字节 (40 位)
+      // Base32: 每 8 個字元編碼 5 個位元組 (40 位)
       const secrets = [
-        { secret: 'JBSWY3DP', expectedBits: 40 },           // 8 字符 = 5 字节 = 40 位
-        { secret: 'JBSWY3DPEHPK3PXP', expectedBits: 80 },   // 16 字符 = 10 字节 = 80 位
-        { secret: 'JBSWY3DPEHPK3PXPJBSWY3DP', expectedBits: 120 } // 24 字符 = 15 字节 = 120 位
+        { secret: 'JBSWY3DP', expectedBits: 40 },           // 8 字元 = 5 位元組 = 40 位
+        { secret: 'JBSWY3DPEHPK3PXP', expectedBits: 80 },   // 16 字元 = 10 位元組 = 80 位
+        { secret: 'JBSWY3DPEHPK3PXPJBSWY3DP', expectedBits: 120 } // 24 字元 = 15 位元組 = 120 位
       ];
 
       secrets.forEach(({ secret }) => {
@@ -142,7 +142,7 @@ describe('Validation Utils', () => {
 
     it('应该拒绝过长的服务名称', () => {
       const invalidData = {
-        name: 'A'.repeat(51), // 51 字符
+        name: 'A'.repeat(51), // 51 字元
         secret: 'JBSWY3DPEHPK3PXP'
       };
 
@@ -153,7 +153,7 @@ describe('Validation Utils', () => {
 
     it('应该接受 50 字符的服务名称', () => {
       const validData = {
-        name: 'A'.repeat(50), // 正好 50 字符
+        name: 'A'.repeat(50), // 正好 50 字元
         secret: 'JBSWY3DPEHPK3PXP'
       };
 
@@ -175,7 +175,7 @@ describe('Validation Utils', () => {
     it('应该拒绝无效的 Base32 密钥', () => {
       const invalidData = {
         name: 'GitHub',
-        secret: 'INVALID01289' // 包含无效字符
+        secret: 'INVALID01289' // 包含無效字元
       };
 
       const result = validateSecretData(invalidData);
@@ -186,7 +186,7 @@ describe('Validation Utils', () => {
     it('应该传递 Base32 验证的警告', () => {
       const dataWithWeakKey = {
         name: 'GitHub',
-        secret: 'JBSWY3DP' // 弱密钥
+        secret: 'JBSWY3DP' // 弱金鑰
       };
 
       const result = validateSecretData(dataWithWeakKey);
@@ -343,7 +343,7 @@ describe('Validation Utils', () => {
       const result = validateOTPParams({
         type: 'TOTP',
         period: 30,
-        counter: 999 // 应该被忽略
+        counter: 999 // 應該被忽略
       });
       expect(result.valid).toBe(true);
     });
@@ -557,7 +557,7 @@ describe('Validation Utils', () => {
 
       const sorted = sortSecretsByName([...original]);
 
-      // 原数组不应该改变（我们传入的是副本）
+      // 原陣列不應該改變（我們傳入的是副本）
       expect(sorted).not.toBe(original);
     });
 
@@ -577,7 +577,7 @@ describe('Validation Utils', () => {
   });
 
   describe('checkDuplicateSecret', () => {
-    // 新的函数签名需要 secret 参数: checkDuplicateSecret(secrets, name, account, secret, excludeIndex)
+    // 新的函式簽名需要 secret 引數: checkDuplicateSecret(secrets, name, account, secret, excludeIndex)
     const secrets = [
       { name: 'GitHub', account: 'user@example.com', secret: 'JBSWY3DPEHPK3PXP' },
       { name: 'Google', account: 'user@gmail.com', secret: 'MFRGGZDFMZTWQ2LK' },
@@ -601,15 +601,15 @@ describe('Validation Utils', () => {
     });
 
     it('应该在更新时排除自己', () => {
-      // 更新第 0 个元素（GitHub, user@example.com）
+      // 更新第 0 個元素（GitHub, user@example.com）
       const isDuplicate = checkDuplicateSecret(secrets, 'GitHub', 'user@example.com', 'JBSWY3DPEHPK3PXP', 0);
-      expect(isDuplicate).toBe(false); // 排除自己后不重复
+      expect(isDuplicate).toBe(false); // 排除自己後不重複
     });
 
     it('应该在更新时检测其他重复项', () => {
-      // 更新第 1 个元素，改为已存在的 GitHub + user@example.com + secret
+      // 更新第 1 個元素，改為已存在的 GitHub + user@example.com + secret
       const isDuplicate = checkDuplicateSecret(secrets, 'GitHub', 'user@example.com', 'JBSWY3DPEHPK3PXP', 1);
-      expect(isDuplicate).toBe(true); // 与第 0 个元素重复
+      expect(isDuplicate).toBe(true); // 與第 0 個元素重複
     });
 
     it('应该处理空账户', () => {
@@ -624,10 +624,10 @@ describe('Validation Utils', () => {
 
     it('应该区分大小写', () => {
       const isDuplicate1 = checkDuplicateSecret(secrets, 'github', 'user@example.com', 'JBSWY3DPEHPK3PXP');
-      expect(isDuplicate1).toBe(false); // 名称区分大小写
+      expect(isDuplicate1).toBe(false); // 名稱區分大小寫
 
       const isDuplicate2 = checkDuplicateSecret(secrets, 'GitHub', 'USER@EXAMPLE.COM', 'JBSWY3DPEHPK3PXP');
-      expect(isDuplicate2).toBe(false); // 账户区分大小写
+      expect(isDuplicate2).toBe(false); // 賬戶區分大小寫
     });
 
     it('应该处理负数的 excludeIndex', () => {
@@ -649,7 +649,7 @@ describe('Validation Utils', () => {
       }
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(100); // 1000 次验证应该在 100ms 内
+      expect(end - start).toBeLessThan(100); // 1000 次驗證應該在 100ms 內
     });
 
     it('validateOTPParams 应该快速执行', () => {
@@ -659,7 +659,7 @@ describe('Validation Utils', () => {
       }
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(50); // 1000 次验证应该在 50ms 内
+      expect(end - start).toBeLessThan(50); // 1000 次驗證應該在 50ms 內
     });
 
     it('sortSecretsByName 应该处理大型数组', () => {
@@ -673,7 +673,7 @@ describe('Validation Utils', () => {
       const end = performance.now();
 
       expect(sorted.length).toBe(1000);
-      expect(end - start).toBeLessThan(100); // 1000 条排序应该在 100ms 内
+      expect(end - start).toBeLessThan(100); // 1000 條排序應該在 100ms 內
     });
 
     it('checkDuplicateSecret 应该处理大型数组', () => {
@@ -688,7 +688,7 @@ describe('Validation Utils', () => {
       const end = performance.now();
 
       expect(isDuplicate).toBe(true);
-      expect(end - start).toBeLessThan(10); // 检查应该在 10ms 内
+      expect(end - start).toBeLessThan(10); // 檢查應該在 10ms 內
     });
 
     it('应该处理极长的服务名称（边界测试）', () => {
@@ -703,17 +703,17 @@ describe('Validation Utils', () => {
     });
 
     it('应该处理极长的 Base32 密钥', () => {
-      const longSecret = 'JBSWY3DP'.repeat(100); // 800 字符
+      const longSecret = 'JBSWY3DP'.repeat(100); // 800 字元
       const result = validateBase32(longSecret);
 
       expect(result.valid).toBe(true);
-      expect(result.warning).toBeUndefined(); // 非常强的密钥
+      expect(result.warning).toBeUndefined(); // 非常強的金鑰
     });
   });
 
   describe('集成测试', () => {
     it('完整的密钥创建流程', () => {
-      // 1. 验证输入数据
+      // 1. 驗證輸入資料
       const inputData = {
         name: 'GitHub Enterprise',
         service: 'admin@company.com',
@@ -724,15 +724,15 @@ describe('Validation Utils', () => {
         algorithm: 'SHA256'
       };
 
-      // 2. 验证密钥数据
+      // 2. 驗證金鑰資料
       const validation = validateSecretData(inputData);
       expect(validation.valid).toBe(true);
 
-      // 3. 验证 OTP 参数
+      // 3. 驗證 OTP 引數
       const paramsValidation = validateOTPParams(inputData);
       expect(paramsValidation.valid).toBe(true);
 
-      // 4. 创建密钥对象
+      // 4. 建立金鑰物件
       const secretObj = createSecretObject(inputData);
       expect(secretObj.id).toBeDefined();
       expect(secretObj.name).toBe('GitHub Enterprise');
@@ -741,7 +741,7 @@ describe('Validation Utils', () => {
     });
 
     it('完整的密钥管理流程', () => {
-      // 1. 创建多个密钥
+      // 1. 建立多個金鑰
       const secrets = [
         createSecretObject({ name: 'GitHub', secret: 'JBSWY3DPEHPK3PXP' }),
         createSecretObject({ name: 'Google', secret: 'MFRGGZDFMZTWQ2LK' }),
@@ -754,11 +754,11 @@ describe('Validation Utils', () => {
       expect(sorted[1].name).toBe('GitHub');
       expect(sorted[2].name).toBe('Google');
 
-      // 3. 检查重复（需要提供完整的 name, account, secret）
+      // 3. 檢查重複（需要提供完整的 name, account, secret）
       const isDuplicate = checkDuplicateSecret(sorted, 'GitHub', '', 'JBSWY3DPEHPK3PXP');
       expect(isDuplicate).toBe(true);
 
-      // 4. 添加新密钥（不重复）
+      // 4. 新增新金鑰（不重複）
       const newSecret = createSecretObject({
         name: 'Microsoft',
         secret: 'JBSWY3DPEHPK3PXP'

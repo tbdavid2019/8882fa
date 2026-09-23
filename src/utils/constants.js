@@ -1,6 +1,6 @@
 /**
  * Centralized constants for KV keys and configuration
- * 集中管理 KV 键名和配置常量
+ * 集中管理 KV 鍵名和配置常量
  */
 
 // =============================================================================
@@ -42,8 +42,8 @@ export const LIMITS = {
 	MAX_ACCOUNT_LENGTH: 100, // Maximum length for account name
 	MAX_ISSUER_LENGTH: 100, // Maximum length for issuer
 
-	// 批量导入分片：前端切片、后端单请求上限、"中间片才跳过备份"三处共用同一个值。
-	// 修改时需同步前端 import/core.js 与 googleMigration.js 的注入，以及 validation/batch 的校验。
+	// 批次匯入分片：前端切片、後端單請求上限、"中間片才跳過備份"三處共用同一個值。
+	// 修改時需同步前端 import/core.js 與 googleMigration.js 的注入，以及 validation/batch 的校驗。
 	BULK_IMPORT_CHUNK_SIZE: 100,
 
 	// OTP configuration

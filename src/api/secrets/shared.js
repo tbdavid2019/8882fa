@@ -41,12 +41,12 @@ export async function saveSecretsToKV(env, secrets, reason = 'update', options =
 		}
 
 		if (skipBackup === true) {
-			// 事件驱动备份被跳过（分片导入的中间片）：仍然 stage 当前数据哈希，
-			// 这样即使后续分片丢失或客户端伪造元数据，定时 cron 也能通过哈希比对兜底
+			// 事件驅動備份被跳過（分片匯入的中間片）：仍然 stage 當前資料雜湊，
+			// 這樣即使後續分片丟失或客戶端偽造後設資料，定時 cron 也能通過雜湊比對兜底
 			const stagedHash = await stageDataHash(env, secrets);
 			if (stagedHash === null) {
-				// pending hash 未写入：失去 cron 跳过冗余备份的兜底信号，且若末片永远不到，
-				// 中间片数据可能得不到即时备份。回退为触发一次即时备份，确保本片已落盘备份。
+				// pending hash 未寫入：失去 cron 跳過冗餘備份的兜底訊號，且若末片永遠不到，
+				// 中間片資料可能得不到即時備份。回退為觸發一次即時備份，確保本片已落盤備份。
 				logger.warn('stage pending data hash 失败，回退触发即时备份以兜底中间片', { reason });
 				try {
 					await triggerBackup(secrets, env, {

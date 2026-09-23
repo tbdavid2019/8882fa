@@ -1,14 +1,14 @@
 /**
- * UI 交互模块
- * 包含 Toast 提示、主题切换、模态框管理、滚动控制等 UI 交互功能
+ * UI 互動模組
+ * 包含 Toast 提示、主題切換、模態框管理、滾動控制等 UI 互動功能
  */
 
 /**
- * 获取 UI 交互相关代码
- * @returns {string} UI JavaScript 代码
+ * 獲取 UI 互動相關程式碼
+ * @returns {string} UI JavaScript 程式碼
  */
 export function getUICode() {
-	return `    // ========== UI 交互模块 ==========
+	return `    // ========== UI 互動模組 ==========
 
     // Browsers can retain :focus-visible when a keyboard-focused button is
     // clicked again. Track input changes without blurring the current control.
@@ -21,16 +21,16 @@ export function getUICode() {
       }
     }, true);
 
-    // Toast 提示相关变量
+    // Toast 提示相關變數
     let toastTimeout = null;
     let isToastVisible = false;
     let lastToastTime = 0;
 
-    // 显示中间提示
+    // 顯示中間提示
     function showCenterToast(icon, message) {
       const now = Date.now();
 
-      // 防止过于频繁的toast调用（至少间隔100ms）
+      // 防止過於頻繁的toast呼叫（至少間隔100ms）
       if (now - lastToastTime < 100) {
         return;
       }
@@ -39,26 +39,26 @@ export function getUICode() {
       const iconElement = toast.querySelector('.toast-icon');
       const messageElement = toast.querySelector('.toast-message');
 
-      // 如果当前有toast正在显示，先清除之前的定时器
+      // 如果當前有toast正在顯示，先清除之前的定時器
       if (toastTimeout) {
         clearTimeout(toastTimeout);
         toastTimeout = null;
       }
 
-      // 更新内容
+      // 更新內容
       const feedbackIcon = icon === '✅' ? 'check' : icon === '❌' ? 'error' : icon === '⚠️' ? 'warning' : 'info';
       iconElement.innerHTML = dialogIcon(feedbackIcon);
       messageElement.textContent = message;
 
-      // 如果toast已经显示，先隐藏再显示，确保动画效果
+      // 如果toast已經顯示，先隱藏再顯示，確保動畫效果
       if (isToastVisible) {
         toast.classList.remove('show');
-        // 等待隐藏动画完成后再显示新的toast
+        // 等待隱藏動畫完成後再顯示新的toast
         setTimeout(() => {
           toast.classList.add('show');
           isToastVisible = true;
 
-          // 设置新的定时器
+          // 設定新的定時器
           toastTimeout = setTimeout(() => {
             toast.classList.remove('show');
             isToastVisible = false;
@@ -66,11 +66,11 @@ export function getUICode() {
           }, 2000);
         }, 125); // 等待隐藏动画的一半时间 (0.25s / 2)
       } else {
-        // 直接显示toast
+        // 直接顯示toast
         toast.classList.add('show');
         isToastVisible = true;
 
-        // 设置定时器
+        // 設定定時器
         toastTimeout = setTimeout(() => {
           toast.classList.remove('show');
           isToastVisible = false;
@@ -82,7 +82,7 @@ export function getUICode() {
     // Keep a single active change so an older cleanup cannot interrupt a newer fade.
     let themeChange = null;
 
-    // 应用主题（支持过渡动画）
+    // 應用主題（支援過渡動畫）
     function applyTheme(theme, withTransition = false) {
       const root = document.documentElement;
       const nextTheme = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -175,7 +175,7 @@ export function getUICode() {
     }
 
     function initTheme() {
-      // 主题已在 head 内联脚本中应用，这里仅监听系统主题变化
+      // 主題已在 head 內聯指令碼中應用，這裡僅監聽系統主題變化
       updateQuickThemeToggle(document.documentElement.getAttribute('data-theme'));
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         const currentTheme = localStorage.getItem('theme') || 'auto';
@@ -185,7 +185,7 @@ export function getUICode() {
       });
     }
 
-    // 模态框管理
+    // 模態框管理
     function hideQRModal() {
       const modal = document.getElementById('qrModal');
       if (!modal || !modal.classList.contains('show')) return;
@@ -204,7 +204,7 @@ export function getUICode() {
       });
     }
 
-    // 隐藏添加/编辑密钥模态框
+    // 隱藏新增/編輯金鑰模態框
     function hideSecretModal() {
       const modal = document.getElementById('secretModal');
       if (!modal || !modal.classList.contains('show')) return;
@@ -213,7 +213,7 @@ export function getUICode() {
       enableBodyScroll();
     }
 
-    // 实用工具相关函数
+    // 實用工具相關函式
     function showToolsModal() {
       showModal('toolsModal');
     }
@@ -222,10 +222,10 @@ export function getUICode() {
       hideModal('toolsModal');
     }
 
-    // 设置模态框相关函数
+    // 設定模態框相關函式
     function showSettingsModal() {
       showModal('settingsModal', () => {
-        // 重置到第一个标签页
+        // 重置到第一個標籤頁
         switchSettingsTab('security');
       });
     }
@@ -234,9 +234,9 @@ export function getUICode() {
       hideModal('settingsModal');
     }
 
-    // 折叠式菜单控制函数
+    // 摺疊式選單控制函式
     function toggleActionMenu() {
-      // 刚刚结束拖拽时忽略本次点击，避免拖完立刻弹菜单
+      // 剛剛結束拖拽時忽略本次點選，避免拖完立刻彈選單
       if (fabDragJustHappened) return;
       const mainBtn = document.getElementById('mainActionBtn');
       const submenu = document.getElementById('actionSubmenu');
@@ -261,10 +261,10 @@ export function getUICode() {
       submenu.classList.add('show');
       overlay.classList.add('show');
 
-      // 根据 FAB 当前位置调整子菜单展开方向，避免溢出视口
+      // 根據 FAB 當前位置調整子選單展開方向，避免溢位視口
       updateSubmenuDirection();
 
-      // 防止点击事件冒泡
+      // 防止點選事件冒泡
       if (typeof event !== 'undefined' && event && typeof event.stopPropagation === 'function') {
         event.stopPropagation();
       }
@@ -281,7 +281,7 @@ export function getUICode() {
       overlay.classList.remove('show');
     }
 
-    // 高级选项切换函数
+    // 進階選項切換函式
     function toggleAdvancedOptions() {
       const checkbox = document.getElementById('showAdvanced');
       const options = document.getElementById('advancedOptions');
@@ -294,7 +294,7 @@ export function getUICode() {
       }
     }
 
-    // 根据OTP类型更新高级选项UI
+    // 根據OTP型別更新進階選項UI
     function updateAdvancedOptionsForType() {
       const typeSelect = document.getElementById('secretType');
       const digitsGroup = document.getElementById('digitsGroup');
@@ -310,7 +310,7 @@ export function getUICode() {
 
       switch (selectedType) {
         case 'HOTP':
-          // HOTP: 显示位数、算法、计数器，隐藏周期
+          // HOTP: 顯示位數、演算法、計數器，隱藏週期
           digitsGroup.style.display = 'block';
           periodGroup.style.display = 'none';
           algorithmGroup.style.display = 'block';
@@ -320,7 +320,7 @@ export function getUICode() {
 
         case 'TOTP':
         default:
-          // TOTP: 显示位数、周期、算法，隐藏计数器
+          // TOTP: 顯示位數、週期、演算法，隱藏計數器
           digitsGroup.style.display = 'block';
           periodGroup.style.display = 'block';
           algorithmGroup.style.display = 'block';
@@ -330,14 +330,14 @@ export function getUICode() {
       }
     }
 
-    // ESC键关闭菜单
+    // ESC鍵關閉選單
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
         closeActionMenu();
       }
     });
 
-    // ========== FAB 拖拽：右下角"+"按钮可拖动并记住位置 ==========
+    // ========== FAB 拖拽：右下角"+"按鈕可拖動並記住位置 ==========
     const FAB_POSITION_STORAGE_KEY = '2fa-fab-position';
     let fabDragJustHappened = false;
 
@@ -408,7 +408,7 @@ export function getUICode() {
       return c;
     }
 
-    // 根据 FAB 位置自适应子菜单展开方向（上/下、左/右）
+    // 根據 FAB 位置自適應子選單展開方向（上/下、左/右）
     function updateSubmenuDirection() {
       const fab = document.querySelector('.action-menu-float');
       const submenu = document.getElementById('actionSubmenu');
@@ -418,7 +418,7 @@ export function getUICode() {
       const submenuH = submenu.offsetHeight || 350;
       const gap = 12;
 
-      // 垂直方向：上方空间足够时向上展开（保持默认行为），否则向下
+      // 垂直方向：上方空間足夠時向上展開（保持預設行為），否則向下
       if (fabRect.top >= submenuH + gap) {
         submenu.style.top = 'auto';
         submenu.style.bottom = (fabRect.height + gap) + 'px';
@@ -427,7 +427,7 @@ export function getUICode() {
         submenu.style.top = (fabRect.height + gap) + 'px';
       }
 
-      // 水平方向：默认右对齐；FAB 偏左导致溢出时改为左对齐
+      // 水平方向：預設右對齊；FAB 偏左導致溢位時改為左對齊
       if (fabRect.right >= submenuW + 4) {
         submenu.style.right = '0';
         submenu.style.left = 'auto';
@@ -442,13 +442,13 @@ export function getUICode() {
       const btn = document.getElementById('mainActionBtn');
       if (!fab || !btn) return;
 
-      // 移除预注入的 FOUC 防闪 style（用了 !important，会胜过下方的 inline style）
+      // 移除預注入的 FOUC 防閃 style（用了 !important，會勝過下方的 inline style）
       const initStyle = document.getElementById('fab-init-position');
       if (initStyle && initStyle.parentNode) {
         initStyle.parentNode.removeChild(initStyle);
       }
 
-      // 还原上次保存的位置
+      // 還原上次儲存的位置
       const saved = loadFABPosition();
       if (saved) {
         const restored = applyFABPosition(saved.x, saved.y);
@@ -493,7 +493,7 @@ export function getUICode() {
         if (!moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
         if (!moved) {
           moved = true;
-          // 一旦判定为拖动，关闭已展开的菜单
+          // 一旦判定為拖動，關閉已展開的選單
           const submenu = document.getElementById('actionSubmenu');
           if (submenu && submenu.classList.contains('show')) {
             closeActionMenu();
@@ -510,13 +510,13 @@ export function getUICode() {
         if (moved) {
           const rect = fab.getBoundingClientRect();
           saveFABPosition(rect.left, rect.top);
-          // 触摸结束时阻止浏览器合成 click，避免拖完立刻弹菜单
+          // 觸控結束時阻止瀏覽器合成 click，避免拖完立刻彈選單
           if (e && e.cancelable && e.type && e.type.indexOf('touch') === 0) {
             e.preventDefault();
           }
-          // 对鼠标场景：通过下方 capture-phase click 守卫拦截即将到来的 click
+          // 對滑鼠場景：通過下方 capture-phase click 守衛攔截即將到來的 click
           fabDragJustHappened = true;
-          // 500ms 兜底超时，避免标志位被卡住
+          // 500ms 兜底超時，避免標誌位被卡住
           if (dragClickSuppressTimer) clearTimeout(dragClickSuppressTimer);
           dragClickSuppressTimer = setTimeout(function() {
             fabDragJustHappened = false;
@@ -534,7 +534,7 @@ export function getUICode() {
       document.addEventListener('touchend', onUp);
       document.addEventListener('touchcancel', onUp);
 
-      // capture-phase 拦截拖拽结束后第一个 click，保证不会误触菜单
+      // capture-phase 攔截拖拽結束後第一個 click，保證不會誤觸選單
       document.addEventListener('click', function(e) {
         if (!fabDragJustHappened || !fab.contains(e.target)) {
           return;
@@ -548,8 +548,8 @@ export function getUICode() {
         e.preventDefault();
       }, true);
 
-      // 窗口尺寸变化时重新约束位置，并把约束后的坐标写回 storage，
-      // 保证下次进入显示的位置与上次可见状态一致
+      // 視窗尺寸變化時重新約束位置，並把約束後的座標寫回 storage，
+      // 保證下次進入顯示的位置與上次可見狀態一致
       window.addEventListener('resize', function() {
         if (fab.style.left || fab.style.top) {
           const rect = fab.getBoundingClientRect();

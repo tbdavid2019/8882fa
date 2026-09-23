@@ -1,24 +1,24 @@
 /**
- * UI页面生成模块 - 完整版本
- * 包含所有原版功能：搜索、导入导出、二维码、编辑删除等
- * 支持代码分割和懒加载优化
+ * UI頁面生成模組 - 完整版本
+ * 包含所有原版功能：搜尋、匯入匯出、二維碼、編輯刪除等
+ * 支援程式碼分割和懶載入最佳化
  */
 
 import { getStyles } from './styles/index.js';
 import { getScripts, getCoreScripts } from './scripts/index.js';
 import { dialogIcon } from './dialogIcons.js';
-import { APP_VERSION } from '../utils/version.js';
+import { APP_VERSION, formatVersionForDisplay } from '../utils/version.js';
 
 /**
- * 创建主页面（密钥管理界面）
- * @param {Object} options - 配置选项
- * @param {boolean} options.lazyLoad - 是否启用懒加载（默认true）
- * @returns {Response} HTML响应
+ * 建立主頁面（金鑰管理介面）
+ * @param {Object} options - 配置選項
+ * @param {boolean} options.lazyLoad - 是否啟用懶載入（預設true）
+ * @returns {Response} HTML響應
  */
 export async function createMainPage(options = {}) {
 	const { lazyLoad = true } = options;
 
-	// 构建完整的HTML内容
+	// 構建完整的HTML內容
 	const html = buildCompleteHTML(lazyLoad);
 
 	return new Response(html, {
@@ -32,15 +32,15 @@ export async function createMainPage(options = {}) {
 }
 
 /**
- * 构建完整的HTML内容
- * @param {boolean} lazyLoad - 是否启用懒加载
+ * 構建完整的HTML內容
+ * @param {boolean} lazyLoad - 是否啟用懶載入
  */
 function buildCompleteHTML(lazyLoad = true) {
 	return getHTMLStart() + getStyles() + getHTMLBody() + getHTMLScripts(lazyLoad) + getHTMLEnd();
 }
 
 /**
- * HTML文档开始部分
+ * HTML文件開始部分
  */
 function getHTMLStart() {
 	return `<!DOCTYPE html>
@@ -140,7 +140,7 @@ function getHTMLStart() {
         const theme = localStorage.getItem('theme') || 'auto';
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        // 设置主题：dark 强制深色，light 强制浅色，auto 跟随系统
+        // 設定主題：dark 強制深色，light 強制淺色，auto 跟隨系統
         const dataTheme = (theme === 'dark' || (theme === 'auto' && prefersDark)) ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', dataTheme);
 
@@ -175,7 +175,7 @@ function getHTMLStart() {
     })();
   </script>
 
-  <!-- FAB 位置预注入 - Must run before paint to prevent FAB position flash -->
+  <!-- FAB 位置預注入 - Must run before paint to prevent FAB position flash -->
   <script>
     (function() {
       try {
@@ -185,7 +185,7 @@ function getHTMLStart() {
         if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
         const vw = window.innerWidth || document.documentElement.clientWidth;
         const vh = window.innerHeight || document.documentElement.clientHeight;
-        // 与 CSS 媒体查询保持一致：≤480px 时 FAB 为 40x40，其余 48x48
+        // 與 CSS 媒體查詢保持一致：≤480px 時 FAB 為 40x40，其餘 48x48
         const size = vw <= 480 ? 40 : 48;
         const margin = 8;
         const maxX = Math.max(margin, vw - size - margin);
@@ -202,7 +202,7 @@ function getHTMLStart() {
 }
 
 /**
- * HTML样式部分 - 包含所有原版样式
+ * HTML樣式部分 - 包含所有原版樣式
  */
 function getHTMLBody() {
 	return `
@@ -233,11 +233,11 @@ function getHTMLBody() {
 
       <div class="search-section">
         <div class="search-container">
-          <!-- 防止浏览器自动填充的隐藏输入框 -->
+          <!-- 防止瀏覽器自動填充的隱藏輸入框 -->
           <input type="text" name="prevent_autofill_username" style="display:none" tabindex="-1" autocomplete="new-password">
           <input type="password" name="prevent_autofill_password" style="display:none" tabindex="-1" autocomplete="new-password">
 
-          <!-- 搜索框和操作按钮的水平布局 -->
+          <!-- 搜尋框和操作按鈕的水平佈局 -->
           <div class="search-action-row">
           <div class="search-input-wrapper">
             <span class="search-icon" aria-hidden="true">${dialogIcon('search')}</span>
@@ -344,7 +344,7 @@ function getHTMLBody() {
       </div>
       
       <div id="secretsList" class="secrets-list" style="display: none;">
-        <!-- 密钥列表将在这里动态生成 -->
+        <!-- 金鑰列表將在這裡動態生成 -->
       </div>
       
       <div id="emptyState" class="empty-state" style="display: none;">
@@ -357,7 +357,7 @@ function getHTMLBody() {
   </div>
   
   
-  <!-- 二维码扫描器模态框 -->
+  <!-- 二維碼掃描器模態框 -->
   <div id="qrScanModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="qrScanModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -375,7 +375,7 @@ function getHTMLBody() {
           </div>
         </div>
 
-        <!-- 连续扫描计数器 -->
+        <!-- 連續掃描計數器 -->
         <div id="scanCounter" class="scan-counter" style="display: none;">
           <span data-i18n="scanCountPrefix">Added </span> <span id="scanCountNum">0</span> <span data-i18n="scanCountSuffix"> keys</span>
         </div>
@@ -387,7 +387,7 @@ function getHTMLBody() {
           <button class="btn btn-primary" data-i18n="retryCamera" onclick="retryCamera()" style="margin-top: 10px;">Retry Camera</button>
         </div>
 
-        <!-- 底部操作区：连续扫描 + 选择图片 + 粘贴截图 -->
+        <!-- 底部操作區：連續掃描 + 選擇圖片 + 貼上截圖 -->
         <div class="scanner-bottom-actions">
           <label class="continuous-scan-inline">
             <input type="checkbox" id="continuousScanToggle" onchange="toggleContinuousScan()">
@@ -402,7 +402,7 @@ function getHTMLBody() {
     </div>
   </div>
   
-  <!-- 添加/编辑密钥模态框 -->
+  <!-- 新增/編輯金鑰模態框 -->
   <div id="secretModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -428,7 +428,7 @@ function getHTMLBody() {
           <input type="text" id="secretKey" required placeholder="Enter 16+ character Base32 key" data-i18n-placeholder="secretKeyPlaceholder" autocomplete="off">
         </div>
         
-        <!-- 高级参数区域 -->
+        <!-- 高階引數區域 -->
         <div class="form-section">
           <div class="section-header">
             <label>
@@ -495,7 +495,7 @@ function getHTMLBody() {
     </div>
   </div>
 
-  <!-- 批量导入模态框 -->
+  <!-- 批次匯入模態框 -->
   <div id="importModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
     <div class="modal-content import-modal-compact">
       <div class="modal-header">
@@ -503,10 +503,10 @@ function getHTMLBody() {
         <button class="close-btn" type="button" aria-label="Close dialog" data-i18n-aria-label="closeModalAriaLabel" onclick="hideImportModal()">${dialogIcon('close')}</button>
       </div>
 
-      <!-- 隐藏的文件输入 -->
+      <!-- 隱藏的檔案輸入 -->
       <input type="file" id="importFileInput" accept=".txt,.csv,.json,.html,.htm,.2fas,.xml,.authpro,.encrypt" style="display: none;" onchange="handleImportFile(event)">
 
-      <!-- 智能输入区：文本框支持粘贴和拖拽 -->
+      <!-- 智慧輸入區：文本框支援貼上和拖拽 -->
       <div class="smart-import-zone" id="smartImportZone">
         <textarea aria-label="Import content" data-i18n-aria-label="importTextAriaLabel" id="importText" class="import-textarea-smart" rows="6" data-i18n-placeholder="importTextPlaceholder"
                   placeholder="Paste content here, or drag and drop files here...
@@ -519,13 +519,13 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
                   ondrop="handleFileDrop(event)"></textarea>
       </div>
 
-      <!-- 选择文件按钮 -->
+      <!-- 選擇檔案按鈕 -->
       <div class="import-file-btn-wrapper">
         <button type="button" class="btn btn-info import-file-btn" data-i18n="importSelectFileBtn" onclick="document.getElementById('importFileInput').click()">Choose File</button>
         <span class="import-file-hint" data-i18n="importFileHint">Supports TXT, JSON, CSV, HTML, 2FAS, XML, AuthPro, Encrypt</span>
       </div>
 
-      <!-- 已选文件信息徽章 -->
+      <!-- 已選檔案資訊徽章 -->
       <div class="file-info-badge" id="fileInfoBadge" style="display: none;">
         <span class="file-icon">${dialogIcon('file')}</span>
         <span class="file-name" id="selectedFileName"></span>
@@ -538,7 +538,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         <span class="import-tip"><span data-i18n="importGoogleMigrationTip">Importing from Google Authenticator?</span><a href="javascript:void(0)" data-i18n="importGoogleMigrationLink" onclick="hideImportModal(); showQRScanner();">Scan migration QR</a></span>
       </div>
 
-      <!-- 格式说明（可折叠） -->
+      <!-- 格式說明（可摺疊） -->
       <details class="import-format-details">
         <summary data-i18n="importSupportedFormatsSummary">View supported formats</summary>
         <div class="import-format-help">
@@ -553,7 +553,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         </div>
       </details>
 
-      <!-- 预览区域 -->
+      <!-- 預覽區域 -->
       <div id="importPreview" class="import-preview-compact" style="display: none;">
         <div class="import-preview-header">
           <span class="preview-title" data-i18n="importPreviewTitle">Preview</span>
@@ -585,7 +585,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         </div>
       </div>
 
-      <!-- 操作按钮 -->
+      <!-- 操作按鈕 -->
       <div class="form-actions import-form-actions">
         <button type="button" class="btn btn-secondary" data-i18n="importCancelBtn" onclick="hideImportModal()">Cancel</button>
         <button type="button" class="btn btn-primary" data-i18n="importExecuteBtn" onclick="executeImport()" id="executeImportBtn" disabled>Import</button>
@@ -593,7 +593,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 还原配置模态框 -->
+  <!-- 還原配置模態框 -->
   <div id="restoreModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="restoreModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -632,7 +632,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
             <span data-i18n="restorePreviewTitle">Backup Preview</span>
           </div>
           <div id="backupPreviewContent" class="backup-preview-content">
-            <!-- 备份内容预览将在这里显示 -->
+            <!-- 備份內容預覽將在這裡顯示 -->
           </div>
         </div>
       </div>
@@ -644,7 +644,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- 实用工具模态框 -->
+  <!-- 實用工具模態框 -->
   <div id="toolsModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="toolsModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -704,7 +704,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 二维码生成工具模态框 -->
+  <!-- 二維碼生成工具模態框 -->
   <div id="qrGenerateModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="qrGenerateModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -739,7 +739,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- Base32编解码工具模态框 -->
+  <!-- Base32編解碼工具模態框 -->
   <div id="base32Modal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="base32ModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -787,7 +787,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- 时间戳工具模态框 -->
+  <!-- 時間戳工具模態框 -->
   <div id="timestampModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="timestampModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -833,7 +833,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- 密钥检查器模态框 -->
+  <!-- 金鑰檢查器模態框 -->
   <div id="keyCheckModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="keyCheckModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -857,7 +857,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       <div class="tool-section" id="keyCheckResult" style="display: none;">
         <div class="section-title" data-i18n="keyCheckResultSection">Inspection Result</div>
         <div id="checkResultContent" class="check-result" style="padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-          <!-- 结果内容将在这里动态生成 -->
+          <!-- 結果內容將在這裡動態生成 -->
         </div>
       </div>
       
@@ -865,7 +865,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- 二维码解析工具模态框 -->
+  <!-- 二維碼解析工具模態框 -->
   <div id="qrDecodeModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="qrDecodeModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -919,7 +919,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
   
-  <!-- 密钥生成器模态框 -->
+  <!-- 金鑰生成器模態框 -->
   <div id="keyGeneratorModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="keyGeneratorModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -955,7 +955,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- WebDAV 同步配置模态框 -->
+  <!-- WebDAV 同步配置模態框 -->
   <div id="webdavModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="webdavModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -964,13 +964,13 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       </div>
 
       <div class="tool-section">
-        <!-- 目标列表 -->
+        <!-- 目標列表 -->
         <div id="webdavDestinationList" style="margin-bottom: 15px;"></div>
 
-        <!-- 添加按钮 -->
+        <!-- 新增按鈕 -->
         <button class="btn btn-primary" id="webdavAddBtn" data-i18n="webdavAddBtn" onclick="showWebdavForm()" style="width: 100%; margin-bottom: 15px;">+ Add WebDAV Target</button>
 
-        <!-- 配置表单（默认隐藏） -->
+        <!-- 配置表單（預設隱藏） -->
         <div id="webdavFormArea" style="display: none;">
           <div class="dialog-sync-form">
             <input type="hidden" id="webdavEditId" value="" />
@@ -1014,7 +1014,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- S3 同步配置模态框 -->
+  <!-- S3 同步配置模態框 -->
   <div id="s3Modal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="s3ModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1023,13 +1023,13 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       </div>
 
       <div class="tool-section">
-        <!-- 目标列表 -->
+        <!-- 目標列表 -->
         <div id="s3DestinationList" style="margin-bottom: 15px;"></div>
 
-        <!-- 添加按钮 -->
+        <!-- 新增按鈕 -->
         <button class="btn btn-primary" id="s3AddBtn" data-i18n="s3AddBtn" onclick="showS3Form()" style="width: 100%; margin-bottom: 15px;">+ Add S3 Target</button>
 
-        <!-- 配置表单（默认隐藏） -->
+        <!-- 配置表單（預設隱藏） -->
         <div id="s3FormArea" style="display: none;">
           <div class="dialog-sync-form">
             <input type="hidden" id="s3EditId" value="" />
@@ -1083,7 +1083,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- OneDrive 同步配置模态框 -->
+  <!-- OneDrive 同步配置模態框 -->
   <div id="oneDriveModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="oneDriveModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1126,7 +1126,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- Google Drive 同步配置模态框 -->
+  <!-- Google Drive 同步配置模態框 -->
   <div id="googleDriveModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="googleDriveModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1169,7 +1169,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 设置模态框 -->
+  <!-- 設定模態框 -->
   <div id="settingsModal" class="modal fab-modal-lg" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
     <div class="modal-content settings-modal-content">
       <div class="modal-header">
@@ -1192,7 +1192,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
           </button>
         </div>
         <div class="settings-content">
-          <!-- 账户安全面板 -->
+          <!-- 賬戶安全面板 -->
           <div class="settings-panel active" data-panel="security">
             <div class="settings-section">
               <h3 class="settings-section-title" data-i18n="changePasswordTitle">Change Password</h3>
@@ -1234,7 +1234,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
             </div>
           </div>
 
-          <!-- 同步设置面板 -->
+          <!-- 同步設定面板 -->
           <div class="settings-panel" data-panel="sync">
             <div class="settings-section">
               <button type="button" class="sync-card" onclick="openWebdavFromSettings()">
@@ -1295,7 +1295,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
             <div class="settings-info-box" data-i18n="syncInfoBox">Once configured, every backup (event-driven, scheduled, manual) will automatically push to remote storage. Push failures do not affect local backups.</div>
           </div>
 
-          <!-- 偏好设置面板 -->
+          <!-- 偏好設定面板 -->
           <div class="settings-panel" data-panel="preferences">
             <div class="settings-section">
               <h3 class="settings-section-title" data-i18n="themeTitle">Theme</h3>
@@ -1379,7 +1379,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 二维码模态框 -->
+  <!-- 二維碼模態框 -->
   <div id="qrModal" class="modal" role="dialog" aria-modal="true" style="display: none;" aria-labelledby="qrTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1392,14 +1392,14 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       </div>
 
       <div class="qr-code-container">
-        <!-- 二维码将在这里动态生成 -->
+        <!-- 二維碼將在這裡動態生成 -->
       </div>
 
       <div class="qr-info" data-i18n-html="qrModalNotice">Scan this QR code with any 2FA app to add this account<br>Supported: Google Authenticator, Microsoft Authenticator, Authy, etc.</div>
     </div>
   </div>
 
-      <!-- 中间提示组件 -->
+      <!-- 中間提示元件 -->
   <div id="centerToast" class="center-toast">
     <div class="toast-content">
       <div class="toast-icon"></div>
@@ -1407,7 +1407,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 导出格式选择模态框 -->
+  <!-- 匯出格式選擇模態框 -->
   <div id="exportFormatModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="exportFormatModalTitle">
     <div class="modal-content export-modal-compact">
       <div class="modal-header">
@@ -1462,7 +1462,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         </div>
       </div>
 
-      <!-- 验证器应用 -->
+      <!-- 驗證器應用 -->
       <div class="format-section">
         <div class="format-section-title" data-i18n="formatSectionApps">Authenticator Apps</div>
         <div class="format-grid">
@@ -1547,7 +1547,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         </div>
       </div>
 
-      <!-- 格式说明（可折叠） -->
+      <!-- 格式說明（可摺疊） -->
       <details class="format-details">
         <summary data-i18n="formatDetailsSummary">View format details and compatibility</summary>
         <div class="format-help-content">
@@ -1576,7 +1576,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 二级格式选择模态框 -->
+  <!-- 二級格式選擇模態框 -->
   <div id="subFormatModal" class="modal fab-modal-sm" role="dialog" aria-modal="true" aria-labelledby="subFormatTitle">
     <div class="modal-content sub-format-modal">
       <div class="modal-header">
@@ -1584,12 +1584,12 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         <button class="close-btn" type="button" aria-label="Close dialog" data-i18n-aria-label="closeModalAriaLabel" onclick="hideSubFormatModal()">${dialogIcon('close')}</button>
       </div>
       <div class="sub-format-list" id="subFormatList">
-        <!-- 动态生成格式选项 -->
+        <!-- 動態生成格式選項 -->
       </div>
     </div>
   </div>
 
-  <!-- FreeOTP 原版导出密码模态框 -->
+  <!-- FreeOTP 原版匯出密碼模態框 -->
   <div id="freeotpExportModal" class="modal fab-modal-sm" role="dialog" aria-modal="true" aria-labelledby="freeotpExportModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1616,7 +1616,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- TOTP Authenticator 导出密码模态框 -->
+  <!-- TOTP Authenticator 匯出密碼模態框 -->
   <div id="totpAuthExportModal" class="modal fab-modal-sm" role="dialog" aria-modal="true" aria-labelledby="totpAuthExportModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1643,7 +1643,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 备份导出格式选择模态框 -->
+  <!-- 備份匯出格式選擇模態框 -->
   <div id="backupExportFormatModal" class="modal fab-modal" role="dialog" aria-modal="true" aria-labelledby="backupExportFormatModalTitle">
     <div class="modal-content">
       <div class="modal-header">
@@ -1686,7 +1686,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 登录模态框 -->
+  <!-- 登入模態框 -->
   <div id="loginModal" class="modal login-modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
     <div class="modal-content login-modal-content">
       <h2 class="login-modal-title" id="loginModalTitle" data-i18n="loginModalTitle">Authentication</h2>
@@ -1764,7 +1764,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- 页面底部链接 -->
+  <!-- 頁面底部連結 -->
   <footer class="page-footer">
     <div class="footer-content">
       <div class="footer-links">
@@ -1782,14 +1782,14 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       <div class="footer-info">
         Made with ❤️ by <a href="https://github.com/tbdavid2019" target="_blank" rel="noopener noreferrer" class="footer-link">tbdavid2019</a>
         <span class="footer-separator">•</span>
-        <span class="footer-version">v${APP_VERSION}</span>
+        <span class="footer-version">${formatVersionForDisplay(APP_VERSION)}</span>
         <a id="footerUpdateBadge" class="footer-update-badge" href="https://github.com/tbdavid2019/8882fa" target="_blank" rel="noopener noreferrer" style="display: none;"></a>
       </div>
     </div>
   </footer>
 
-  <!-- 固定悬浮按钮组 -->
-  <!-- 操作菜单按钮 -->
+  <!-- 固定懸浮按鈕組 -->
+  <!-- 操作選單按鈕 -->
   <div class="action-menu-float">
     <button class="main-action-button" id="mainActionBtn" aria-label="Open action menu" data-i18n-aria-label="openActionMenuAriaLabel" aria-expanded="false" aria-controls="actionSubmenu" onclick="toggleActionMenu()" title="Action menu" data-i18n-title="actionMenuTitle">
       ${dialogIcon('plus')}
@@ -1827,7 +1827,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
-  <!-- PWA 浮动安装横幅 -->
+  <!-- PWA 浮動安裝橫幅 -->
   <aside id="pwaInstallBanner" class="pwa-install-banner" role="banner" aria-label="Install App" style="display: none;">
     <div class="pwa-banner-icon">
       <img src="/apple-touch-icon.png" alt="888 2FA Icon" width="44" height="44">
@@ -1850,18 +1850,18 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
 }
 
 /**
- * JavaScript脚本部分 - 引用外部脚本文件
- * @param {boolean} lazyLoad - 是否启用懒加载模式
+ * JavaScript指令碼部分 - 引用外部指令碼檔案
+ * @param {boolean} lazyLoad - 是否啟用懶載入模式
  */
 function getHTMLScripts(lazyLoad = true) {
 	const scriptContent = getInlineScripts(lazyLoad);
-	// jsQR / qrcode-generator 改为按需加载（见 utils.js 中的 ensureJsQR / ensureQRCodeGen），
-	// 避免 ~150KB CDN 库阻塞首屏渲染。Service Worker 会在首次请求时按需缓存这两个 URL。
+	// jsQR / qrcode-generator 改為按需載入（見 utils.js 中的 ensureJsQR / ensureQRCodeGen），
+	// 避免 ~150KB CDN 庫阻塞首屏渲染。Service Worker 會在首次請求時按需快取這兩個 URL。
 	return '<script>\n' + scriptContent + '\n</script>';
 }
 
 /**
- * HTML结束部分
+ * HTML結束部分
  */
 function getHTMLEnd() {
 	return `</body>
@@ -1869,8 +1869,8 @@ function getHTMLEnd() {
 }
 
 /**
- * 获取内联JavaScript代码
- * @param {boolean} lazyLoad - 是否启用懒加载（true=核心模块，false=完整模块）
+ * 獲取內聯JavaScript程式碼
+ * @param {boolean} lazyLoad - 是否啟用懶載入（true=核心模組，false=完整模組）
  */
 function getInlineScripts(lazyLoad = true) {
 	if (lazyLoad) {

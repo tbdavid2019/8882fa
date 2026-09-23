@@ -1,6 +1,6 @@
 /**
- * 批量导入功能测试
- * 测试 src/api/secrets/batch.js 模块
+ * 批次匯入功能測試
+ * 測試 src/api/secrets/batch.js 模組
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -8,7 +8,7 @@ import { handleBatchAddSecrets } from '../../src/api/secrets/batch.js';
 import { decryptSecrets, encryptSecrets } from '../../src/utils/encryption.js';
 import { saveHOTPCounterState } from '../../src/api/secrets/counter-state.js';
 
-// Mock KV 存储
+// Mock KV 儲存
 class MockKV {
   constructor() {
     this.store = new Map();
@@ -23,7 +23,7 @@ class MockKV {
       return null;
     }
     if (type === 'json') {
-      // 如果已经是对象，直接返回；否则解析 JSON
+      // 如果已經是物件，直接返回；否則解析 JSON
       if (typeof value === 'object') {
         return value;
       }
@@ -33,7 +33,7 @@ class MockKV {
   }
 
   async put(key, value, _options = {}) {
-    // 存储时保持原始类型（支持对象存储）
+    // 儲存時保持原始型別（支援物件儲存）
     this.store.set(key, value);
   }
 
@@ -53,7 +53,7 @@ class MockKV {
   }
 }
 
-// 创建 Mock 环境
+// 建立 Mock 環境
 function createMockEnv() {
   return {
     SECRETS_KV: new MockKV(),
@@ -62,7 +62,7 @@ function createMockEnv() {
   };
 }
 
-// 创建 Mock Request
+// 建立 Mock Request
 function createMockRequest(body = {}, method = 'POST', url = 'https://example.com/api/secrets/batch') {
   return new Request(url, {
     method,
@@ -195,8 +195,8 @@ describe('Batch Import API Module', () => {
       expect(backupKeys.keys.length).toBe(0);
     });
 
-    // 防御伪造 chunk 元数据的单请求：即便客户端伪造 chunkIndex/chunkCount 跳过事件驱动备份，
-    // 服务端仍需 stage pending data hash 以便 cron 通过哈希比对兜底触发备份。
+    // 防禦偽造 chunk 後設資料的單請求：即便客戶端偽造 chunkIndex/chunkCount 跳過事件驅動備份，
+    // 服務端仍需 stage pending data hash 以便 cron 通過雜湊比對兜底觸發備份。
     it('should stage pending data hash when client forges chunk metadata to defer backup', async () => {
       const env = createMockEnv();
       const ctx = { waitUntil: vi.fn() };
@@ -220,16 +220,16 @@ describe('Batch Import API Module', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
 
-      // 事件驱动备份确实被跳过（这是优化的预期行为）
+      // 事件驅動備份確實被跳過（這是最佳化的預期行為）
       const backupKeys = await env.SECRETS_KV.list({ prefix: 'backup_' });
       expect(backupKeys.keys.length).toBe(0);
 
-      // 但密钥数据已落盘
+      // 但金鑰資料已落盤
       const storedSecrets = await env.SECRETS_KV.get('secrets', 'text');
       expect(storedSecrets).toBeTruthy();
 
-      // 关键：pending_backup_hash 必须被 stage，这样 cron 在 currentHash !== lastHash
-      // 或 pendingHashHasCommittedBackup === false 时仍能补偿备份
+      // 關鍵：pending_backup_hash 必須被 stage，這樣 cron 在 currentHash !== lastHash
+      // 或 pendingHashHasCommittedBackup === false 時仍能補償備份
       const pendingHashRaw = await env.SECRETS_KV.get('pending_backup_hash', 'text');
       expect(pendingHashRaw).toBeTruthy();
       const pendingHash = JSON.parse(pendingHashRaw);
@@ -241,7 +241,7 @@ describe('Batch Import API Module', () => {
     it('应该处理部分成功的批量导入', async () => {
       const env = createMockEnv();
 
-      // 先添加一个密钥
+      // 先新增一個金鑰
       await env.SECRETS_KV.put('secrets', JSON.stringify([{
         id: '1',
         name: 'GitHub',
@@ -256,7 +256,7 @@ describe('Batch Import API Module', () => {
       const request = createMockRequest({
         secrets: [
           {
-            name: 'GitHub', // 重复
+            name: 'GitHub', // 重複
             account: 'user1@example.com',
             secret: 'JBSWY3DPEHPK3PXP',
             type: 'TOTP'
@@ -268,7 +268,7 @@ describe('Batch Import API Module', () => {
             type: 'TOTP'
           },
           {
-            name: 'AWS', // 无效密钥
+            name: 'AWS', // 無效金鑰
             secret: 'INVALID!!!',
             type: 'TOTP'
           }
@@ -284,7 +284,7 @@ describe('Batch Import API Module', () => {
       expect(data.failCount).toBe(2);
       expect(data.totalCount).toBe(3);
 
-      // 检查结果详情
+      // 檢查結果詳情
       expect(data.results[0].success).toBe(false);
       expect(data.results[0].error).toContain('已存在');
       expect(data.results[1].success).toBe(true);
@@ -344,7 +344,7 @@ describe('Batch Import API Module', () => {
       const response = await handleBatchAddSecrets(request, env);
       const data = await response.json();
 
-      // 空数组可能被视为无效请求，返回 400 或 200 都合理
+      // 空陣列可能被視為無效請求，返回 400 或 200 都合理
       expect([200, 400].includes(response.status)).toBe(true);
 
       if (response.status === 200) {
@@ -430,7 +430,7 @@ describe('Batch Import API Module', () => {
     it('应该检查重复（同名同账户）', async () => {
       const env = createMockEnv();
 
-      // 先添加一个密钥
+      // 先新增一個金鑰
       await env.SECRETS_KV.put('secrets', JSON.stringify([{
         id: '1',
         name: 'GitHub',
@@ -446,8 +446,8 @@ describe('Batch Import API Module', () => {
         secrets: [
           {
             name: 'GitHub',
-            account: 'user@example.com', // 重复
-            secret: 'JBSWY3DPEHPK3PXP'   // 相同的 secret 才算重复
+            account: 'user@example.com', // 重複
+            secret: 'JBSWY3DPEHPK3PXP'   // 相同的 secret 才算重複
           }
         ]
       });
@@ -463,7 +463,7 @@ describe('Batch Import API Module', () => {
     it('应该允许同名不同账户', async () => {
       const env = createMockEnv();
 
-      // 先添加一个密钥
+      // 先新增一個金鑰
       await env.SECRETS_KV.put('secrets', JSON.stringify([{
         id: '1',
         name: 'GitHub',
@@ -479,7 +479,7 @@ describe('Batch Import API Module', () => {
         secrets: [
           {
             name: 'GitHub',
-            account: 'user2@example.com', // 不同账户
+            account: 'user2@example.com', // 不同賬戶
             secret: 'JBSWY3DPEHPK3PXQ'
           }
         ]
@@ -499,13 +499,13 @@ describe('Batch Import API Module', () => {
         secrets: [{ name: 'Test', secret: 'JBSWY3DPEHPK3PXP' }]
       };
 
-      // 连续调用多次触发限制（bulk preset: 20/5分钟）
+      // 連續呼叫多次觸發限制（bulk preset: 20/5分鐘）
       for (let i = 0; i < 20; i++) {
         const req = createMockRequest(body);
         await handleBatchAddSecrets(req, env);
       }
 
-      // 第21次应该被限制
+      // 第21次應該被限制
       const response = await handleBatchAddSecrets(createMockRequest(body), env);
       const data = await response.json();
 
@@ -533,7 +533,7 @@ describe('Batch Import API Module', () => {
       expect(id1).toBeDefined();
       expect(id2).toBeDefined();
       expect(id1).not.toBe(id2);
-      // UUID 格式验证
+      // UUID 格式驗證
       expect(id1).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     });
 
@@ -541,7 +541,7 @@ describe('Batch Import API Module', () => {
     it('应该处理加密的现有数据', async () => {
       const env = createMockEnv();
 
-      // 先添加一个加密的密钥
+      // 先新增一個加密的金鑰
       const { encryptData } = await import('../../src/utils/encryption.js');
       const existingSecrets = [{
         id: '1',
@@ -593,7 +593,7 @@ describe('Batch Import API Module', () => {
     it('应该验证请求体格式', async () => {
       const env = createMockEnv();
 
-      // 缺少 secrets 字段
+      // 缺少 secrets 欄位
       const request = createMockRequest({
         wrongField: []
       });
@@ -652,9 +652,9 @@ describe('Batch Import API Module', () => {
       const request = createMockRequest({
         secrets: [
           { name: 'Valid1', secret: 'JBSWY3DPEHPK3PXP' },
-          { name: '', secret: 'JBSWY3DPEHPK3PXQ' }, // 空名称
+          { name: '', secret: 'JBSWY3DPEHPK3PXQ' }, // 空名稱
           { name: 'Valid2', secret: 'JBSWY3DPEHPK3PXR' },
-          { name: 'Invalid', secret: '!!!' }, // 无效密钥
+          { name: 'Invalid', secret: '!!!' }, // 無效金鑰
           { name: 'Valid3', secret: 'JBSWY3DPEHPK3PXS' }
         ]
       });
@@ -666,7 +666,7 @@ describe('Batch Import API Module', () => {
       expect(data.successCount).toBe(3);
       expect(data.failCount).toBe(2);
 
-      // 验证具体哪些成功/失败
+      // 驗證具體哪些成功/失敗
       expect(data.results[0].success).toBe(true);
       expect(data.results[1].success).toBe(false);
       expect(data.results[2].success).toBe(true);
@@ -677,7 +677,7 @@ describe('Batch Import API Module', () => {
     it('应该处理大批量导入', async () => {
       const env = createMockEnv();
 
-      // 创建 50 个密钥
+      // 建立 50 個金鑰
       const secrets = Array.from({ length: 50 }, (_, i) => ({
         name: `Service${i}`,
         secret: 'JBSWY3DPEHPK3PXP',

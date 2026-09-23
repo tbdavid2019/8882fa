@@ -1,277 +1,277 @@
-# 🏗️ 项目架构文档
+# 🏗️ 專案架構文件
 
-## 📋 目录
+## 📋 目錄
 
-- [总体架构](#总体架构)
-- [技术栈](#技术栈)
-- [代码结构](#代码结构)
-- [核心模块详解](#核心模块详解)
-- [数据流](#数据流)
-- [前端架构](#前端架构)
-- [设计模式](#设计模式)
+- [總體架構](#總體架構)
+- [技術棧](#技術棧)
+- [程式碼結構](#程式碼結構)
+- [核心模組詳解](#核心模組詳解)
+- [資料流](#資料流)
+- [前端架構](#前端架構)
+- [設計模式](#設計模式)
 
 ---
 
-## 总体架构
+## 總體架構
 
-### 三层架构
+### 三層架構
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   用户层                             │
-│   浏览器 / PWA / 移动设备                            │
+│                   使用者層                             │
+│   瀏覽器 / PWA / 移動裝置                            │
 └──────────────────┬──────────────────────────────────┘
                    │ HTTPS
                    ▼
 ┌─────────────────────────────────────────────────────┐
 │              Cloudflare Edge                        │
-│   CDN + DDoS 保护 + SSL + 全球分布                  │
+│   CDN + DDoS 保護 + SSL + 全球分佈                  │
 └──────────────────┬──────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────┐
-│          Cloudflare Workers（应用层）                │
+│          Cloudflare Workers（應用層）                │
 │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │
-│  │  路由处理   │  │  API服务    │  │  UI渲染    │ │
+│  │  路由處理   │  │  API服務    │  │  UI渲染    │ │
 │  └─────────────┘  └─────────────┘  └────────────┘ │
 │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │
-│  │  认证系统   │  │  加密系统   │  │  监控系统  │ │
+│  │  認證系統   │  │  加密系統   │  │  監控系統  │ │
 │  └─────────────┘  └─────────────┘  └────────────┘ │
 └──────────────────┬──────────────────────────────────┘
                    │
                    ▼
 ┌─────────────────────────────────────────────────────┐
-│        Cloudflare KV（数据存储层）                   │
-│   全球分布式键值存储 + 自动加密 + 低延迟             │
+│        Cloudflare KV（資料儲存層）                   │
+│   全球分散式鍵值儲存 + 自動加密 + 低延遲             │
 └─────────────────────────────────────────────────────┘
 ```
 
 ### 核心特性
 
-- **无服务器架构**: 基于 Cloudflare Workers，无需维护服务器
-- **全球分布**: 在全球 300+ 个城市的边缘节点上运行
-- **高可用性**: 自动故障转移和负载均衡
-- **低延迟**: 就近服务，平均响应时间 < 50ms
-- **自动扩展**: 根据流量自动扩缩容
-- **零冷启动**: V8 隔离技术，无冷启动延迟
+- **無伺服器架構**: 基於 Cloudflare Workers，無需維護伺服器
+- **全球分佈**: 在全球 300+ 個城市的邊緣節點上執行
+- **高可用性**: 自動故障轉移和負載均衡
+- **低延遲**: 就近服務，平均響應時間 < 50ms
+- **自動擴充套件**: 根據流量自動擴縮容
+- **零冷啟動**: V8 隔離技術，無冷啟動延遲
 
 ---
 
-## 技术栈
+## 技術棧
 
-### 后端
+### 後端
 
-| 技术                   | 用途       | 版本      |
+| 技術                   | 用途       | 版本      |
 | ---------------------- | ---------- | --------- |
-| **Cloudflare Workers** | 运行时环境 | V8 Engine |
-| **ES Modules**         | 模块系统   | ES2022    |
-| **Web Crypto API**     | 加密操作   | 标准 API  |
-| **Cloudflare KV**      | 数据存储   | -         |
+| **Cloudflare Workers** | 執行時環境 | V8 Engine |
+| **ES Modules**         | 模組系統   | ES2022    |
+| **Web Crypto API**     | 加密操作   | 標準 API  |
+| **Cloudflare KV**      | 資料儲存   | -         |
 
 ### 前端
 
-| 技术                    | 用途       | 说明                      |
+| 技術                    | 用途       | 說明                      |
 | ----------------------- | ---------- | ------------------------- |
-| **HTML5**               | 页面结构   | 语义化标签                |
-| **CSS3**                | 样式系统   | 模块化 CSS                |
-| **JavaScript (ES2022)** | 交互逻辑   | 原生 JS，无框架           |
-| **PWA**                 | 应用增强   | Service Worker + Manifest |
-| **jsQR**                | 二维码识别 | CDN 引入                  |
-| **qrcode-generator**    | 二维码生成 | CDN 引入                  |
+| **HTML5**               | 頁面結構   | 語義化標籤                |
+| **CSS3**                | 樣式系統   | 模組化 CSS                |
+| **JavaScript (ES2022)** | 互動邏輯   | 原生 JS，無框架           |
+| **PWA**                 | 應用增強   | Service Worker + Manifest |
+| **jsQR**                | 二維碼識別 | CDN 引入                  |
+| **qrcode-generator**    | 二維碼生成 | CDN 引入                  |
 
-### 开发工具
+### 開發工具
 
 | 工具             | 用途             |
 | ---------------- | ---------------- |
-| **Wrangler CLI** | 开发和部署工具   |
+| **Wrangler CLI** | 開發和部署工具   |
 | **Git**          | 版本控制         |
-| **Node.js**      | 构建工具运行环境 |
+| **Node.js**      | 構建工具執行環境 |
 
 ---
 
-## 代码结构
+## 程式碼結構
 
-### 主要目录结构
+### 主要目錄結構
 
-下图展示主要模块，完整文件清单以 `src/` 目录为准。OTP 的 HMAC 与 Base32 实现在 `otp/generator.js`，数据加密使用 `utils/encryption.js`，密码哈希和 JWT 使用 `utils/auth.js`；加密运算调用 Web Crypto API。
+下圖展示主要模組，完整檔案清單以 `src/` 目錄為準。OTP 的 HMAC 與 Base32 實現在 `otp/generator.js`，資料加密使用 `utils/encryption.js`，密碼雜湊和 JWT 使用 `utils/auth.js`；加密運算呼叫 Web Crypto API。
 
 ```
 src/
 ├── worker.js                      # 🎯 Worker 主入口
-│                                  # - Fetch 事件处理
-│                                  # - CORS 处理
-│                                  # - 全局错误捕获
-│                                  # - 监控系统初始化
+│                                  # - Fetch 事件處理
+│                                  # - CORS 處理
+│                                  # - 全域性錯誤捕獲
+│                                  # - 監控系統初始化
 │
 ├── router/
-│   └── handler.js                 # 🛣️ 路由处理器
-│                                  # - 路径解析和分发
-│                                  # - 认证检查
-│                                  # - API 路由映射
+│   └── handler.js                 # 🛣️ 路由處理器
+│                                  # - 路徑解析和分發
+│                                  # - 認證檢查
+│                                  # - API 路由對映
 │
 ├── api/
-│   ├── secrets/                   # 🔌 密钥管理 API（模块化）
-│   │   ├── index.js              # 统一导出（Barrel Export）
+│   ├── secrets/                   # 🔌 金鑰管理 API（模組化）
+│   │   ├── index.js              # 統一匯出（Barrel Export）
 │   │   ├── shared.js             # 共享工具（saveSecretsToKV, getAllSecrets）
 │   │   ├── crud.js               # CRUD 操作
-│   │   ├── batch.js              # 批量导入
-│   │   ├── backup.js             # 备份创建和列表
-│   │   ├── restore.js            # 备份恢复和导出
+│   │   ├── batch.js              # 批次匯入
+│   │   ├── backup.js             # 備份建立和列表
+│   │   ├── restore.js            # 備份恢復和匯出
 │   │   └── otp.js                # OTP 生成
 │   └── favicon.js                 # 🌐 Favicon 代理 API
 │
 ├── otp/
-│   └── generator.js               # 🔐 OTP 算法实现
+│   └── generator.js               # 🔐 OTP 演算法實現
 │                                  # - TOTP (RFC 6238)
 │                                  # - HOTP (RFC 4226)
-│                                  # - Base32 编解码
+│                                  # - Base32 編解碼
 │
 ├── ui/
-│   ├── page.js                    # 🎨 主页面生成
-│   │                              # - HTML 结构
-│   │                              # - 样式集成
-│   │                              # - 脚本集成
+│   ├── page.js                    # 🎨 主頁面生成
+│   │                              # - HTML 結構
+│   │                              # - 樣式整合
+│   │                              # - 指令碼整合
 │   │
-│   ├── quickOtp.js                # 🔢 公开 OTP 输入与验证码页面
-│   ├── standalone.js              # 🖥️ 独立页面共享 Fluent 主题
-│   ├── offlinePage.js             # 📴 离线兜底页面
-│   ├── setupPage.js               # 🔧 首次设置页面
-│   ├── dialogIcons.js             # 🧩 对话框 SVG 图标
+│   ├── quickOtp.js                # 🔢 公開 OTP 輸入與驗證碼頁面
+│   ├── standalone.js              # 🖥️ 獨立頁面共享 Fluent 主題
+│   ├── offlinePage.js             # 📴 離線兜底頁面
+│   ├── setupPage.js               # 🔧 首次設定頁面
+│   ├── dialogIcons.js             # 🧩 對話方塊 SVG 圖示
 │   │
 │   ├── manifest.js                # 📱 PWA Manifest
-│   │                              # - 应用信息
-│   │                              # - 图标定义
+│   │                              # - 應用資訊
+│   │                              # - 圖示定義
 │   │                              # - 快捷方式
 │   │
 │   ├── serviceworker.js           # ⚙️ Service Worker
-│   │                              # - 缓存策略
-│   │                              # - 离线支持
-│   │                              # - CDN 资源缓存
+│   │                              # - 快取策略
+│   │                              # - 離線支援
+│   │                              # - CDN 資源快取
 │   │
-│   ├── scripts/                   # 📜 前端 JavaScript 模块
-│   │   ├── index.js              # 模块集成入口
-│   │   ├── state.js              # 全局状态管理
-│   │   ├── time.js               # 时间校准
-│   │   ├── auth.js               # 认证逻辑
-│   │   ├── otp.js                # OTP 计算与动效
-│   │   ├── ui.js                 # 主题与弹窗交互
-│   │   ├── search.js             # 搜索与显示控制
-│   │   ├── settings.js           # 设置面板
-│   │   ├── core.js               # 核心业务逻辑
-│   │   ├── serviceAggregation.js # 服务分组
-│   │   ├── utils.js              # 工具函数
+│   ├── scripts/                   # 📜 前端 JavaScript 模組
+│   │   ├── index.js              # 模組整合入口
+│   │   ├── state.js              # 全域性狀態管理
+│   │   ├── time.js               # 時間校準
+│   │   ├── auth.js               # 認證邏輯
+│   │   ├── otp.js                # OTP 計算與動效
+│   │   ├── ui.js                 # 主題與彈窗互動
+│   │   ├── search.js             # 搜尋與顯示控制
+│   │   ├── settings.js           # 設定面板
+│   │   ├── core.js               # 核心業務邏輯
+│   │   ├── serviceAggregation.js # 服務分組
+│   │   ├── utils.js              # 工具函式
 │   │   ├── pwa.js                # PWA 功能
-│   │   └── moduleLoader.js       # 懒加载模块入口
+│   │   └── moduleLoader.js       # 懶載入模組入口
 │   │
-│   └── styles/                    # 🎨 前端 CSS 模块
-│       ├── index.js              # 样式集成入口
-│       ├── variables.js          # 主题变量和过渡
-│       ├── base.js               # 基础样式
-│       ├── components.js         # 组件样式
-│       ├── modals.js             # 模态框样式
-│       ├── responsive.js         # 响应式样式
-│       ├── progress.js           # 共享进度条常量
-│       ├── workspace.js          # Fluent 2 工作区
-│       ├── dialogs.js            # Fluent 2 对话框
-│       ├── setup.js              # 首次设置页
-│       └── backupDocument.js     # HTML 备份文档
+│   └── styles/                    # 🎨 前端 CSS 模組
+│       ├── index.js              # 樣式整合入口
+│       ├── variables.js          # 主題變數和過渡
+│       ├── base.js               # 基礎樣式
+│       ├── components.js         # 元件樣式
+│       ├── modals.js             # 模態框樣式
+│       ├── responsive.js         # 響應式樣式
+│       ├── progress.js           # 共享進度條常量
+│       ├── workspace.js          # Fluent 2 工作區
+│       ├── dialogs.js            # Fluent 2 對話方塊
+│       ├── setup.js              # 首次設定頁
+│       └── backupDocument.js     # HTML 備份文件
 │
-└── utils/                         # 🛠️ 工具模块
-    ├── auth.js                    # 🔑 认证系统
-    │                              # - Token 验证
+└── utils/                         # 🛠️ 工具模組
+    ├── auth.js                    # 🔑 認證系統
+    │                              # - Token 驗證
     │                              # - HttpOnly Cookie
-    │                              # - 自动刷新
+    │                              # - 自動重新整理
     │
-    ├── backup.js                  # 💾 智能备份系统
-    │                              # - 事件驱动备份
-    │                              # - 并发合并 / 后台执行
-    │                              # - 自动清理
+    ├── backup.js                  # 💾 智慧備份系統
+    │                              # - 事件驅動備份
+    │                              # - 併發合併 / 後臺執行
+    │                              # - 自動清理
     │
-    ├── constants.js               # 📋 常量定义
-    │                              # - KV 键名
+    ├── constants.js               # 📋 常量定義
+    │                              # - KV 鍵名
     │                              # - 配置常量
     │
-    ├── encryption.js              # 🔒 数据加密
+    ├── encryption.js              # 🔒 資料加密
     │                              # - AES-GCM 256
-    │                              # - 密钥派生
-    │                              # - 自动加解密
+    │                              # - 金鑰派生
+    │                              # - 自動加解密
     │
-    ├── errors.js                  # ❌ 统一错误分类
-    │                              # - 自定义错误类
-    │                              # - 错误处理和响应格式
+    ├── errors.js                  # ❌ 統一錯誤分類
+    │                              # - 自定義錯誤類
+    │                              # - 錯誤處理和響應格式
     │
-    ├── logger.js                  # 📝 日志系统
-    │                              # - 结构化日志
-    │                              # - 性能计时
-    │                              # - 日志级别
+    ├── logger.js                  # 📝 日誌系統
+    │                              # - 結構化日誌
+    │                              # - 效能計時
+    │                              # - 日誌級別
     │
-    ├── monitoring.js              # 📊 监控系统
-    │                              # - 错误追踪
-    │                              # - 性能监控
+    ├── monitoring.js              # 📊 監控系統
+    │                              # - 錯誤追蹤
+    │                              # - 效能監控
     │
-    ├── rateLimit.js               # 🛡️ 请求限流
-    │                              # - 滑动窗口算法
+    ├── rateLimit.js               # 🛡️ 請求限流
+    │                              # - 滑動視窗演算法
     │                              # - 可配置策略
-    │                              # - 基于 KV 存储
+    │                              # - 基於 KV 儲存
     │
-    ├── response.js                # 📡 响应工具
-    │                              # - 标准化响应格式
-    │                              # - CORS 头处理
+    ├── response.js                # 📡 響應工具
+    │                              # - 標準化響應格式
+    │                              # - CORS 頭處理
     │
     ├── security.js                # 🔒 安全工具
     │                              # - CORS 配置
-    │                              # - CSP 头
-    │                              # - 预检请求
+    │                              # - CSP 頭
+    │                              # - 預檢請求
     │
-    └── validation.js              # ✅ 数据验证
-                                   # - Base32 验证
-                                   # - 输入校验
-                                   # - 业务规则检查
+    └── validation.js              # ✅ 資料驗證
+                                   # - Base32 驗證
+                                   # - 輸入校驗
+                                   # - 業務規則檢查
 ```
 
 ---
 
-## 核心模块详解
+## 核心模組詳解
 
 ### 1. Worker 主入口 (`worker.js`)
 
-**职责**: Cloudflare Worker 的入口点，处理所有传入请求
+**職責**: Cloudflare Worker 的入口點，處理所有傳入請求
 
 **核心功能**:
 
 ```javascript
 export default {
 	async fetch(request, env, ctx) {
-		// 1. 初始化日志和监控
-		// 2. 处理 CORS 预检请求
-		// 3. 开始请求追踪
-		// 4. 调用路由处理器
-		// 5. 记录响应和性能指标
-		// 6. 全局错误处理
+		// 1. 初始化日誌和監控
+		// 2. 處理 CORS 預檢請求
+		// 3. 開始請求追蹤
+		// 4. 呼叫路由處理器
+		// 5. 記錄響應和效能指標
+		// 6. 全域性錯誤處理
 	},
 
 	async scheduled(event, env, ctx) {
-		// 定时任务：自动备份（每天）
+		// 定時任務：自動備份（每天）
 	},
 };
 ```
 
-**集成的系统**:
+**整合的系統**:
 
-- 日志系统 (`logger.js`)
-- 监控系统 (`monitoring.js`)
-- 路由处理 (`router/handler.js`)
-- CORS 处理 (`utils/security.js`)
+- 日誌系統 (`logger.js`)
+- 監控系統 (`monitoring.js`)
+- 路由處理 (`router/handler.js`)
+- CORS 處理 (`utils/security.js`)
 
 ---
 
-### 2. 路由处理器 (`router/handler.js`)
+### 2. 路由處理器 (`router/handler.js`)
 
-**职责**: 解析 URL 路径并分发到对应的处理函数
+**職責**: 解析 URL 路徑並分發到對應的處理函式
 
 **路由表**:
 
-| 路由                       | 方法   | 处理器                    | 认证 |
+| 路由                       | 方法   | 處理器                    | 認證 |
 | -------------------------- | ------ | ------------------------- | ---- |
 | `/`                        | GET    | `createMainPage()`        | ❌   |
 | `/setup`                   | GET    | `createSetupPage()`       | ❌   |
@@ -297,67 +297,67 @@ export default {
 
 ---
 
-### 3. 密钥管理 API (`api/secrets/`)
+### 3. 金鑰管理 API (`api/secrets/`)
 
-**职责**: 处理 2FA 密钥的 CRUD 操作和备份管理
+**職責**: 處理 2FA 金鑰的 CRUD 操作和備份管理
 
-**模块化组织**:
+**模組化組織**:
 
-- `shared.js` - 共享工具函数（saveSecretsToKV, getAllSecrets）
+- `shared.js` - 共享工具函式（saveSecretsToKV, getAllSecrets）
 - `crud.js` - CRUD 操作（GET/POST/PUT/DELETE）
-- `batch.js` - 批量导入
-- `backup.js` - 备份创建和列表
-- `restore.js` - 备份恢复和导出
+- `batch.js` - 批次匯入
+- `backup.js` - 備份建立和列表
+- `restore.js` - 備份恢復和匯出
 - `otp.js` - OTP 生成
-- `index.js` - 统一导出（Barrel Export）
+- `index.js` - 統一匯出（Barrel Export）
 
 **核心功能**:
 
-#### 数据自动加密
+#### 資料自動加密
 
 ```javascript
 async function saveSecretsToKV(env, secrets, reason) {
-	// 1. 排序密钥
+	// 1. 排序金鑰
 	sortSecretsByName(secrets);
 
-	// 2. 加密数据（如果配置了 ENCRYPTION_KEY）
+	// 2. 加密資料（如果配置了 ENCRYPTION_KEY）
 	const encryptedData = await encryptSecrets(secrets, env);
 
-	// 3. 保存到 KV
+	// 3. 儲存到 KV
 	await env.SECRETS_KV.put('secrets', encryptedData);
 
-	// 4. 触发事件驱动备份
+	// 4. 觸發事件驅動備份
 	await triggerBackup(secrets, env, { reason });
 }
 ```
 
-#### 请求限流集成
+#### 請求限流整合
 
-限流由具体处理函数调用。例如删除密钥使用 `getClientIdentifier(request, 'ip')` 得到 key，再调用 `checkRateLimit(key, env, RATE_LIMIT_PRESETS.sensitive)`；新增和读取密钥当前没有显式限流。路由入口没有统一套用 `api` 或 `global` 预设。各端点实际限制及共享计数规则见 [API 参考](API_REFERENCE.md#rate-limiting)。
+限流由具體處理函式呼叫。例如刪除金鑰使用 `getClientIdentifier(request, 'ip')` 得到 key，再呼叫 `checkRateLimit(key, env, RATE_LIMIT_PRESETS.sensitive)`；新增和讀取金鑰當前沒有顯式限流。路由入口沒有統一套用 `api` 或 `global` 預設。各端點實際限制及共享計數規則見 [API 參考](API_REFERENCE.md#rate-limiting)。
 
 ---
 
 ### 4. OTP 生成器 (`otp/generator.js`)
 
-**职责**: 实现 TOTP/HOTP 算法，生成一次性密码
+**職責**: 實現 TOTP/HOTP 演算法，生成一次性密碼
 
-**支持的算法**:
+**支援的演算法**:
 
 #### TOTP (Time-based OTP) - RFC 6238
 
 ```javascript
 /**
- * 算法流程:
- * 1. 计算时间计数器 (counter = floor(currentTime / 30))
- * 2. 将 Base32 密钥解码为字节数组
- * 3. 使用 HMAC-SHA1 计算哈希值
- * 4. 动态截断生成 6 位数字 OTP
+ * 演算法流程:
+ * 1. 計算時間計數器 (counter = floor(currentTime / 30))
+ * 2. 將 Base32 金鑰解碼為位元組陣列
+ * 3. 使用 HMAC-SHA1 計算雜湊值
+ * 4. 動態截斷生成 6 位數字 OTP
  */
 export async function generateOTP(secret, loadTime, options = {}) {
 	const {
-		period = 30, // 时间步长（秒）
-		digits = 6, // OTP 长度
-		algorithm = 'SHA1', // 哈希算法
+		period = 30, // 時間步長（秒）
+		digits = 6, // OTP 長度
+		algorithm = 'SHA1', // 雜湊演算法
 		type = 'TOTP',
 	} = options;
 
@@ -371,10 +371,10 @@ export async function generateOTP(secret, loadTime, options = {}) {
 
 ```javascript
 export async function generateHOTP(secret, counter, options = {}) {
-	// 1. Base32 解码
+	// 1. Base32 解碼
 	const key = base32Decode(secret);
 
-	// 2. 计数器转字节数组
+	// 2. 計數器轉位元組陣列
 	const counterBytes = new ArrayBuffer(8);
 	const view = new DataView(counterBytes);
 	view.setUint32(4, counter, false); // 大端序
@@ -382,7 +382,7 @@ export async function generateHOTP(secret, counter, options = {}) {
 	// 3. HMAC-SHA1
 	const hmac = await crypto.subtle.sign('HMAC', key, counterBytes);
 
-	// 4. 动态截断
+	// 4. 動態截斷
 	const offset = hmac[hmac.length - 1] & 0x0f;
 	const binary =
 		((hmac[offset] & 0x7f) << 24) | ((hmac[offset + 1] & 0xff) << 16) | ((hmac[offset + 2] & 0xff) << 8) | (hmac[offset + 3] & 0xff);
@@ -395,19 +395,19 @@ export async function generateHOTP(secret, counter, options = {}) {
 
 ---
 
-### 5. 认证系统 (`utils/auth.js`)
+### 5. 認證系統 (`utils/auth.js`)
 
-**职责**: 管理用户身份认证和授权
+**職責**: 管理使用者身份認證和授權
 
-**架构设计**:
+**架構設計**:
 
 ```
-┌───────────┐     登录请求      ┌───────────┐
-│  浏览器   │ ──────────────→  │  Worker   │
+┌───────────┐     登入請求      ┌───────────┐
+│  瀏覽器   │ ──────────────→  │  Worker   │
 └───────────┘                  └─────┬─────┘
       ↑                              │
       │                              ▼
-      │                    验证密码（KV存储）
+      │                    驗證密碼（KV儲存）
       │                              │
       │                              ▼
       │  Set-Cookie:             生成 JWT
@@ -415,26 +415,26 @@ export async function generateHOTP(secret, counter, options = {}) {
       │  HttpOnly; Secure           │
       │  ←───────────────────────────┘
       │
-      │     后续请求（自动携带 Cookie）
+      │     後續請求（自動攜帶 Cookie）
       │  ──────────────────────────────→
       │
-      │     验证 JWT + 自动刷新
+      │     驗證 JWT + 自動重新整理
       │  ←──────────────────────────────
 ```
 
 **核心功能**:
 
-#### HttpOnly Cookie 认证
+#### HttpOnly Cookie 認證
 
 ```javascript
-// 生成认证 Cookie
+// 生成認證 Cookie
 function createAuthCookie(token, expiresAt) {
 	const maxAge = Math.floor((expiresAt - Date.now()) / 1000);
 
 	return [
 		`auth_token=${token}`,
 		'HttpOnly', // 防止 XSS
-		'Secure', // 仅 HTTPS
+		'Secure', // 僅 HTTPS
 		'SameSite=Strict', // 防止 CSRF
 		`Max-Age=${maxAge}`,
 		'Path=/',
@@ -442,11 +442,11 @@ function createAuthCookie(token, expiresAt) {
 }
 ```
 
-#### Token 自动刷新
+#### Token 自動重新整理
 
 ```javascript
 export async function handleRefreshToken(request, env) {
-	// 1. 验证当前 Token
+	// 1. 驗證當前 Token
 	const currentToken = extractTokenFromCookie(request);
 	if (!isValidToken(currentToken)) {
 		return createUnauthorizedResponse();
@@ -458,7 +458,7 @@ export async function handleRefreshToken(request, env) {
 		exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7天
 	});
 
-	// 3. 设置新 Cookie
+	// 3. 設定新 Cookie
 	return new Response(JSON.stringify({ success: true }), {
 		headers: {
 			'Set-Cookie': createAuthCookie(newToken, Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -470,81 +470,81 @@ export async function handleRefreshToken(request, env) {
 
 ---
 
-### 6. 加密系统 (`utils/encryption.js`)
+### 6. 加密系統 (`utils/encryption.js`)
 
-**职责**: 使用 AES-GCM 256 位加密保护敏感数据
+**職責**: 使用 AES-GCM 256 位加密保護敏感資料
 
 **加密流程**:
 
 ```
-明文数据 → JSON.stringify → UTF-8 编码
+明文資料 → JSON.stringify → UTF-8 編碼
     ↓
-生成随机 IV (96 bits)
+生成隨機 IV (96 bits)
     ↓
 AES-GCM 256 加密
     ↓
-认证标签 (128 bits)
+認證標籤 (128 bits)
     ↓
 {encrypted: base64(密文), iv: base64(IV)}
     ↓
-JSON.stringify → Base64 编码
+JSON.stringify → Base64 編碼
     ↓
-存储到 KV
+儲存到 KV
 ```
 
-**核心实现**:
+**核心實現**:
 
 ```javascript
 export async function encryptData(data, env) {
-	// 1. 检查是否配置了加密密钥
+	// 1. 檢查是否配置了加密金鑰
 	if (!env.ENCRYPTION_KEY) {
-		// 未配置密钥，返回明文
+		// 未配置金鑰，返回明文
 		return typeof data === 'string' ? data : JSON.stringify(data);
 	}
 
-	// 2. 导入加密密钥
+	// 2. 匯入加密金鑰
 	const keyBuffer = base64ToArrayBuffer(env.ENCRYPTION_KEY);
 	const key = await crypto.subtle.importKey('raw', keyBuffer, { name: 'AES-GCM' }, false, ['encrypt']);
 
-	// 3. 生成随机 IV
+	// 3. 生成隨機 IV
 	const iv = crypto.getRandomValues(new Uint8Array(12));
 
-	// 4. 加密数据
+	// 4. 加密資料
 	const plaintext = new TextEncoder().encode(typeof data === 'string' ? data : JSON.stringify(data));
 
 	const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
 
-	// 5. 打包加密结果
+	// 5. 打包加密結果
 	const encrypted = {
 		encrypted: arrayBufferToBase64(ciphertext),
 		iv: arrayBufferToBase64(iv.buffer),
 	};
 
-	// 6. 添加加密标记并返回
+	// 6. 新增加密標記並返回
 	return `__ENCRYPTED__${btoa(JSON.stringify(encrypted))}`;
 }
 ```
 
-**自动检测和解密**:
+**自動檢測和解密**:
 
 ```javascript
 export async function decryptSecrets(data, env) {
 	if (!data) return [];
 
-	// 检查是否已加密
+	// 檢查是否已加密
 	if (isEncrypted(data)) {
-		// 数据已加密，需要解密
+		// 資料已加密，需要解密
 		if (!env.ENCRYPTION_KEY) {
-			console.error('数据已加密但未配置 ENCRYPTION_KEY');
+			console.error('資料已加密但未配置 ENCRYPTION_KEY');
 			return [];
 		}
 		return await decryptData(data, env);
 	} else {
-		// 数据未加密（明文或旧数据）
+		// 資料未加密（明文或舊資料）
 		try {
 			return JSON.parse(data);
 		} catch (error) {
-			console.error('解析数据失败:', error);
+			console.error('解析資料失敗:', error);
 			return [];
 		}
 	}
@@ -553,35 +553,35 @@ export async function decryptSecrets(data, env) {
 
 ---
 
-### 7. 备份系统 (`utils/backup.js`)
+### 7. 備份系統 (`utils/backup.js`)
 
-**职责**: 实现智能备份策略，防止数据丢失
+**職責**: 實現智慧備份策略，防止資料丟失
 
-**备份策略**:
+**備份策略**:
 
-#### 1. 事件驱动备份
-
-```
-用户操作 → 数据变更 → 触发备份
-    ↓
-如有请求上下文则转入 waitUntil 后台执行
-    ↓
-执行备份 → 加密 → 存储到 KV
-    ↓
-自动清理 (保留最新100个)
-```
-
-#### 2. 定时备份（兜底）
+#### 1. 事件驅動備份
 
 ```
-Cron 触发 (每天)
+使用者操作 → 資料變更 → 觸發備份
     ↓
-检查数据是否变化
+如有請求上下文則轉入 waitUntil 後臺執行
     ↓
-如果变化 → 执行备份
+執行備份 → 加密 → 儲存到 KV
+    ↓
+自動清理 (保留最新100個)
 ```
 
-**核心实现**:
+#### 2. 定時備份（兜底）
+
+```
+Cron 觸發 (每天)
+    ↓
+檢查資料是否變化
+    ↓
+如果變化 → 執行備份
+```
+
+**核心實現**:
 
 ```javascript
 class BackupManager {
@@ -593,7 +593,7 @@ class BackupManager {
 	}
 
 	/**
-	 * 触发备份（支持并发合并）
+	 * 觸發備份（支援併發合併）
 	 */
 	async triggerBackup(secrets, options = {}) {
 		const { immediate = false, reason = 'event-driven', ctx } = options;
@@ -607,7 +607,7 @@ class BackupManager {
 	}
 
 	/**
-	 * 执行备份
+	 * 執行備份
 	 */
 	async executeBackup(secrets, reason, ctx) {
 		this.backupInProgress = true;
@@ -626,7 +626,7 @@ class BackupManager {
 			await this._cleanupOldBackupsAsync();
 			return { success: true, backupKey: backupEntry.backupKey, format: backupEntry.format };
 		} catch (error) {
-			this.logger.error('❌ 备份失败', { reason }, error);
+			this.logger.error('❌ 備份失敗', { reason }, error);
 			throw error;
 		} finally {
 			this.backupInProgress = false;
@@ -634,21 +634,21 @@ class BackupManager {
 	}
 
 	/**
-	 * 清理旧备份
+	 * 清理舊備份
 	 */
 	async _cleanupOldBackupsAsync() {
 		const list = await this.env.SECRETS_KV.list({ prefix: 'backup_' });
 		const backups = list.keys;
 
 		if (backups.length > MAX_BACKUPS) {
-			// 按时间排序，删除最旧的备份
+			// 按時間排序，刪除最舊的備份
 			const toDelete = backups.sort((a, b) => a.name.localeCompare(b.name)).slice(0, backups.length - MAX_BACKUPS);
 
 			for (const backup of toDelete) {
 				await this.env.SECRETS_KV.delete(backup.name);
 			}
 
-			this.logger.info(`🗑️ 已清理 ${toDelete.length} 个旧备份`);
+			this.logger.info(`🗑️ 已清理 ${toDelete.length} 箇舊備份`);
 		}
 	}
 }
@@ -656,11 +656,11 @@ class BackupManager {
 
 ---
 
-### 8. 监控系统 (`utils/logger.js` + `utils/monitoring.js`)
+### 8. 監控系統 (`utils/logger.js` + `utils/monitoring.js`)
 
-**职责**: 提供结构化日志和错误追踪
+**職責**: 提供結構化日誌和錯誤追蹤
 
-**日志系统架构**:
+**日誌系統架構**:
 
 ```
 ┌───────────────┐
@@ -668,13 +668,13 @@ class BackupManager {
 │  (logger.js)  │
 └───────┬───────┘
         │
-        ├─→ Console (开发环境)
+        ├─→ Console (開發環境)
         └─→ Cloudflare Analytics
 ```
 
 **核心功能**:
 
-#### 结构化日志
+#### 結構化日誌
 
 ```javascript
 class Logger {
@@ -691,7 +691,7 @@ class Logger {
 	error(message, meta = {}, error = null) {
 		this._log('ERROR', message, { ...meta, error: error?.stack });
 
-		// 同时发送到错误监控
+		// 同時傳送到錯誤監控
 		if (error) {
 			monitoring.captureError(error, meta, ErrorSeverity.ERROR);
 		}
@@ -713,7 +713,7 @@ class Logger {
 }
 ```
 
-#### 性能计时
+#### 效能計時
 
 ```javascript
 class PerformanceTimer {
@@ -738,7 +738,7 @@ class PerformanceTimer {
 			...meta,
 		});
 
-		// 记录到性能监控
+		// 記錄到效能監控
 		monitoring.recordMetric(this.name, duration, 'ms', meta);
 	}
 }
@@ -746,21 +746,21 @@ class PerformanceTimer {
 
 ---
 
-### 9. 限流系统 (`utils/rateLimit.js`)
+### 9. 限流系統 (`utils/rateLimit.js`)
 
-**职责**: 为显式调用它的处理函数提供基于 Cloudflare KV 的请求频率限制。
+**職責**: 為顯式呼叫它的處理函式提供基於 Cloudflare KV 的請求頻率限制。
 
-`checkRateLimit` 默认使用滑动窗口，也保留 `algorithm: 'fixed-window'` 的兼容路径。默认路径使用 `ratelimit:v2:<key>` 存储请求时间戳：
+`checkRateLimit` 預設使用滑動視窗，也保留 `algorithm: 'fixed-window'` 的相容路徑。預設路徑使用 `ratelimit:v2:<key>` 儲存請求時間戳：
 
-1. 从 KV 读取时间戳，过滤掉窗口外的记录。
-2. 记录数达到限额时拒绝请求，并以最早记录的过期时刻计算 `resetAt`。
-3. 未达到限额时追加当前时间戳并写回 KV，设置过期时间。
+1. 從 KV 讀取時間戳，過濾掉視窗外的記錄。
+2. 記錄數達到限額時拒絕請求，並以最早記錄的過期時刻計算 `resetAt`。
+3. 未達到限額時追加當前時間戳並寫回 KV，設定過期時間。
 
-允许请求通常需要一次 KV 读取和一次写入。KV 读写不构成原子计数，因此该实现不保证高并发下严格的全局配额；KV 异常时采取 Fail Open，允许请求继续。
+允許請求通常需要一次 KV 讀取和一次寫入。KV 讀寫不構成原子計數，因此該實現不保證高併發下嚴格的全域性配額；KV 異常時採取 Fail Open，允許請求繼續。
 
-**预设策略**:
+**預設策略**:
 
-| 预设          | 配置           |
+| 預設          | 配置           |
 | ------------- | -------------- |
 | `login`       | 5 次 / 60 秒   |
 | `loginStrict` | 3 次 / 60 秒   |
@@ -769,116 +769,116 @@ class PerformanceTimer {
 | `bulk`        | 20 次 / 300 秒 |
 | `global`      | 100 次 / 60 秒 |
 
-以上是可复用配置，并非所有端点自动继承的规则。实际启用情况由处理函数的调用决定；共享相同 key 的操作也会共享计数记录。详见 [API 限流说明](API_REFERENCE.md#rate-limiting)。
+以上是可複用配置，並非所有端點自動繼承的規則。實際啟用情況由處理函式的呼叫決定；共享相同 key 的操作也會共享計數記錄。詳見 [API 限流說明](API_REFERENCE.md#rate-limiting)。
 
 ---
 
-## 数据流
+## 資料流
 
-### 完整请求处理流程
+### 完整請求處理流程
 
 ```mermaid
 graph TD
-    A[用户请求] --> B{CORS 预检?}
-    B -->|是| C[返回 CORS 响应]
-    B -->|否| D[初始化日志和监控]
-    D --> E[开始性能追踪]
-    E --> F{需要认证?}
+    A[使用者請求] --> B{CORS 預檢?}
+    B -->|是| C[返回 CORS 響應]
+    B -->|否| D[初始化日誌和監控]
+    D --> E[開始效能追蹤]
+    E --> F{需要認證?}
     F -->|是| G{Token 有效?}
-    G -->|否| H[返回 401 未授权]
+    G -->|否| H[返回 401 未授權]
     G -->|是| I[路由解析]
     F -->|否| I
-    I --> J{路由类型}
-    J -->|静态页面| K[生成 HTML]
-    J -->|API 请求| L{处理函数是否启用限流?}
-    J -->|PWA 资源| M[返回 Manifest/SW/Icon]
-    L -->|是| L1{检查限流}
-    L1 -->|超过限流| N[返回 429]
-    L1 -->|通过| O[处理 API 请求]
+    I --> J{路由型別}
+    J -->|靜態頁面| K[生成 HTML]
+    J -->|API 請求| L{處理函式是否啟用限流?}
+    J -->|PWA 資源| M[返回 Manifest/SW/Icon]
+    L -->|是| L1{檢查限流}
+    L1 -->|超過限流| N[返回 429]
+    L1 -->|通過| O[處理 API 請求]
     L -->|否| O
-    O --> P{操作类型}
-    P -->|读取| Q[从 KV 读取]
-    P -->|写入| R[验证数据]
-    Q --> S[解密数据]
-    R --> T[加密数据]
-    S --> U[返回响应]
-    T --> V[保存到 KV]
-    V --> W[触发备份]
+    O --> P{操作型別}
+    P -->|讀取| Q[從 KV 讀取]
+    P -->|寫入| R[驗證資料]
+    Q --> S[解密資料]
+    R --> T[加密資料]
+    S --> U[返回響應]
+    T --> V[儲存到 KV]
+    V --> W[觸發備份]
     W --> U
     K --> U
     M --> U
-    U --> X[记录性能指标]
-    X --> Y[结束]
+    U --> X[記錄效能指標]
+    X --> Y[結束]
 ```
 
-### 数据加密流程
+### 資料加密流程
 
 ```mermaid
 graph LR
-    A[用户提交密钥] --> B[客户端验证]
-    B --> C[发送到 API]
+    A[使用者提交金鑰] --> B[客戶端驗證]
+    B --> C[傳送到 API]
     C --> D{ENCRYPTION_KEY<br/>已配置?}
-    D -->|是| E[生成随机 IV]
+    D -->|是| E[生成隨機 IV]
     E --> F[AES-GCM 加密]
-    F --> G[生成认证标签]
+    F --> G[生成認證標籤]
     G --> H[打包: encrypted+iv]
-    H --> I[Base64 编码]
-    I --> J[添加加密标记]
-    J --> K[存储到 KV]
+    H --> I[Base64 編碼]
+    I --> J[新增加密標記]
+    J --> K[儲存到 KV]
     D -->|否| L[JSON.stringify]
     L --> K
 
-    K2[从 KV 读取] --> M{检测加密标记}
-    M -->|已加密| N[Base64 解码]
+    K2[從 KV 讀取] --> M{檢測加密標記}
+    M -->|已加密| N[Base64 解碼]
     N --> O[提取 encrypted+iv]
     O --> P[AES-GCM 解密]
-    P --> Q[验证认证标签]
-    Q --> R[返回明文数据]
+    P --> Q[驗證認證標籤]
+    Q --> R[返回明文資料]
     M -->|未加密| S[JSON.parse]
     S --> R
 ```
 
-### 备份触发流程
+### 備份觸發流程
 
 ```mermaid
 graph TD
-    A[数据变更操作] --> B[保存到 KV]
-    B --> C[触发备份]
-    C --> D{正在备份?}
-    D -->|是| E[合并到待处理备份队列]
-    D -->|否| I[立即执行备份]
-    I --> J[加密备份数据]
-    J --> K[生成备份ID]
-    K --> L[保存到 KV]
-    L --> M[更新备份列表]
-    M --> N{备份数量 > 100?}
-    N -->|是| O[删除最旧备份]
+    A[資料變更操作] --> B[儲存到 KV]
+    B --> C[觸發備份]
+    C --> D{正在備份?}
+    D -->|是| E[合併到待處理備份佇列]
+    D -->|否| I[立即執行備份]
+    I --> J[加密備份資料]
+    J --> K[生成備份ID]
+    K --> L[儲存到 KV]
+    L --> M[更新備份列表]
+    M --> N{備份數量 > 100?}
+    N -->|是| O[刪除最舊備份]
     N -->|否| P[完成]
     O --> P
 
-    Q[定时任务<br/>每天] --> R{数据有变化?}
+    Q[定時任務<br/>每天] --> R{資料有變化?}
     R -->|是| C
-    R -->|否| S[跳过]
+    R -->|否| S[跳過]
 ```
 
 ---
 
-## 前端架构
+## 前端架構
 
-### 模块化 JavaScript
+### 模組化 JavaScript
 
 ```
 scripts/
-├── utils.js / state.js / time.js        # 通用函数、状态与校准时间
-├── auth.js / otp.js                     # 认证、OTP 计算与刷新
-├── ui.js / search.js / settings.js      # 页面交互、显示控制与设置
-├── core.js / serviceAggregation.js      # 密钥业务与服务分组
-├── pwa.js / moduleLoader.js             # PWA 与按需模块加载
-├── versionCheck.js                      # 版本检查
-└── import/ export.js backup.js 等       # 按需加载的功能模块
+├── utils.js / state.js / time.js        # 通用函式、狀態與校準時間
+├── auth.js / otp.js                     # 認證、OTP 計算與重新整理
+├── ui.js / search.js / settings.js      # 頁面互動、顯示控制與設定
+├── core.js / serviceAggregation.js      # 金鑰業務與服務分組
+├── pwa.js / moduleLoader.js             # PWA 與按需模組載入
+├── versionCheck.js                      # 版本檢查
+└── import/ export.js backup.js 等       # 按需載入的功能模組
 ```
 
-**模块加载流程**:
+**模組載入流程**:
 
 ```
 page.js → scripts/index.js
@@ -890,51 +890,51 @@ page.js → scripts/index.js
          ↓
     inline <script>
          ↓
-    页面加载完成执行
+    頁面載入完成執行
 ```
 
-导入、导出、备份、二维码、Google 迁移和工具模块在默认模式下通过 `/modules/*.js` 按需加载；完整模式由 `scripts/index.js` 按依赖顺序直接拼接。
+匯入、匯出、備份、二維碼、Google 遷移和工具模組在預設模式下通過 `/modules/*.js` 按需載入；完整模式由 `scripts/index.js` 按依賴順序直接拼接。
 
-### 模块化 CSS
+### 模組化 CSS
 
 ```
 styles/
-├── variables.js      # 主题变量、浅深色配置和切换过渡
+├── variables.js      # 主題變數、淺深色配置和切換過渡
 │
-├── base.js           # 基础样式
+├── base.js           # 基礎樣式
 │   ├── * { box-sizing, margin, padding }
 │   ├── body { font, background }
 │   ├── .container
 │   ├── .header
-│   └── 基础表单与菜单
+│   └── 基礎表單與選單
 │
-├── components.js     # 组件样式
+├── components.js     # 元件樣式
 │   ├── .secret-card
 │   ├── .otp-preview
 │   ├── .progress-bar
 │   ├── .action-menu
 │   └── .search-bar
 │
-├── modals.js         # 模态框样式
+├── modals.js         # 模態框樣式
 │   ├── .modal
 │   ├── .modal-content
 │   ├── .modal-header
 │   ├── .form-group
 │   └── .btn-*
 │
-├── responsive.js     # 响应式样式
+├── responsive.js     # 響應式樣式
 │   ├── @media (max-width: 480px)
 │   ├── @media (min-width: 481px)
 │   └── @media (min-width: 1200px)
 │
-├── progress.js       # 共享进度条尺寸与渐变常量
-├── workspace.js      # Fluent 2 主工作区和卡片
-├── dialogs.js        # Fluent 2 对话框与设置页
-├── setup.js          # 首次设置页
-└── backupDocument.js # HTML 备份/导出文档
+├── progress.js       # 共享進度條尺寸與漸變常量
+├── workspace.js      # Fluent 2 主工作區和卡片
+├── dialogs.js        # Fluent 2 對話方塊與設定頁
+├── setup.js          # 首次設定頁
+└── backupDocument.js # HTML 備份/匯出文件
 ```
 
-**样式加载流程**:
+**樣式載入流程**:
 
 ```
 page.js → styles/index.js
@@ -946,76 +946,76 @@ page.js → styles/index.js
     ├─ import workspace.js
     └─ import dialogs.js
          ↓
-    合并为单个 <style> 标签
+    合併為單個 <style> 標籤
          ↓
     inline 到 HTML
 ```
 
-### PWA 架构
+### PWA 架構
 
-#### Service Worker 缓存策略
+#### Service Worker 快取策略
 
 ```
 Service Worker (sw.js)
 ├── Versioned Cache: 2fa-cache-${SW_VERSION}
-│   ├── / (主页面离线回退)
+│   ├── / (主頁面離線回退)
 │   ├── /manifest.json
 │   ├── /icon-192.png / icon-512.png
-│   └── 白名单 CDN（首次请求后缓存）
+│   └── 白名單 CDN（首次請求後快取）
 ├── IndexedDB: pending-operations
-│   └── 支持的离线写操作队列
-└── 激活新版本时清理旧缓存
+│   └── 支援的離線寫操作佇列
+└── 啟用新版本時清理舊快取
 ```
 
-**缓存策略**:
+**快取策略**:
 
-- **主页**: Network First，失败时返回缓存或完整离线页
+- **主頁**: Network First，失敗時返回快取或完整離線頁
 - **Favicon 代理**: Cache First
-- **CDN 资源**: 缓存命中后后台更新；首次请求通过 CORS 获取并缓存
-- **API 请求**（Favicon 代理除外）: 请求网络，不缓存响应；支持的密钥写操作遇到网络错误时进入离线队列
-- **其他同源资源**: Network Only；网络错误时返回 503，无 Service Worker 缓存回退
-- **其他外部资源**: Network Only；网络错误时返回空 404，无 Service Worker 缓存回退
+- **CDN 資源**: 快取命中後後臺更新；首次請求通過 CORS 獲取並快取
+- **API 請求**（Favicon 代理除外）: 請求網路，不快取響應；支援的金鑰寫操作遇到網路錯誤時進入離線佇列
+- **其他同源資源**: Network Only；網路錯誤時返回 503，無 Service Worker 快取回退
+- **其他外部資源**: Network Only；網路錯誤時返回空 404，無 Service Worker 快取回退
 
-**更新机制**:
+**更新機制**:
 
 ```text
-install  → 预缓存主页、manifest 和图标 → skipWaiting
-activate → 删除旧版本缓存 → clients.claim
-fetch /  → 请求网络 → 成功则更新缓存 → 失败则缓存/离线页
-fetch API → 请求网络 → 支持的写操作失败则保存到 IndexedDB
-fetch CDN → 命中缓存立即返回并后台更新；未命中则通过 CORS 获取
+install  → 預快取主頁、manifest 和圖示 → skipWaiting
+activate → 刪除舊版本快取 → clients.claim
+fetch /  → 請求網路 → 成功則更新快取 → 失敗則快取/離線頁
+fetch API → 請求網路 → 支援的寫操作失敗則儲存到 IndexedDB
+fetch CDN → 命中快取立即返回並後臺更新；未命中則通過 CORS 獲取
 ```
 
 ---
 
-## 设计模式
+## 設計模式
 
-### 1. 模块化设计 (Modular Design)
+### 1. 模組化設計 (Modular Design)
 
-**原则**: 每个模块负责单一职责
+**原則**: 每個模組負責單一職責
 
 ```
-✅ 好的模块设计:
-- auth.js: 只处理认证相关逻辑
-- encryption.js: 只处理加密解密
-- backup.js: 只处理备份逻辑
+✅ 好的模組設計:
+- auth.js: 只處理認證相關邏輯
+- encryption.js: 只處理加密解密
+- backup.js: 只處理備份邏輯
 
-❌ 不好的设计:
-- utils.js: 混杂了认证、加密、备份等所有功能
+❌ 不好的設計:
+- utils.js: 混雜了認證、加密、備份等所有功能
 ```
 
-### 2. 依赖注入 (Dependency Injection)
+### 2. 依賴注入 (Dependency Injection)
 
-**应用**: 环境变量 (`env`) 通过参数传递
+**應用**: 環境變數 (`env`) 通過引數傳遞
 
 ```javascript
-// ✅ 好的设计
+// ✅ 好的設計
 export async function handleGetSecrets(env) {
-	const logger = getLogger(env); // 注入依赖
+	const logger = getLogger(env); // 注入依賴
 	const data = await env.SECRETS_KV.get('secrets');
 }
 
-// ❌ 不好的设计
+// ❌ 不好的設計
 let globalEnv;
 export function initEnv(env) {
 	globalEnv = env;
@@ -1025,12 +1025,12 @@ export async function handleGetSecrets() {
 }
 ```
 
-### 3. 工厂模式 (Factory Pattern)
+### 3. 工廠模式 (Factory Pattern)
 
-**应用**: 创建响应对象
+**應用**: 建立響應物件
 
 ```javascript
-// 工厂函数
+// 工廠函式
 export function createJsonResponse(data, status = 200) {
 	return new Response(JSON.stringify(data), {
 		status,
@@ -1047,10 +1047,10 @@ return createJsonResponse({ success: true, data: secrets });
 
 ### 4. 策略模式 (Strategy Pattern)
 
-**应用**: OTP 算法选择
+**應用**: OTP 演算法選擇
 
 ```javascript
-// 策略接口
+// 策略介面
 const OTP_STRATEGIES = {
 	totp: generateTOTP,
 	hotp: generateHOTP,
@@ -1066,12 +1066,12 @@ export async function generateOTP(secret, type = 'totp', options = {}) {
 }
 ```
 
-### 5. 装饰器模式 (Decorator Pattern)
+### 5. 裝飾器模式 (Decorator Pattern)
 
-**应用**: 性能监控包装
+**應用**: 效能監控包裝
 
 ```javascript
-// 装饰器
+// 裝飾器
 function withPerformanceLogging(fn, name) {
 	return async function (...args) {
 		const timer = new PerformanceTimer(name, logger);
@@ -1088,48 +1088,48 @@ function withPerformanceLogging(fn, name) {
 
 // 使用
 const handleGetSecrets = withPerformanceLogging(async (env) => {
-	// 原始逻辑
+	// 原始邏輯
 }, 'GetSecrets');
 ```
 
-### 6. 中间件模式 (Middleware Pattern)
+### 6. 中介軟體模式 (Middleware Pattern)
 
-**应用**: CORS、认证和日志等横切逻辑与具体业务处理分离。
+**應用**: CORS、認證和日誌等橫切邏輯與具體業務處理分離。
 
 ```text
-请求 → CORS / 日志 → 路由与认证 → 具体处理函数 → 响应
-                                  └─ 按需检查限流
+請求 → CORS / 日誌 → 路由與認證 → 具體處理函式 → 響應
+                                  └─ 按需檢查限流
 ```
 
-当前路由没有统一的全局限流步骤。限流在具体处理函数中显式执行；`withRateLimit` 提供可选包装器，但不能据此认定所有路由都已接入。
+當前路由沒有統一的全侷限流步驟。限流在具體處理函式中顯式執行；`withRateLimit` 提供可選包裝器，但不能據此認定所有路由都已接入。
 
-### 7. 观察者模式 (Observer Pattern)
+### 7. 觀察者模式 (Observer Pattern)
 
-**应用**: 数据变更 → 备份触发
+**應用**: 資料變更 → 備份觸發
 
 ```javascript
-// 主题 (Subject)
+// 主題 (Subject)
 async function saveSecretsToKV(env, secrets, reason) {
-	// 保存数据
+	// 儲存資料
 	await env.SECRETS_KV.put('secrets', encrypted);
 
-	// 通知观察者
-	await triggerBackup(secrets, env, { reason }); // 观察者
+	// 通知觀察者
+	await triggerBackup(secrets, env, { reason }); // 觀察者
 }
 
-// 观察者 (Observer)
+// 觀察者 (Observer)
 export async function triggerBackup(secrets, env, options) {
-	// 响应数据变更事件
+	// 響應資料變更事件
 	await backupManager.executeBackup(secrets, options.reason);
 }
 ```
 
-### 8. 单例模式 (Singleton Pattern)
+### 8. 單例模式 (Singleton Pattern)
 
-**应用**: 备份管理器、监控系统
+**應用**: 備份管理器、監控系統
 
 ```javascript
-// 单例模式
+// 單例模式
 let backupManagerInstance = null;
 
 export function getBackupManager(env) {
@@ -1142,106 +1142,106 @@ export function getBackupManager(env) {
 
 ---
 
-## 性能优化
+## 效能最佳化
 
-### 1. 代码优化
+### 1. 程式碼最佳化
 
-- **模块化**: 拆分为小模块，便于维护和缓存
-- **懒加载**: Service Worker 按需缓存资源
-- **最小化**: 减少不必要的计算和内存使用
+- **模組化**: 拆分為小模組，便於維護和快取
+- **懶載入**: Service Worker 按需快取資源
+- **最小化**: 減少不必要的計算和記憶體使用
 
-### 2. 缓存策略
+### 2. 快取策略
 
-- **静态资源**: 长期缓存（PWA）
-- **CDN 资源**: 缓存优先策略
-- **API 响应**: 不缓存（实时数据）
+- **靜態資源**: 長期快取（PWA）
+- **CDN 資源**: 快取優先策略
+- **API 響應**: 不快取（即時資料）
 
-### 3. 数据库优化
+### 3. 資料庫最佳化
 
-- **批量操作**: 一次性读取和写入
-- **数据压缩**: 使用加密同时压缩数据
-- **索引优化**: 使用有意义的 KV key
+- **批次操作**: 一次性讀取和寫入
+- **資料壓縮**: 使用加密同時壓縮資料
+- **索引最佳化**: 使用有意義的 KV key
 
-### 4. 网络优化
+### 4. 網路最佳化
 
 - **全球 CDN**: Cloudflare Edge Network
-- **HTTP/2**: 多路复用
-- **压缩**: Gzip/Brotli 自动压缩
+- **HTTP/2**: 多路複用
+- **壓縮**: Gzip/Brotli 自動壓縮
 
 ---
 
-## 安全架构
+## 安全架構
 
-### 多层安全防护
+### 多層安全防護
 
 ```
 ┌────────────────────────────────────────┐
-│  1. Cloudflare Edge 层                 │
-│     - DDoS 防护                        │
+│  1. Cloudflare Edge 層                 │
+│     - DDoS 防護                        │
 │     - WAF (Web Application Firewall)   │
 │     - Bot 管理                         │
 └────────────┬───────────────────────────┘
              │
 ┌────────────▼───────────────────────────┐
-│  2. 应用层安全                         │
-│     - HttpOnly Cookie 认证             │
-│     - CORS 白名单                      │
+│  2. 應用層安全                         │
+│     - HttpOnly Cookie 認證             │
+│     - CORS 白名單                      │
 │     - CSP Header                       │
 │     - Rate Limiting                    │
 └────────────┬───────────────────────────┘
              │
 ┌────────────▼───────────────────────────┐
-│  3. 数据层安全                         │
+│  3. 資料層安全                         │
 │     - AES-GCM 256 位加密               │
-│     - Cloudflare Secrets 存储密钥      │
-│     - 加密备份                         │
+│     - Cloudflare Secrets 儲存金鑰      │
+│     - 加密備份                         │
 └────────────┬───────────────────────────┘
              │
 ┌────────────▼───────────────────────────┐
-│  4. 监控和审计                         │
-│     - 结构化日志                       │
-│     - 错误追踪                         │
-│     - 性能监控                         │
+│  4. 監控和審計                         │
+│     - 結構化日誌                       │
+│     - 錯誤追蹤                         │
+│     - 效能監控                         │
 └────────────────────────────────────────┘
 ```
 
 ---
 
-## 扩展性设计
+## 擴充套件性設計
 
-### 水平扩展
+### 水平擴充套件
 
-- ✅ 无状态设计：每个请求独立处理
-- ✅ 全球分布：自动在边缘节点运行
-- ✅ 自动扩缩容：根据流量自动调整
+- ✅ 無狀態設計：每個請求獨立處理
+- ✅ 全球分佈：自動在邊緣節點執行
+- ✅ 自動擴縮容：根據流量自動調整
 
-### 功能扩展
+### 功能擴充套件
 
-- ✅ 插件式架构：新功能作为独立模块添加
-- ✅ 策略模式：易于添加新的 OTP 算法
-- ✅ 中间件模式：易于添加新的请求处理逻辑
-
----
-
-## 总结
-
-2FA 采用现代化的无服务器架构，具有以下特点：
-
-| 特性       | 说明                                 |
-| ---------- | ------------------------------------ |
-| **高性能** | 全球 CDN + 边缘计算，平均响应 < 50ms |
-| **高可用** | 99.99% SLA，自动故障转移             |
-| **高安全** | 多层安全防护 + AES-256 加密          |
-| **易维护** | 模块化设计 + 完整监控                |
-| **易扩展** | 无状态 + 插件式架构                  |
-| **低成本** | 按需计费 + 免费额度                  |
+- ✅ 外掛式架構：新功能作為獨立模組新增
+- ✅ 策略模式：易於新增新的 OTP 演算法
+- ✅ 中介軟體模式：易於新增新的請求處理邏輯
 
 ---
 
-**相关文档**:
+## 總結
 
-- [部署指南](DEPLOYMENT.md) - 如何部署应用
-- [API 参考](API_REFERENCE.md) - API 端点文档
-- [项目说明](../README.md) - 功能概览与使用指南
+2FA 採用現代化的無伺服器架構，具有以下特點：
+
+| 特性           | 說明                                 |
+| -------------- | ------------------------------------ |
+| **高效能**     | 全球 CDN + 邊緣計算，平均響應 < 50ms |
+| **高可用**     | 99.99% SLA，自動故障轉移             |
+| **高安全**     | 多層安全防護 + AES-256 加密          |
+| **易維護**     | 模組化設計 + 完整監控                |
+| **易擴充套件** | 無狀態 + 外掛式架構                  |
+| **低成本**     | 按需計費 + 免費額度                  |
+
+---
+
+**相關文件**:
+
+- [部署指南](DEPLOYMENT.md) - 如何部署應用
+- [API 參考](API_REFERENCE.md) - API 端點文件
+- [專案說明](../README.md) - 功能概覽與使用指南
 
 ---

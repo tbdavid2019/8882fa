@@ -44,7 +44,7 @@ SW_VERSION = "v1"
 
 		const updated = injectWorkerVersion(config, 'v1.7.0');
 
-		// 漏替换任一处都会让该环境的 Service Worker 缓存版本停在旧值，用户拿不到更新
+		// 漏替換任一處都會讓該環境的 Service Worker 快取版本停在舊值，使用者拿不到更新
 		expect(updated.match(/SW_VERSION = "v1\.7\.0"/g)).toHaveLength(2);
 		expect(updated).not.toContain('SW_VERSION = "v1"');
 	});

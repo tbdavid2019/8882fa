@@ -1,20 +1,20 @@
 /**
- * 导出模块 - 标准格式
- * 包含 OTPAuth、JSON、CSV、HTML 等标准格式导出
+ * 匯出模組 - 標準格式
+ * 包含 OTPAuth、JSON、CSV、HTML 等標準格式匯出
  */
 
 import { getStandaloneHead } from '../../standalone.js';
 import { getBackupDocumentStyles } from '../../styles/backupDocument.js';
 
 /**
- * 获取标准格式导出代码
- * @returns {string} JavaScript 代码
+ * 獲取標準格式匯出程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getStandardFormatsCode() {
 	return `
-    // ========== 标准格式导出 ==========
+    // ========== 標準格式匯出 ==========
 
-    // 通用导出函数
+    // 通用匯出函式
     async function exportSecretsAsFormat(secretsData, format, options = {}) {
       const opts = {
         filenamePrefix: options.filenamePrefix || '2FA-secrets',
@@ -80,7 +80,7 @@ export function getStandardFormatsCode() {
       }
     }
 
-    // 导出为 OTPAuth 文本格式
+    // 匯出為 OTPAuth 文本格式
     async function exportStandardFormatLocally(sortedSecrets, format, options = {}) {
       switch (format) {
         case 'txt':
@@ -240,7 +240,7 @@ export function getStandardFormatsCode() {
       }
     }
 
-    // 导出为 JSON 格式
+    // 匯出為 JSON 格式
     async function exportAsJSON(sortedSecrets, options = {}) {
       const filenamePrefix = options.filenamePrefix || '2FA-secrets';
       const exportData = {
@@ -276,7 +276,7 @@ export function getStandardFormatsCode() {
       }
     }
 
-    // 导出为 CSV 格式
+    // 匯出為 CSV 格式
     async function exportAsCSV(sortedSecrets, options = {}) {
       const filenamePrefix = options.filenamePrefix || '2FA-secrets';
       const _t = typeof t === 'function' ? t : (k) => null;

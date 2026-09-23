@@ -1,6 +1,6 @@
 /**
- * WebAuthn / FIDO2 / Touch ID / Passkey 模块
- * 提供基于纯 Web Crypto API 的无依赖 Passkey 认证与管理
+ * WebAuthn / FIDO2 / Touch ID / Passkey 模組
+ * 提供基於純 Web Crypto API 的無依賴 Passkey 認證與管理
  */
 
 import { getJwtExpiryDays, generateJWT, createSetCookieHeader, verifyAuthWithDetails } from '../utils/auth.js';
@@ -9,7 +9,7 @@ import { getClientIdentifier, checkRateLimit, createRateLimitResponse, RATE_LIMI
 import { createJsonResponse, createErrorResponse } from '../utils/response.js';
 import { getLogger } from '../utils/logger.js';
 
-// ==================== Base64URL 工具函数 ====================
+// ==================== Base64URL 工具函式 ====================
 
 export function base64UrlToBytes(base64url) {
 	const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
@@ -30,12 +30,12 @@ export function bytesToBase64Url(bytes) {
 	return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-// ==================== 密码学转换函数 ====================
+// ==================== 密碼學轉換函式 ====================
 
 /**
- * 将 WebAuthn 浏览器回传的 ASN.1 DER 编码签名转换为 Web Crypto 所需的 64 字节 IEEE P1363 格式 (r || s)
+ * 將 WebAuthn 瀏覽器回傳的 ASN.1 DER 編碼簽名轉換為 Web Crypto 所需的 64 位元組 IEEE P1363 格式 (r || s)
  * @param {Uint8Array} derBytes
- * @returns {Uint8Array} 64 字节签名
+ * @returns {Uint8Array} 64 位元組簽名
  */
 export function derToP1363(derBytes) {
 	let offset = 0;
@@ -60,7 +60,7 @@ export function derToP1363(derBytes) {
 	const sLen = derBytes[offset++];
 	let s = derBytes.slice(offset, offset + sLen);
 
-	// 移除正负号补零 (0x00 前缀) 或左侧补零至 32 字节
+	// 移除正負號補零 (0x00 字首) 或左側補零至 32 位元組
 	if (r.length === 33 && r[0] === 0x00) {
 		r = r.slice(1);
 	}
@@ -75,7 +75,7 @@ export function derToP1363(derBytes) {
 }
 
 /**
- * 轻量零依赖 CBOR 解码器，用于解析 Attestation Object 与 COSE 公钥
+ * 輕量零依賴 CBOR 解碼器，用於解析 Attestation Object 與 COSE 公鑰
  * @param {Uint8Array} bytes
  * @returns {*}
  */
@@ -135,7 +135,7 @@ export function decodeCbor(bytes) {
 }
 
 /**
- * 解析 Attestation Object 并提取 Credential ID 与 Raw P-256 公钥
+ * 解析 Attestation Object 並提取 Credential ID 與 Raw P-256 公鑰
  * @param {Uint8Array} attestationBytes
  * @returns {{ credentialId: string, rawPublicKey: string }}
  */
@@ -166,7 +166,7 @@ export function parseAttestationAuthData(attestationBytes) {
 		throw new Error('Only ES256 (P-256) credentials are supported');
 	}
 
-	// 拼接未压缩的 65 字节公钥 (0x04 || X || Y)
+	// 拼接未壓縮的 65 位元組公鑰 (0x04 || X || Y)
 	const rawPublicKeyBytes = new Uint8Array(65);
 	rawPublicKeyBytes[0] = 0x04;
 	rawPublicKeyBytes.set(x, 1);
@@ -179,7 +179,7 @@ export function parseAttestationAuthData(attestationBytes) {
 }
 
 /**
- * 验证 WebAuthn 登录签名
+ * 驗證 WebAuthn 登入簽名
  */
 export async function verifyFidoAssertion({
 	publicKeyRawBase64,
@@ -237,7 +237,7 @@ export async function verifyFidoAssertion({
 	return true;
 }
 
-// ==================== API 路由处理函数 ====================
+// ==================== API 路由處理函式 ====================
 
 const CREDENTIALS_KEY = 'WEBAUTHN_CREDENTIALS';
 const CHALLENGE_PREFIX = 'WEBAUTHN_CHALLENGE_';
@@ -268,7 +268,7 @@ async function saveStoredCredentials(env, credentials) {
 }
 
 /**
- * 注册 Challenge 生成 (需已登录)
+ * 註冊 Challenge 生成 (需已登入)
  */
 export async function handleWebAuthnRegisterOptions(request, env) {
 	const auth = await verifyAuthWithDetails(request, env);
@@ -311,7 +311,7 @@ export async function handleWebAuthnRegisterOptions(request, env) {
 }
 
 /**
- * 注册 Passkey 凭据 (需已登录)
+ * 註冊 Passkey 憑據 (需已登入)
  */
 export async function handleWebAuthnRegister(request, env) {
 	const auth = await verifyAuthWithDetails(request, env);
@@ -325,7 +325,7 @@ export async function handleWebAuthnRegister(request, env) {
 		return createErrorResponse('Bad Request', 'Invalid WebAuthn registration payload', 400, request);
 	}
 
-	// 验证 Challenge
+	// 驗證 Challenge
 	const clientDataBytes = base64UrlToBytes(response.clientDataJSON);
 	const clientData = JSON.parse(new TextDecoder().decode(clientDataBytes));
 	const challengeKey = `${CHALLENGE_PREFIX}${clientData.challenge}`;
@@ -335,17 +335,17 @@ export async function handleWebAuthnRegister(request, env) {
 		if (!stored) {
 			return createErrorResponse('Bad Request', 'Challenge expired or invalid', 400, request);
 		}
-		// 一次性消费，防止重放攻击
+		// 一次性消費，防止重放攻擊
 		await env.SECRETS_KV.delete(challengeKey);
 	}
 
 	const attestationBytes = base64UrlToBytes(response.attestationObject);
 	const { credentialId, rawPublicKey } = parseAttestationAuthData(attestationBytes);
 
-	// 读取并保存到凭证库
+	// 讀取並儲存到憑證庫
 	let credentials = await loadStoredCredentials(env);
 
-	// 移除同 ID 的旧凭据
+	// 移除同 ID 的舊憑據
 	credentials = credentials.filter((c) => c.id !== credentialId);
 	credentials.push({
 		id: credentialId,
@@ -371,7 +371,7 @@ export async function handleWebAuthnRegister(request, env) {
 }
 
 /**
- * 登录 Challenge 生成 (公开接口)
+ * 登入 Challenge 生成 (公開介面)
  */
 export async function handleWebAuthnLoginOptions(request, env) {
 	const clientIP = getClientIdentifier(request, 'ip');
@@ -408,7 +408,7 @@ export async function handleWebAuthnLoginOptions(request, env) {
 }
 
 /**
- * 登录验证 (公开接口)
+ * 登入驗證 (公開介面)
  */
 export async function handleWebAuthnLogin(request, env) {
 	const logger = getLogger(env);
@@ -435,11 +435,11 @@ export async function handleWebAuthnLogin(request, env) {
 		if (!stored) {
 			return createErrorResponse('Bad Request', 'Challenge expired or invalid', 400, request);
 		}
-		// 消费 challenge
+		// 消費 challenge
 		await env.SECRETS_KV.delete(challengeKey);
 	}
 
-	// 查找对应凭据
+	// 查詢對應憑據
 	const credentials = await loadStoredCredentials(env);
 
 	const cred = credentials.find((c) => c.id === id);
@@ -466,7 +466,7 @@ export async function handleWebAuthnLogin(request, env) {
 		return createErrorResponse('Unauthorized', `Passkey verification failed: ${verifyErr.message}`, 401, request);
 	}
 
-	// 验证成功，签发标准 JWT 会话
+	// 驗證成功，簽發標準 JWT 會話
 	const storedPasswordHash =
 		env.SECRETS_KV && typeof env.SECRETS_KV.get === 'function'
 			? (await env.SECRETS_KV.get('user_password')) || 'webauthn-fallback-secret'
@@ -506,7 +506,7 @@ export async function handleWebAuthnLogin(request, env) {
 }
 
 /**
- * 列出已绑定的 Passkey 凭据 (需已登录)
+ * 列出已繫結的 Passkey 憑據 (需已登入)
  */
 export async function handleWebAuthnListCredentials(request, env) {
 	const auth = await verifyAuthWithDetails(request, env);
@@ -526,7 +526,7 @@ export async function handleWebAuthnListCredentials(request, env) {
 }
 
 /**
- * 删除已绑定的 Passkey 凭据 (需已登录)
+ * 刪除已繫結的 Passkey 憑據 (需已登入)
  */
 export async function handleWebAuthnDeleteCredential(request, env, credId) {
 	const auth = await verifyAuthWithDetails(request, env);

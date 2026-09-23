@@ -1,13 +1,13 @@
 /**
- * 二维码解析工具模块
+ * 二維碼解析工具模組
  */
 
 /**
- * 获取二维码解析工具代码
- * @returns {string} 二维码解析工具 JavaScript 代码
+ * 獲取二維碼解析工具程式碼
+ * @returns {string} 二維碼解析工具 JavaScript 程式碼
  */
 export function getQRDecodeToolCode() {
-	return `    // ==================== 二维码解析工具 ====================
+	return `    // ==================== 二維碼解析工具 ====================
 
     let decodeStream = null;
     let decodeInterval = null;
@@ -48,11 +48,11 @@ export function getQRDecodeToolCode() {
       const errorMessage = document.getElementById('decodeErrorMessage');
 
       try {
-        // 检查浏览器支持 - 增强iPad兼容性
+        // 檢查瀏覽器支援 - 增強iPad相容性
         if (!navigator.mediaDevices) {
-          // 尝试 polyfill for older browsers
+          // 嘗試 polyfill for older browsers
           if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
-            // 为旧版浏览器创建 polyfill
+            // 為舊版瀏覽器建立 polyfill
             navigator.mediaDevices = {};
             navigator.mediaDevices.getUserMedia = function(constraints) {
               const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -72,7 +72,7 @@ export function getQRDecodeToolCode() {
           throw new Error((typeof t === 'function' ? t('qrBrowserNoCamera') : null) || 'Your browser does not support camera access. Please use a modern browser.');
         }
 
-        // iPad 特殊处理：检查设备类型和权限
+        // iPad 特殊處理：檢查裝置型別和許可權
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isIPad = /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -84,9 +84,9 @@ export function getQRDecodeToolCode() {
           hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
         });
 
-        // 尝试多种配置以提高在不同设备上的兼容性
+        // 嘗試多種配置以提高在不同裝置上的相容性
         const configs = [
-          // 针对移动设备的配置（iPad/iPhone优化）
+          // 針對移動裝置的配置（iPad/iPhone最佳化）
           {
             video: {
               facingMode: { ideal: 'environment' },
@@ -94,7 +94,7 @@ export function getQRDecodeToolCode() {
               height: { min: 240, ideal: 720, max: 1280 }
             }
           },
-          // 降级配置1：降低分辨率
+          // 降級配置1：降低解析度
           {
             video: {
               facingMode: 'environment',
@@ -102,15 +102,15 @@ export function getQRDecodeToolCode() {
               height: { ideal: 480, max: 720 }
             }
           },
-          // 降级配置2：只要后置摄像头
+          // 降級配置2：只要後置攝像頭
           {
             video: { facingMode: 'environment' }
           },
-          // 降级配置3：前置摄像头（某些iPad可能默认只有前置或识别为前置）
+          // 降級配置3：前置攝像頭（某些iPad可能預設只有前置或識別為前置）
           {
             video: { facingMode: 'user' }
           },
-          // 最低配置：任意可用摄像头
+          // 最低配置：任意可用攝像頭
           {
             video: true
           }
@@ -137,7 +137,7 @@ export function getQRDecodeToolCode() {
         decodeStream = stream;
         video.srcObject = decodeStream;
 
-        // 等待视频加载并播放
+        // 等待影片載入並播放
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             reject(new Error((typeof t === 'function' ? t('qrCameraLoadTimeout') : null) || 'Camera loading timed out'));
@@ -160,7 +160,7 @@ export function getQRDecodeToolCode() {
         status.style.display = 'none';
         isDecodeScanning = true;
 
-        // 开始扫描
+        // 開始掃描
         setTimeout(() => {
           if (isDecodeScanning) {
             scanForDecodeQRCode();
@@ -241,11 +241,11 @@ export function getQRDecodeToolCode() {
     }
 
     function processDecodeResult(qrCodeData) {
-      // 停止扫描
+      // 停止掃描
       stopDecodeScanner();
       document.getElementById('decodeScannerContainer').style.display = 'none';
 
-      // 显示结果
+      // 顯示結果
       const resultContent = document.getElementById('decodeResultContent');
       const resultSection = document.getElementById('decodeResultSection');
 
@@ -326,7 +326,7 @@ export function getQRDecodeToolCode() {
         let qrDataURL = null;
         let generationMethod = 'unknown';
 
-        // 使用客户端本地生成二维码（隐私安全）
+        // 使用客戶端本地生成二維碼（隱私安全）
         qrDataURL = await generateQRCodeDataURL(content, {
           width: 200,
           height: 200
@@ -347,7 +347,7 @@ export function getQRDecodeToolCode() {
       }
     }
 
-    // ========== 剪贴板粘贴识别二维码（解析工具） ==========
+    // ========== 剪貼簿貼上識別二維碼（解析工具） ==========
 
     async function pasteImageForDecode() {
       try {
@@ -436,7 +436,7 @@ export function getQRDecodeToolCode() {
       reader.readAsDataURL(blob);
     }
 
-    // 初始化解析模态框的拖拽和粘贴事件
+    // 初始化解析模態框的拖拽和貼上事件
     function initDecodeModalDragPaste() {
       const modal = document.getElementById('qrDecodeModal');
       if (!modal || modal.dataset.dragPasteInit) return;
@@ -470,7 +470,7 @@ export function getQRDecodeToolCode() {
         }
       });
 
-      // Ctrl+V 粘贴事件（仅处理解析工具模态框）
+      // Ctrl+V 貼上事件（僅處理解析工具模態框）
       document.addEventListener('paste', function(e) {
         if (!modal.classList.contains('show')) return;
 

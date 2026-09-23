@@ -1,17 +1,17 @@
 /**
- * PWA (Progressive Web App) 功能模块
- * Service Worker 注册、PWA 检测、安装提示
+ * PWA (Progressive Web App) 功能模組
+ * Service Worker 註冊、PWA 檢測、安裝提示
  */
 
 /**
- * 获取 PWA 相关代码
- * @returns {string} PWA JavaScript 代码
+ * 獲取 PWA 相關程式碼
+ * @returns {string} PWA JavaScript 程式碼
  */
 export function getPWACode() {
-	return `// ==================== PWA Service Worker 注册 ====================
+	return `// ==================== PWA Service Worker 註冊 ====================
 
     /**
-     * 注册 Service Worker 以支持 PWA 和离线功能
+     * 註冊 Service Worker 以支援 PWA 和離線功能
      */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
@@ -22,7 +22,7 @@ export function getPWACode() {
 
           console.log('✅ Service Worker 注册成功:', registration.scope);
 
-          // 监听更新（仅记录日志，不显示通知）
+          // 監聽更新（僅記錄日誌，不顯示通知）
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             console.log('🔄 发现 Service Worker 更新');
@@ -34,13 +34,13 @@ export function getPWACode() {
             });
           });
 
-          // 监听控制器变化
+          // 監聽控制器變化
           navigator.serviceWorker.addEventListener('controllerchange', () => {
             console.log('🔄 Service Worker 控制器已更新');
             requestPendingOperationSync();
           });
 
-          // 📨 监听 Service Worker 消息（离线同步通知）
+          // 📨 監聽 Service Worker 訊息（離線同步通知）
           navigator.serviceWorker.addEventListener('message', (event) => {
             console.log('[PWA] 收到 Service Worker 消息:', event.data);
             handleServiceWorkerMessage(event.data);
@@ -48,7 +48,7 @@ export function getPWACode() {
 
           requestPendingOperationSync(registration);
 
-          // 定期检查更新（每小时）
+          // 定期檢查更新（每小時）
           setInterval(() => {
             registration.update().catch(err => {
               console.warn('检查 Service Worker 更新失败:', err);
@@ -57,7 +57,7 @@ export function getPWACode() {
 
         } catch (error) {
           console.warn('⚠️  Service Worker 注册失败:', error);
-          // PWA 功能不可用，但不影响应用正常运行
+          // PWA 功能不可用，但不影響應用正常執行
         }
       });
     } else {
@@ -65,14 +65,14 @@ export function getPWACode() {
     }
 
     /**
-     * 触发离线操作同步；不支持 Background Sync 时直接通知 Service Worker。
-     * @param {ServiceWorkerRegistration|null} registration - 当前注册对象
+     * 觸發離線操作同步；不支援 Background Sync 時直接通知 Service Worker。
+     * @param {ServiceWorkerRegistration|null} registration - 當前註冊物件
      */
     function requestPendingOperationSync(registration = null) {
       if (navigator.onLine === false) return;
 
       const postSyncMessage = () => {
-        // 注册后台同步失败时，页面可能已经离线。
+        // 註冊後臺同步失敗時，頁面可能已經離線。
         if (navigator.onLine !== false && navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({ type: 'SYNC_OPERATIONS' });
         }
@@ -89,24 +89,24 @@ export function getPWACode() {
     }
 
     /**
-     * 处理 Service Worker 消息
-     * @param {Object} message - 消息对象
+     * 處理 Service Worker 訊息
+     * @param {Object} message - 訊息物件
      */
     function handleServiceWorkerMessage(message) {
       const { type } = message;
 
       switch (type) {
         case 'SYNC_SUCCESS':
-          // 单个操作同步成功
+          // 單個操作同步成功
           console.log('✅ 离线操作已同步:', message.operationType, message.operationId);
-          // 刷新密钥列表
+          // 重新整理金鑰列表
           if (typeof loadSecrets === 'function') {
             loadSecrets();
           }
           break;
 
         case 'SYNC_FAILED':
-          // 单个操作同步失败
+          // 單個操作同步失敗
           console.error('❌ 离线操作同步失败:', message.operationType, message.error);
           showCenterToast('⚠️', (typeof t === 'function' ? t('pwaSyncFailed', { type: message.operationType }) : null) || ('Sync failed: ' + message.operationType));
           break;
@@ -117,7 +117,7 @@ export function getPWACode() {
 
           if (message.successCount > 0) {
             showCenterToast('✅', (typeof t === 'function' ? t('pwaSyncSuccessCount', { count: message.successCount }) : null) || ('Synced ' + message.successCount + ' offline actions'));
-            // 刷新密钥列表
+            // 重新整理金鑰列表
             if (typeof loadSecrets === 'function') {
               loadSecrets();
             }
@@ -127,7 +127,7 @@ export function getPWACode() {
             showCenterToast('⚠️', (typeof t === 'function' ? t('pwaSyncFailCount', { count: message.failCount }) : null) || (message.failCount + ' actions failed to sync'));
           }
 
-          // 网络传输失败只延后同步；在线信号可能滞后，保留页面重试机会。
+          // 網路傳輸失敗只延後同步；線上訊號可能滯後，保留頁面重試機會。
           if ((message.failCount > 0 || message.deferredCount > 0) && navigator.onLine !== false) {
             setTimeout(() => {
               navigator.serviceWorker.ready
@@ -143,7 +143,7 @@ export function getPWACode() {
     }
 
     /**
-     * 监听PWA安装提示事件
+     * 監聽PWA安裝提示事件
      */
     let deferredPrompt = null;
     const PWA_BANNER_DISMISS_KEY = 'pwa-banner-dismissed';
@@ -182,7 +182,7 @@ export function getPWACode() {
       const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
       if (isIos && isSafari) {
-        // iOS Safari: 提示通过分享按钮“加入主画面”
+        // iOS Safari: 提示通過分享按鈕“加入主畫面”
         const descEl = document.getElementById('pwaBannerDesc');
         const actionBtn = document.getElementById('pwaBannerActionBtn');
         if (descEl) {
@@ -197,7 +197,7 @@ export function getPWACode() {
       }
 
       if (deferredPrompt) {
-        // Chromium / Android / Edge: 提示原生安装
+        // Chromium / Android / Edge: 提示原生安裝
         banner.style.display = 'flex';
         requestAnimationFrame(() => banner.classList.add('show'));
       }
@@ -233,10 +233,10 @@ export function getPWACode() {
     });
 
     /**
-     * 同步 系统设置 › 偏好 的 PWA 安装按钮状态
-     * - PWA 模式下：隐藏整节
-     * - 已捕获 beforeinstallprompt：启用按钮
-     * - 未捕获：禁用并用 title 提示
+     * 同步 系統設定 › 偏好 的 PWA 安裝按鈕狀態
+     * - PWA 模式下：隱藏整節
+     * - 已捕獲 beforeinstallprompt：啟用按鈕
+     * - 未捕獲：停用並用 title 提示
      */
     function updateSettingsPwaInstallButton() {
       const section = document.getElementById('settingsPwaSection');
@@ -261,7 +261,7 @@ export function getPWACode() {
     }
 
     /**
-     * 从 系统设置 触发 PWA 安装
+     * 從 系統設定 觸發 PWA 安裝
      */
     async function triggerPwaInstallFromSettings() {
       const btn = document.getElementById('settingsPwaInstallBtn');
@@ -290,7 +290,7 @@ export function getPWACode() {
     }
 
     /**
-     * 监听PWA安装成功事件
+     * 監聽PWA安裝成功事件
      */
     window.addEventListener('appinstalled', () => {
       console.log('✅ PWA 应用已成功安装');
@@ -301,7 +301,7 @@ export function getPWACode() {
     });
 
     /**
-     * 检测是否在PWA模式下运行
+     * 檢測是否在PWA模式下執行
      */
     function isPWAMode() {
       return window.matchMedia('(display-mode: standalone)').matches ||
@@ -310,7 +310,7 @@ export function getPWACode() {
 
     if (isPWAMode()) {
       console.log('🚀 应用正在 PWA 模式下运行');
-      // 可以根据PWA模式调整UI
+      // 可以根據PWA模式調整UI
     }
 
     if (typeof window !== 'undefined') {
@@ -319,12 +319,12 @@ export function getPWACode() {
     }
 
     /**
-     * 监听在线/离线状态变化
+     * 監聽線上/離線狀態變化
      */
     window.addEventListener('online', () => {
       console.log('🌐 网络已连接');
 
-      // 移除离线横幅
+      // 移除離線橫幅
       document.body.classList.remove('offline-mode');
       const offlineBanner = document.getElementById('offline-banner');
       if (offlineBanner) {
@@ -334,7 +334,7 @@ export function getPWACode() {
 
       showCenterToast('🌐', (typeof t === 'function' ? t('pwaNetworkOnline') : null) || 'Network restored, syncing...');
 
-      // 手动触发同步（作为备用，如果 Background Sync 不可用）
+      // 手動觸發同步（作為備用，如果 Background Sync 不可用）
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.ready.then(requestPendingOperationSync).catch(err => {
           console.warn('手动触发同步失败:', err);
@@ -345,7 +345,7 @@ export function getPWACode() {
     window.addEventListener('offline', () => {
       console.log('📡 网络已断开');
 
-      // 添加离线横幅
+      // 新增離線橫幅
       document.body.classList.add('offline-mode');
       showOfflineBanner();
 
@@ -353,15 +353,15 @@ export function getPWACode() {
     });
 
     /**
-     * 显示离线横幅
+     * 顯示離線橫幅
      */
     function showOfflineBanner() {
-      // 检查是否已经显示过
+      // 檢查是否已經顯示過
       if (document.getElementById('offline-banner')) {
         return;
       }
 
-      // 创建离线横幅
+      // 建立離線橫幅
       const banner = document.createElement('div');
       banner.id = 'offline-banner';
       banner.className = 'offline-banner';
@@ -370,34 +370,34 @@ export function getPWACode() {
         '<span class="offline-banner-text">' + ((typeof t === 'function' ? t('pwaOfflineBanner') : null) || 'Offline mode - operations will sync automatically once connected') + '</span>';
       document.body.prepend(banner); // 添加到页面顶部
 
-      // 添加显示动画
+      // 新增顯示動畫
       setTimeout(() => banner.classList.add('show'), 100);
     }
 
-    // 初始化时检查网络状态
+    // 初始化時檢查網路狀態
     if (!navigator.onLine) {
       console.log('📡 应用启动时处于离线状态');
       document.body.classList.add('offline-mode');
       showOfflineBanner();
     }
 
-    // ==================== 页面可见性处理 ====================
-    // 解决手机切后台/锁屏后验证码不准确的问题
+    // ==================== 頁面可見性處理 ====================
+    // 解決手機切後臺/鎖屏後驗證碼不準確的問題
     
     /**
-     * 当页面从后台切回前台时，刷新所有验证码
-     * 原因：移动浏览器会暂停后台页面的定时器，导致验证码和倒计时不同步
+     * 當頁面從後臺切回前臺時，重新整理所有驗證碼
+     * 原因：移動瀏覽器會暫停後臺頁面的定時器，導致驗證碼和倒計時不同步
      */
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        // 页面变为可见（从后台切回前台）
+        // 頁面變為可見（從後臺切回前臺）
         console.log('📱 页面恢复可见，刷新所有验证码');
         
-        // 立即刷新所有OTP验证码，确保时间同步
+        // 立即重新整理所有OTP驗證碼，確保時間同步
         if (typeof secrets !== 'undefined' && secrets && secrets.length > 0) {
           console.log('🔄 正在刷新 ' + secrets.length + ' 个验证码...');
           
-          // 并发计算并原子提交所有验证码，避免快卡先闪现、慢卡随后再播放动画。
+          // 併發計算並原子提交所有驗證碼，避免快卡先閃現、慢卡隨後再播放動畫。
           const refreshPromise = typeof updateOTPSecretsInBatch === 'function'
             ? updateOTPSecretsInBatch(secrets, { includeHOTP: true })
             : Promise.all(
@@ -415,19 +415,19 @@ export function getPWACode() {
           });
         }
       } else {
-        // 页面变为隐藏（切到后台）
+        // 頁面變為隱藏（切到後臺）
         console.log('📱 页面进入后台');
       }
     });
 
     /**
-     * 监听页面获得焦点事件（备用方案）
-     * 某些浏览器在锁屏解锁时只会触发focus而不触发visibilitychange
+     * 監聽頁面獲得焦點事件（備用方案）
+     * 某些瀏覽器在鎖屏解鎖時只會觸發focus而不觸發visibilitychange
      */
     window.addEventListener('focus', () => {
       console.log('📱 窗口获得焦点');
       
-      // 延迟100ms执行，避免与visibilitychange重复
+      // 延遲100ms執行，避免與visibilitychange重複
       setTimeout(() => {
         if (typeof secrets !== 'undefined' && secrets && secrets.length > 0) {
           console.log('🔄 窗口焦点恢复，检查并刷新验证码');
@@ -446,15 +446,15 @@ export function getPWACode() {
     });
 
     /**
-     * 监听页面失去焦点事件
+     * 監聽頁面失去焦點事件
      */
     window.addEventListener('blur', () => {
       console.log('📱 窗口失去焦点');
     });
 
     /**
-     * 使用 Page Visibility API 监控页面活跃状态
-     * 提供更详细的日志用于调试
+     * 使用 Page Visibility API 監控頁面活躍狀態
+     * 提供更詳細的日誌用於除錯
      */
     if (typeof document.hidden !== 'undefined') {
       console.log('✅ Page Visibility API 已启用');

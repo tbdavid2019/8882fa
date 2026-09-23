@@ -1,25 +1,25 @@
 /**
- * HTTP响应工具模块
- * 提供标准化的响应格式，包含安全头
+ * HTTP響應工具模組
+ * 提供標準化的響應格式，包含安全頭
  *
  * 🔒 安全特性：
- * - CORS: 动态验证请求来源
- * - CSP: 内容安全策略
- * - 其他安全头：X-Frame-Options, X-Content-Type-Options 等
+ * - CORS: 動態驗證請求來源
+ * - CSP: 內容安全策略
+ * - 其他安全頭：X-Frame-Options, X-Content-Type-Options 等
  */
 
 import { getSecurityHeaders } from './security.js';
 
-// 性能优化：缓存默认 CORS headers，避免重复创建对象
+// 效能最佳化：快取預設 CORS headers，避免重複建立物件
 const DEFAULT_CORS_HEADERS = {
 	'Access-Control-Allow-Origin': '*',
 };
 
-// 性能优化：只警告一次（避免在循环中重复打印降低性能）
+// 效能最佳化：只警告一次（避免在迴圈中重複列印降低效能）
 let hasWarnedMissingRequest = false;
 
 /**
- * 重置警告标志（仅供测试使用）
+ * 重置警告標誌（僅供測試使用）
  * @internal
  */
 export function _resetWarningFlag() {
@@ -27,34 +27,34 @@ export function _resetWarningFlag() {
 }
 
 /**
- * 创建标准JSON响应（带安全头）
- * @param {any} data - 响应数据
- * @param {number} status - HTTP状态码
- * @param {Request} request - HTTP 请求对象（用于获取安全头）
- * @param {Object} additionalHeaders - 额外的响应头
- * @returns {Response} HTTP响应对象
+ * 建立標準JSON響應（帶安全頭）
+ * @param {any} data - 響應資料
+ * @param {number} status - HTTP狀態碼
+ * @param {Request} request - HTTP 請求物件（用於獲取安全頭）
+ * @param {Object} additionalHeaders - 額外的響應頭
+ * @returns {Response} HTTP響應物件
  */
 export function createJsonResponse(data, status = 200, request = null, additionalHeaders = {}) {
 	let headers;
 
-	// 添加安全头（如果提供了 request）
+	// 新增安全頭（如果提供了 request）
 	if (request) {
 		const securityHeaders = getSecurityHeaders(request);
-		// 性能优化：减少对象展开次数
+		// 效能最佳化：減少物件展開次數
 		headers = {
 			'Content-Type': 'application/json',
 			...securityHeaders,
-			...additionalHeaders, // 额外的 headers 优先级更高
+			...additionalHeaders, // 額外的 headers 優先順序更高
 		};
 	} else {
-		// 向后兼容：如果没有提供 request，使用旧的 CORS 配置
-		// 性能优化：只警告一次
+		// 向後相容：如果沒有提供 request，使用舊的 CORS 配置
+		// 效能最佳化：只警告一次
 		if (!hasWarnedMissingRequest) {
 			console.warn('⚠️ createJsonResponse 未提供 request 参数，使用默认 CORS 配置');
 			hasWarnedMissingRequest = true;
 		}
 
-		// 性能优化：复用缓存的默认 headers
+		// 效能最佳化：複用快取的預設 headers
 		if (Object.keys(additionalHeaders).length === 0) {
 			headers = {
 				'Content-Type': 'application/json',
@@ -76,12 +76,12 @@ export function createJsonResponse(data, status = 200, request = null, additiona
 }
 
 /**
- * 创建错误响应
- * @param {string} title - 错误标题
- * @param {string} message - 错误详细信息
- * @param {number} status - HTTP状态码
- * @param {Request} request - HTTP 请求对象（用于获取安全头）
- * @returns {Response} 错误响应对象
+ * 建立錯誤響應
+ * @param {string} title - 錯誤標題
+ * @param {string} message - 錯誤詳細資訊
+ * @param {number} status - HTTP狀態碼
+ * @param {Request} request - HTTP 請求物件（用於獲取安全頭）
+ * @returns {Response} 錯誤響應物件
  */
 export function createErrorResponse(title, message, status = 500, request = null) {
 	const errorData = {
@@ -94,11 +94,11 @@ export function createErrorResponse(title, message, status = 500, request = null
 }
 
 /**
- * 创建成功响应
- * @param {any} data - 成功响应数据
- * @param {string} message - 成功消息
- * @param {Request} request - HTTP 请求对象（用于获取安全头）
- * @returns {Response} 成功响应对象
+ * 建立成功響應
+ * @param {any} data - 成功響應資料
+ * @param {string} message - 成功訊息
+ * @param {Request} request - HTTP 請求物件（用於獲取安全頭）
+ * @returns {Response} 成功響應物件
  */
 export function createSuccessResponse(data, message, request = null) {
 	return createJsonResponse(
@@ -113,18 +113,18 @@ export function createSuccessResponse(data, message, request = null) {
 }
 
 /**
- * 创建HTML响应（带安全头）
- * @param {string} html - HTML内容
- * @param {number} status - HTTP状态码
- * @param {Request} request - HTTP 请求对象（用于获取安全头）
- * @returns {Response} HTML响应对象
+ * 建立HTML響應（帶安全頭）
+ * @param {string} html - HTML內容
+ * @param {number} status - HTTP狀態碼
+ * @param {Request} request - HTTP 請求物件（用於獲取安全頭）
+ * @returns {Response} HTML響應物件
  */
 export function createHtmlResponse(html, status = 200, request = null) {
 	let headers = {
 		'Content-Type': 'text/html; charset=utf-8',
 	};
 
-	// 添加安全头（如果提供了 request）
+	// 新增安全頭（如果提供了 request）
 	if (request) {
 		const securityHeaders = getSecurityHeaders(request);
 		headers = {

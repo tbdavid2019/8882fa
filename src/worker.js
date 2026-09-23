@@ -1,16 +1,16 @@
 /**
  * 2FA OTP Generator - Cloudflare Worker
- * 重构后的主入口文件
+ * 重構後的主入口檔案
  *
- * 功能模块：
- * - router/handler.js - 路由处理
- * - api/secrets/ - 密钥管理API（模块化：shared/crud/batch/backup/restore/otp）
+ * 功能模組：
+ * - router/handler.js - 路由處理
+ * - api/secrets/ - 金鑰管理API（模組化：shared/crud/batch/backup/restore/otp）
  * - otp/generator.js - OTP生成
- * - ui/page.js - 页面渲染
- * - utils/ - 工具函数
+ * - ui/page.js - 頁面渲染
+ * - utils/ - 工具函式
  *
- * 🔒 安全特性：所有2FA密钥使用 AES-GCM 256位加密存储
- * 📊 监控特性：结构化日志、错误追踪、性能监控
+ * 🔒 安全特性：所有2FA金鑰使用 AES-GCM 256位加密儲存
+ * 📊 監控特性：結構化日誌、錯誤追蹤、效能監控
  */
 
 import { handleRequest, handleCORS } from './router/handler.js';
@@ -29,19 +29,19 @@ import { generateDataHash, getPendingDataHash, isPendingDataHashFresh, saveDataH
 export { generateDataHash, saveDataHash } from './utils/data-hash.js';
 
 /**
- * 检查数据是否发生变化
- * @param {Object} env - 环境变量对象
- * @param {Array} currentSecrets - 当前密钥数据
- * @returns {Promise<boolean>} 数据是否发生变化
+ * 檢查資料是否發生變化
+ * @param {Object} env - 環境變數物件
+ * @param {Array} currentSecrets - 當前金鑰資料
+ * @returns {Promise<boolean>} 資料是否發生變化
  */
 async function _hasDataChanged(env, currentSecrets) {
 	const logger = getLogger(env);
 
 	try {
-		// 计算当前数据的哈希值（使用 SHA-256）
+		// 計算當前資料的雜湊值（使用 SHA-256）
 		const currentHash = await generateDataHash(currentSecrets, env);
 
-		// 获取上次备份时的数据哈希值
+		// 獲取上次備份時的資料雜湊值
 		const lastHash = await env.SECRETS_KV.get('last_backup_hash');
 
 		logger.info('数据变化检测开始', {
@@ -50,7 +50,7 @@ async function _hasDataChanged(env, currentSecrets) {
 			currentSecretCount: currentSecrets.length,
 		});
 
-		// 如果没有上次的哈希值，说明是第一次备份，应该执行备份
+		// 如果沒有上次的雜湊值，說明是第一次備份，應該執行備份
 		if (!lastHash) {
 			logger.info('首次备份检测', {
 				reason: '没有找到上次备份的哈希值',
@@ -58,7 +58,7 @@ async function _hasDataChanged(env, currentSecrets) {
 			return true;
 		}
 
-		// 比较哈希值
+		// 比較雜湊值
 		const hasChanged = currentHash !== lastHash;
 
 		logger.info('哈希值比较完成', {
@@ -67,9 +67,9 @@ async function _hasDataChanged(env, currentSecrets) {
 			lastHash: lastHash.substring(0, 16) + '...',
 		});
 
-		// 如果数据没有变化，但密钥数量不同，也认为有变化
+		// 如果資料沒有變化，但金鑰數量不同，也認為有變化
 		if (!hasChanged && currentSecrets.length > 0) {
-			// 获取最新备份的密钥数量进行比较
+			// 獲取最新備份的金鑰數量進行比較
 			try {
 				const list = await env.SECRETS_KV.list();
 				const backupKeys = list.keys.filter((key) => isValidBackupKey(key.name));
@@ -107,19 +107,19 @@ async function _hasDataChanged(env, currentSecrets) {
 		return finalResult;
 	} catch (error) {
 		logger.error('检查数据变化失败', {}, error);
-		// 如果检查失败，默认认为数据已变化，执行备份
+		// 如果檢查失敗，預設認為資料已變化，執行備份
 		return true;
 	}
 }
 
 /**
- * 清理旧备份文件（根据用户设置保留备份数量，默认100个）
- * @param {Object} env - 环境变量对象
+ * 清理舊備份檔案（根據使用者設定保留備份數量，預設100個）
+ * @param {Object} env - 環境變數物件
  */
 async function cleanupOldBackups(env) {
 	const logger = getLogger(env);
 
-	// 读取用户配置的 maxBackups
+	// 讀取使用者配置的 maxBackups
 	let maxBackups = 100;
 	try {
 		const raw = await env.SECRETS_KV.get('settings');
@@ -130,7 +130,7 @@ async function cleanupOldBackups(env) {
 			}
 		}
 	} catch {
-		// 读取失败使用默认值
+		// 讀取失敗使用預設值
 	}
 
 	// 0 表示不限制
@@ -154,10 +154,10 @@ async function cleanupOldBackups(env) {
 			return;
 		}
 
-		// 按文件名排序（文件名包含日期，最新的在前）
+		// 按檔名排序（檔名包含日期，最新的在前）
 		backupKeys.sort((a, b) => b.name.localeCompare(a.name));
 
-		// 保留最新的备份，删除其余的
+		// 保留最新的備份，刪除其餘的
 		const keysToKeep = backupKeys.slice(0, maxBackups);
 		const keysToDelete = backupKeys.slice(maxBackups);
 
@@ -219,20 +219,20 @@ async function hasCommittedBackupSince(env, updatedAt) {
 }
 
 /**
- * Cloudflare Worker 主入口点
- * @param {Request} request - HTTP请求对象
- * @param {Object} env - 环境变量对象，包含KV存储等
- * @param {Object} ctx - 执行上下文
- * @returns {Response} HTTP响应
+ * Cloudflare Worker 主入口點
+ * @param {Request} request - HTTP請求物件
+ * @param {Object} env - 環境變數物件，包含KV儲存等
+ * @param {Object} ctx - 執行上下文
+ * @returns {Response} HTTP響應
  */
 export default {
 	async fetch(request, env, ctx) {
-		// 初始化日志和监控
+		// 初始化日誌和監控
 		const logger = getLogger(env);
 		const requestLogger = createRequestLogger(logger);
 		const monitoring = getMonitoring(env);
 
-		// 初始化监控系统（仅首次）
+		// 初始化監控系統（僅首次）
 		if (!monitoring._initialized) {
 			await monitoring.initialize().catch((err) => {
 				logger.warn('Failed to initialize monitoring', {}, err);
@@ -240,7 +240,7 @@ export default {
 			monitoring._initialized = true;
 		}
 
-		// 开始请求追踪
+		// 開始請求追蹤
 		const timer = requestLogger.logRequest(request, env);
 		const traceId = monitoring.getPerformanceMonitor().startTrace(`${request.method} ${new URL(request.url).pathname}`, {
 			method: request.method,
@@ -250,7 +250,7 @@ export default {
 		});
 
 		try {
-			// 处理CORS预检请求
+			// 處理CORS預檢請求
 			const corsResponse = handleCORS(request);
 			if (corsResponse) {
 				monitoring.getPerformanceMonitor().endTrace(traceId, {
@@ -260,10 +260,10 @@ export default {
 				return corsResponse;
 			}
 
-			// 处理实际请求
+			// 處理實際請求
 			const response = await handleRequest(request, env, ctx);
 
-			// 记录响应
+			// 記錄響應
 			requestLogger.logResponse(timer, response);
 			monitoring.getPerformanceMonitor().endTrace(traceId, {
 				status: response.status,
@@ -272,7 +272,7 @@ export default {
 
 			return response;
 		} catch (error) {
-			// 捕获并记录错误
+			// 捕獲並記錄錯誤
 			logger.error(
 				'Request handling failed',
 				{
@@ -283,7 +283,7 @@ export default {
 				error,
 			);
 
-			// 发送到错误监控
+			// 傳送到錯誤監控
 			const errorInfo = monitoring.getErrorMonitor().captureError(
 				error,
 				{
@@ -295,14 +295,14 @@ export default {
 				ErrorSeverity.ERROR,
 			);
 
-			// 记录失败的追踪
+			// 記錄失敗的追蹤
 			requestLogger.logResponse(timer, null, error);
 			monitoring.getPerformanceMonitor().endTrace(traceId, {
 				success: false,
 				errorId: errorInfo.errorId,
 			});
 
-			// 返回错误响应
+			// 返回錯誤響應
 			return new Response(
 				JSON.stringify({
 					error: '服务器错误',
@@ -322,18 +322,18 @@ export default {
 	},
 
 	/**
-	 * 定时任务处理函数
-	 * 定时自动备份密钥（仅在数据发生变化时执行）
-	 * @param {Object} event - 定时事件对象
-	 * @param {Object} env - 环境变量对象
-	 * @param {Object} ctx - 执行上下文
+	 * 定時任務處理函式
+	 * 定時自動備份金鑰（僅在資料發生變化時執行）
+	 * @param {Object} event - 定時事件物件
+	 * @param {Object} env - 環境變數物件
+	 * @param {Object} ctx - 執行上下文
 	 */
 	async scheduled(event, env, ctx) {
 		const logger = getLogger(env);
 		const timer = new PerformanceTimer('ScheduledBackup', logger);
 
-		// 早于任何 KV 读取捕获时间戳：此时刻之前 stage 的 pending hash 必然对应"不晚于我们即将备份的数据"，
-		// 传给 saveDataHash 以便清理分片导入等场景下残留的 pending。
+		// 早於任何 KV 讀取捕獲時間戳：此時刻之前 stage 的 pending hash 必然對應"不晚於我們即將備份的資料"，
+		// 傳給 saveDataHash 以便清理分片匯入等場景下殘留的 pending。
 		const backupStartedAt = Date.now();
 
 		try {
@@ -342,13 +342,13 @@ export default {
 				cron: event.cron || 'manual',
 			});
 
-			// 获取所有密钥
+			// 獲取所有金鑰
 			const secrets = await getAllSecrets(env);
 			logger.info('获取密钥完成', {
 				secretCount: secrets ? secrets.length : 0,
 			});
 
-			// 输出前几个密钥的详细信息用于调试
+			// 輸出前幾個金鑰的詳細資訊用於除錯
 			if (secrets && secrets.length > 0) {
 				const sampleSecrets = secrets.slice(0, 3).map((s) => ({
 					id: s.id,
@@ -365,7 +365,7 @@ export default {
 				return;
 			}
 
-			// 强制检查数据变化（增强调试）
+			// 強制檢查資料變化（增強除錯）
 			logger.info('开始数据变化检测');
 			timer.checkpoint('检测开始');
 
@@ -384,7 +384,7 @@ export default {
 
 			const dataChangedState = !lastHash || currentHash !== lastHash;
 
-			// 如果哈希值不存在或不匹配，强制执行备份
+			// 如果雜湊值不存在或不匹配，強制執行備份
 			const dataChanged = !lastHash || currentHash !== lastHash;
 			logger.info('数据变化检测结果', {
 				changed: dataChangedState,
@@ -435,20 +435,20 @@ export default {
 				});
 			}
 
-			// 存储备份到KV
+			// 儲存備份到KV
 			await putBackupRecord(env, backupKey, backupContent, metadata);
 			timer.checkpoint('备份已保存');
 
-			// WebDAV 自动推送（使用 waitUntil 确保 Worker 不会在推送完成前退出）
+			// WebDAV 自動推送（使用 waitUntil 確保 Worker 不會在推送完成前退出）
 			ctx.waitUntil(pushToAllWebDAV(backupKey, backupContent, env));
 
-			// S3 自动推送
+			// S3 自動推送
 			ctx.waitUntil(pushToAllS3(backupKey, backupContent, env));
 
-			// OneDrive 自动推送
+			// OneDrive 自動推送
 			ctx.waitUntil(pushToAllOneDrive(backupKey, backupContent, env));
 
-			// Google Drive 自动推送
+			// Google Drive 自動推送
 			ctx.waitUntil(pushToAllGoogleDrive(backupKey, backupContent, env));
 
 			logger.info('自动备份完成', {
@@ -458,7 +458,7 @@ export default {
 				format: storedFormat,
 			});
 
-			// 保存当前数据的哈希值
+			// 儲存當前資料的雜湊值
 			logger.debug('更新数据哈希值');
 			await saveDataHash(env, secrets, {
 				reason: 'scheduled',
@@ -467,7 +467,7 @@ export default {
 			});
 			timer.checkpoint('哈希已更新');
 
-			// 清理旧备份（根据用户设置保留数量）
+			// 清理舊備份（根據使用者設定保留數量）
 			logger.debug('清理旧备份文件');
 			await cleanupOldBackups(env);
 			timer.checkpoint('清理完成');

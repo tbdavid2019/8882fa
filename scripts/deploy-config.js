@@ -1,6 +1,6 @@
 export function injectWorkerVersion(configText, version) {
-	// 必须带 g：顶层 [vars] 和各 [env.X.vars] 都有独立的 SW_VERSION，
-	// 只替换首个会让 env 部署的 Service Worker 缓存版本停在旧值，用户拿不到更新
+	// 必須帶 g：頂層 [vars] 和各 [env.X.vars] 都有獨立的 SW_VERSION，
+	// 只替換首個會讓 env 部署的 Service Worker 快取版本停在舊值，使用者拿不到更新
 	const updated = configText.replace(
 		/^(\s*SW_VERSION\s*=\s*)"[^"]*"(\s*)$/gm,
 		`$1"${version}"$2`
@@ -14,9 +14,9 @@ export function injectWorkerVersion(configText, version) {
 }
 
 /**
- * 提取 worker 名称。
- * - envName=null（默认）：返回顶层 `name`（生产环境名）
- * - envName="X"：在 `[env.X]` 块内查找 `name`，找不到则回落到顶层
+ * 提取 worker 名稱。
+ * - envName=null（預設）：返回頂層 `name`（生產環境名）
+ * - envName="X"：在 `[env.X]` 塊內查詢 `name`，找不到則回落到頂層
  */
 export function extractWorkerName(configText, envName = null) {
 	if (envName) {
@@ -30,22 +30,22 @@ export function extractWorkerName(configText, envName = null) {
 				continue;
 			}
 			if (!inEnvBlock) continue;
-			if (/^\[/.test(trimmed)) break; // 进入下一个 section，env 块结束
+			if (/^\[/.test(trimmed)) break; // 進入下一個 section，env 塊結束
 			const nameMatch = trimmed.match(/^name\s*=\s*"([^"]+)"/);
 			if (nameMatch) return nameMatch[1];
 		}
-		// 未在 env 块内找到 name，回落到顶层
+		// 未在 env 塊內找到 name，回落到頂層
 	}
 	const match = configText.match(/^name\s*=\s*"([^"]+)"/m);
 	return match ? match[1] : null;
 }
 
 /**
- * 把 KV namespace id 注入到指定块内（首个 binding = "SECRETS_KV" 的 [[kv_namespaces]] 数组项）。
- * - envName=null（默认）：目标为顶层 `[[kv_namespaces]]`
- * - envName="X"：目标为 `[[env.X.kv_namespaces]]`
+ * 把 KV namespace id 注入到指定塊內（首個 binding = "SECRETS_KV" 的 [[kv_namespaces]] 陣列項）。
+ * - envName=null（預設）：目標為頂層 `[[kv_namespaces]]`
+ * - envName="X"：目標為 `[[env.X.kv_namespaces]]`
  *
- * 已存在 id 时覆盖；不存在时插入到 binding 行后。其他块（含其它 env 的 KV 块）不会被改动。
+ * 已存在 id 時覆蓋；不存在時插入到 binding 行後。其他塊（含其它 env 的 KV 塊）不會被改動。
  */
 export function injectKvNamespaceId(configText, id, envName = null) {
 	const lines = configText.split('\n');
@@ -60,10 +60,10 @@ export function injectKvNamespaceId(configText, id, envName = null) {
 	for (let i = 0; i < lines.length; i++) {
 		const trimmed = lines[i].trim();
 
-		// 任何 section header 都视为当前块结束
+		// 任何 section header 都視為當前塊結束
 		if (/^\[/.test(trimmed)) {
 			if (inTargetBlock && bindingLine >= 0) {
-				break; // 已经在目标块里找到 binding，停止扫描
+				break; // 已經在目標塊裡找到 binding，停止掃描
 			}
 			inTargetBlock = trimmed === targetHeader;
 			bindingLine = -1;
@@ -95,8 +95,8 @@ export function injectKvNamespaceId(configText, id, envName = null) {
 }
 
 /**
- * 注入自定义域名路由配置（用于消除版本切换时的边缘路由空窗期）
- * 若已存在 routes 则不覆盖
+ * 注入自定義域名路由配置（用於消除版本切換時的邊緣路由空窗期）
+ * 若已存在 routes 則不覆蓋
  */
 export function injectCustomDomain(configText, domain) {
 	if (!domain || typeof domain !== 'string') return configText;
@@ -115,7 +115,7 @@ export function injectCustomDomain(configText, domain) {
 }
 
 /**
- * 注入 Cloudflare Account ID（多账号环境下自动锁定目标账号，避免交互提示）
+ * 注入 Cloudflare Account ID（多賬號環境下自動鎖定目標賬號，避免互動提示）
  */
 export function injectAccountId(configText, accountId) {
 	if (!accountId || typeof accountId !== 'string') return configText;

@@ -1,6 +1,6 @@
 /**
- * OTP 生成算法测试
- * 使用 RFC 6238 (TOTP) 和 RFC 4226 (HOTP) 官方测试向量
+ * OTP 生成演算法測試
+ * 使用 RFC 6238 (TOTP) 和 RFC 4226 (HOTP) 官方測試向量
  */
 
 import { describe, it, expect } from 'vitest';
@@ -16,7 +16,7 @@ describe('OTP Generator - RFC 测试向量', () => {
 
   describe('base32toByteArray', () => {
     it('应该正确解码 Base32 字符串', () => {
-      // RFC 4648 测试向量
+      // RFC 4648 測試向量
       const testCases = [
         { input: 'JBSWY3DPEHPK3PXP', expected: [72, 101, 108, 108, 111, 33, 222, 173, 190, 239] },
         { input: 'MFRGGZDFMZTWQ2LK', expected: [97, 98, 99, 100, 101, 102, 103, 104, 105, 106] },
@@ -68,12 +68,12 @@ describe('OTP Generator - RFC 测试向量', () => {
   });
 
   describe('TOTP - RFC 6238 测试向量', () => {
-    // RFC 6238 Appendix B 官方测试向量
-    // 密钥: "12345678901234567890" (ASCII) = GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ (Base32)
+    // RFC 6238 Appendix B 官方測試向量
+    // 金鑰: "12345678901234567890" (ASCII) = GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ (Base32)
     const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
 
     const testVectors = [
-      // 时间戳 -> 期望的 OTP (SHA1, 8位)
+      // 時間戳 -> 期望的 OTP (SHA1, 8位)
       { time: 59, expected: '94287082', digits: 8, algorithm: 'SHA1', description: '1970-01-01 00:00:59' },
       { time: 1111111109, expected: '07081804', digits: 8, algorithm: 'SHA1', description: '2005-03-18 01:58:29' },
       { time: 1111111111, expected: '14050471', digits: 8, algorithm: 'SHA1', description: '2005-03-18 01:58:31' },
@@ -96,7 +96,7 @@ describe('OTP Generator - RFC 测试向量', () => {
   });
 
   describe('TOTP - SHA256 测试向量', () => {
-    // RFC 6238 SHA256 测试向量
+    // RFC 6238 SHA256 測試向量
     const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZA'; // 32 bytes
 
     const testVectors = [
@@ -122,7 +122,7 @@ describe('OTP Generator - RFC 测试向量', () => {
   });
 
   describe('TOTP - SHA512 测试向量', () => {
-    // RFC 6238 SHA512 测试向量
+    // RFC 6238 SHA512 測試向量
     const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNA'; // 64 bytes
 
     const testVectors = [
@@ -148,7 +148,7 @@ describe('OTP Generator - RFC 测试向量', () => {
   });
 
   describe('HOTP - RFC 4226 测试向量', () => {
-    // RFC 4226 Appendix D 官方测试向量
+    // RFC 4226 Appendix D 官方測試向量
     const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
 
     const testVectors = [
@@ -191,7 +191,7 @@ describe('OTP Generator - RFC 测试向量', () => {
     it('应该为不同时间段生成不同的 OTP', async () => {
       const secret = 'JBSWY3DPEHPK3PXP';
       const time1 = 1000000000;
-      const time2 = 1000000030; // 30 秒后（下一个周期）
+      const time2 = 1000000030; // 30 秒後（下一個週期）
 
       const otp1 = await generateOTP(secret, time1, { period: 30 });
       const otp2 = await generateOTP(secret, time2, { period: 30 });
@@ -202,7 +202,7 @@ describe('OTP Generator - RFC 测试向量', () => {
     it('应该在同一时间窗口内生成相同的 OTP', async () => {
       const secret = 'JBSWY3DPEHPK3PXP';
       const time1 = 1000000000;
-      const time2 = 1000000015; // 15 秒后（仍在同一 30 秒周期）
+      const time2 = 1000000015; // 15 秒後（仍在同一 30 秒週期）
 
       const otp1 = await generateOTP(secret, time1, { period: 30 });
       const otp2 = await generateOTP(secret, time2, { period: 30 });
@@ -232,12 +232,12 @@ describe('OTP Generator - RFC 测试向量', () => {
       const otp15 = await generateOTP(secret, time, { period: 15 });
       expect(otp15).toMatch(/^\d{6}$/);
 
-      // 不同周期应该产生不同的 OTP
+      // 不同週期應該產生不同的 OTP
       expect(otp60).not.toBe(otp15);
     });
 
     it('应该处理前导零', async () => {
-      // 使用已知会产生前导零的测试向量
+      // 使用已知會產生前導零的測試向量
       const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
       const time = 1111111109;
 
@@ -247,7 +247,7 @@ describe('OTP Generator - RFC 测试向量', () => {
         algorithm: 'SHA1'
       });
 
-      expect(otp).toBe('07081804'); // 注意前导零
+      expect(otp).toBe('07081804'); // 注意前導零
       expect(otp.length).toBe(8);
     });
 
@@ -300,7 +300,7 @@ describe('OTP Generator - RFC 测试向量', () => {
       const end = performance.now();
 
       const duration = end - start;
-      expect(duration).toBeLessThan(100); // 应该在 100ms 内完成
+      expect(duration).toBeLessThan(100); // 應該在 100ms 內完成
     });
 
     it('应该能够快速生成多个 OTP', async () => {
@@ -319,7 +319,7 @@ describe('OTP Generator - RFC 测试向量', () => {
       const end = performance.now();
       const duration = end - start;
 
-      expect(duration).toBeLessThan(1000); // 100 个 OTP 应该在 1 秒内完成
+      expect(duration).toBeLessThan(1000); // 100 個 OTP 應該在 1 秒內完成
     });
   });
 
@@ -417,7 +417,7 @@ describe('OTP Generator - RFC 测试向量', () => {
 
       expect(url).toContain('otpauth://totp/');
       expect(url).toContain('GitHub');
-      // URL已被编码，@会变成%40
+      // URL已被編碼，@會變成%40
       expect(url).toContain('user') && expect(url).toContain('example.com');
       expect(url).toContain('secret=JBSWY3DPEHPK3PXP');
       expect(url).toContain('issuer=GitHub');
@@ -471,7 +471,7 @@ describe('OTP Generator - RFC 测试向量', () => {
     it('应该正确 URL 编码特殊字符', () => {
       const url = generateOTPAuthURL('GitHub Test', 'user+test@example.com', 'JBSWY3DPEHPK3PXP');
 
-      // URL会被encodeURIComponent编码
+      // URL會被encodeURIComponent編碼
       expect(url).toContain('user');
       expect(url).toContain('test');
       expect(url).toContain('example.com');

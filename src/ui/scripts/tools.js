@@ -1,8 +1,8 @@
 /**
  * Tools Module - Index
- * 工具模块集成索引
+ * 工具模組整合索引
  *
- * 将所有独立工具模块集成到一起
+ * 將所有獨立工具模組整合到一起
  */
 
 import { getQRDecodeToolCode } from './tools/qrDecode.js';
@@ -21,19 +21,19 @@ import { getGoogleDriveToolCode } from './tools/gdriveTool.js';
  * @returns {string} Complete Tools JavaScript code
  */
 export function getToolsCode() {
-	return `    // ========== 实用工具模块集合 ==========
-    // 包含6个独立工具：二维码解析、二维码生成、Base32编解码、时间戳、密钥检查器、密钥生成器
+	return `    // ========== 實用工具模組集合 ==========
+    // 包含6個獨立工具：二維碼解析、二維碼生成、Base32編解碼、時間戳、金鑰檢查器、金鑰生成器
 
-    // 入口函数
+    // 入口函式
     function showQRScanAndDecode() {
-      // 预加载 jsQR（解析二维码图片需要）
+      // 預載入 jsQR（解析二維碼圖片需要）
       if (typeof ensureJsQR === 'function') ensureJsQR().catch(() => {});
       hideToolsModal();
       showQRDecodeModal();
     }
 
     function showQRGenerateTool() {
-      // 预加载 qrcode-generator（生成二维码需要）
+      // 預載入 qrcode-generator（生成二維碼需要）
       if (typeof ensureQRCodeGen === 'function') ensureQRCodeGen().catch(() => {});
       hideToolsModal();
       showQRGenerateModal();

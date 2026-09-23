@@ -1,7 +1,7 @@
 /**
- * Backup API 模块集成测试
- * 测试备份创建、列表、恢复、导出功能
- * 目标覆盖率: 70%+
+ * Backup API 模組整合測試
+ * 測試備份建立、列表、恢復、匯出功能
+ * 目標覆蓋率: 70%+
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -25,9 +25,9 @@ import { createBackupEntry } from '../../src/utils/backup-format.js';
 import { buildBackupIndexMetadata, createBackupIndexKey, ensureBackupIndexes, putBackupRecord } from '../../src/utils/backup-index.js';
 import { LIMITS } from '../../src/utils/constants.js';
 
-// ==================== Mock 模块 ====================
+// ==================== Mock 模組 ====================
 
-// Mock KV 存储
+// Mock KV 儲存
 class MockKV {
   constructor() {
     this.store = new Map();
@@ -67,7 +67,7 @@ class MockKV {
 
     const filteredKeys = prefix ? keys.filter(k => k.startsWith(prefix)) : keys;
 
-    // 简单模拟分页
+    // 簡單模擬分頁
     const startIndex = cursor ? parseInt(cursor) : 0;
     const pageKeys = filteredKeys.slice(startIndex, startIndex + limit);
 
@@ -87,10 +87,10 @@ class MockKV {
   }
 }
 
-// Mock 环境
+// Mock 環境
 function createMockEnv() {
   const kv = new MockKV();
-  // 正确的 32 字节加密密钥
+  // 正確的 32 位元組加密金鑰
   const encryptionKey = Buffer.from('12345678901234567890123456789012').toString('base64');
 
   return {
@@ -100,7 +100,7 @@ function createMockEnv() {
   };
 }
 
-// 创建 Mock Request
+// 建立 Mock Request
 function createMockRequest(body = {}, method = 'POST', url = 'https://example.com/api/backup', params = {}) {
   let fullUrl = url;
   if (Object.keys(params).length > 0) {
@@ -134,7 +134,7 @@ async function waitForCondition(predicate, maxTicks = 20) {
   throw new Error('Condition was not met in time');
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Backup API Module', () => {
 
@@ -142,7 +142,7 @@ describe('Backup API Module', () => {
     it('应该成功创建备份', async () => {
       const env = createMockEnv();
 
-      // 先添加一些密钥
+      // 先新增一些金鑰
       await saveSecretsToKV(env, [
         {
           id: '1',
@@ -385,15 +385,15 @@ describe('Backup API Module', () => {
 
       expect(data.encrypted).toBe(true);
 
-      // 验证备份文件确实是加密的
+      // 驗證備份檔案確實是加密的
       const backupContent = await env.SECRETS_KV.get(data.backupKey, 'text');
       expect(backupContent).toBeDefined();
-      expect(backupContent).toMatch(/^v1:/); // 加密标记
+      expect(backupContent).toMatch(/^v1:/); // 加密標記
     });
 
     it('应该在未配置加密密钥时创建明文备份', async () => {
       const env = createMockEnv();
-      delete env.ENCRYPTION_KEY; // 移除加密密钥
+      delete env.ENCRYPTION_KEY; // 移除加密金鑰
 
       await env.SECRETS_KV.put('secrets', JSON.stringify([
         {
@@ -410,7 +410,7 @@ describe('Backup API Module', () => {
       expect(data.encrypted).toBe(false);
       expect(data.format).toBe('json');
 
-      // 验证备份是明文
+      // 驗證備份是明文
       const backupContent = await env.SECRETS_KV.get(data.backupKey, 'text');
       expect(backupContent).toBeDefined();
       expect(() => JSON.parse(backupContent)).not.toThrow();
@@ -425,7 +425,7 @@ describe('Backup API Module', () => {
 
       const request = createMockRequest();
 
-      // 连续发送多个备份请求触发速率限制
+      // 連續傳送多個備份請求觸發速率限制
       // sensitive preset: 10/minute
       for (let i = 0; i < 11; i++) {
         await handleBackupSecrets(request, env);
@@ -442,7 +442,7 @@ describe('Backup API Module', () => {
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP', type: 'TOTP' }
       ], 'test');
 
-      // 配置 WebDAV（触发推送路径）
+      // 配置 WebDAV（觸發推送路徑）
       await env.SECRETS_KV.put('webdav_config', JSON.stringify({
         url: 'https://dav.example.com',
         username: 'user',
@@ -457,7 +457,7 @@ describe('Backup API Module', () => {
 
       expect(data.success).toBe(true);
       expect(ctx.waitUntil).toHaveBeenCalledTimes(4); // WebDAV + S3 + OneDrive + Google Drive 推送
-      // waitUntil 接收的应该是一个 Promise
+      // waitUntil 接收的應該是一個 Promise
       expect(ctx.waitUntil.mock.calls[0][0]).toBeInstanceOf(Promise);
     });
 
@@ -476,7 +476,7 @@ describe('Backup API Module', () => {
       }));
 
       const request = createMockRequest();
-      // 不传 ctx，验证不会抛异常
+      // 不傳 ctx，驗證不會拋異常
       const response = await handleBackupSecrets(request, env);
       const data = await response.json();
 
@@ -501,7 +501,7 @@ describe('Backup API Module', () => {
     it('应该返回备份列表', async () => {
       const env = createMockEnv();
 
-      // 创建第一个备份
+      // 建立第一個備份
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test1', secret: 'JBSWY3DPEHPK3PXP' }
       ], 'test');
@@ -509,10 +509,10 @@ describe('Backup API Module', () => {
       const req1 = createMockRequest();
       await handleBackupSecrets(req1, env);
 
-      // 强制等待足够长的时间确保时间戳不同（至少1秒）
+      // 強制等待足夠長的時間確保時間戳不同（至少1秒）
       await new Promise(resolve => setTimeout(resolve, 1100));
 
-      // 创建第二个备份（不同的数据）
+      // 建立第二個備份（不同的資料）
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test1', secret: 'JBSWY3DPEHPK3PXP' },
         { id: '2', name: 'Test2', secret: 'MFRGGZDFMZTWQ2LK' }
@@ -521,17 +521,17 @@ describe('Backup API Module', () => {
       const req2 = createMockRequest();
       await handleBackupSecrets(req2, env);
 
-      // 获取备份列表
+      // 獲取備份列表
       const request = createMockRequest({}, 'GET', 'https://example.com/api/backup');
       const response = await handleGetBackups(request, env);
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.backups.length).toBeGreaterThanOrEqual(1); // 至少有一个备份
+      expect(data.backups.length).toBeGreaterThanOrEqual(1); // 至少有一個備份
       expect(data.count).toBeGreaterThanOrEqual(1);
 
-      // 验证备份详情
+      // 驗證備份詳情
       const backup = data.backups[0];
       expect(backup.key).toBeDefined();
       expect(backup.created).toBeDefined();
@@ -668,7 +668,7 @@ describe('Backup API Module', () => {
     it('应该支持分页参数', async () => {
       const env = createMockEnv();
 
-      // 创建多个备份
+      // 建立多個備份
       for (let i = 0; i < 5; i++) {
         await saveSecretsToKV(env, [
           { id: String(i), name: `Test${i}`, secret: 'JBSWY3DPEHPK3PXP' }
@@ -1524,7 +1524,7 @@ describe('Backup API Module', () => {
       expect(response.status).toBe(200);
       expect(data.backups.length).toBeGreaterThan(0);
 
-      // 绠€鍗曟ā寮忎笉搴旇鍖呭惈 count 鍜?encrypted
+      // 綆€鍗曟ā寮忎笉搴旇鍖呭惈 count 鍜?encrypted
       const backup = data.backups[0];
       expect(backup.key).toBeDefined();
       expect(backup.created).toBeDefined();
@@ -1964,7 +1964,7 @@ describe('Backup API Module', () => {
       expect(response.status).toBe(200);
       expect(data.backups.length).toBeGreaterThan(0);
 
-      // 简单模式不应该包含 count 和 encrypted
+      // 簡單模式不應該包含 count 和 encrypted
       const backup = data.backups[0];
       expect(backup.key).toBeDefined();
       expect(backup.created).toBeDefined();
@@ -1975,7 +1975,7 @@ describe('Backup API Module', () => {
     it('应该正确处理加密和明文备份混合', async () => {
       const env = createMockEnv();
 
-      // 创建明文备份
+      // 建立明文備份
       const plaintextBackup = {
         timestamp: new Date().toISOString(),
         version: '1.0',
@@ -1984,7 +1984,7 @@ describe('Backup API Module', () => {
       };
       await env.SECRETS_KV.put('backup_2025-01-01_00-00-00.json', JSON.stringify(plaintextBackup));
 
-      // 创建加密备份
+      // 建立加密備份
       await saveSecretsToKV(env, [
         { id: '2', name: 'Test2', secret: 'MFRGGZDFMZTWQ2LK' }
       ], 'test');
@@ -1998,7 +1998,7 @@ describe('Backup API Module', () => {
       expect(response.status).toBe(200);
       expect(data.backups.length).toBeGreaterThanOrEqual(2);
 
-      // 应该同时包含加密和明文备份
+      // 應該同時包含加密和明文備份
       const hasEncrypted = data.backups.some(b => b.encrypted === true);
       const hasPlaintext = data.backups.some(b => b.encrypted === false);
       expect(hasEncrypted || hasPlaintext).toBe(true);
@@ -2027,32 +2027,32 @@ describe('Backup API Module', () => {
     it('应该支持 limit=all 加载所有备份', async () => {
       const env = createMockEnv();
 
-      // 创建10个备份用于测试（直接在KV中创建，绕过rate limiting）
+      // 建立10個備份用於測試（直接在KV中建立，繞過rate limiting）
       for (let i = 0; i < 10; i++) {
         const backupData = {
-          timestamp: new Date(Date.now() + i * 1000).toISOString(), // 确保不同的时间戳
+          timestamp: new Date(Date.now() + i * 1000).toISOString(), // 確保不同的時間戳
           version: '1.0',
           count: 1,
           secrets: [{ id: String(i), name: `Test${i}`, secret: 'JBSWY3DPEHPK3PXP' }]
         };
 
-        // 生成备份文件名（使用不同的时间戳）
+        // 生成備份檔名（使用不同的時間戳）
         const date = new Date(Date.now() + i * 1000);
         const dateStr = date.toISOString().split('T')[0];
         const timeStr = date.toISOString().split('T')[1].split('.')[0].replace(/:/g, '-');
         const backupKey = `backup_${dateStr}_${timeStr}.json`;
 
-        // 直接保存到 KV（不通过 handleBackupSecrets 以避免 rate limiting）
+        // 直接儲存到 KV（不通過 handleBackupSecrets 以避免 rate limiting）
         await env.SECRETS_KV.put(backupKey, JSON.stringify(backupData));
       }
 
-      // 使用 limit=all 获取所有备份
+      // 使用 limit=all 獲取所有備份
       const request = createMockRequest({}, 'GET', 'https://example.com/api/backup', { limit: 'all' });
       const response = await handleGetBackups(request, env);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.backups.length).toBeGreaterThanOrEqual(10); // 至少10个
+      expect(data.backups.length).toBeGreaterThanOrEqual(10); // 至少10個
       expect(data.pagination).toBeDefined();
       expect(data.pagination.loadedAll).toBe(true);
       expect(data.pagination.hasMore).toBe(false);
@@ -2061,7 +2061,7 @@ describe('Backup API Module', () => {
     it('应该支持 limit=0 加载所有备份（与 limit=all 相同）', async () => {
       const env = createMockEnv();
 
-      // 创建10个备份（直接在KV中创建）
+      // 建立10個備份（直接在KV中建立）
       for (let i = 0; i < 10; i++) {
         const backupData = {
           timestamp: new Date(Date.now() + i * 1000).toISOString(),
@@ -2078,7 +2078,7 @@ describe('Backup API Module', () => {
         await env.SECRETS_KV.put(backupKey, JSON.stringify(backupData));
       }
 
-      // 使用 limit=0 获取所有备份
+      // 使用 limit=0 獲取所有備份
       const request = createMockRequest({}, 'GET', 'https://example.com/api/backup', { limit: '0' });
       const response = await handleGetBackups(request, env);
       const data = await response.json();
@@ -2091,7 +2091,7 @@ describe('Backup API Module', () => {
     it('应该支持更大的 limit 值（最大1000）', async () => {
       const env = createMockEnv();
 
-      // 创建20个备份（直接在KV中创建）
+      // 建立20個備份（直接在KV中建立）
       for (let i = 0; i < 20; i++) {
         const backupData = {
           timestamp: new Date(Date.now() + i * 1000).toISOString(),
@@ -2108,13 +2108,13 @@ describe('Backup API Module', () => {
         await env.SECRETS_KV.put(backupKey, JSON.stringify(backupData));
       }
 
-      // 使用 limit=500（超过旧限制100，但在新限制1000内）
+      // 使用 limit=500（超過舊限制100，但在新限制1000內）
       const request = createMockRequest({}, 'GET', 'https://example.com/api/backup', { limit: '500' });
       const response = await handleGetBackups(request, env);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.backups.length).toBe(20); // 实际只有20个
+      expect(data.backups.length).toBe(20); // 實際只有20個
       expect(data.pagination.limit).toBe(500);
     });
   });
@@ -2165,20 +2165,20 @@ describe('Backup API Module', () => {
 				counter: 3
 			};
 
-      // 创建备份
+      // 建立備份
       await saveSecretsToKV(env, [restoredSecret], 'test');
 
       const backupReq = createMockRequest();
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 清空当前密钥
+      // 清空當前金鑰
       await env.SECRETS_KV.delete('secrets');
 
 			const orphanSidecarKey = getHOTPCounterStateKey(restoredSecret.id);
 			await saveHOTPCounterState(env, restoredSecret, 99);
 
-      // 恢复备份
+      // 恢復備份
       const restoreReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: false
@@ -2244,7 +2244,7 @@ describe('Backup API Module', () => {
     it('应该支持预览模式', async () => {
       const env = createMockEnv();
 
-      // 创建备份
+      // 建立備份
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP' },
         { id: '2', name: 'Test2', secret: 'MFRGGZDFMZTWQ2LK' }
@@ -2254,7 +2254,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 预览备份
+      // 預覽備份
       const previewReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: true
@@ -2265,8 +2265,8 @@ describe('Backup API Module', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      // createSuccessResponse 返回结构：{success, message, data}
-      // 预览数据在 data.data 中
+      // createSuccessResponse 返回結構：{success, message, data}
+      // 預覽資料在 data.data 中
       expect(data.data).toBeDefined();
       expect(data.data.secrets).toBeDefined();
       expect(Array.isArray(data.data.secrets)).toBe(true);
@@ -2365,7 +2365,7 @@ describe('Backup API Module', () => {
     it('应该支持GET方式恢复', async () => {
       const env = createMockEnv();
 
-      // 创建备份
+      // 建立備份
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP' }
       ], 'test');
@@ -2374,7 +2374,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 使用GET方式恢复
+      // 使用GET方式恢復
       const restoreReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/restore?key=${backupData.backupKey}`);
 
@@ -2450,12 +2450,12 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 修改现有密钥
+      // 修改現有金鑰
       await saveSecretsToKV(env, [
         { id: '2', name: 'Different', secret: 'MFRGGZDFMZTWQ2LK' }
       ], 'test');
 
-      // 恢复备份
+      // 恢復備份
       const restoreReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: false
@@ -2472,7 +2472,7 @@ describe('Backup API Module', () => {
     it('应该在加密密钥缺失时拒绝恢复加密备份', async () => {
       const env = createMockEnv();
 
-      // 创建加密备份
+      // 建立加密備份
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP' }
       ], 'test');
@@ -2481,10 +2481,10 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 移除加密密钥
+      // 移除加密金鑰
       delete env.ENCRYPTION_KEY;
 
-      // 尝试恢复
+      // 嘗試恢復
       const restoreReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: false
@@ -2845,7 +2845,7 @@ describe('Backup API Module', () => {
     it('应该导出为 TXT 格式', async () => {
       const env = createMockEnv();
 
-      // 创建备份
+      // 建立備份
       await saveSecretsToKV(env, [
         {
           id: '1',
@@ -2863,7 +2863,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 导出为 TXT
+      // 匯出為 TXT
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'txt' });
 
@@ -2896,7 +2896,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 导出为 JSON
+      // 匯出為 JSON
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'json' });
 
@@ -2940,7 +2940,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 导出为 CSV
+      // 匯出為 CSV
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'csv' });
 
@@ -2954,8 +2954,8 @@ describe('Backup API Module', () => {
       expect(content).toContain('GitHub');
       expect(content).toContain('Google');
       expect(content).toContain('JBSWY3DPEHPK3PXP');
-      // BOM 检查 - CSV 应该以 BOM 开头
-      // 检查字符串是否以 BOM 开头（\uFEFF 或直接检查内容）
+      // BOM 檢查 - CSV 應該以 BOM 開頭
+      // 檢查字串是否以 BOM 開頭（\uFEFF 或直接檢查內容）
       expect(content.startsWith('\uFEFF') || content.includes('服务名称')).toBe(true);
     });
 
@@ -2991,7 +2991,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 使用无效格式
+      // 使用無效格式
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'xml' });
 
@@ -3045,10 +3045,10 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 确认备份是加密的
+      // 確認備份是加密的
       expect(backupData.encrypted).toBe(true);
 
-      // 导出
+      // 匯出
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'json' });
 
@@ -3064,7 +3064,7 @@ describe('Backup API Module', () => {
     it('应该在加密密钥缺失时拒绝导出加密备份', async () => {
       const env = createMockEnv();
 
-      // 创建加密备份
+      // 建立加密備份
       await saveSecretsToKV(env, [
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP' }
       ], 'test');
@@ -3073,10 +3073,10 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 移除加密密钥
+      // 移除加密金鑰
       delete env.ENCRYPTION_KEY;
 
-      // 尝试导出
+      // 嘗試匯出
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`);
 
@@ -3193,7 +3193,7 @@ describe('Backup API Module', () => {
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
 
-      // 导出为 JSON 检查排序
+      // 匯出為 JSON 檢查排序
       const exportReq = createMockRequest({}, 'GET',
         `https://example.com/api/backup/export/${backupData.backupKey}`, { format: 'json' });
 
@@ -3211,7 +3211,7 @@ describe('Backup API Module', () => {
     it('完整流程：创建备份 → 列表 → 恢复 → 导出', async () => {
       const env = createMockEnv();
 
-      // 1. 添加初始密钥
+      // 1. 新增初始金鑰
       const initialSecrets = [
         {
           id: '1',
@@ -3230,14 +3230,14 @@ describe('Backup API Module', () => {
       ];
       await saveSecretsToKV(env, initialSecrets, 'test');
 
-      // 2. 创建备份
+      // 2. 建立備份
       const backupReq = createMockRequest();
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
       expect(backupData.success).toBe(true);
       expect(backupData.count).toBe(2);
 
-      // 3. 获取备份列表
+      // 3. 獲取備份列表
       const listReq = createMockRequest({}, 'GET', 'https://example.com/api/backup');
       const listResp = await handleGetBackups(listReq, env);
       const listData = await listResp.json();
@@ -3246,10 +3246,10 @@ describe('Backup API Module', () => {
       expect(foundBackup).toBeDefined();
       expect(foundBackup.count).toBe(2);
 
-      // 4. 修改密钥（删除一个）
+      // 4. 修改金鑰（刪除一個）
       await saveSecretsToKV(env, [initialSecrets[0]], 'test');
 
-      // 5. 恢复备份
+      // 5. 恢復備份
       const restoreReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: false
@@ -3259,7 +3259,7 @@ describe('Backup API Module', () => {
       expect(restoreData.success).toBe(true);
       expect(restoreData.count).toBe(2);
 
-      // 6. 导出备份为多种格式
+      // 6. 匯出備份為多種格式
       const formats = ['txt', 'json', 'csv', 'html'];
       for (const format of formats) {
         const exportReq = createMockRequest({}, 'GET',
@@ -3272,7 +3272,7 @@ describe('Backup API Module', () => {
     it('加密流程：加密备份 → 恢复 → 验证数据完整性', async () => {
       const env = createMockEnv();
 
-      // 原始密钥数据
+      // 原始金鑰資料
       const originalSecrets = [
         {
           id: '1',
@@ -3287,16 +3287,16 @@ describe('Backup API Module', () => {
       ];
       await saveSecretsToKV(env, originalSecrets, 'test');
 
-      // 创建加密备份
+      // 建立加密備份
       const backupReq = createMockRequest();
       const backupResp = await handleBackupSecrets(backupReq, env);
       const backupData = await backupResp.json();
       expect(backupData.encrypted).toBe(true);
 
-      // 清空数据
+      // 清空資料
       await env.SECRETS_KV.delete('secrets');
 
-      // 恢复备份
+      // 恢復備份
       const restoreReq = createMockRequest({
         backupKey: backupData.backupKey,
         preview: false
@@ -3304,11 +3304,11 @@ describe('Backup API Module', () => {
       const restoreResp = await handleRestoreBackup(restoreReq, env);
       expect(restoreResp.status).toBe(200);
 
-      // 验证数据完整性
+      // 驗證資料完整性
       const secretsData = await env.SECRETS_KV.get('secrets', 'text');
       expect(secretsData).toBeDefined();
 
-      // 应该被重新加密 - 使用正确的加密标记
+      // 應該被重新加密 - 使用正確的加密標記
       expect(secretsData.startsWith('__ENCRYPTED__') || secretsData.startsWith('v1:')).toBe(true);
     });
   });
@@ -3317,15 +3317,15 @@ describe('Backup API Module', () => {
     it('应该处理 KV 存储失败', async () => {
       const env = createMockEnv();
 
-      // 先添加数据使得备份有内容
+      // 先新增資料使得備份有內容
       await env.SECRETS_KV.put('secrets', JSON.stringify([
         { id: '1', name: 'Test', secret: 'JBSWY3DPEHPK3PXP' }
       ]));
 
-      // Mock KV put 方法失败
+      // Mock KV put 方法失敗
       const originalPut = env.SECRETS_KV.put.bind(env.SECRETS_KV);
       env.SECRETS_KV.put = vi.fn(async (key, value) => {
-        // 只让备份写入失败，secrets 写入成功
+        // 只讓備份寫入失敗，secrets 寫入成功
         if (key.startsWith('backup_')) {
           throw new Error('KV error');
         }
@@ -3339,14 +3339,14 @@ describe('Backup API Module', () => {
       const data = await response.json();
       expect(data.error).toBeDefined();
 
-      // 恢复原始方法
+      // 恢復原始方法
       env.SECRETS_KV.put = originalPut;
     });
 
     it('应该处理解密失败', async () => {
       const env = createMockEnv();
 
-      // 创建假的加密备份（错误的格式）
+      // 建立假的加密備份（錯誤的格式）
       await env.SECRETS_KV.put('backup_2025-01-01_00-00-00.json', 'v1:invalid-encrypted-data');
 
       const exportReq = createMockRequest({}, 'GET',
@@ -3362,7 +3362,7 @@ describe('Backup API Module', () => {
     it('应该处理损坏的备份数据', async () => {
       const env = createMockEnv();
 
-      // 创建损坏的明文备份
+      // 建立損壞的明文備份
       await env.SECRETS_KV.put('backup_2025-01-01_00-00-00.json', '{invalid json');
 
       const exportReq = createMockRequest({}, 'GET',

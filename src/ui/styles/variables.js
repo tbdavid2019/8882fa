@@ -1,12 +1,12 @@
 import { PROGRESS_GRADIENT, PROGRESS_HEIGHT } from './progress.js';
 
 /**
- * CSS 变量定义模块
- * 实现浅色模式和深色模式的主题变量
+ * CSS 變數定義模組
+ * 實現淺色模式和深色模式的主題變數
  */
 export function getVariables() {
 	return `
-    /* ========== CSS 变量系统 ========== */
+    /* ========== CSS 變數系統 ========== */
     @font-face {
       font-family: 'Maple Mono';
       font-style: normal;
@@ -22,10 +22,10 @@ export function getVariables() {
       src: url('/fonts/maple-mono-bold.woff2') format('woff2');
     }
 
-    /* 浅色模式变量定义 */
+    /* 淺色模式變數定義 */
     :root {
       --font-ui: 'Maple Mono', 'JetBrains Mono', 'Maple Mono CN', 'SF Mono', 'Cascadia Mono', monospace;
-      /* === 主题过渡动画 === */
+      /* === 主題過渡動畫 === */
       --theme-transition-duration: 0.18s;
       --theme-transition:
         background-color var(--theme-transition-duration) ease,
@@ -35,12 +35,12 @@ export function getVariables() {
         accent-color var(--theme-transition-duration) ease,
         box-shadow var(--theme-transition-duration) ease;
 
-      /* === 基础颜色 === */
-      /* 纯色 */
+      /* === 基礎顏色 === */
+      /* 純色 */
       --color-white: #ffffff;
       --color-black: #000000;
 
-      /* 灰度色阶 */
+      /* 灰度色階 */
       --gray-50: #f8f9fa;
       --gray-100: #f1f3f5;
       --gray-200: #e9ecef;
@@ -64,12 +64,12 @@ export function getVariables() {
       --primary-800: #1565c0;
       --primary-900: #0d47a1;
 
-      /* 圆角 */
+      /* 圓角 */
       --radius-sm: 6px;
       --radius-md: 10px;
       --radius-lg: 16px;
 
-      /* 品牌映射 */
+      /* 品牌對映 */
       --primary: var(--primary-500);
       --primary-rgb: 33, 150, 243;
       --action-btn-bg: var(--primary-600);
@@ -98,7 +98,7 @@ export function getVariables() {
       --info: #17a2b8;
       --info-dark: #138496;
 
-      /* === 语义化变量（浅色模式） === */
+      /* === 語義化變數（淺色模式） === */
 
       /* 背景色 */
       --bg-primary: #ffffff;
@@ -120,7 +120,7 @@ export function getVariables() {
       --text-link: #3498db;
       --text-link-hover: #2980b9;
 
-      /* 边框色 */
+      /* 邊框色 */
       --border-primary: #e9ecef;
       --border-secondary: #dee2e6;
       --border-tertiary: #ced4da;
@@ -128,13 +128,13 @@ export function getVariables() {
       --border-error: #dc3545;
       --border-success: #4caf50;
 
-      /* 阴影 */
+      /* 陰影 */
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
       --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
       --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
       --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
 
-      /* 按钮颜色 */
+      /* 按鈕顏色 */
       --btn-primary-bg: #3498db;
       --btn-primary-hover: #2980b9;
       --btn-primary-text: #ffffff;
@@ -151,7 +151,7 @@ export function getVariables() {
       --btn-info-hover: #138496;
       --btn-info-text: #ffffff;
 
-      /* 表单元素 */
+      /* 表單元素 */
       --input-bg: #f8f9fa;
       --input-bg-focus: #ffffff;
       --input-border: #e9ecef;
@@ -166,7 +166,7 @@ export function getVariables() {
       --card-hover-border: #3498db;
       --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
-      /* 模态框 */
+      /* 模態框 */
       --modal-bg: #ffffff;
       --modal-border: #e9ecef;
       --modal-overlay: rgba(0, 0, 0, 0.8);
@@ -175,35 +175,35 @@ export function getVariables() {
       --fab-modal-sm-max-width: 450px;
       --fab-modal-lg-max-width: 680px;
 
-      /* 进度条 */
+      /* 進度條 */
       --progress-height: ${PROGRESS_HEIGHT};
       --progress-bg: #e0e0e0;
       --progress-fill: ${PROGRESS_GRADIENT};
 
-      /* 滚动条 */
+      /* 捲軸 */
       --scrollbar-track: transparent;
       --scrollbar-thumb: #cbd5e0;
       --scrollbar-thumb-hover: #a0aec0;
 
-      /* OTP 显示 */
+      /* OTP 顯示 */
       --otp-text: #2c3e50;
       --otp-next-bg: #f8f9fa;
       --otp-next-bg-hover: #e9ecef;
       --otp-next-text: #6c757d;
 
-      /* 搜索框 */
+      /* 搜尋框 */
       --search-bg: #ffffff;
       --search-border: #e9ecef;
       --search-border-focus: #3498db;
       --search-icon: #6c757d;
 
-      /* 菜单 */
+      /* 選單 */
       --menu-bg: #ffffff;
       --menu-border: #e9ecef;
       --menu-item-hover: #f8f9fa;
       --menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
-      /* 导入相关 */
+      /* 匯入相關 */
       --import-instructions-bg: var(--gray-50);
       --import-instructions-border: #e9ecef;
       --import-method-bg: #ffffff;
@@ -215,21 +215,21 @@ export function getVariables() {
       --import-file-bg: var(--primary-50);
       --import-file-border: #17a2b8;
 
-      /* 还原配置 */
+      /* 還原配置 */
       --restore-instructions-bg: var(--warning-light);
       --restore-instructions-border: #ff9800;
       --restore-warning-bg: rgba(255, 255, 255, 0.7);
       --restore-warning-text: #d84315;
       --restore-warning-border: rgba(216, 67, 21, 0.2);
 
-      /* 备份列表 */
+      /* 備份列表 */
       --backup-header-bg: var(--primary-50);
       --backup-header-border: #2196f3;
       --backup-header-text: #1976d2;
       --backup-select-bg: #ffffff;
       --backup-select-border: #e3f2fd;
 
-      /* 备份表格 */
+      /* 備份表格 */
       --table-bg: #ffffff;
       --table-header-bg: var(--success);
       --table-header-text: #ffffff;
@@ -256,7 +256,7 @@ export function getVariables() {
       --footer-link: #6c757d;
       --footer-link-hover: #3498db;
 
-      /* 悬浮按钮 */
+      /* 懸浮按鈕 */
       --float-btn-bg: #3498db;
       --float-btn-hover: #2980b9;
       --float-btn-text: #ffffff;
@@ -264,11 +264,11 @@ export function getVariables() {
 
     }
 
-    /* ========== 深色模式变量覆盖 ========== */
+    /* ========== 深色模式變數覆蓋 ========== */
     [data-theme="dark"] {
-      /* === 语义化变量（深色模式） === */
+      /* === 語義化變數（深色模式） === */
 
-      /* 功能色 - 深色模式背景需要较暗，以便与白色文字形成对比 */
+      /* 功能色 - 深色模式背景需要較暗，以便與白色文字形成對比 */
       --success-light: rgba(76, 175, 80, 0.15);
       --warning-light: rgba(255, 193, 7, 0.15);
       --danger-light: rgba(244, 67, 54, 0.15);
@@ -294,7 +294,7 @@ export function getVariables() {
       --text-link: #63b3ed;
       --text-link-hover: #4299e1;
 
-      /* 边框色 */
+      /* 邊框色 */
       --border-primary: #4a5568;
       --border-secondary: #2d3748;
       --border-tertiary: #1a202c;
@@ -302,13 +302,13 @@ export function getVariables() {
       --border-error: #f56565;
       --border-success: #66bb6a;
 
-      /* 阴影 */
+      /* 陰影 */
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
       --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
       --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
       --shadow-xl: 0 20px 60px rgba(255, 255, 255, 0.1);
 
-      /* 按钮颜色 */
+      /* 按鈕顏色 */
       --btn-primary-bg: #3182ce;
       --btn-primary-hover: #2c5282;
 
@@ -321,7 +321,7 @@ export function getVariables() {
       --btn-info-bg: #38b2ac;
       --btn-info-hover: #2c7a7b;
 
-      /* 表单元素 */
+      /* 表單元素 */
       --input-bg: #1a202c;
       --input-bg-focus: #2d3748;
       --input-border: #4a5568;
@@ -336,40 +336,40 @@ export function getVariables() {
       --card-hover-border: #5dade2;
       --card-hover-shadow: 0 4px 12px rgba(93, 173, 226, 0.2);
 
-      /* 模态框 */
+      /* 模態框 */
       --modal-bg: #1a1a1a;
       --modal-border: #333333;
       --modal-overlay: rgba(0, 0, 0, 0.9);
       --modal-header-border: #4a5568;
 
-      /* 进度条 */
+      /* 進度條 */
       --progress-bg: #424242;
       --progress-fill: ${PROGRESS_GRADIENT};
 
-      /* 滚动条 */
+      /* 捲軸 */
       --scrollbar-track: transparent;
       --scrollbar-thumb: #4a5568;
       --scrollbar-thumb-hover: #718096;
 
-      /* OTP 显示 */
+      /* OTP 顯示 */
       --otp-text: #ffffff;
       --otp-next-bg: rgba(255, 255, 255, 0.05);
       --otp-next-bg-hover: rgba(255, 255, 255, 0.1);
       --otp-next-text: #cccccc;
 
-      /* 搜索框 */
+      /* 搜尋框 */
       --search-bg: #1a1a1a;
       --search-border: #404040;
       --search-border-focus: #3498db;
       --search-icon: #888888;
 
-      /* 菜单 */
+      /* 選單 */
       --menu-bg: #2a2a2a;
       --menu-border: #444444;
       --menu-item-hover: rgba(255, 255, 255, 0.1);
       --menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
-      /* 导入相关 */
+      /* 匯入相關 */
       --import-instructions-bg: #2d3748;
       --import-instructions-border: #4a5568;
       --import-method-bg: #1a202c;
@@ -381,21 +381,21 @@ export function getVariables() {
       --import-file-bg: #1e3a5f;
       --import-file-border: #2196f3;
 
-      /* 还原配置 */
+      /* 還原配置 */
       --restore-instructions-bg: #3a2a1a;
       --restore-instructions-border: #ff9800;
       --restore-warning-bg: rgba(0, 0, 0, 0.3);
       --restore-warning-text: #ffab91;
       --restore-warning-border: rgba(255, 87, 34, 0.3);
 
-      /* 备份列表 */
+      /* 備份列表 */
       --backup-header-bg: #1e3a5f;
       --backup-header-border: #2196f3;
       --backup-header-text: #42a5f5;
       --backup-select-bg: #1a1a1a;
       --backup-select-border: #2d4a6f;
 
-      /* 备份表格 */
+      /* 備份表格 */
       --table-bg: #1a1a1a;
       --table-header-bg: #1b5e20;
       --table-header-text: #ffffff;
@@ -422,14 +422,14 @@ export function getVariables() {
       --footer-link: #718096;
       --footer-link-hover: #63b3ed;
 
-      /* 悬浮按钮 */
+      /* 懸浮按鈕 */
       --float-btn-bg: #3182ce;
       --float-btn-hover: #2c5282;
       --float-btn-shadow: 0 8px 32px rgba(49, 130, 206, 0.4);
 
     }
 
-    /* ========== 媒体查询回退（JavaScript 禁用时） ========== */
+    /* ========== 媒體查詢回退（JavaScript 停用時） ========== */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         /* 背景色 */
@@ -445,7 +445,7 @@ export function getVariables() {
         --segmented-option-text: #a0aec0;
         --text-tertiary: #718096;
 
-        /* 边框色 */
+        /* 邊框色 */
         --border-primary: #4a5568;
         --border-secondary: #2d3748;
 
@@ -453,18 +453,18 @@ export function getVariables() {
         --card-bg: #1a1a1a;
         --card-border: #404040;
 
-        /* 输入框 */
+        /* 輸入框 */
         --input-bg: #1a202c;
         --input-border: #4a5568;
         --input-text: #ffffff;
 
-        /* 模态框 */
+        /* 模態框 */
         --modal-bg: #1a1a1a;
         --modal-border: #333333;
       }
     }
 
-    /* ========== 主题过渡动画 ========== */
+    /* ========== 主題過渡動畫 ========== */
     /* Animate surfaces and explicit text colors; descendants inherit the result
        without starting their own trailing transitions. Keep layout motion intact. */
     html.theme-transition .fluent-app,
@@ -527,7 +527,7 @@ export function getVariables() {
       transition: none !important;
     }
 
-    /* 禁用过渡的情况（减少动画偏好） */
+    /* 停用過渡的情況（減少動畫偏好） */
     @media (prefers-reduced-motion: reduce) {
       html.theme-transition,
       html.theme-transition *,

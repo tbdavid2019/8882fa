@@ -1,14 +1,14 @@
 /**
- * 密钥检查器工具模块
+ * 金鑰檢查器工具模組
  */
 
 /**
- * 获取密钥检查器工具代码
- * @returns {string} 密钥检查器工具 JavaScript 代码
+ * 獲取金鑰檢查器工具程式碼
+ * @returns {string} 金鑰檢查器工具 JavaScript 程式碼
  */
 export function getKeyCheckerToolCode() {
 	return `
-    // ==================== 密钥检查器 ====================
+    // ==================== 金鑰檢查器 ====================
 
     function showKeyCheckModal() {
       showModal('keyCheckModal', () => {
@@ -42,20 +42,20 @@ export function getKeyCheckerToolCode() {
         suggestions: []
       };
 
-      // 检查长度
+      // 檢查長度
       result.lengthValid = secret.length >= 8;
       if (!result.lengthValid) {
         result.suggestions.push((typeof t === 'function' ? t('keyCheckerLengthSuggestion') : null) || 'Key length must be at least 8 characters');
       }
 
-      // 检查字符集
+      // 檢查字元集
       const base32Regex = /^[A-Z2-7]+=*$/;
       result.charsetValid = base32Regex.test(secret);
       if (!result.charsetValid) {
         result.suggestions.push((typeof t === 'function' ? t('keyCheckerCharsetSuggestion') : null) || 'Can only contain characters A-Z and 2-7');
       }
 
-      // 检查填充
+      // 檢查填充
       const withoutPadding = secret.replace(/=+$/, '');
       const paddingLength = secret.length - withoutPadding.length;
       result.paddingValid = paddingLength === 0 || paddingLength <= 6;
@@ -63,13 +63,13 @@ export function getKeyCheckerToolCode() {
         result.suggestions.push((typeof t === 'function' ? t('keyCheckerPaddingSuggestion') : null) || 'Padding characters (=) cannot exceed 6');
       }
 
-      // 检查长度是否为8的倍数（考虑填充）
+      // 檢查長度是否為8的倍數（考慮填充）
       const totalLength = withoutPadding.length + paddingLength;
       if (totalLength % 8 !== 0) {
         result.suggestions.push((typeof t === 'function' ? t('keyCheckerMultipleSuggestion') : null) || 'Total length after padding must be a multiple of 8');
       }
 
-      // 整体有效性
+      // 整體有效性
       result.isValid = result.lengthValid && result.charsetValid && result.paddingValid;
 
       return result;

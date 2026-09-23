@@ -1,11 +1,11 @@
 /**
- * CRUD 操作处理器 - 密钥的创建、读取、更新、删除
+ * CRUD 操作處理器 - 金鑰的建立、讀取、更新、刪除
  *
  * 包含功能:
- * - handleGetSecrets: 获取所有密钥列表
- * - handleAddSecret: 添加新密钥
- * - handleUpdateSecret: 更新现有密钥
- * - handleDeleteSecret: 删除密钥 (带 Rate Limiting)
+ * - handleGetSecrets: 獲取所有金鑰列表
+ * - handleAddSecret: 新增新金鑰
+ * - handleUpdateSecret: 更新現有金鑰
+ * - handleDeleteSecret: 刪除金鑰 (帶 Rate Limiting)
  */
 
 import { saveSecretsToKV, getAllSecrets } from './shared.js';
@@ -29,10 +29,10 @@ import {
 } from '../../utils/errors.js';
 
 /**
- * 获取所有密钥列表
+ * 獲取所有金鑰列表
  *
- * @param {Object} env - Cloudflare Workers 环境对象
- * @returns {Response} 密钥列表响应
+ * @param {Object} env - Cloudflare Workers 環境物件
+ * @returns {Response} 金鑰列表響應
  */
 export async function handleGetSecrets(env) {
 	const logger = getLogger(env);
@@ -48,7 +48,7 @@ export async function handleGetSecrets(env) {
 	} catch (error) {
 		timer.cancel();
 
-		// 如果是已知的错误类型，记录并转换
+		// 如果是已知的錯誤型別，記錄並轉換
 		if (
 			error instanceof StorageError ||
 			error instanceof CryptoError ||
@@ -60,7 +60,7 @@ export async function handleGetSecrets(env) {
 			return errorToResponse(error);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error('获取密钥列表失败', { operation: 'handleGetSecrets' }, error);
 		getMonitoring(env).getErrorMonitor().captureError(error, { operation: 'handleGetSecrets' }, ErrorSeverity.ERROR);
 		return createErrorResponse('获取密钥列表失败', `从存储中获取密钥时发生错误: ${error.message}`, 500);
@@ -68,27 +68,27 @@ export async function handleGetSecrets(env) {
 }
 
 /**
- * 添加新密钥
+ * 新增新金鑰
  *
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - Cloudflare Workers 环境对象
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} 添加结果响应
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - Cloudflare Workers 環境物件
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} 新增結果響應
  */
 export async function handleAddSecret(request, env, ctx) {
 	const logger = getLogger(env);
 
 	try {
-		// 🔍 使用验证中间件解析和验证请求
+		// 🔍 使用驗證中介軟體解析和驗證請求
 		const secretData = await validateRequest(addSecretSchema)(request);
 		if (secretData instanceof Response) {
 			return secretData;
-		} // 验证失败
+		} // 驗證失敗
 
-		// 获取现有密钥
+		// 獲取現有金鑰
 		const existingSecrets = await getAllSecrets(env);
 
-		// 检查重复（服务名+账户+密钥都相同才视为重复）
+		// 檢查重複（服務名+賬戶+金鑰都相同才視為重複）
 		const isDuplicate = checkDuplicateSecret(existingSecrets, secretData.name, secretData.account, secretData.secret);
 
 		if (isDuplicate) {
@@ -99,7 +99,7 @@ export async function handleAddSecret(request, env, ctx) {
 			});
 		}
 
-		// 创建密钥对象（数据已经通过验证和转换）
+		// 建立金鑰物件（資料已經通過驗證和轉換）
 		const newSecret = {
 			id: crypto.randomUUID(),
 			name: secretData.name,
@@ -114,7 +114,7 @@ export async function handleAddSecret(request, env, ctx) {
 
 		existingSecrets.push(newSecret);
 
-		// 保存到 KV (自动加密、排序、触发备份)
+		// 儲存到 KV (自動加密、排序、觸發備份)
 		await saveSecretsToKV(env, existingSecrets, 'secret-added', {}, ctx);
 
 		logger.info('密钥添加成功', {
@@ -123,7 +123,7 @@ export async function handleAddSecret(request, env, ctx) {
 			name: newSecret.name,
 		});
 
-		// 检查是否有密钥强度警告
+		// 檢查是否有金鑰強度警告
 		const validation = validateBase32(secretData.secret);
 		const responseData = {
 			success: true,
@@ -137,7 +137,7 @@ export async function handleAddSecret(request, env, ctx) {
 
 		return createJsonResponse(responseData, 201, request);
 	} catch (error) {
-		// 如果是已知的错误类型，记录并转换
+		// 如果是已知的錯誤型別，記錄並轉換
 		if (
 			error instanceof ConflictError ||
 			error instanceof ValidationError ||
@@ -150,7 +150,7 @@ export async function handleAddSecret(request, env, ctx) {
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error('添加密钥失败', { operation: 'handleAddSecret', errorMessage: error.message }, error);
 		getMonitoring(env).getErrorMonitor().captureError(error, { operation: 'handleAddSecret' }, ErrorSeverity.ERROR);
 		return createErrorResponse('添加密钥失败', `添加密钥时发生内部错误`, 500, request);
@@ -158,12 +158,12 @@ export async function handleAddSecret(request, env, ctx) {
 }
 
 /**
- * 更新现有密钥
+ * 更新現有金鑰
  *
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - Cloudflare Workers 环境对象
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} 更新结果响应
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - Cloudflare Workers 環境物件
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} 更新結果響應
  */
 export async function handleUpdateSecret(request, env, ctx) {
 	const logger = getLogger(env);
@@ -172,16 +172,16 @@ export async function handleUpdateSecret(request, env, ctx) {
 		const url = new URL(request.url);
 		const secretId = url.pathname.split('/').pop();
 
-		// 🔍 使用验证中间件解析和验证请求
+		// 🔍 使用驗證中介軟體解析和驗證請求
 		const secretData = await validateRequest(addSecretSchema)(request);
 		if (secretData instanceof Response) {
 			return secretData;
-		} // 验证失败
+		} // 驗證失敗
 
-		// 获取现有密钥
+		// 獲取現有金鑰
 		const existingSecrets = await getAllSecrets(env);
 
-		// 查找要更新的密钥
+		// 查詢要更新的金鑰
 		const secretIndex = existingSecrets.findIndex((s) => s.id === secretId);
 		if (secretIndex === -1) {
 			throw ErrorFactory.secretNotFound(secretId, {
@@ -189,7 +189,7 @@ export async function handleUpdateSecret(request, env, ctx) {
 			});
 		}
 
-		// 检查是否与其他密钥重复（排除自己，服务名+账户+密钥都相同才视为重复）
+		// 檢查是否與其他金鑰重複（排除自己，服務名+賬戶+金鑰都相同才視為重複）
 		const isDuplicate = checkDuplicateSecret(existingSecrets, secretData.name, secretData.account, secretData.secret, secretIndex);
 
 		if (isDuplicate) {
@@ -217,7 +217,7 @@ export async function handleUpdateSecret(request, env, ctx) {
 		}
 		const updatedCounter = secretData.type === 'HOTP' ? secretData.counter : undefined;
 
-		// 检测内容是否实际发生变化（数据已经通过验证和规范化）
+		// 檢測內容是否實際發生變化（資料已經通過驗證和規範化）
 		const contentChanged =
 			existingSecret.name !== secretData.name ||
 			existingSecret.account !== secretData.account ||
@@ -228,7 +228,7 @@ export async function handleUpdateSecret(request, env, ctx) {
 			existingSecret.algorithm !== secretData.algorithm ||
 			(secretData.type === 'HOTP' && existingSecret.counter !== updatedCounter);
 
-		// 更新密钥对象
+		// 更新金鑰物件
 		const updatedSecret = {
 			id: secretId, // 保留原 ID
 			name: secretData.name,
@@ -259,7 +259,7 @@ export async function handleUpdateSecret(request, env, ctx) {
 
 		return createSuccessResponse({ secret: updatedSecret }, '密钥更新成功', request);
 	} catch (error) {
-		// 如果是已知的错误类型，记录并转换
+		// 如果是已知的錯誤型別，記錄並轉換
 		if (
 			error instanceof NotFoundError ||
 			error instanceof ConflictError ||
@@ -273,7 +273,7 @@ export async function handleUpdateSecret(request, env, ctx) {
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error('更新密钥失败', { operation: 'handleUpdateSecret', errorMessage: error.message }, error);
 		getMonitoring(env).getErrorMonitor().captureError(error, { operation: 'handleUpdateSecret' }, ErrorSeverity.ERROR);
 		return createErrorResponse('更新密钥失败', `更新密钥时发生内部错误`, 500, request);
@@ -281,12 +281,12 @@ export async function handleUpdateSecret(request, env, ctx) {
 }
 
 /**
- * 删除密钥 (带 Rate Limiting)
+ * 刪除金鑰 (帶 Rate Limiting)
  *
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - Cloudflare Workers 环境对象
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} 删除结果响应
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - Cloudflare Workers 環境物件
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} 刪除結果響應
  */
 export async function handleDeleteSecret(request, env, ctx) {
 	const logger = getLogger(env);
@@ -304,10 +304,10 @@ export async function handleDeleteSecret(request, env, ctx) {
 		const url = new URL(request.url);
 		const secretId = url.pathname.split('/').pop();
 
-		// 获取现有密钥
+		// 獲取現有金鑰
 		const existingSecrets = await getAllSecrets(env);
 
-		// 查找要删除的密钥
+		// 查詢要刪除的金鑰
 		const secretIndex = existingSecrets.findIndex((s) => s.id === secretId);
 		if (secretIndex === -1) {
 			// Without the deleted object we cannot identify its namespace safely.
@@ -320,7 +320,7 @@ export async function handleDeleteSecret(request, env, ctx) {
 		const deletedSecret = existingSecrets[secretIndex];
 		existingSecrets.splice(secretIndex, 1);
 
-		// 保存到 KV (自动加密、排序、触发备份)
+		// 儲存到 KV (自動加密、排序、觸發備份)
 		await saveSecretsToKV(env, existingSecrets, 'secret-deleted', {}, ctx);
 		await deleteHOTPCounterState(env, deletedSecret);
 
@@ -332,7 +332,7 @@ export async function handleDeleteSecret(request, env, ctx) {
 
 		return createSuccessResponse({ id: secretId }, '密钥删除成功');
 	} catch (error) {
-		// 如果是已知的错误类型，记录并转换
+		// 如果是已知的錯誤型別，記錄並轉換
 		if (
 			error instanceof NotFoundError ||
 			error instanceof ValidationError ||
@@ -345,7 +345,7 @@ export async function handleDeleteSecret(request, env, ctx) {
 			return errorToResponse(error);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error('删除密钥失败', { operation: 'handleDeleteSecret', errorMessage: error.message }, error);
 		getMonitoring(env).getErrorMonitor().captureError(error, { operation: 'handleDeleteSecret' }, ErrorSeverity.ERROR);
 		return createErrorResponse('删除密钥失败', `删除密钥操作时发生内部错误`, 500);

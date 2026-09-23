@@ -1,35 +1,35 @@
 /**
- * Google Authenticator 迁移模块
- * 支持 Google Authenticator 的导入导出功能
+ * Google Authenticator 遷移模組
+ * 支援 Google Authenticator 的匯入匯出功能
  *
  * 功能：
- * - 解析 otpauth-migration:// 格式的迁移二维码（导入）
- * - 生成 otpauth-migration:// 格式的迁移二维码（导出）
- * - Protobuf 编解码
+ * - 解析 otpauth-migration:// 格式的遷移二維碼（匯入）
+ * - 生成 otpauth-migration:// 格式的遷移二維碼（匯出）
+ * - Protobuf 編解碼
  */
 
 import { LIMITS } from '../../utils/constants.js';
 
 /**
- * 获取 Google 迁移相关代码
- * @returns {string} JavaScript 代码
+ * 獲取 Google 遷移相關程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getGoogleMigrationCode() {
 	return `
-    // ========== Google Authenticator 迁移模块 ==========
-    // 支持 otpauth-migration:// 格式的导入导出
+    // ========== Google Authenticator 遷移模組 ==========
+    // 支援 otpauth-migration:// 格式的匯入匯出
 
-    // ==================== Protobuf 解码（导入）====================
+    // ==================== Protobuf 解碼（匯入）====================
 
     /**
-     * 处理 Google Authenticator 迁移二维码
+     * 處理 Google Authenticator 遷移二維碼
      * 格式: otpauth-migration://offline?data=<base64-encoded-protobuf>
      */
     function processGoogleMigration(qrCodeData) {
       try {
         console.log('检测到 Google Authenticator 迁移格式');
 
-        // 提取 data 参数
+        // 提取 data 引數
         const url = new URL(qrCodeData);
         const dataParam = url.searchParams.get('data');
 
@@ -38,7 +38,7 @@ export function getGoogleMigrationCode() {
           return;
         }
 
-        // URL 解码然后 Base64 解码
+        // URL 解碼然後 Base64 解碼
         const base64Data = decodeURIComponent(dataParam);
         const binaryData = atob(base64Data);
         const bytes = new Uint8Array(binaryData.length);
@@ -46,7 +46,7 @@ export function getGoogleMigrationCode() {
           bytes[i] = binaryData.charCodeAt(i);
         }
 
-        // 解析 Protobuf 数据
+        // 解析 Protobuf 資料
         const secrets = parseGoogleMigrationPayload(bytes);
 
         if (secrets.length === 0) {
@@ -56,10 +56,10 @@ export function getGoogleMigrationCode() {
 
         console.log('成功解析 ' + secrets.length + ' 个密钥:', secrets);
 
-        // 关闭扫描器
+        // 關閉掃描器
         hideQRScanner();
 
-        // 显示导入预览
+        // 顯示匯入預覽
         showGoogleMigrationPreview(secrets);
 
       } catch (error) {
@@ -70,13 +70,13 @@ export function getGoogleMigrationCode() {
 
     /**
      * 解析 Google Migration Payload (Protobuf 格式)
-     * 简化的 Protobuf 解码器，专门用于解析 Google Authenticator 迁移格式
+     * 簡化的 Protobuf 解碼器，專門用於解析 Google Authenticator 遷移格式
      */
     function parseGoogleMigrationPayload(bytes) {
       const secrets = [];
       let pos = 0;
 
-      // 读取 varint
+      // 讀取 varint
       function readVarint() {
         let result = 0;
         let shift = 0;
@@ -89,14 +89,14 @@ export function getGoogleMigrationCode() {
         return result;
       }
 
-      // 读取指定长度的字节
+      // 讀取指定長度的位元組
       function readBytes(length) {
         const result = bytes.slice(pos, pos + length);
         pos += length;
         return result;
       }
 
-      // 解析单个 OTP 参数
+      // 解析單個 OTP 引數
       function parseOtpParameters(data) {
         const otp = {
           secret: '',
@@ -156,7 +156,7 @@ export function getGoogleMigrationCode() {
 
             switch (fieldNumber) {
               case 1: // secret (bytes)
-                // 将字节转换为 Base32
+                // 將位元組轉換為 Base32
                 otp.secret = bytesToBase32(fieldData);
                 break;
               case 2: // name (string)
@@ -179,7 +179,7 @@ export function getGoogleMigrationCode() {
         const wireType = tag & 0x07;
 
         if (wireType === 0) {
-          // Varint - 跳过 version, batch_size 等字段
+          // Varint - 跳過 version, batch_size 等欄位
           readVarint();
         } else if (wireType === 2) {
           // Length-delimited
@@ -193,7 +193,7 @@ export function getGoogleMigrationCode() {
               secrets.push(otp);
             }
           } else {
-            // 跳过其他字段
+            // 跳過其他欄位
             pos += length;
           }
         }
@@ -203,7 +203,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 将字节数组转换为 Base32 字符串
+     * 將位元組陣列轉換為 Base32 字串
      */
     function bytesToBase32(bytes) {
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -228,10 +228,10 @@ export function getGoogleMigrationCode() {
       return result;
     }
 
-    // ==================== Protobuf 编码（导出）====================
+    // ==================== Protobuf 編碼（匯出）====================
 
     /**
-     * 将 Base32 字符串转换为字节数组（bytesToBase32 的逆操作）
+     * 將 Base32 字串轉換為位元組陣列（bytesToBase32 的逆操作）
      */
     function base32ToBytes(base32String) {
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -258,7 +258,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 编码 Protobuf Varint
+     * 編碼 Protobuf Varint
      */
     function encodeVarint(value) {
       const bytes = [];
@@ -271,7 +271,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 编码 Protobuf 长度前缀字段
+     * 編碼 Protobuf 長度字首欄位
      */
     function encodeLengthDelimited(fieldNumber, data) {
       const tag = (fieldNumber << 3) | 2; // wire type 2 = length-delimited
@@ -285,7 +285,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 编码 Protobuf Varint 字段
+     * 編碼 Protobuf Varint 欄位
      */
     function encodeVarintField(fieldNumber, value) {
       const tag = (fieldNumber << 3) | 0; // wire type 0 = varint
@@ -296,21 +296,21 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 编码单个 OTP 参数为 Protobuf 格式
+     * 編碼單個 OTP 引數為 Protobuf 格式
      */
     function encodeOtpParameters(secret) {
       const result = [];
 
-      // Field 1: secret (bytes) - Base32 解码后的二进制
+      // Field 1: secret (bytes) - Base32 解碼後的二進位制
       const secretBytes = base32ToBytes(secret.secret || '');
       result.push(...encodeLengthDelimited(1, secretBytes));
 
-      // Field 2: name (string) - 账户名
+      // Field 2: name (string) - 賬戶名
       const name = secret.account || secret.name || '';
       const nameBytes = new TextEncoder().encode(name);
       result.push(...encodeLengthDelimited(2, nameBytes));
 
-      // Field 3: issuer (string) - 服务名
+      // Field 3: issuer (string) - 服務名
       const issuer = secret.name || '';
       const issuerBytes = new TextEncoder().encode(issuer);
       result.push(...encodeLengthDelimited(3, issuerBytes));
@@ -331,7 +331,7 @@ export function getGoogleMigrationCode() {
       const typeValue = (secret.type || 'TOTP').toUpperCase() === 'HOTP' ? 1 : 2;
       result.push(...encodeVarintField(6, typeValue));
 
-      // Field 7: counter (varint) - 仅 HOTP 需要
+      // Field 7: counter (varint) - 僅 HOTP 需要
       if ((secret.type || 'TOTP').toUpperCase() === 'HOTP') {
         result.push(...encodeVarintField(7, secret.counter || 0));
       }
@@ -341,17 +341,17 @@ export function getGoogleMigrationCode() {
 
     /**
      * 生成 Google Migration Payload
-     * @param {Array} secrets - 密钥数组
-     * @param {Object} batchInfo - 批次信息
-     * @param {number} batchInfo.totalBatches - 总二维码数量
-     * @param {number} batchInfo.batchIndex - 当前二维码索引 (0-based)
-     * @param {number} batchInfo.batchId - 批次ID (所有二维码使用相同ID)
-     * @returns {Uint8Array} Protobuf 编码的 payload
+     * @param {Array} secrets - 金鑰陣列
+     * @param {Object} batchInfo - 批次資訊
+     * @param {number} batchInfo.totalBatches - 總二維碼數量
+     * @param {number} batchInfo.batchIndex - 當前二維碼索引 (0-based)
+     * @param {number} batchInfo.batchId - 批次ID (所有二維碼使用相同ID)
+     * @returns {Uint8Array} Protobuf 編碼的 payload
      */
     function generateGoogleMigrationPayload(secrets, batchInfo = {}) {
       const result = [];
 
-      // 每个密钥作为 Field 1 (repeated otp_parameters)
+      // 每個金鑰作為 Field 1 (repeated otp_parameters)
       for (const secret of secrets) {
         const otpData = encodeOtpParameters(secret);
         result.push(...encodeLengthDelimited(1, otpData));
@@ -360,15 +360,15 @@ export function getGoogleMigrationCode() {
       // Field 2: version (int32) = 1
       result.push(...encodeVarintField(2, 1));
 
-      // Field 3: batch_size (int32) = 总二维码数量
+      // Field 3: batch_size (int32) = 總二維碼數量
       const totalBatches = batchInfo.totalBatches || 1;
       result.push(...encodeVarintField(3, totalBatches));
 
-      // Field 4: batch_index (int32) = 当前二维码索引
+      // Field 4: batch_index (int32) = 當前二維碼索引
       const batchIndex = batchInfo.batchIndex || 0;
       result.push(...encodeVarintField(4, batchIndex));
 
-      // Field 5: batch_id (int32) - 批次ID (所有二维码使用相同ID)
+      // Field 5: batch_id (int32) - 批次ID (所有二維碼使用相同ID)
       const batchId = batchInfo.batchId || Math.floor(Math.random() * 1000000);
       result.push(...encodeVarintField(5, batchId));
 
@@ -377,30 +377,30 @@ export function getGoogleMigrationCode() {
 
     /**
      * 生成 Google Migration URL
-     * @param {Array} secrets - 密钥数组
-     * @param {Object} batchInfo - 批次信息
+     * @param {Array} secrets - 金鑰陣列
+     * @param {Object} batchInfo - 批次資訊
      * @returns {string} otpauth-migration:// URL
      */
     function generateGoogleMigrationURL(secrets, batchInfo = {}) {
       const payload = generateGoogleMigrationPayload(secrets, batchInfo);
 
-      // 转换为 Base64
+      // 轉換為 Base64
       let binary = '';
       for (let i = 0; i < payload.length; i++) {
         binary += String.fromCharCode(payload[i]);
       }
       const base64Data = btoa(binary);
 
-      // URL 编码
+      // URL 編碼
       const encodedData = encodeURIComponent(base64Data);
 
       return 'otpauth-migration://offline?data=' + encodedData;
     }
 
-    // ==================== 导出 UI ====================
+    // ==================== 匯出 UI ====================
 
     /**
-     * 显示导出到 Google Authenticator 的模态框
+     * 顯示匯出到 Google Authenticator 的模態框
      */
     function showExportToGoogleModal() {
       if (!secrets || secrets.length === 0) {
@@ -408,7 +408,7 @@ export function getGoogleMigrationCode() {
         return;
       }
 
-      // 创建导出选择模态框
+      // 建立匯出選擇模態框
       const modal = document.createElement('div');
       modal.id = 'exportToGoogleModal';
       modal.className = 'modal fab-modal';
@@ -454,7 +454,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 关闭导出到 Google 模态框
+     * 關閉匯出到 Google 模態框
      */
     function closeExportToGoogleModal() {
       const modal = document.getElementById('exportToGoogleModal');
@@ -466,7 +466,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 全选/取消全选导出密钥
+     * 全選/取消全選匯出金鑰
      */
     function selectAllExportSecrets(selectAll) {
       const checkboxes = document.querySelectorAll('[id^="export-"]');
@@ -476,10 +476,10 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 生成导出二维码
+     * 生成匯出二維碼
      */
     async function generateExportQRCodes() {
-      // 获取选中的密钥
+      // 獲取選中的金鑰
       const selectedSecrets = secrets.filter(function(s, i) {
         const checkbox = document.getElementById('export-' + i);
         return checkbox && checkbox.checked;
@@ -490,34 +490,34 @@ export function getGoogleMigrationCode() {
         return;
       }
 
-      // 关闭选择模态框
+      // 關閉選擇模態框
       closeExportToGoogleModal();
 
-      // 分批处理（每批最多 10 个）
+      // 分批處理（每批最多 10 個）
       const batchSize = 10;
       const batches = [];
       for (let i = 0; i < selectedSecrets.length; i += batchSize) {
         batches.push(selectedSecrets.slice(i, i + batchSize));
       }
 
-      // 生成一个批次ID，所有二维码使用同一个ID
+      // 生成一個批次ID，所有二維碼使用同一個ID
       const batchId = Math.floor(Math.random() * 1000000);
 
-      // 显示二维码
+      // 顯示二維碼
       showExportQRCodeModal(batches, 0, batchId);
     }
 
     /**
-     * 显示导出二维码模态框
-     * @param {Array} batches - 分批后的密钥数组
-     * @param {number} currentPage - 当前页码
-     * @param {number} batchId - 批次ID (所有二维码使用相同ID)
+     * 顯示匯出二維碼模態框
+     * @param {Array} batches - 分批後的金鑰陣列
+     * @param {number} currentPage - 當前頁碼
+     * @param {number} batchId - 批次ID (所有二維碼使用相同ID)
      */
     async function showExportQRCodeModal(batches, currentPage, batchId) {
       const totalPages = batches.length;
       const currentBatch = batches[currentPage];
 
-      // 生成当前批次的迁移 URL，传入批次信息
+      // 生成當前批次的遷移 URL，傳入批次資訊
       const batchInfo = {
         totalBatches: totalPages,
         batchIndex: currentPage,
@@ -525,7 +525,7 @@ export function getGoogleMigrationCode() {
       };
       const migrationURL = generateGoogleMigrationURL(currentBatch, batchInfo);
 
-      // 创建或更新模态框（翻页时复用同一个 modal，避免重复锁定 body scroll）
+      // 建立或更新模態框（翻頁時複用同一個 modal，避免重複鎖定 body scroll）
       let modal = document.getElementById('exportQRCodeModal');
       const wasAlreadyOpen = !!modal && (modal.classList.contains('show') || modal.style.display === 'flex');
       if (!modal) {
@@ -568,17 +568,17 @@ export function getGoogleMigrationCode() {
           '</div>' +
         '</div>';
 
-      // 保存批次数据和batchId供翻页使用
+      // 儲存批次資料和batchId供翻頁使用
       window.exportQRCodeBatches = batches;
       window.exportQRCodeBatchId = batchId;
 
       setTimeout(function() { modal.classList.add('show'); }, 10);
-      // 仅首次打开时锁 body scroll；翻页复用同一 modal 不再重复加锁
+      // 僅首次開啟時鎖 body scroll；翻頁複用同一 modal 不再重複加鎖
       if (!wasAlreadyOpen) {
         disableBodyScroll();
       }
 
-      // 生成二维码
+      // 生成二維碼
       try {
         const qrDataURL = await generateQRCodeDataURL(migrationURL, { width: 250, height: 250 });
         const container = modal.querySelector('.qr-code-container');
@@ -591,7 +591,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 切换导出二维码页面
+     * 切換匯出二維碼頁面
      */
     function showExportQRCodePage(page) {
       if (window.exportQRCodeBatches && page >= 0 && page < window.exportQRCodeBatches.length) {
@@ -600,7 +600,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 关闭导出二维码模态框
+     * 關閉匯出二維碼模態框
      */
     function closeExportQRCodeModal() {
       const modal = document.getElementById('exportQRCodeModal');
@@ -613,20 +613,20 @@ export function getGoogleMigrationCode() {
       enableBodyScroll();
     }
 
-    // ==================== 导入 UI ====================
+    // ==================== 匯入 UI ====================
 
     /**
-     * 显示 Google 迁移导入预览
+     * 顯示 Google 遷移匯入預覽
      */
     function showGoogleMigrationPreview(parsedSecrets) {
-      // 幂等：若上一次 closeMigrationPreview 的 300ms 延迟移除还没触发，
-      // 先立即移除旧 modal，避免新旧两个同 id modal 在 DOM 中短暂共存
+      // 冪等：若上一次 closeMigrationPreview 的 300ms 延遲移除還沒觸發，
+      // 先立即移除舊 modal，避免新舊兩個同 id modal 在 DOM 中短暫共存
       const existingModal = document.getElementById('migrationPreviewModal');
       if (existingModal) {
         existingModal.remove();
       }
 
-      // 创建预览模态框
+      // 建立預覽模態框
       const modal = document.createElement('div');
       modal.id = 'migrationPreviewModal';
       modal.className = 'modal fab-modal';
@@ -663,7 +663,7 @@ export function getGoogleMigrationCode() {
       modal.appendChild(content);
       document.body.appendChild(modal);
 
-      // 保存密钥数据供导入使用
+      // 儲存金鑰資料供匯入使用
       window.pendingMigrationSecrets = parsedSecrets;
 
       setTimeout(function() { modal.classList.add('show'); }, 10);
@@ -671,7 +671,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 关闭迁移预览模态框
+     * 關閉遷移預覽模態框
      */
     function closeMigrationPreview(preservePendingSecrets) {
       const modal = document.getElementById('migrationPreviewModal');
@@ -680,7 +680,7 @@ export function getGoogleMigrationCode() {
         setTimeout(function() { modal.remove(); }, 300);
       }
       if (!preservePendingSecrets) {
-        // 续传未触发 / 用户主动取消时，连带清掉累计的失败明细，避免下一次导入串入旧状态
+        // 續傳未觸發 / 使用者主動取消時，連帶清掉累計的失敗明細，避免下一次匯入串入舊狀態
         window.pendingMigrationSecrets = null;
         window.pendingMigrationPriorSuccessCount = 0;
         window.pendingMigrationPriorFailCount = 0;
@@ -690,10 +690,10 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 显示导入结果模态框（包含失败详情）
+     * 顯示匯入結果模態框（包含失敗詳情）
      */
     function showImportResultModal(successCount, failCount, failedDetails) {
-      // 创建结果模态框
+      // 建立結果模態框
       const modal = document.createElement('div');
       modal.id = 'importResultModal';
       modal.className = 'modal fab-modal-sm';
@@ -732,7 +732,7 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 关闭导入结果模态框
+     * 關閉匯入結果模態框
      */
     function closeImportResultModal() {
       const modal = document.getElementById('importResultModal');
@@ -744,9 +744,9 @@ export function getGoogleMigrationCode() {
     }
 
     /**
-     * 确认导入 Google 迁移的密钥
+     * 確認匯入 Google 遷移的金鑰
      */
-    // 由构建期从 LIMITS.BULK_IMPORT_CHUNK_SIZE 注入，与后端 batch.js/validation.js 保持一致
+    // 由構建期從 LIMITS.BULK_IMPORT_CHUNK_SIZE 注入，與後端 batch.js/validation.js 保持一致
     const GOOGLE_MIGRATION_IMPORT_CHUNK_SIZE = ${LIMITS.BULK_IMPORT_CHUNK_SIZE};
 
     function splitGoogleMigrationImportItems(items, chunkSize) {
@@ -964,8 +964,8 @@ export function getGoogleMigrationCode() {
         };
       });
 
-      // 本轮进入时从 prior 状态继承（续传时非零），完成/部分失败时再写回。
-      // 关键不变量：accumulate results across retries，让最终 showImportResultModal 汇总整批（含早先分片里被服务端拒绝的条目）
+      // 本輪進入時從 prior 狀態繼承（續傳時非零），完成/部分失敗時再寫回。
+      // 關鍵不變數：accumulate results across retries，讓最終 showImportResultModal 彙總整批（含早先分片裡被服務端拒絕的條目）
       const priorSuccessCountAtStart = typeof window.pendingMigrationPriorSuccessCount === 'number' ? window.pendingMigrationPriorSuccessCount : 0;
       const priorFailCountAtStart = typeof window.pendingMigrationPriorFailCount === 'number' ? window.pendingMigrationPriorFailCount : 0;
       const priorFailuresAtStart = Array.isArray(window.pendingMigrationPriorFailures) ? window.pendingMigrationPriorFailures.slice() : [];
@@ -991,7 +991,7 @@ export function getGoogleMigrationCode() {
         const aggregateFail = priorFailCountAtStart + failCount;
         const aggregateFailureLines = priorFailuresAtStart.concat(thisRunFailures);
 
-        // 成功完成整批，清空续传状态
+        // 成功完成整批，清空續傳狀態
         window.pendingMigrationSecrets = null;
         window.pendingMigrationPriorSuccessCount = 0;
         window.pendingMigrationPriorFailCount = 0;
@@ -1012,7 +1012,7 @@ export function getGoogleMigrationCode() {
         );
         const remainingSecrets = selectedSecrets.slice(processedItems);
 
-        // 本轮已完成分片里的失败项（服务端返回的 per-item error）并入 prior 累计
+        // 本輪已完成分片裡的失敗項（服務端返回的 per-item error）併入 prior 累計
         const thisRunFailures = Array.isArray(error?.results)
           ? error.results
               .filter(function(r) { return r && r.success === false; })
@@ -1025,7 +1025,7 @@ export function getGoogleMigrationCode() {
         await loadSecrets();
 
         if (remainingSecrets.length > 0) {
-          // 续传：把累计状态持久化，下一轮 confirmGoogleMigration 会读回来
+          // 續傳：把累計狀態持久化，下一輪 confirmGoogleMigration 會讀回來
           window.pendingMigrationSecrets = remainingSecrets;
           window.pendingMigrationPriorSuccessCount = aggregateSuccess;
           window.pendingMigrationPriorFailCount = aggregateFail;
@@ -1038,7 +1038,7 @@ export function getGoogleMigrationCode() {
           }
           showGoogleMigrationPreview(remainingSecrets);
         } else if (aggregateSuccess > 0 || aggregateFail > 0) {
-          // 没有剩余可续传、但本轮或之前已有实际处理结果：汇总展示，清空续传状态
+          // 沒有剩餘可續傳、但本輪或之前已有實際處理結果：彙總展示，清空續傳狀態
           window.pendingMigrationSecrets = null;
           window.pendingMigrationPriorSuccessCount = 0;
           window.pendingMigrationPriorFailCount = 0;
@@ -1050,8 +1050,8 @@ export function getGoogleMigrationCode() {
             showImportResultModal(aggregateSuccess, aggregateFail, aggregateFailureLines.join('\\n'));
           }
         } else {
-          // 首轮未产生任何结果就失败：重新打开预览，让用户整批重试
-          // （showGoogleMigrationPreview 会把 selectedSecrets 写回 window.pendingMigrationSecrets）
+          // 首輪未產生任何結果就失敗：重新開啟預覽，讓使用者整批重試
+          // （showGoogleMigrationPreview 會把 selectedSecrets 寫回 window.pendingMigrationSecrets）
           showCenterToast('❌', (typeof t === 'function' ? t('importFailed', { error: error.message }) : null) || ('Import failed: ' + error.message));
           showGoogleMigrationPreview(selectedSecrets);
         }

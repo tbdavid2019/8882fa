@@ -1,6 +1,6 @@
 /**
- * JavaScript脚本模块集成
- * 支持核心模块和懒加载模块分离
+ * JavaScript指令碼模組整合
+ * 支援核心模組和懶載入模組分離
  */
 
 import { getI18nCode } from './i18n.js';
@@ -27,18 +27,18 @@ import { getVersionCheckCode } from './versionCheck.js';
 export { getI18nCode };
 
 /**
- * 获取核心JavaScript代码（首次加载必需）
- * 包含：国际化、状态管理、时间校准、认证、OTP、UI、搜索、核心逻辑、PWA、模块加载器
- * @returns {string} 核心JavaScript代码
+ * 獲取核心JavaScript程式碼（首次載入必需）
+ * 包含：國際化、狀態管理、時間校準、認證、OTP、UI、搜尋、核心邏輯、PWA、模組載入器
+ * @returns {string} 核心JavaScript程式碼
  */
 export function getCoreScripts() {
 	return `${getI18nCode()}${getUtilsCode()}${getStateCode()}${getTimeCode()}${getAuthCode()}${getOTPCode()}${getUICode()}${getSearchCode()}${getSettingsCode()}${getCoreCode()}${getServiceAggregationCode()}${getPWACode()}${getModuleLoaderCode()}${getVersionCheckCode()}`;
 }
 
 /**
- * 获取完整的JavaScript代码（传统模式，不分割）
- * i18n与Utils必须在最前面，因为其他模块需要使用它们的通用函数
- * @returns {string} 完整的JavaScript代码
+ * 獲取完整的JavaScript程式碼（傳統模式，不分割）
+ * i18n與Utils必須在最前面，因為其他模組需要使用它們的通用函式
+ * @returns {string} 完整的JavaScript程式碼
  */
 export function getScripts() {
 	// QRCode must come before GoogleMigration, GoogleMigration must come before Export
@@ -47,9 +47,9 @@ export function getScripts() {
 }
 
 /**
- * 获取单个模块的代码（用于懒加载）
- * @param {string} moduleName - 模块名称
- * @returns {string} 模块JavaScript代码
+ * 獲取單個模組的程式碼（用於懶載入）
+ * @param {string} moduleName - 模組名稱
+ * @returns {string} 模組JavaScript程式碼
  */
 export function getModuleCode(moduleName) {
 	const modules = {

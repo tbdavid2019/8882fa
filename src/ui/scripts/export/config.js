@@ -1,17 +1,17 @@
 /**
- * 导出模块 - 格式配置
- * 包含二级格式选择配置和排序函数
+ * 匯出模組 - 格式配置
+ * 包含二級格式選擇配置和排序函式
  */
 
 /**
- * 获取导出配置代码
- * @returns {string} JavaScript 代码
+ * 獲取匯出配置程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getExportConfigCode() {
 	return `
-    // ========== 导出配置模块 ==========
+    // ========== 匯出配置模組 ==========
 
-    // 需要二级选择的格式配置
+    // 需要二級選擇的格式配置
     function getSubFormatConfig(multiFormatId) {
       const _t = typeof t === 'function' ? t : (k) => null;
       const configs = {
@@ -108,16 +108,16 @@ export function getExportConfigCode() {
     });
 
     /**
-     * 根据排序选项对密钥进行排序
-     * @param {Array} secretsArray - 密钥数组
-     * @param {string} sortValue - 排序选项值 (如 'index-asc', 'name-desc')
-     * @returns {Array} 排序后的密钥数组
+     * 根據排序選項對金鑰進行排序
+     * @param {Array} secretsArray - 金鑰陣列
+     * @param {string} sortValue - 排序選項值 (如 'index-asc', 'name-desc')
+     * @returns {Array} 排序後的金鑰陣列
      */
     function sortSecretsForExport(secretsArray, sortValue) {
       const [field, direction] = sortValue.split('-');
       const isAsc = direction === 'asc';
 
-      // 添加顺序：保持原数组顺序或倒序
+      // 新增順序：保持原陣列順序或倒序
       if (field === 'index') {
         return isAsc ? secretsArray : [...secretsArray].reverse();
       }
@@ -144,20 +144,20 @@ export function getExportConfigCode() {
       });
     }
 
-    // 选择导出格式
+    // 選擇匯出格式
     function selectExportFormat(format) {
-      // 隐藏格式选择模态框
+      // 隱藏格式選擇模態框
       hideExportFormatModal();
 
       try {
-        // 获取排序选项
+        // 獲取排序選項
         const sortSelect = document.getElementById('exportSortOrder');
         const sortValue = sortSelect ? sortSelect.value : 'index-asc';
 
-        // 复制并排序密钥
+        // 複製並排序金鑰
         const secretsToExport = sortSecretsForExport([...secrets], sortValue);
 
-        // 调用通用导出函数
+        // 呼叫通用匯出函式
         exportSecretsAsFormat(secretsToExport, format);
       } catch (error) {
         console.error('导出失败:', error);

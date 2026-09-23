@@ -1,21 +1,21 @@
 import { getDialogIconCode } from '../dialogIcons.js';
 
 /**
- * Utils 工具函数模块
- * 包含各种通用实用函数
+ * Utils 工具函式模組
+ * 包含各種通用實用函式
  */
 
 /**
- * 获取 Utils 相关代码
- * @returns {string} Utils JavaScript 代码
+ * 獲取 Utils 相關程式碼
+ * @returns {string} Utils JavaScript 程式碼
  */
 export function getUtilsCode() {
 	return `${getDialogIconCode()}
-    // ========== 工具函数模块 ==========
+    // ========== 工具函式模組 ==========
 
-    // ==================== 第三方脚本按需加载 ====================
-    // jsQR (~130KB) 和 qrcode-generator (~20KB) 改为按需加载，
-    // 仅在用户点开扫码/生成二维码相关功能时才下载，避免阻塞首屏。
+    // ==================== 第三方指令碼按需載入 ====================
+    // jsQR (~130KB) 和 qrcode-generator (~20KB) 改為按需載入，
+    // 僅在使用者點開掃碼/生成二維碼相關功能時才下載，避免阻塞首屏。
     const __scriptLoadCache = new Map();
     function loadScriptOnce(url) {
       if (__scriptLoadCache.has(url)) return __scriptLoadCache.get(url);
@@ -42,16 +42,16 @@ export function getUtilsCode() {
       if (typeof qrcode !== 'undefined') return;
       await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
     }
-    // 暴露到 window 供懒加载模块（lazy modules）共享
+    // 暴露到 window 供懶載入模組（lazy modules）共享
     window.ensureJsQR = ensureJsQR;
     window.ensureQRCodeGen = ensureQRCodeGen;
 
-    // ==================== 模态框通用函数 ====================
+    // ==================== 模態框通用函式 ====================
 
     /**
-     * 通用显示模态框函数
-     * @param {string} modalId - 模态框的DOM ID
-     * @param {Function} onShow - 显示后的回调函数（可选）
+     * 通用顯示模態框函式
+     * @param {string} modalId - 模態框的DOM ID
+     * @param {Function} onShow - 顯示後的回撥函式（可選）
      */
     function showModal(modalId, onShow) {
       const modal = document.getElementById(modalId);
@@ -68,9 +68,9 @@ export function getUtilsCode() {
     }
 
     /**
-     * 通用隐藏模态框函数
-     * @param {string} modalId - 模态框的DOM ID
-     * @param {Function} onHide - 隐藏后的回调函数（可选）
+     * 通用隱藏模態框函式
+     * @param {string} modalId - 模態框的DOM ID
+     * @param {Function} onHide - 隱藏後的回撥函式（可選）
      */
     function hideModal(modalId, onHide) {
       const modal = document.getElementById(modalId);
@@ -78,7 +78,7 @@ export function getUtilsCode() {
         console.error('模态框不存在:', modalId);
         return;
       }
-      // 幂等守卫：未显示的 modal 不做任何事，避免 body 锁计数被错误减少
+      // 冪等守衛：未顯示的 modal 不做任何事，避免 body 鎖計數被錯誤減少
       if (!modal.classList.contains('show')) {
         return;
       }
@@ -92,21 +92,21 @@ export function getUtilsCode() {
       enableBodyScroll();
     }
 
-    // ==================== 自定义确认对话框 ====================
+    // ==================== 自定義確認對話方塊 ====================
 
     /**
-     * 自定义确认对话框（替换原生 confirm）。
+     * 自定義確認對話方塊（替換原生 confirm）。
      * @param {Object} options
-     * @param {string} options.title - 标题
-     * @param {string} options.message - 描述，支持 \\n 换行
-     * @param {string} [options.confirmText='确认'] - 确认按钮文字
-     * @param {string} [options.cancelText='取消'] - 取消按钮文字
-     * @param {boolean} [options.danger=false] - 危险操作时确认按钮显示为红色
-     * @returns {Promise<boolean>} 用户点击确认返回 true，取消/关闭返回 false
+     * @param {string} options.title - 標題
+     * @param {string} options.message - 描述，支援 \\n 換行
+     * @param {string} [options.confirmText='確認'] - 確認按鈕文字
+     * @param {string} [options.cancelText='取消'] - 取消按鈕文字
+     * @param {boolean} [options.danger=false] - 危險操作時確認按鈕顯示為紅色
+     * @returns {Promise<boolean>} 使用者點選確認返回 true，取消/關閉返回 false
      */
     /**
-     * 并发保护：确认框共用同一个 DOM 节点，必须禁止同时被多个调用打开，
-     * 否则会重复绑定监听、一次点击触发多个 resolve，调用侧(删除/还原)可能重复提交请求。
+     * 併發保護：確認框共用同一個 DOM 節點，必須禁止同時被多個呼叫開啟，
+     * 否則會重複繫結監聽、一次點選觸發多個 resolve，呼叫側(刪除/還原)可能重複提交請求。
      */
     let __confirmDialogBusy = false;
 
@@ -118,14 +118,14 @@ export function getUtilsCode() {
       const cancelText = opts.cancelText || ((typeof t === 'function' ? t('cancel') : null) || 'Cancel');
       const danger = opts.danger === true;
 
-      // 若已有确认框在等待用户操作，直接以 "取消" 语义返回，避免监听器叠加
+      // 若已有確認框在等待使用者操作，直接以 "取消" 語義返回，避免監聽器疊加
       if (__confirmDialogBusy) {
         return Promise.resolve(false);
       }
       __confirmDialogBusy = true;
 
       return new Promise((resolve) => {
-        // 懒创建 DOM，后续复用同一节点
+        // 懶建立 DOM，後續複用同一節點
         let modal = document.getElementById('confirmDialogModal');
         if (!modal) {
           modal = document.createElement('div');
@@ -158,7 +158,7 @@ export function getUtilsCode() {
         const confirmBtn = modal.querySelector('#confirmDialogConfirm');
 
         titleEl.textContent = title;
-        // 支持多行：将 \\n 渲染为换行
+        // 支援多行：將 \\n 渲染為換行
         messageEl.innerHTML = '';
         String(message).split('\\n').forEach((line, idx) => {
           if (idx > 0) messageEl.appendChild(document.createElement('br'));
@@ -171,9 +171,9 @@ export function getUtilsCode() {
         modal.setAttribute('aria-labelledby', 'confirmDialogTitle');
         modal.setAttribute('aria-describedby', 'confirmDialogMessage');
 
-        // 焦点策略：危险操作停在取消避免误触；非危险默认确认
+        // 焦點策略：危險操作停在取消避免誤觸；非危險預設確認
         const focusTarget = danger ? cancelBtn : confirmBtn;
-        // 保存打开前的焦点，关闭后恢复
+        // 儲存開啟前的焦點，關閉後恢復
         const previouslyFocused =
           document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
@@ -189,7 +189,7 @@ export function getUtilsCode() {
           setTimeout(() => {
             modal.style.display = 'none';
             enableBodyScroll();
-            // 恢复打开前的焦点（若目标仍在 DOM 内）
+            // 恢復開啟前的焦點（若目標仍在 DOM 內）
             if (previouslyFocused && document.contains(previouslyFocused)) {
               try { previouslyFocused.focus(); } catch (_) { /* noop */ }
             }
@@ -208,14 +208,14 @@ export function getUtilsCode() {
           }
           if (e.key === 'Enter' && !danger) {
             const tag = (e.target && e.target.tagName) || '';
-            // Enter 在文本域/按钮内的默认行为优先
+            // Enter 在文本域/按鈕內的預設行為優先
             if (tag !== 'BUTTON') {
               e.preventDefault();
               cleanup(true);
               return;
             }
           }
-          // 焦点陷阱：Tab 在确认/取消两个按钮之间循环
+          // 焦點陷阱：Tab 在確認/取消兩個按鈕之間迴圈
           if (e.key === 'Tab') {
             const focusable = [cancelBtn, confirmBtn];
             const idx = focusable.indexOf(document.activeElement);
@@ -246,17 +246,17 @@ export function getUtilsCode() {
       });
     }
 
-    // ==================== 滚动控制函数 ====================
+    // ==================== 滾動控制函式 ====================
 
     /**
-     * 模态框栈计数：支持多层弹窗叠加时只在最外层关闭时解锁 body 滚动。
-     * 避免嵌套场景（如在 restoreModal 上打开 confirmDialog）提前解锁父级背景。
+     * 模態框棧計數：支援多層彈窗疊加時只在最外層關閉時解鎖 body 滾動。
+     * 避免巢狀場景（如在 restoreModal 上開啟 confirmDialog）提前解鎖父級背景。
      */
     let __modalLockCount = 0;
 
     /**
-     * 禁用页面滚动（显示模态框时使用）
-     * 内部使用引用计数，可重入调用。
+     * 停用頁面滾動（顯示模態框時使用）
+     * 內部使用引用計數，可重入呼叫。
      */
     function disableBodyScroll() {
       if (__modalLockCount === 0) {
@@ -268,8 +268,8 @@ export function getUtilsCode() {
     }
 
     /**
-     * 启用页面滚动（隐藏模态框时使用）
-     * 内部使用引用计数，仅当所有叠加的模态都关闭后才真正解锁。
+     * 啟用頁面滾動（隱藏模態框時使用）
+     * 內部使用引用計數，僅當所有疊加的模態都關閉後才真正解鎖。
      */
     function enableBodyScroll() {
       if (__modalLockCount <= 0) {
@@ -284,12 +284,12 @@ export function getUtilsCode() {
       }
     }
 
-    // ==================== 数据处理函数 ====================
+    // ==================== 資料處理函式 ====================
 
     /**
-     * 转义HTML内容，防止XSS攻击
-     * @param {string} str - 要转义的字符串
-     * @returns {string} 转义后的字符串
+     * 轉義HTML內容，防止XSS攻擊
+     * @param {string} str - 要轉義的字串
+     * @returns {string} 轉義後的字串
      */
     function escapeHTML(str) {
       if (typeof str !== 'string') return str;
@@ -299,13 +299,13 @@ export function getUtilsCode() {
     }
 
     /**
-     * 转义CSV内容
-     * @param {string} str - 要转义的字符串
-     * @returns {string} 转义后的字符串
+     * 轉義CSV內容
+     * @param {string} str - 要轉義的字串
+     * @returns {string} 轉義後的字串
      */
     function escapeCSV(str) {
       if (typeof str !== 'string') return str;
-      // 如果包含逗号、引号或换行符，则需要转义
+      // 如果包含逗號、引號或換行符，則需要轉義
       if (str.includes(',') || str.includes('"') || str.includes('\\n') || str.includes('\\r')) {
         return '"' + str.replace(/"/g, '""') + '"';
       }
@@ -313,14 +313,14 @@ export function getUtilsCode() {
     }
 
     /**
-     * 获取日期字符串 (YYYY-MM-DD)
-     * @returns {string} 日期字符串
+     * 獲取日期字串 (YYYY-MM-DD)
+     * @returns {string} 日期字串
      */
     function getDateString() {
       return new Date().toISOString().split('T')[0];
     }
 
-    // ==================== Base64URL 辅助函数 (WebAuthn / Passkey) ====================
+    // ==================== Base64URL 輔助函式 (WebAuthn / Passkey) ====================
     function base64UrlToBytes(base64url) {
       const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
       const pad = base64.length % 4 === 0 ? '' : '='.repeat(4 - (base64.length % 4));
@@ -404,17 +404,17 @@ export function getUtilsCode() {
     }
 
     /**
-     * 下载文件到本地
-     * @param {string} content - 文件内容
-     * @param {string} filename - 文件名
-     * @param {string} mimeType - MIME类型
-     * @returns {Promise<boolean>} 是否成功保存（使用现代API时）
+     * 下載檔案到本地
+     * @param {string} content - 檔案內容
+     * @param {string} filename - 檔名
+     * @param {string} mimeType - MIME型別
+     * @returns {Promise<boolean>} 是否成功儲存（使用現代API時）
      */
     async function downloadFile(content, filename, mimeType) {
-      // 尝试使用 File System Access API（现代浏览器支持）
+      // 嘗試使用 File System Access API（現代瀏覽器支援）
       if (window.showSaveFilePicker) {
         try {
-          // 根据文件扩展名确定文件类型
+          // 根據副檔名確定檔案型別
           const ext = filename.split('.').pop().toLowerCase();
           const types = [];
 
@@ -452,7 +452,7 @@ export function getUtilsCode() {
 
           const writable = await handle.createWritable();
 
-          // 根据内容类型写入
+          // 根據內容型別寫入
           if (content instanceof Uint8Array || content instanceof ArrayBuffer) {
             await writable.write(content);
           } else {
@@ -462,16 +462,16 @@ export function getUtilsCode() {
           await writable.close();
           return true; // 成功保存
         } catch (err) {
-          // 用户取消选择或其他错误
+          // 使用者取消選擇或其他錯誤
           if (err.name === 'AbortError') {
             return false; // 用户取消
           }
           console.warn('File System Access API 失败，使用传统方式:', err);
-          // 降级到传统方式
+          // 降級到傳統方式
         }
       }
 
-      // 传统方式（无法确认是否真正保存）
+      // 傳統方式（無法確認是否真正儲存）
       const blob = content instanceof Blob
         ? content
         : new Blob([content], { type: mimeType });
@@ -486,43 +486,43 @@ export function getUtilsCode() {
       return true; // 传统方式假定成功
     }
 
-    // ==================== Base32验证 ====================
+    // ==================== Base32驗證 ====================
 
     /**
-     * 验证Base32格式
-     * @param {string} str - 要验证的字符串
-     * @returns {boolean} 是否为有效的Base32
+     * 驗證Base32格式
+     * @param {string} str - 要驗證的字串
+     * @returns {boolean} 是否為有效的Base32
      */
     function validateBase32(str) {
       if (!str || typeof str !== 'string') return false;
 
-      // 移除空格和转换为大写
+      // 移除空格和轉換為大寫
       const cleaned = str.replace(/\s/g, '').toUpperCase();
 
-      // Base32字符集：A-Z, 2-7
+      // Base32字元集：A-Z, 2-7
       const base32Regex = /^[A-Z2-7]+=*$/;
 
-      // 检查格式
+      // 檢查格式
       if (!base32Regex.test(cleaned)) return false;
 
-      // 检查长度（应该是8的倍数，或者加上适当的填充）
+      // 檢查長度（應該是8的倍數，或者加上適當的填充）
       const withoutPadding = cleaned.replace(/=+$/, '');
       return withoutPadding.length > 0;
     }
 
-    // ==================== QR码生成核心函数 ====================
+    // ==================== QR碼生成核心函式 ====================
 
     /**
-     * 客户端生成二维码（隐私安全，不经过服务器）
-     * @param {string} text - 要编码的文本
-     * @param {Object} options - 生成选项
-     * @returns {Promise<string>} 返回Data URL格式的QR码图片
+     * 客戶端生成二維碼（隱私安全，不經過伺服器）
+     * @param {string} text - 要編碼的文本
+     * @param {Object} options - 生成選項
+     * @returns {Promise<string>} 返回Data URL格式的QR碼圖片
      */
     async function generateQRCodeDataURL(text, options = {}) {
       const { width = 200, height = 200 } = options;
 
       try {
-        // 按需加载 qrcode-generator
+        // 按需載入 qrcode-generator
         if (typeof qrcode === 'undefined') {
           try {
             await ensureQRCodeGen();
@@ -534,31 +534,31 @@ export function getUtilsCode() {
           throw new Error('QR code generation library not loaded');
         }
 
-        // 使用qrcode-generator库在客户端生成QR码
-        // 参数：typeNumber(0=自动), errorCorrectionLevel('L','M','Q','H')
-        // 默认转换器只保留每个字符的低 8 位，中文和 emoji 必须使用 UTF-8。
+        // 使用qrcode-generator庫在客戶端生成QR碼
+        // 引數：typeNumber(0=自動), errorCorrectionLevel('L','M','Q','H')
+        // 預設轉換器只保留每個字元的低 8 位，中文和 emoji 必須使用 UTF-8。
         qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
         const qr = qrcode(0, 'M');
         qr.addData(text);
         qr.make();
 
-        // 获取QR码矩阵尺寸
+        // 獲取QR碼矩陣尺寸
         const moduleCount = qr.getModuleCount();
         const margin = 2; // 边距（模块数）
         const cellSize = Math.floor(width / (moduleCount + margin * 2));
         const actualSize = (moduleCount + margin * 2) * cellSize;
 
-        // 创建Canvas并绘制QR码
+        // 建立Canvas並繪製QR碼
         const canvas = document.createElement('canvas');
         canvas.width = actualSize;
         canvas.height = actualSize;
         const ctx = canvas.getContext('2d');
 
-        // 绘制白色背景
+        // 繪製白色背景
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, actualSize, actualSize);
 
-        // 绘制QR码
+        // 繪製QR碼
         ctx.fillStyle = '#000000';
         for (let row = 0; row < moduleCount; row++) {
           for (let col = 0; col < moduleCount; col++) {
@@ -570,7 +570,7 @@ export function getUtilsCode() {
           }
         }
 
-        // 转换为Data URL
+        // 轉換為Data URL
         const dataURL = canvas.toDataURL('image/png');
         console.log('✅ Client QR code generated successfully');
         return dataURL;
@@ -582,22 +582,22 @@ export function getUtilsCode() {
     }
 
     /**
-     * 等待QR码库加载完成
-     * 懒加载改造后：先触发 ensureQRCodeGen() 真正下载脚本，再 resolve；
-     * 已加载或下载成功立即返回，下载失败/超时统一抛错。
-     * @param {number} maxWaitTime - 最大等待时间（毫秒）
-     * @returns {Promise<boolean>} 库加载成功返回true
+     * 等待QR碼庫載入完成
+     * 懶載入改造後：先觸發 ensureQRCodeGen() 真正下載指令碼，再 resolve；
+     * 已載入或下載成功立即返回，下載失敗/超時統一拋錯。
+     * @param {number} maxWaitTime - 最大等待時間（毫秒）
+     * @returns {Promise<boolean>} 庫載入成功返回true
      */
     async function waitForQRCodeLibrary(maxWaitTime = 5000) {
       if (typeof qrcode !== 'undefined') return true;
       try {
-        // 主路径：直接触发懒加载（受 maxWaitTime 限制）
+        // 主路徑：直接觸發懶載入（受 maxWaitTime 限制）
         await Promise.race([
           ensureQRCodeGen(),
           new Promise((_, reject) => setTimeout(() => reject(new Error('QR code library load timeout')), maxWaitTime)),
         ]);
       } catch (err) {
-        // 兜底：可能脚本由其他途径正在加载，再轮询一次
+        // 兜底：可能指令碼由其他途徑正在載入，再輪詢一次
         const start = Date.now();
         while (typeof qrcode === 'undefined' && Date.now() - start < 500) {
           await new Promise((r) => setTimeout(r, 50));

@@ -1,9 +1,9 @@
 /**
- * 路由处理器模块
- * 负责解析请求并分发到对应的处理函数
+ * 路由處理器模組
+ * 負責解析請求並分發到對應的處理函式
  */
 
-// API 处理器
+// API 處理器
 import {
 	handleGetSecrets,
 	handleAddSecret,
@@ -56,7 +56,7 @@ import {
 	handleWebAuthnDeleteCredential,
 } from '../api/webauthn.js';
 
-// UI 页面生成器
+// UI 頁面生成器
 import { createMainPage } from '../ui/page.js';
 import { createSetupPage } from '../ui/setupPage.js';
 import { createManifest } from '../ui/manifest.js';
@@ -65,7 +65,7 @@ import { createFontAssetResponse, createMapleMonoCjkStylesheet } from '../ui/ass
 import { createServiceWorker } from '../ui/serviceworker.js';
 import { getModuleCode } from '../ui/scripts/index.js';
 
-// 工具函数
+// 工具函式
 import { createErrorResponse } from '../utils/response.js';
 import {
 	verifyAuthWithDetails,
@@ -81,11 +81,11 @@ import { createPreflightResponse } from '../utils/security.js';
 import { getLogger } from '../utils/logger.js';
 
 /**
- * 处理HTTP请求的主要函数
- * @param {Request} request - HTTP请求对象
- * @param {Object} env - 环境变量对象，包含KV存储
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} HTTP响应
+ * 處理HTTP請求的主要函式
+ * @param {Request} request - HTTP請求物件
+ * @param {Object} env - 環境變數物件，包含KV儲存
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} HTTP響應
  */
 export async function handleRequest(request, env, ctx) {
 	const url = new URL(request.url);
@@ -94,7 +94,7 @@ export async function handleRequest(request, env, ctx) {
 	const logger = getLogger(env);
 
 	try {
-		// 时间校准接口必须在设置和认证检查前处理，确保无需访问 KV。
+		// 時間校準介面必須在設定和認證檢查前處理，確保無需訪問 KV。
 		if (pathname === '/api/time') {
 			if (method === 'GET') {
 				return handleGetTime(request);
@@ -104,41 +104,41 @@ export async function handleRequest(request, env, ctx) {
 			return response;
 		}
 
-		// 🔧 首次设置路由（不需要认证）
+		// 🔧 首次設定路由（不需要認證）
 		if (pathname === '/setup') {
-			// 检查是否需要首次设置
+			// 檢查是否需要首次設定
 			const setupRequired = await checkIfSetupRequired(env);
 			if (!setupRequired) {
-				// 已完成设置，重定向到首页
+				// 已完成設定，重定向到首頁
 				return Response.redirect(new URL('/', request.url).toString(), 302);
 			}
 			return await createSetupPage();
 		}
 
-		// 🔧 首次设置 API（不需要认证）
+		// 🔧 首次設定 API（不需要認證）
 		if (pathname === '/api/setup' && method === 'POST') {
 			return await handleFirstTimeSetup(request, env);
 		}
 
-		// 检查是否需要首次设置
+		// 檢查是否需要首次設定
 		const setupRequired = await checkIfSetupRequired(env);
 		if (setupRequired && pathname === '/') {
-			// 需要首次设置，重定向到设置页面
+			// 需要首次設定，重定向到設定頁面
 			return Response.redirect(new URL('/setup', request.url).toString(), 302);
 		}
 
-		// 🔐 检查是否需要身份验证（使用详细验证以支持自动续期）
+		// 🔐 檢查是否需要身份驗證（使用詳細驗證以支援自動續期）
 		let authDetails = null;
 		if (requiresAuth(pathname)) {
 			authDetails = await verifyAuthWithDetails(request, env);
 
 			if (!authDetails || !authDetails.valid) {
-				// 检查是否未配置 KV 存储
+				// 檢查是否未配置 KV 儲存
 				if (!env.SECRETS_KV) {
 					return createErrorResponse('服务未配置', '服务器未配置 KV 存储。请联系管理员配置 SECRETS_KV。', 503, request);
 				}
 
-				// 检查是否未设置密码
+				// 檢查是否未設定密碼
 				const storedPasswordHash = await env.SECRETS_KV.get('user_password');
 				if (!storedPasswordHash) {
 					return createErrorResponse('未设置密码', '请访问 /setup 进行首次设置。', 503, request);
@@ -147,11 +147,11 @@ export async function handleRequest(request, env, ctx) {
 				return createUnauthorizedResponse(null, request);
 			}
 
-			// 📊 记录认证详情（用于自动续期）
+			// 📊 記錄認證詳情（用於自動續期）
 			request.authDetails = authDetails;
 		}
 
-		// 静态路由处理
+		// 靜態路由處理
 		if (pathname === '/' || pathname === '') {
 			return await createMainPage();
 		}
@@ -204,7 +204,7 @@ export async function handleRequest(request, env, ctx) {
 			return createBrandAssetResponse('og-image');
 		}
 
-		// 懒加载模块路由（需要认证）
+		// 懶載入模組路由（需要認證）
 		if (pathname.startsWith('/modules/')) {
 			const moduleName = pathname.substring(9).replace('.js', ''); // 去掉 '/modules/' 和 '.js'
 			const allowedModules = ['import', 'export', 'backup', 'qrcode', 'tools', 'googleMigration'];
@@ -215,9 +215,9 @@ export async function handleRequest(request, env, ctx) {
 
 			try {
 				const moduleCode = getModuleCode(moduleName);
-				// 生产启用长缓存（wrangler.toml 顶层 [vars] 默认 ENVIRONMENT=production）。
-				// 本地 hostname 兜底：即便用户跳过 `--env development` 直接跑 `wrangler dev`，
-				// localhost 场景也不应拿到长缓存，防止改代码时模块仍命中旧版本
+				// 生產啟用長快取（wrangler.toml 頂層 [vars] 預設 ENVIRONMENT=production）。
+				// 本地 hostname 兜底：即便使用者跳過 `--env development` 直接跑 `wrangler dev`，
+				// localhost 場景也不應拿到長快取，防止改程式碼時模組仍命中舊版本
 				const isLocalHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '0.0.0.0';
 				const isProd = !isLocalHost && env?.ENVIRONMENT === 'production';
 				return new Response(moduleCode, {
@@ -233,26 +233,26 @@ export async function handleRequest(request, env, ctx) {
 			}
 		}
 
-		// 登录路由
+		// 登入路由
 		if (pathname === '/api/login' && method === 'POST') {
 			return await handleLogin(request, env);
 		}
 
-		// 退出登录路由
+		// 退出登入路由
 		if (pathname === '/api/logout' && method === 'POST') {
 			return await handleLogout(request, env);
 		}
 
-		// Token 刷新路由
+		// Token 重新整理路由
 		if (pathname === '/api/refresh-token' && method === 'POST') {
 			return await handleRefreshToken(request, env);
 		}
 
-		// API路由处理
+		// API路由處理
 		if (pathname.startsWith('/api/')) {
 			const response = await handleApiRequest(pathname, method, request, env, ctx);
 
-			// 🔄 自动续期：如果 Token 剩余时间 < 7天，在响应头中添加标记
+			// 🔄 自動續期：如果 Token 剩餘時間 < 7天，在響應頭中新增標記
 			if (request.authDetails && request.authDetails.needsRefresh) {
 				const newResponse = new Response(response.body, response);
 				newResponse.headers.set('X-Token-Refresh-Needed', 'true');
@@ -268,25 +268,25 @@ export async function handleRequest(request, env, ctx) {
 			return response;
 		}
 
-		// OTP生成路由（支持高级参数）
-		// 处理 /otp（显示使用说明）
+		// OTP生成路由（支援高階引數）
+		// 處理 /otp（顯示使用說明）
 		if (pathname === '/otp') {
 			return await handleGenerateOTP('', request);
 		}
 
-		// 处理 /otp/{secret}（生成OTP）
+		// 處理 /otp/{secret}（生成OTP）
 		if (pathname.startsWith('/otp/')) {
-			// 解码以正确处理 URL 编码的字符（如 Base32 padding '=' → '%3D'）
+			// 解碼以正確處理 URL 編碼的字元（如 Base32 padding '=' → '%3D'）
 			let secret;
 			try {
 				secret = decodeURIComponent(pathname.substring(5));
 			} catch {
-				secret = pathname.substring(5); // 解码失败则用原值，由后续 validateBase32 报错
+				secret = pathname.substring(5); // 解碼失敗則用原值，由後續 validateBase32 報錯
 			}
 			return await handleGenerateOTP(secret, request);
 		}
 
-		// 404处理
+		// 404處理
 		return createErrorResponse('页面未找到', '请求的页面不存在', 404, request);
 	} catch (error) {
 		logger.error(
@@ -303,16 +303,16 @@ export async function handleRequest(request, env, ctx) {
 }
 
 /**
- * 处理API请求
- * @param {string} pathname - 请求路径
+ * 處理API請求
+ * @param {string} pathname - 請求路徑
  * @param {string} method - HTTP方法
- * @param {Request} request - HTTP请求对象
- * @param {Object} env - 环境变量对象
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} HTTP响应
+ * @param {Request} request - HTTP請求物件
+ * @param {Object} env - 環境變數物件
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} HTTP響應
  */
 async function handleApiRequest(pathname, method, request, env, ctx) {
-	// 密钥管理API
+	// 金鑰管理API
 	if (pathname === '/api/secrets') {
 		switch (method) {
 			case 'GET':
@@ -324,7 +324,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		}
 	}
 
-	// 批量导入API（必须在 /api/secrets/{id} 之前匹配）
+	// 批次匯入API（必須在 /api/secrets/{id} 之前匹配）
 	if (pathname === '/api/secrets/batch') {
 		if (method === 'POST') {
 			return handleBatchAddSecrets(request, env, ctx);
@@ -332,7 +332,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 单个密钥操作API
+	// 單個金鑰操作API
 	if (pathname === '/api/secrets/export') {
 		if (method === 'POST') {
 			return handleExportSecrets(request, env);
@@ -340,7 +340,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 回滚旧版本前显式压实HOTP sidecar（受统一API认证保护）
+	// 回滾舊版本前顯式壓實HOTP sidecar（受統一API認證保護）
 	if (pathname === '/api/secrets/counters/compact') {
 		if (method === 'POST') {
 			return handleCompactHOTPCounters(request, env, ctx);
@@ -348,7 +348,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// HOTP 计数器递增API（必须在 /api/secrets/{id} 之前匹配）
+	// HOTP 計數器遞增API（必須在 /api/secrets/{id} 之前匹配）
 	if (/^\/api\/secrets\/[^/]+\/counter$/.test(pathname)) {
 		if (method === 'POST') {
 			return handleAdvanceHOTPCounter(request, env, ctx);
@@ -372,7 +372,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		}
 	}
 
-	// 备份管理API
+	// 備份管理API
 	if (pathname === '/api/backup') {
 		switch (method) {
 			case 'POST':
@@ -384,7 +384,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		}
 	}
 
-	// 恢复备份API
+	// 恢復備份API
 	if (pathname === '/api/backup/restore') {
 		if (method === 'POST') {
 			return handleRestoreBackup(request, env, ctx);
@@ -392,7 +392,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 导出备份API
+	// 匯出備份API
 	if (pathname.startsWith('/api/backup/export/')) {
 		if (method === 'GET') {
 			const backupKey = pathname.replace('/api/backup/export/', '');
@@ -401,7 +401,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 修改密码 API
+	// 修改密碼 API
 	if (pathname === '/api/change-password') {
 		if (method === 'POST') {
 			return handleChangePassword(request, env);
@@ -409,7 +409,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 系统设置 API
+	// 系統設定 API
 	if (pathname === '/api/settings') {
 		switch (method) {
 			case 'GET':
@@ -579,7 +579,7 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// Favicon 代理 API（不需要认证，公开访问）
+	// Favicon 代理 API（不需要認證，公開訪問）
 	if (pathname.startsWith('/api/favicon/')) {
 		if (method === 'GET') {
 			const domain = pathname.replace('/api/favicon/', '');
@@ -588,14 +588,14 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}
 
-	// 未知API路径
+	// 未知API路徑
 	return createErrorResponse('API未找到', '请求的API端点不存在', 404, request);
 }
 
 /**
- * 处理CORS预检请求
- * @param {Request} request - HTTP请求对象
- * @returns {Response|null} CORS响应或 null
+ * 處理CORS預檢請求
+ * @param {Request} request - HTTP請求物件
+ * @returns {Response|null} CORS響應或 null
  */
 export function handleCORS(request) {
 	return createPreflightResponse(request);

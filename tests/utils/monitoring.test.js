@@ -1,6 +1,6 @@
 /**
- * Monitoring 监控系统测试
- * 测试错误追踪、性能监控
+ * Monitoring 監控系統測試
+ * 測試錯誤追蹤、效能監控
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -17,7 +17,7 @@ import {
 import { APP_VERSION } from '../../src/utils/version.js';
 import { getLogger } from '../../src/utils/logger.js';
 
-// ==================== Mock 设置 ====================
+// ==================== Mock 設定 ====================
 
 // Mock logger module
 vi.mock('../../src/utils/logger.js', () => ({
@@ -29,10 +29,10 @@ vi.mock('../../src/utils/logger.js', () => ({
   }))
 }));
 
-// ==================== 测试辅助工具 ====================
+// ==================== 測試輔助工具 ====================
 
 /**
- * 创建 Mock 环境变量
+ * 建立 Mock 環境變數
  */
 function createMockEnv(overrides = {}) {
   return {
@@ -45,7 +45,7 @@ function createMockEnv(overrides = {}) {
 }
 
 /**
- * 创建 Mock Request
+ * 建立 Mock Request
  */
 function createMockRequest(method = 'GET', url = 'https://example.com/api/test') {
   return {
@@ -57,7 +57,7 @@ function createMockRequest(method = 'GET', url = 'https://example.com/api/test')
   };
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Monitoring System', () => {
 
@@ -71,7 +71,7 @@ describe('Monitoring System', () => {
     resetMonitoring();
   });
 
-  // ==================== ErrorSeverity 枚举 ====================
+  // ==================== ErrorSeverity 列舉 ====================
 
   describe('ErrorSeverity 枚举', () => {
     it('应该定义所有严重度级别', () => {
@@ -123,13 +123,13 @@ describe('Monitoring System', () => {
     });
 
     it('slowRequestThreshold 为非法值时应回退默认值', () => {
-      // NaN 若被保留，duration > NaN 恒为 false，会静默关闭慢请求告警
+      // NaN 若被保留，duration > NaN 恆為 false，會靜默關閉慢請求告警
       expect(new MonitoringConfig({ slowRequestThreshold: NaN }).slowRequestThreshold).toBe(3000);
       expect(new MonitoringConfig({ slowRequestThreshold: Infinity }).slowRequestThreshold).toBe(3000);
       expect(new MonitoringConfig({ slowRequestThreshold: -Infinity }).slowRequestThreshold).toBe(3000);
       expect(new MonitoringConfig({ slowRequestThreshold: -1 }).slowRequestThreshold).toBe(3000);
       expect(new MonitoringConfig({ slowRequestThreshold: 'abc' }).slowRequestThreshold).toBe(3000);
-      expect(new MonitoringConfig({ slowRequestThreshold: '5000' }).slowRequestThreshold).toBe(3000); // 数字字符串不接受
+      expect(new MonitoringConfig({ slowRequestThreshold: '5000' }).slowRequestThreshold).toBe(3000); // 數字字串不接受
       expect(new MonitoringConfig({ slowRequestThreshold: true }).slowRequestThreshold).toBe(3000);
     });
   });
@@ -593,7 +593,7 @@ describe('Monitoring System', () => {
 
         await expect(middleware(request, {}, {}, mockNext)).rejects.toThrow();
 
-        // 验证 endTrace 被调用，且 success=false
+        // 驗證 endTrace 被呼叫，且 success=false
         // Check performance monitor's logger (not manager's logger)
         expect(manager.performanceMonitor.logger.info).toHaveBeenCalledWith(
           expect.stringContaining('Trace completed'),
@@ -606,7 +606,7 @@ describe('Monitoring System', () => {
     });
   });
 
-  // ==================== 工厂函数 ====================
+  // ==================== 工廠函式 ====================
 
   describe('getMonitoring', () => {
     it('应该返回单例实例', () => {
@@ -643,17 +643,17 @@ describe('Monitoring System', () => {
     });
 
     it('无 env 创建后，首次携带 env 的调用应该就地更新配置', () => {
-      // 模拟模块加载阶段的无 env 调用（如 monitoring 快捷方法）
+      // 模擬模組載入階段的無 env 呼叫（如 monitoring 快捷方法）
       const early = getMonitoring();
       expect(early.config.slowRequestThreshold).toBe(3000);
 
-      // 首个请求携带 env
+      // 首個請求攜帶 env
       const configured = getMonitoring(createMockEnv({
         ENVIRONMENT: 'staging',
         SLOW_REQUEST_THRESHOLD: '5000'
       }));
 
-      // 同一实例，且内部监控器持有的 config 引用同样生效
+      // 同一例項，且內部監控器持有的 config 引用同樣生效
       expect(configured).toBe(early);
       expect(early.config.slowRequestThreshold).toBe(5000);
       expect(early.config.environment).toBe('staging');
@@ -671,23 +671,23 @@ describe('Monitoring System', () => {
       const env = createMockEnv({ LOG_LEVEL: 'ERROR' });
       getLogger.mockClear();
 
-      // 未先调用 getLogger(env)，直接 getMonitoring(env)
+      // 未先呼叫 getLogger(env)，直接 getMonitoring(env)
       getMonitoring(env);
 
-      // 断言 env 真的传到了 getLogger —— 只断言 logger 存在的话，不传 env 的旧实现也能通过
+      // 斷言 env 真的傳到了 getLogger —— 只斷言 logger 存在的話，不傳 env 的舊實現也能通過
       expect(getLogger).toHaveBeenCalledWith(env);
-      // manager + errorMonitor + performanceMonitor 三处构造都应携带 env
+      // manager + errorMonitor + performanceMonitor 三處構造都應攜帶 env
       expect(getLogger.mock.calls.filter((args) => args[0] === env)).toHaveLength(3);
     });
 
     it('env 后到时应触发 logger 单例更新', () => {
-      getMonitoring(); // 冷启动无 env（模拟模块加载阶段）
+      getMonitoring(); // 冷啟動無 env（模擬模組載入階段）
       const env = createMockEnv({ LOG_LEVEL: 'ERROR' });
       getLogger.mockClear();
 
       getMonitoring(env);
 
-      // 三个构造函数不会重跑，只能靠 getMonitoring 内部补调 getLogger(env) 更新单例
+      // 三個建構函式不會重跑，只能靠 getMonitoring 內部補調 getLogger(env) 更新單例
       expect(getLogger).toHaveBeenCalledWith(env);
     });
 
@@ -712,7 +712,7 @@ describe('Monitoring System', () => {
     });
   });
 
-  // ==================== 快捷方法对象 ====================
+  // ==================== 快捷方法物件 ====================
 
   describe('monitoring 快捷方法', () => {
     it('captureError 应该调用 ErrorMonitor.captureError', () => {
@@ -794,7 +794,7 @@ describe('Monitoring System', () => {
     });
   });
 
-  // ==================== 集成测试 ====================
+  // ==================== 整合測試 ====================
 
   describe('集成测试', () => {
     it('完整的性能监控流程', () => {
@@ -802,18 +802,18 @@ describe('Monitoring System', () => {
       const monitoring = getMonitoring();
       const perfMonitor = monitoring.getPerformanceMonitor();
 
-      // 开始追踪
+      // 開始追蹤
       const traceId = perfMonitor.startTrace('API Request', { endpoint: '/api/test' });
       expect(traceId).toBeDefined();
 
-      // 添加 spans
+      // 新增 spans
       vi.advanceTimersByTime(50);
       perfMonitor.addSpan(traceId, 'Database Query', 45);
 
       vi.advanceTimersByTime(30);
       perfMonitor.addSpan(traceId, 'External API', 25);
 
-      // 结束追踪
+      // 結束追蹤
       vi.advanceTimersByTime(20);
       const result = perfMonitor.endTrace(traceId, { status: 200 });
 
@@ -834,7 +834,7 @@ describe('Monitoring System', () => {
       const monitoring = getMonitoring();
       const middleware = monitoring.createMiddleware();
 
-      // 成功请求
+      // 成功請求
       const request = createMockRequest('POST', 'https://example.com/api/test');
       const mockResponse = { status: 200 };
       const mockNext = vi.fn(async () => mockResponse);
@@ -855,7 +855,7 @@ describe('Monitoring System', () => {
     });
   });
 
-  // ==================== 边界条件 ====================
+  // ==================== 邊界條件 ====================
 
   describe('边界条件', () => {
     it('应该处理空上下文', () => {
@@ -899,7 +899,7 @@ describe('Monitoring System', () => {
       context.self = context;
 
       const error = new Error('Test');
-      // 不应该崩溃
+      // 不應該崩潰
       expect(() => {
         monitor.captureError(error, context);
       }).not.toThrow();
@@ -930,7 +930,7 @@ describe('Monitoring System', () => {
     });
   });
 
-  // ==================== 性能测试 ====================
+  // ==================== 效能測試 ====================
 
   describe('性能测试', () => {
     it('捕获 1000 个错误应该很快', () => {

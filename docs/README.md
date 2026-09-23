@@ -1,6 +1,6 @@
-# 📚 888 2FA 專案文件
+# 📚 888 2FA 專案檔案
 
-> 完整的專案說明、部署教學與開發文件。
+> 完整的專案說明、部署教學與開發檔案。
 
 ## 🚀 快速導覽
 
@@ -12,18 +12,18 @@
 
 ### 開發者專區
 
-- **[開發文件](DEVELOPMENT.md)** - 本機開發、測試與自動化部署流程
-- **[架構文件](ARCHITECTURE.md)** - 系統設計、安全模型與技術架構
-- **[API 參考](API_REFERENCE.md)** - API 端點與整合文件
+- **[開發檔案](DEVELOPMENT.md)** - 本機開發、測試與自動化部署流程
+- **[架構檔案](ARCHITECTURE.md)** - 系統設計、安全模型與技術架構
+- **[API 參考](API_REFERENCE.md)** - API 端點與整合檔案
 
-## 📦 文件清單
+## 📦 檔案清單
 
-| 文件                                         | 說明             | 適用對象        |
+| 檔案                                         | 說明             | 適用物件        |
 | :------------------------------------------- | :--------------- | :-------------- |
 | [DEPLOYMENT.md](DEPLOYMENT.md)               | 部署指南         | 所有使用者      |
 | [CLOUD_DRIVE_SETUP.md](CLOUD_DRIVE_SETUP.md) | 雲端硬碟備份設定 | 部署者 / 管理員 |
-| [DEVELOPMENT.md](DEVELOPMENT.md)             | 開發文件         | 開發者          |
-| [ARCHITECTURE.md](ARCHITECTURE.md)           | 架構文件         | 開發者          |
+| [DEVELOPMENT.md](DEVELOPMENT.md)             | 開發檔案         | 開發者          |
+| [ARCHITECTURE.md](ARCHITECTURE.md)           | 架構檔案         | 開發者          |
 | [API_REFERENCE.md](API_REFERENCE.md)         | API 參考         | 整合開發者      |
 | [PWA_GUIDE.md](PWA_GUIDE.md)                 | PWA 指南         | 終端使用者      |
 

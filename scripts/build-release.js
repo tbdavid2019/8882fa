@@ -1,7 +1,7 @@
 /**
- * 构建发布版本的单文件 Worker
+ * 構建釋出版本的單檔案 Worker
  *
- * 这个脚本将所有模块打包成单个 JS 文件，方便用户直接部署到 Cloudflare Workers
+ * 這個指令碼將所有模組打包成單個 JS 檔案，方便使用者直接部署到 Cloudflare Workers
  *
  * 使用方法：
  * node scripts/build-release.js [--minify] [--output=dist/worker.js]
@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 
-// 解析命令行参数
+// 解析命令列引數
 const args = process.argv.slice(2);
 const shouldMinify = args.includes('--minify');
 const outputArg = args.find(arg => arg.startsWith('--output='));
@@ -28,18 +28,18 @@ console.log('🚀 开始构建 Release 版本...\n');
 
 async function buildRelease() {
   try {
-    // 确保输出目录存在
+    // 確保輸出目錄存在
     const outputDir = dirname(outputPath);
     if (!existsSync(outputDir)) {
       mkdirSync(outputDir, { recursive: true });
     }
 
-    // 读取 package.json 获取版本信息
+    // 讀取 package.json 獲取版本資訊
     const packageJson = JSON.parse(
       readFileSync(join(rootDir, 'package.json'), 'utf-8')
     );
 
-    // 生成版本信息
+    // 生成版本資訊
     const buildDate = new Date().toISOString();
     const version = packageJson.version;
     const serviceWorkerVersion = `v${version}-${buildDate.replace(/[^\d]/g, '').slice(0, 14)}`;
@@ -85,7 +85,7 @@ async function buildRelease() {
       logLevel: 'info',
     });
 
-    // 获取文件大小
+    // 獲取檔案大小
     const outputContent = readFileSync(outputPath, 'utf-8');
     const fileSizeKB = (Buffer.byteLength(outputContent, 'utf-8') / 1024).toFixed(2);
 
@@ -94,7 +94,7 @@ async function buildRelease() {
     console.log(`   文件大小: ${fileSizeKB} KB`);
     console.log(`   压缩模式: ${shouldMinify ? '已启用' : '未启用'}`);
 
-    // 生成元数据文件
+    // 生成後設資料檔案
     const metadataPath = outputPath.replace('.js', '.metadata.json');
     const metadata = {
       name: packageJson.name,
@@ -110,7 +110,7 @@ async function buildRelease() {
     writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
     console.log(`   元数据文件: ${metadataPath}`);
 
-    // 生成部署说明
+    // 生成部署說明
     const readmePath = join(outputDir, 'DEPLOY.md');
     const deployReadme = `# 888 2FA - 部署说明
 

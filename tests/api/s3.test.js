@@ -1,5 +1,5 @@
 /**
- * S3 API 端点单元测试
+ * S3 API 端點單元測試
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -236,7 +236,7 @@ describe('S3 API Module (Multi-Destination)', () => {
     });
 
     it('更新配置时 Secret Access Key 为空应保留旧密钥', async () => {
-      // 先保存初始配置
+      // 先儲存初始配置
       const addReq = createMockRequest({
         name: 'R2',
         endpoint: 'https://s3.example.com',
@@ -249,7 +249,7 @@ describe('S3 API Module (Multi-Destination)', () => {
       const addResp = await handleSaveS3Config(addReq, env);
       const addData = await addResp.json();
 
-      // 更新配置时不提供密钥
+      // 更新配置時不提供金鑰
       const updateReq = createMockRequest({
         id: addData.id,
         name: 'R2-Updated',
@@ -304,7 +304,7 @@ describe('S3 API Module (Multi-Destination)', () => {
   // ==================== handleDeleteS3Config ====================
   describe('handleDeleteS3Config', () => {
     it('应成功删除指定配置', async () => {
-      // 先添加
+      // 先新增
       const addReq = createMockRequest({
         name: 'R2',
         endpoint: 'https://s3.example.com',
@@ -317,7 +317,7 @@ describe('S3 API Module (Multi-Destination)', () => {
       const addResp = await handleSaveS3Config(addReq, env);
       const addData = await addResp.json();
 
-      // 删除
+      // 刪除
       const deleteReq = createMockRequest({}, 'DELETE', `https://example.com/api/s3/config?id=${addData.id}`);
       const response = await handleDeleteS3Config(deleteReq, env);
       const data = await response.json();
@@ -366,7 +366,7 @@ describe('S3 API Module (Multi-Destination)', () => {
     });
 
     it('密钥为空且有已保存配置（通过 id）应使用保存的密钥', async () => {
-      // 先保存配置
+      // 先儲存配置
       const addReq = createMockRequest({
         name: 'R2',
         endpoint: 'https://s3.example.com',
@@ -402,7 +402,7 @@ describe('S3 API Module (Multi-Destination)', () => {
     });
 
     it('无 id 且密钥为空时应返回 400（不得回退已保存凭据）', async () => {
-      // 先保存一个配置（确保 KV 中有凭据可被误用）
+      // 先儲存一個配置（確保 KV 中有憑據可被誤用）
       await handleSaveS3Config(
         createMockRequest({
           name: 'R2',
@@ -416,7 +416,7 @@ describe('S3 API Module (Multi-Destination)', () => {
         env,
       );
 
-      // 不带 id、密钥为空 → 必须 400，不能回退使用已保存的密钥
+      // 不帶 id、金鑰為空 → 必須 400，不能回退使用已儲存的金鑰
       const request = createMockRequest({
         name: 'Other',
         endpoint: 'https://evil.example.com',
@@ -435,7 +435,7 @@ describe('S3 API Module (Multi-Destination)', () => {
   // ==================== handleToggleS3 ====================
   describe('handleToggleS3', () => {
     it('应成功启用/禁用目标', async () => {
-      // 先添加
+      // 先新增
       const addReq = createMockRequest({
         name: 'R2',
         endpoint: 'https://s3.example.com',
@@ -448,7 +448,7 @@ describe('S3 API Module (Multi-Destination)', () => {
       const addResp = await handleSaveS3Config(addReq, env);
       const addData = await addResp.json();
 
-      // 禁用
+      // 停用
       const toggleReq = createMockRequest(
         { id: addData.id, enabled: false },
         'POST',

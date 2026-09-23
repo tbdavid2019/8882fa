@@ -1,12 +1,12 @@
 # Security Policy / 安全政策
 
-## Supported Versions / 支持的版本
+## Supported Versions / 支援的版本
 
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.x.x   | :white_check_mark: |
 
-## Reporting a Vulnerability / 报告漏洞
+## Reporting a Vulnerability / 報告漏洞
 
 ### English
 
@@ -37,34 +37,34 @@ We take the security of 2FA Manager seriously. If you discover a security vulner
 
 ### 中文
 
-我们非常重视 2FA Manager 的安全性。如果您发现安全漏洞，请负责任地报告。
+我們非常重視 2FA Manager 的安全性。如果您發現安全漏洞，請負責任地報告。
 
-**如何报告：**
+**如何報告：**
 
-1. **不要** 在公开的 GitHub issue 中报告安全漏洞
-2. 在此创建私密安全公告: [GitHub Security Advisory](../../security/advisories/new)
-3. 或发送邮件给维护者（见个人资料）
+1. **不要** 在公開的 GitHub issue 中報告安全漏洞
+2. 在此建立私密安全公告: [GitHub Security Advisory](../../security/advisories/new)
+3. 或傳送郵件給維護者（見個人資料）
 
-**请包含：**
+**請包含：**
 
 - 漏洞描述
-- 复现步骤
-- 潜在影响评估
-- 建议的修复方案（如有）
+- 復現步驟
+- 潛在影響評估
+- 建議的修復方案（如有）
 
-**预期响应时间：**
+**預期響應時間：**
 
-- **确认收到**: 48 小时内
-- **初步评估**: 7 天内
-- **解决时间线**: 取决于严重程度
-  - 严重: 24-72 小时
+- **確認收到**: 48 小時內
+- **初步評估**: 7 天內
+- **解決時間線**: 取決於嚴重程度
+  - 嚴重: 24-72 小時
   - 高危: 7 天
   - 中等: 30 天
   - 低危: 90 天
 
 ---
 
-## Security Best Practices for Users / 用户安全最佳实践
+## Security Best Practices for Users / 使用者安全最佳實踐
 
 ### English
 
@@ -78,13 +78,13 @@ We take the security of 2FA Manager seriously. If you discover a security vulner
 
 ### 中文
 
-1. **加密密钥**: 生产环境必须设置 `ENCRYPTION_KEY`
-2. **强密码**: 使用强密码（12+ 字符，混合大小写、数字、符号）
-3. **仅 HTTPS**: 始终通过 HTTPS 访问（由 Cloudflare 强制）
-4. **定期备份**: 启用自动备份并定期测试恢复
-5. **访问控制**: 限制对 Cloudflare Worker 和 KV 命名空间的访问
-6. **监控访问**: 检查 Cloudflare 分析以发现异常访问模式
-7. **定期更新**: 定期运行 `npm audit` 保持依赖更新
+1. **加密金鑰**: 生產環境必須設定 `ENCRYPTION_KEY`
+2. **強密碼**: 使用強密碼（12+ 字元，混合大小寫、數字、符號）
+3. **僅 HTTPS**: 始終通過 HTTPS 訪問（由 Cloudflare 強制）
+4. **定期備份**: 啟用自動備份並定期測試恢復
+5. **訪問控制**: 限制對 Cloudflare Worker 和 KV 名稱空間的訪問
+6. **監控訪問**: 檢查 Cloudflare 分析以發現異常訪問模式
+7. **定期更新**: 定期執行 `npm audit` 保持依賴更新
 
 ---
 
@@ -101,7 +101,7 @@ We take the security of 2FA Manager seriously. If you discover a security vulner
 
 ---
 
-## Acknowledgments / 致谢
+## Acknowledgments / 致謝
 
 We thank the security researchers who have helped improve this project.
 
@@ -111,7 +111,7 @@ We thank the security researchers who have helped improve this project.
 
 ---
 
-## Security Audit History / 安全审计历史
+## Security Audit History / 安全審計歷史
 
 | Date | Auditor    | Scope         | Result  |
 | ---- | ---------- | ------------- | ------- |

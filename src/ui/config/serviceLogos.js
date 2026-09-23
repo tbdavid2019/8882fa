@@ -1,17 +1,17 @@
 /**
- * Service Logos 配置（纯数据文件）
+ * Service Logos 配置（純資料檔案）
  *
- * 这是一个纯数据配置文件，只包含服务名称到域名的映射。
- * 逻辑处理（URL生成、匹配算法）由客户端代码实现（src/ui/scripts/core.js）。
+ * 這是一個純資料配置檔案，只包含服務名稱到域名的對映。
+ * 邏輯處理（URL生成、匹配演算法）由客戶端程式碼實現（src/ui/scripts/core.js）。
  *
- * 数据格式：服务名 → 域名
+ * 資料格式：服務名 → 域名
  * 例如：'google' → 'google.com'
  *
- * 客户端会自动拼接 /api/favicon/ 前缀生成完整的图标 URL
+ * 客戶端會自動拼接 /api/favicon/ 字首生成完整的圖示 URL
  */
 
 export const SERVICE_LOGOS = {
-	// 科技巨头
+	// 科技巨頭
 	google: 'google.com',
 	'google cloud': 'cloud.google.com',
 	microsoft: 'microsoft.com',
@@ -22,7 +22,7 @@ export const SERVICE_LOGOS = {
 	meta: 'meta.com',
 	facebook: 'facebook.com',
 
-	// 社交媒体
+	// 社交媒體
 	twitter: 'twitter.com',
 	x: 'x.com',
 	instagram: 'instagram.com',
@@ -36,20 +36,20 @@ export const SERVICE_LOGOS = {
 	truthsocial: 'truthsocial.com',
 	'truth social': 'truthsocial.com',
 
-	// 通讯工具
+	// 通訊工具
 	slack: 'slack.com',
 	telegram: 'telegram.org',
 	whatsapp: 'whatsapp.com',
 	signal: 'signal.org',
 	zoom: 'zoom.us',
 
-	// 开发平台
+	// 開發平臺
 	github: 'github.com',
 	gitee: 'gitee.com',
 	gitlab: 'gitlab.com',
 	bitbucket: 'bitbucket.org',
 
-	// 云服务商
+	// 雲服務商
 	aws: 'aws.amazon.com',
 	'amazon web services': 'aws.amazon.com',
 	amazonaws: 'amazonaws.com',
@@ -72,7 +72,7 @@ export const SERVICE_LOGOS = {
 	'tencent cloud': 'cloud.tencent.com',
 	'huawei cloud': 'huaweicloud.com',
 
-	// 开发工具
+	// 開發工具
 	docker: 'docker.com',
 	kubernetes: 'kubernetes.io',
 	jenkins: 'jenkins.io',
@@ -82,14 +82,14 @@ export const SERVICE_LOGOS = {
 	supabase: 'supabase.com',
 	planetscale: 'planetscale.com',
 
-	// 域名注册商
+	// 域名註冊商
 	godaddy: 'godaddy.com',
 	namecheap: 'namecheap.com',
 	porkbun: 'porkbun.com',
 	'name.com': 'name.com',
 	dynadot: 'dynadot.com',
 
-	// 生产力工具
+	// 生產力工具
 	notion: 'notion.so',
 	trello: 'trello.com',
 	asana: 'asana.com',
@@ -98,24 +98,24 @@ export const SERVICE_LOGOS = {
 	monday: 'monday.com',
 	airtable: 'airtable.com',
 
-	// 设计工具
+	// 設計工具
 	figma: 'figma.com',
 	canva: 'canva.com',
 	adobe: 'adobe.com',
 
-	// 云存储
+	// 雲端儲存
 	dropbox: 'dropbox.com',
 	onedrive: 'onedrive.live.com',
 	'google drive': 'drive.google.com',
 	box: 'box.com',
 
-	// 密码管理器
+	// 密碼管理器
 	'1password': '1password.com',
 	bitwarden: 'bitwarden.com',
 	lastpass: 'lastpass.com',
 	dashlane: 'dashlane.com',
 
-	// AI平台
+	// AI平臺
 	openai: 'openai.com',
 	chatgpt: 'openai.com',
 	anthropic: 'anthropic.com',
@@ -132,13 +132,13 @@ export const SERVICE_LOGOS = {
 	'character.ai': 'character.ai',
 	poe: 'poe.com',
 
-	// 支付平台
+	// 支付平臺
 	paypal: 'paypal.com',
 	stripe: 'stripe.com',
 	square: 'squareup.com',
 	wise: 'wise.com',
 
-	// 加密货币交易所
+	// 加密貨幣交易所
 	binance: 'binance.com',
 	coinbase: 'coinbase.com',
 	kraken: 'kraken.com',
@@ -148,7 +148,7 @@ export const SERVICE_LOGOS = {
 	kucoin: 'kucoin.com',
 	bybit: 'bybit.com',
 
-	// 游戏平台
+	// 遊戲平臺
 	steam: 'steampowered.com',
 	'epic games': 'epicgames.com',
 	epicgames: 'epicgames.com',
@@ -163,7 +163,7 @@ export const SERVICE_LOGOS = {
 	xbox: 'xbox.com',
 	nintendo: 'nintendo.com',
 
-	// 流媒体
+	// 流媒體
 	netflix: 'netflix.com',
 	spotify: 'spotify.com',
 	youtube: 'youtube.com',
@@ -173,7 +173,7 @@ export const SERVICE_LOGOS = {
 	hbo: 'hbo.com',
 	'prime video': 'primevideo.com',
 
-	// 电商平台
+	// 電商平臺
 	shopify: 'shopify.com',
 	ebay: 'ebay.com',
 	etsy: 'etsy.com',
@@ -183,29 +183,29 @@ export const SERVICE_LOGOS = {
 	taobao: 'taobao.com',
 	jd: 'jd.com',
 
-	// 出行服务
+	// 出行服務
 	uber: 'uber.com',
 	lyft: 'lyft.com',
 	airbnb: 'airbnb.com',
 
-	// 金融服务
+	// 金融服務
 	robinhood: 'robinhood.com',
 	webull: 'webull.com',
 	'charles schwab': 'schwab.com',
 
-	// VPN服务
+	// VPN服務
 	nordvpn: 'nordvpn.com',
 	expressvpn: 'expressvpn.com',
 	protonvpn: 'protonvpn.com',
 
-	// 邮箱服务
+	// 郵箱服務
 	gmail: 'gmail.com',
 	outlook: 'outlook.com',
 	protonmail: 'proton.me',
 	proton: 'proton.me',
 	yahoo: 'yahoo.com',
 
-	// 内容平台
+	// 內容平臺
 	medium: 'medium.com',
 	substack: 'substack.com',
 	patreon: 'patreon.com',
@@ -222,7 +222,7 @@ export const SERVICE_LOGOS = {
 	salesforce: 'salesforce.com',
 	hubspot: 'hubspot.com',
 
-	// 中国服务
+	// 中國服務
 	tencent: 'tencent.com',
 	wechat: 'wechat.com',
 	alipay: 'alipay.com',
@@ -234,7 +234,7 @@ export const SERVICE_LOGOS = {
 	feishu: 'feishu.cn',
 	lark: 'larksuite.com',
 
-	// 更多社交媒体和通讯
+	// 更多社交媒體和通訊
 	threads: 'threads.net',
 	bluesky: 'bsky.app',
 	tumblr: 'tumblr.com',
@@ -248,7 +248,7 @@ export const SERVICE_LOGOS = {
 	'google meet': 'meet.google.com',
 	webex: 'webex.com',
 
-	// 更多云服务商
+	// 更多雲服務商
 	ovh: 'ovh.com',
 	hetzner: 'hetzner.com',
 	scaleway: 'scaleway.com',
@@ -265,7 +265,7 @@ export const SERVICE_LOGOS = {
 	hostgator: 'hostgator.com',
 	inmotion: 'inmotionhosting.com',
 
-	// 更多开发工具和服务
+	// 更多開發工具和服務
 	npm: 'npmjs.com',
 	yarn: 'yarnpkg.com',
 	pnpm: 'pnpm.io',
@@ -286,7 +286,7 @@ export const SERVICE_LOGOS = {
 	ruby: 'ruby-lang.org',
 	java: 'java.com',
 
-	// 监控和分析工具
+	// 監控和分析工具
 	datadog: 'datadoghq.com',
 	newrelic: 'newrelic.com',
 	sentry: 'sentry.io',
@@ -302,7 +302,7 @@ export const SERVICE_LOGOS = {
 	statuspage: 'statuspage.io',
 	uptimerobot: 'uptimerobot.com',
 
-	// 更多域名和 DNS 服务
+	// 更多域名和 DNS 服務
 	cloudns: 'cloudns.net',
 	route53: 'aws.amazon.com',
 	hover: 'hover.com',
@@ -312,7 +312,7 @@ export const SERVICE_LOGOS = {
 	'google domains': 'domains.google',
 	spaceship: 'spaceship.com',
 
-	// 更多加密货币和区块链
+	// 更多加密貨幣和區塊鏈
 	metamask: 'metamask.io',
 	'trust wallet': 'trustwallet.com',
 	ledger: 'ledger.com',
@@ -328,7 +328,7 @@ export const SERVICE_LOGOS = {
 	poloniex: 'poloniex.com',
 	bitstamp: 'bitstamp.net',
 
-	// 更多支付平台
+	// 更多支付平臺
 	venmo: 'venmo.com',
 	cashapp: 'cash.app',
 	zelle: 'zellepay.com',
@@ -345,7 +345,7 @@ export const SERVICE_LOGOS = {
 	lemonsqueezy: 'lemonsqueezy.com',
 	gumroad: 'gumroad.com',
 
-	// 更多电商和市场
+	// 更多電商和市場
 	mercari: 'mercari.com',
 	poshmark: 'poshmark.com',
 	depop: 'depop.com',
@@ -360,7 +360,7 @@ export const SERVICE_LOGOS = {
 	tokopedia: 'tokopedia.com',
 	carousell: 'carousell.com',
 
-	// 教育平台
+	// 教育平臺
 	coursera: 'coursera.org',
 	udemy: 'udemy.com',
 	edx: 'edx.org',
@@ -377,7 +377,7 @@ export const SERVICE_LOGOS = {
 	topcoder: 'topcoder.com',
 	kaggle: 'kaggle.com',
 
-	// 更多流媒体和娱乐
+	// 更多流媒體和娛樂
 	'apple music': 'music.apple.com',
 	'apple tv': 'tv.apple.com',
 	tidal: 'tidal.com',
@@ -397,7 +397,7 @@ export const SERVICE_LOGOS = {
 	showtime: 'showtime.com',
 	starz: 'starz.com',
 
-	// 新闻和媒体
+	// 新聞和媒體
 	nytimes: 'nytimes.com',
 	wsj: 'wsj.com',
 	'washington post': 'washingtonpost.com',
@@ -413,7 +413,7 @@ export const SERVICE_LOGOS = {
 	'ars technica': 'arstechnica.com',
 	'hacker news': 'news.ycombinator.com',
 
-	// 论坛和社区
+	// 論壇和社群
 	'stack overflow': 'stackoverflow.com',
 	stackoverflow: 'stackoverflow.com',
 	'stack exchange': 'stackexchange.com',
@@ -423,7 +423,7 @@ export const SERVICE_LOGOS = {
 	discourse: 'discourse.org',
 	phpbb: 'phpbb.com',
 
-	// 更多中国服务
+	// 更多中國服務
 	zhihu: 'zhihu.com',
 	weibo: 'weibo.com',
 	csdn: 'csdn.net',
@@ -449,7 +449,7 @@ export const SERVICE_LOGOS = {
 	youku: 'youku.com',
 	toutiao: 'toutiao.com',
 
-	// 日本服务
+	// 日本服務
 	'line pay': 'pay.line.me',
 	paypay: 'paypay.ne.jp',
 	mercoin: 'mercoin.com',
@@ -458,7 +458,7 @@ export const SERVICE_LOGOS = {
 	niconico: 'nicovideo.jp',
 	pixiv: 'pixiv.net',
 
-	// 韩国服务
+	// 韓國服務
 	naver: 'naver.com',
 	kakao: 'kakao.com',
 	kakaotalk: 'kakao.com',
@@ -466,14 +466,14 @@ export const SERVICE_LOGOS = {
 	bithumb: 'bithumb.com',
 	upbit: 'upbit.com',
 
-	// 俄罗斯服务
+	// 俄羅斯服務
 	vkontakte: 'vk.com',
 	'telegram messenger': 'telegram.org',
 	'mail.ru': 'mail.ru',
 	'yandex mail': 'yandex.ru',
 	rambler: 'rambler.ru',
 
-	// 印度服务
+	// 印度服務
 	paytm: 'paytm.com',
 	phonepe: 'phonepe.com',
 	gpay: 'pay.google.com',
@@ -483,12 +483,12 @@ export const SERVICE_LOGOS = {
 	zomato: 'zomato.com',
 	ola: 'olacabs.com',
 
-	// 东南亚服务
+	// 東南亞服務
 	grab: 'grab.com',
 	gojek: 'gojek.com',
 	bukalapak: 'bukalapak.com',
 
-	// 更多VPN和安全服务
+	// 更多VPN和安全服務
 	surfshark: 'surfshark.com',
 	cyberghost: 'cyberghostvpn.com',
 	privateinternetaccess: 'privateinternetaccess.com',
@@ -499,7 +499,7 @@ export const SERVICE_LOGOS = {
 	tunnelbear: 'tunnelbear.com',
 	'hotspot shield': 'hotspotshield.com',
 
-	// 更多密码管理器
+	// 更多密碼管理器
 	keepass: 'keepass.info',
 	keepassxc: 'keepassxc.org',
 	nordpass: 'nordpass.com',
@@ -508,7 +508,7 @@ export const SERVICE_LOGOS = {
 	keeper: 'keepersecurity.com',
 	'zoho vault': 'zoho.com',
 
-	// 更多设计和创意工具
+	// 更多設計和創意工具
 	sketch: 'sketch.com',
 	invision: 'invisionapp.com',
 	miro: 'miro.com',
@@ -520,7 +520,7 @@ export const SERVICE_LOGOS = {
 	photopea: 'photopea.com',
 	'remove.bg': 'remove.bg',
 
-	// 更多邮件服务
+	// 更多郵件服務
 	fastmail: 'fastmail.com',
 	tutanota: 'tutanota.com',
 	'mailbox.org': 'mailbox.org',
@@ -530,7 +530,7 @@ export const SERVICE_LOGOS = {
 	icloud: 'icloud.com',
 	hey: 'hey.com',
 
-	// 文档和协作工具
+	// 文件和協作工具
 	'google docs': 'docs.google.com',
 	'google sheets': 'sheets.google.com',
 	'google slides': 'slides.google.com',
@@ -542,7 +542,7 @@ export const SERVICE_LOGOS = {
 	smartsheet: 'smartsheet.com',
 	teamwork: 'teamwork.com',
 
-	// 更多游戏相关
+	// 更多遊戲相關
 	gog: 'gog.com',
 	'itch.io': 'itch.io',
 	'humble bundle': 'humblebundle.com',
@@ -552,14 +552,14 @@ export const SERVICE_LOGOS = {
 	'square enix': 'square-enix.com',
 	paradox: 'paradoxplaza.com',
 
-	// 特殊服务
+	// 特殊服務
 	redotpay: 'redotpay.com',
 	v2ex: 'v2ex.com',
 	yandex: 'yandex.com',
 	deno: 'deno.com',
 	bun: 'bun.sh',
 
-	// 社区论坛
+	// 社群論壇
 	'linux.do': 'linux.do',
 };
 

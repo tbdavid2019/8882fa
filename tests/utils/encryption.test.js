@@ -1,6 +1,6 @@
 /**
- * 加密/解密功能测试
- * 测试 AES-GCM 256位加密
+ * 加密/解密功能測試
+ * 測試 AES-GCM 256位加密
  */
 
 import { describe, it, expect } from 'vitest';
@@ -13,13 +13,13 @@ import {
 } from '../../src/utils/encryption.js';
 
 describe('Encryption Utils', () => {
-  // 模拟环境对象
+  // 模擬環境物件
   const createMockEnv = (encryptionKey) => ({
     ENCRYPTION_KEY: encryptionKey,
-    LOG_LEVEL: 'ERROR'  // 减少测试输出
+    LOG_LEVEL: 'ERROR'  // 減少測試輸出
   });
 
-  // 测试用的加密密钥（32 字节 base64）
+  // 測試用的加密金鑰（32 位元組 base64）
   const testEncryptionKey = Buffer.from('12345678901234567890123456789012').toString('base64');
   const wrongEncryptionKey = Buffer.from('wrongkeywrongkeywrongkeywrongke').toString('base64');
 
@@ -123,10 +123,10 @@ describe('Encryption Utils', () => {
 
       const encrypted = await encryptData(originalData, env);
 
-      // 尝试篡改密文（改变几个字符）
+      // 嘗試篡改密文（改變幾個字元）
       // v1:ivBase64:encryptedBase64 格式
       const parts = encrypted.split(':');
-      // 篡改加密数据部分（改变 base64 中的字符）
+      // 篡改加密資料部分（改變 base64 中的字元）
       const tamperedEncryptedPart = parts[2].substring(0, parts[2].length - 5) + 'XXXXX';
       const tamperedData = `${parts[0]}:${parts[1]}:${tamperedEncryptedPart}`;
 
@@ -137,7 +137,7 @@ describe('Encryption Utils', () => {
       const envWithoutKey = createMockEnv(null);
       const originalData = { name: 'Test' };
 
-      // encryptData 必须有密钥，否则抛出错误
+      // encryptData 必須有金鑰，否則丟擲錯誤
       await expect(encryptData(originalData, envWithoutKey)).rejects.toThrow('ENCRYPTION_KEY');
     });
 
@@ -148,10 +148,10 @@ describe('Encryption Utils', () => {
       const encrypted1 = await encryptData(originalData, env);
       const encrypted2 = await encryptData(originalData, env);
 
-      // 相同数据的两次加密应该产生不同的密文（因为 IV 随机）
+      // 相同資料的兩次加密應該產生不同的密文（因為 IV 隨機）
       expect(encrypted1).not.toBe(encrypted2);
 
-      // 但解密后应该得到相同的数据
+      // 但解密後應該得到相同的資料
       const decrypted1 = await decryptData(encrypted1, env);
       const decrypted2 = await decryptData(encrypted2, env);
       expect(decrypted1).toEqual(originalData);
@@ -237,11 +237,11 @@ describe('Encryption Utils', () => {
 
       const result = await encryptSecrets(testSecrets, envWithoutKey);
 
-      // 没有密钥时，应该返回 JSON 字符串
+      // 沒有金鑰時，應該返回 JSON 字串
       expect(isEncrypted(result)).toBe(false);
       expect(JSON.parse(result)).toEqual(testSecrets);
 
-      // 应该能够直接解析
+      // 應該能夠直接解析
       const decrypted = await decryptSecrets(result, envWithoutKey);
       expect(decrypted).toEqual(testSecrets);
     });
@@ -256,7 +256,7 @@ describe('Encryption Utils', () => {
       await encryptData(data, env);
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(100); // 应该在 100ms 内完成
+      expect(end - start).toBeLessThan(100); // 應該在 100ms 內完成
     });
 
     it('解密应该在合理时间内完成', async () => {
@@ -269,7 +269,7 @@ describe('Encryption Utils', () => {
       await decryptData(encrypted, env);
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(100); // 应该在 100ms 内完成
+      expect(end - start).toBeLessThan(100); // 應該在 100ms 內完成
     });
 
     it('应该能够快速处理多个加密操作', async () => {
@@ -286,7 +286,7 @@ describe('Encryption Utils', () => {
 
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(2000); // 100 次加密应该在 2 秒内完成
+      expect(end - start).toBeLessThan(2000); // 100 次加密應該在 2 秒內完成
     });
   });
 
@@ -318,7 +318,7 @@ describe('Encryption Utils', () => {
     it('应该处理嵌套深度很大的对象', async () => {
       const env = createMockEnv(testEncryptionKey);
 
-      // 创建深度嵌套的对象
+      // 建立深度巢狀的物件
       let deepObj = { value: 'deep' };
       for (let i = 0; i < 50; i++) {
         deepObj = { nested: deepObj };
@@ -340,7 +340,7 @@ describe('Encryption Utils', () => {
       const encrypted = await encryptData(dataWithUndefined, env);
       const decrypted = await decryptData(encrypted, env);
 
-      // JSON.stringify 会移除 undefined 字段
+      // JSON.stringify 會移除 undefined 欄位
       expect(decrypted).toEqual({ defined: 'value' });
     });
   });

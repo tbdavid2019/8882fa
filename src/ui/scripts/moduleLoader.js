@@ -1,24 +1,24 @@
 /**
- * 模块懒加载器
- * 实现按需加载大型功能模块，优化首次加载性能
+ * 模組懶載入器
+ * 實現按需載入大型功能模組，最佳化首次載入效能
  *
- * 可延迟加载的模块：
- * - import 模块（src/ui/scripts/import/index.js 入口）- 导入功能
- * - export.js - 导出功能
- * - backup.js - 备份管理
- * - qrcode.js - 二维码生成
- * - tools.js + 工具模块 - 工具集
+ * 可延遲載入的模組：
+ * - import 模組（src/ui/scripts/import/index.js 入口）- 匯入功能
+ * - export.js - 匯出功能
+ * - backup.js - 備份管理
+ * - qrcode.js - 二維碼生成
+ * - tools.js + 工具模組 - 工具集
  */
 
 /**
- * 获取模块加载器代码
- * @returns {string} JavaScript 代码
+ * 獲取模組載入器程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getModuleLoaderCode() {
 	return `
-    // ========== 模块懒加载系统 ==========
+    // ========== 模組懶載入系統 ==========
 
-    // 模块加载状态
+    // 模組載入狀態
     const moduleLoadState = {
       import: { loaded: false, loading: false, code: null },
       export: { loaded: false, loading: false, code: null },
@@ -29,21 +29,21 @@ export function getModuleLoaderCode() {
     };
 
     /**
-     * 加载模块
-     * @param {string} moduleName - 模块名称
+     * 載入模組
+     * @param {string} moduleName - 模組名稱
      * @returns {Promise<void>}
      */
     async function loadModule(moduleName) {
-      // 如果已加载，直接返回
+      // 如果已載入，直接返回
       if (moduleLoadState[moduleName].loaded) {
         console.log(\`✅ 模块 \${moduleName} 已加载\`);
         return;
       }
 
-      // 如果正在加载，等待加载完成
+      // 如果正在載入，等待載入完成
       if (moduleLoadState[moduleName].loading) {
         console.log(\`⏳ 模块 \${moduleName} 正在加载中...\`);
-        // 轮询等待加载完成（最多5秒）
+        // 輪詢等待載入完成（最多5秒）
         const startTime = Date.now();
         while (moduleLoadState[moduleName].loading && Date.now() - startTime < 5000) {
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -56,17 +56,17 @@ export function getModuleLoaderCode() {
         }
       }
 
-      // 开始加载
+      // 開始載入
       moduleLoadState[moduleName].loading = true;
       console.log(\`📦 开始加载模块: \${moduleName}\`);
 
       try {
-        // 显示加载提示
+        // 顯示載入提示
         const modName = getModuleDisplayName(moduleName);
         const loadingMsg = (typeof t === 'function' ? t('moduleLoadingToast', { module: modName }) : null) || ('Loading ' + modName + '...');
         showLoadingToast(loadingMsg);
 
-        // 从服务器获取模块代码
+        // 從伺服器獲取模組程式碼
         const response = await authenticatedFetch(\`/modules/\${moduleName}.js\`);
 
         if (!response.ok) {
@@ -75,12 +75,12 @@ export function getModuleLoaderCode() {
 
         const code = await response.text();
 
-        // 执行模块代码（注入到全局作用域）
+        // 執行模組程式碼（注入到全域性作用域）
         const script = document.createElement('script');
         script.textContent = code;
         document.head.appendChild(script);
 
-        // 标记为已加载
+        // 標記為已載入
         moduleLoadState[moduleName].loaded = true;
         moduleLoadState[moduleName].code = code;
 
@@ -100,9 +100,9 @@ export function getModuleLoaderCode() {
     }
 
     /**
-     * 获取模块显示名称
-     * @param {string} moduleName - 模块名称
-     * @returns {string} 显示名称
+     * 獲取模組顯示名稱
+     * @param {string} moduleName - 模組名稱
+     * @returns {string} 顯示名稱
      */
     function getModuleDisplayName(moduleName) {
       const _t = typeof t === 'function' ? t : (k) => null;
@@ -118,8 +118,8 @@ export function getModuleLoaderCode() {
     }
 
     /**
-     * 显示加载Toast
-     * @param {string} message - 提示消息
+     * 顯示載入Toast
+     * @param {string} message - 提示訊息
      */
     function showLoadingToast(message) {
       let toast = document.getElementById('loadingToast');
@@ -145,7 +145,7 @@ export function getModuleLoaderCode() {
     }
 
     /**
-     * 隐藏加载Toast
+     * 隱藏載入Toast
      */
     function hideLoadingToast() {
       const toast = document.getElementById('loadingToast');
@@ -154,25 +154,25 @@ export function getModuleLoaderCode() {
       }
     }
 
-    // ========== 懒加载包装函数 ==========
+    // ========== 懶載入包裝函式 ==========
 
     /**
-     * 创建懒加载包装函数
-     * @param {string} moduleName - 模块名称
-     * @param {string} functionName - 函数名称
+     * 建立懶載入包裝函式
+     * @param {string} moduleName - 模組名稱
+     * @param {string} functionName - 函式名稱
      * @param {boolean} returnsValue - 是否返回值
-     * @returns {Function} 包装后的函数
+     * @returns {Function} 包裝後的函式
      */
     function createLazyWrapper(moduleName, functionName, returnsValue = false) {
-      // 创建包装函数
+      // 建立包裝函式
       const wrapper = async function(...args) {
         try {
-          // 首次调用时加载模块
+          // 首次呼叫時載入模組
           await loadModule(moduleName);
 
-          // 检查函数是否已加载
+          // 檢查函式是否已載入
           if (typeof window[functionName] === 'function' && window[functionName] !== wrapper) {
-            // 调用实际的函数
+            // 呼叫實際的函式
             const result = window[functionName](...args);
             if (returnsValue) {
               return result;
@@ -190,7 +190,7 @@ export function getModuleLoaderCode() {
       return wrapper;
     }
 
-    // 导入功能懒加载
+    // 匯入功能懶載入
     window.showImportModal = createLazyWrapper('import', 'showImportModal');
     window.hideImportModal = createLazyWrapper('import', 'hideImportModal');
     window.handleImportFile = createLazyWrapper('import', 'handleImportFile');
@@ -198,13 +198,13 @@ export function getModuleLoaderCode() {
     window.previewImport = createLazyWrapper('import', 'previewImport');
     window.executeImport = createLazyWrapper('import', 'executeImport');
 
-    // 导出功能懒加载
+    // 匯出功能懶載入
     window.exportAllSecrets = createLazyWrapper('export', 'exportAllSecrets');
     window.selectExportFormat = createLazyWrapper('export', 'selectExportFormat');
     window.showExportFormatModal = createLazyWrapper('export', 'showExportFormatModal');
     window.hideExportFormatModal = createLazyWrapper('export', 'hideExportFormatModal');
 
-    // 备份管理懒加载
+    // 備份管理懶載入
     window.loadBackupList = createLazyWrapper('backup', 'loadBackupList');
     window.loadMoreBackupList = createLazyWrapper('backup', 'loadMoreBackupList');
     window.showRestoreModal = createLazyWrapper('backup', 'showRestoreModal');
@@ -215,9 +215,9 @@ export function getModuleLoaderCode() {
     window.showBackupExportFormatModal = createLazyWrapper('backup', 'showBackupExportFormatModal');
     window.hideBackupExportFormatModal = createLazyWrapper('backup', 'hideBackupExportFormatModal');
 
-    // 工具集懒加载
-    // 注意：showToolsModal 和 hideToolsModal 在 ui.js 核心模块中，不需要懒加载
-    // 只有具体的工具函数需要懒加载
+    // 工具集懶載入
+    // 注意：showToolsModal 和 hideToolsModal 在 ui.js 核心模組中，不需要懶載入
+    // 只有具體的工具函式需要懶載入
     window.showQRScanAndDecode = createLazyWrapper('tools', 'showQRScanAndDecode');
     window.showQRGenerateTool = createLazyWrapper('tools', 'showQRGenerateTool');
     window.showBase32Tool = createLazyWrapper('tools', 'showBase32Tool');
@@ -233,14 +233,14 @@ export function getModuleLoaderCode() {
     window.showOneDriveModal = createLazyWrapper('tools', 'showOneDriveModal');
     window.showGoogleDriveModal = createLazyWrapper('tools', 'showGoogleDriveModal');
 
-    // 二维码功能懒加载
+    // 二維碼功能懶載入
     window.showSecretQRCode = createLazyWrapper('qrcode', 'showSecretQRCode');
     window.showQRScanner = createLazyWrapper('qrcode', 'showQRScanner');
     window.hideQRScanner = createLazyWrapper('qrcode', 'hideQRScanner');
     window.stopQRScanner = createLazyWrapper('qrcode', 'stopQRScanner');
     window.showQRCode = createLazyWrapper('qrcode', 'showQRCode');
 
-    // Google 迁移功能懒加载
+    // Google 遷移功能懶載入
     window.processGoogleMigration = createLazyWrapper('googleMigration', 'processGoogleMigration');
     window.showExportToGoogleModal = createLazyWrapper('googleMigration', 'showExportToGoogleModal');
     window.closeExportToGoogleModal = createLazyWrapper('googleMigration', 'closeExportToGoogleModal');

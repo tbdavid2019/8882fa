@@ -1,8 +1,8 @@
 /**
- * S3 配置 API 端点
- * 提供多目标 S3 兼容存储配置的 CRUD 操作、启用/禁用切换和连接测试
+ * S3 配置 API 端點
+ * 提供多目標 S3 相容儲存配置的 CRUD 操作、啟用/停用切換和連線測試
  *
- * 所有写操作接口使用 checkRateLimit + RATE_LIMIT_PRESETS.sensitive
+ * 所有寫操作介面使用 checkRateLimit + RATE_LIMIT_PRESETS.sensitive
  */
 
 import { getS3Configs, saveS3SingleConfig, deleteS3SingleConfig, getS3Status, testS3Connection } from '../utils/s3.js';
@@ -14,9 +14,9 @@ import { validateRequest, s3ConfigSchema, toggleDestinationSchema } from '../uti
 const MAX_ALLOWED = 5;
 
 /**
- * 获取所有 S3 配置
- * secretAccessKey 字段返回空字符串，附加 hasSecretKey 标记
- * 同时返回各目标的推送状态
+ * 獲取所有 S3 配置
+ * secretAccessKey 欄位返回空字串，附加 hasSecretKey 標記
+ * 同時返回各目標的推送狀態
  */
 export async function handleGetS3Configs(request, env) {
 	const logger = getLogger(env);
@@ -65,9 +65,9 @@ export async function handleGetS3Configs(request, env) {
 }
 
 /**
- * 保存 S3 配置（新增或更新）
- * body 含 id 时更新，不含 id 时新增
- * secretAccessKey 为空时保留已保存的密钥
+ * 儲存 S3 配置（新增或更新）
+ * body 含 id 時更新，不含 id 時新增
+ * secretAccessKey 為空時保留已儲存的金鑰
  */
 export async function handleSaveS3Config(request, env) {
 	const logger = getLogger(env);
@@ -85,7 +85,7 @@ export async function handleSaveS3Config(request, env) {
 			return body;
 		}
 
-		// secretAccessKey 为空时保留旧密钥
+		// secretAccessKey 為空時保留舊金鑰
 		if (!body.secretAccessKey) {
 			if (body.id) {
 				const configs = await getS3Configs(env);
@@ -133,8 +133,8 @@ export async function handleSaveS3Config(request, env) {
 }
 
 /**
- * 删除 S3 配置
- * 通过 query param id 指定要删除的目标
+ * 刪除 S3 配置
+ * 通過 query param id 指定要刪除的目標
  */
 export async function handleDeleteS3Config(request, env) {
 	const logger = getLogger(env);
@@ -177,8 +177,8 @@ export async function handleDeleteS3Config(request, env) {
 }
 
 /**
- * 测试 S3 连接
- * secretAccessKey 为空时从已保存的配置中读取（需提供 id）
+ * 測試 S3 連線
+ * secretAccessKey 為空時從已儲存的配置中讀取（需提供 id）
  */
 export async function handleTestS3(request, env) {
 	const logger = getLogger(env);
@@ -196,7 +196,7 @@ export async function handleTestS3(request, env) {
 			return body;
 		}
 
-		// secretAccessKey 为空时从 KV 读取已保存的密钥
+		// secretAccessKey 為空時從 KV 讀取已儲存的金鑰
 		if (!body.secretAccessKey) {
 			if (body.id) {
 				const configs = await getS3Configs(env);
@@ -228,7 +228,7 @@ export async function handleTestS3(request, env) {
 }
 
 /**
- * 启用/禁用 S3 目标
+ * 啟用/停用 S3 目標
  */
 export async function handleToggleS3(request, env) {
 	const logger = getLogger(env);

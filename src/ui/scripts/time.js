@@ -362,8 +362,8 @@ export function getTimeCode() {
         const isStale = Number.isFinite(ageMs) && ageMs > CLOCK_SYNC_STALE_MS;
         let message = '';
 
-        // 首次校准落地前不提示：页面刚加载时缓存偏移已生效但校准仍在进行，
-        // 此时提示会在校准成功后立即消失，表现为刷新时的一次闪烁。
+        // 首次校準落地前不提示：頁面剛載入時快取偏移已生效但校準仍在進行，
+        // 此時提示會在校準成功後立即消失，表現為重新整理時的一次閃爍。
         const _t = typeof t === 'function' ? t : (k) => null;
         if (!this.hasSettledSync) {
           message = '';

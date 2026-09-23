@@ -1,37 +1,37 @@
 /**
- * 导入加密解密模块
- * 包含 TOTP Authenticator、FreeOTP 等加密备份的解密功能
+ * 匯入加密解密模組
+ * 包含 TOTP Authenticator、FreeOTP 等加密備份的解密功能
  */
 
 /**
- * 获取 TOTP Authenticator 解密代码
- * @returns {string} JavaScript 代码
+ * 獲取 TOTP Authenticator 解密程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getTOTPAuthDecryptCode() {
 	return String.raw`
     // ========== TOTP Authenticator 解密 ==========
 
-    // TOTP Authenticator 备份数据（临时存储）
+    // TOTP Authenticator 備份資料（臨時儲存）
     let totpAuthBackupData = null;
 
     /**
-     * 检测是否是 TOTP Authenticator 加密备份格式
-     * @param {string} content - 文件内容
+     * 檢測是否是 TOTP Authenticator 加密備份格式
+     * @param {string} content - 檔案內容
      * @returns {boolean} 是否是 TOTP Authenticator 格式
      */
     function isTOTPAuthenticatorBackup(content) {
-      // TOTP Authenticator 加密备份是纯 Base64 编码
-      // 检测：只包含 Base64 字符，没有其他结构
+      // TOTP Authenticator 加密備份是純 Base64 編碼
+      // 檢測：只包含 Base64 字元，沒有其他結構
       const trimmed = content.trim();
-      // Base64 字符集: A-Z, a-z, 0-9, +, /, =
+      // Base64 字元集: A-Z, a-z, 0-9, +, /, =
       const base64Regex = /^[A-Za-z0-9+/=]+$/;
-      // 不是 JSON, 不是 XML, 不是 HTML, 只是纯 Base64
+      // 不是 JSON, 不是 XML, 不是 HTML, 只是純 Base64
       if (base64Regex.test(trimmed) &&
           !trimmed.startsWith('{') &&
           !trimmed.startsWith('[') &&
           !trimmed.startsWith('<') &&
           trimmed.length > 100) {
-        // 尝试 Base64 解码检查长度是否合理（AES 块大小的倍数）
+        // 嘗試 Base64 解碼檢查長度是否合理（AES 塊大小的倍數）
         try {
           const decoded = atob(trimmed);
           return decoded.length > 0 && decoded.length % 16 === 0;
@@ -43,21 +43,21 @@ export function getTOTPAuthDecryptCode() {
     }
 
     /**
-     * 解密 TOTP Authenticator 加密备份
-     * 加密方式: AES-256-CBC, 密钥 = SHA256(password), IV = 16 字节 0x00
-     * @param {string} content - Base64 编码的加密内容
-     * @param {string} password - 解密密码
-     * @returns {Array<string>} otpauth:// URL 数组
+     * 解密 TOTP Authenticator 加密備份
+     * 加密方式: AES-256-CBC, 金鑰 = SHA256(password), IV = 16 位元組 0x00
+     * @param {string} content - Base64 編碼的加密內容
+     * @param {string} password - 解密密碼
+     * @returns {Array<string>} otpauth:// URL 陣列
      */
     async function decryptTOTPAuthenticatorBackup(content, password) {
       const trimmed = content.trim();
 
-      // 生成密钥: SHA256(password)
+      // 生成金鑰: SHA256(password)
       const encoder = new TextEncoder();
       const passwordData = encoder.encode(password);
       const keyHash = await crypto.subtle.digest('SHA-256', passwordData);
 
-      // 导入 AES 密钥
+      // 匯入 AES 金鑰
       const cryptoKey = await crypto.subtle.importKey(
         'raw',
         keyHash,
@@ -66,10 +66,10 @@ export function getTOTPAuthDecryptCode() {
         ['decrypt']
       );
 
-      // IV = 16 字节 0x00
+      // IV = 16 位元組 0x00
       const iv = new Uint8Array(16);
 
-      // Base64 解码
+      // Base64 解碼
       const encryptedData = Uint8Array.from(atob(trimmed), c => c.charCodeAt(0));
 
       // AES-CBC 解密
@@ -86,7 +86,7 @@ export function getTOTPAuthDecryptCode() {
       // 格式: {"[json array string]": "timestamp"}
       const jsonData = JSON.parse(decryptedText);
 
-      // 获取第一个 key（它是一个嵌套的 JSON 数组字符串）
+      // 獲取第一個 key（它是一個巢狀的 JSON 陣列字串）
       const keys = Object.keys(jsonData);
       if (keys.length === 0) {
         throw new Error('Decrypted data is empty');
@@ -147,7 +147,7 @@ export function getTOTPAuthDecryptCode() {
     }
 
     /**
-     * 解密并预览 TOTP Authenticator 备份
+     * 解密並預覽 TOTP Authenticator 備份
      */
     async function decryptAndPreviewTOTPAuth() {
       const passwordInput = document.getElementById('totpAuthPassword');
@@ -190,20 +190,20 @@ export function getTOTPAuthDecryptCode() {
 }
 
 /**
- * 获取 FreeOTP 解密代码
- * @returns {string} JavaScript 代码
+ * 獲取 FreeOTP 解密程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getFreeOTPDecryptCode() {
 	return String.raw`
     // ========== FreeOTP 解密 ==========
 
-    // FreeOTP 备份数据（临时存储）
+    // FreeOTP 備份資料（臨時儲存）
     let freeotpBackupData = null;
 
     /**
-     * 解析 FreeOTP 加密备份格式（Java 序列化的 HashMap）
-     * @param {string} content - 文件内容
-     * @returns {Object|null} 解析结果，包含 tokens、tokenMeta 和 masterKey
+     * 解析 FreeOTP 加密備份格式（Java 序列化的 HashMap）
+     * @param {string} content - 檔案內容
+     * @returns {Object|null} 解析結果，包含 tokens、tokenMeta 和 masterKey
      */
     function parseFreeOTPBackup(content) {
       if (!content.includes('java.util.HashMap') && !content.includes('masterKey')) {
@@ -225,7 +225,7 @@ export function getFreeOTPDecryptCode() {
             const meta = JSON.parse(match[2]);
             result.tokenMeta[uuid] = meta;
           } catch (error) {
-            // 解析失败时静默跳过该条目
+            // 解析失敗時靜默跳過該條目
           }
         }
 
@@ -284,7 +284,7 @@ export function getFreeOTPDecryptCode() {
               result.tokens[uuid] = JSON.parse(keyData.key);
             }
           } catch (error) {
-            // 解析失败时静默跳过该条目
+            // 解析失敗時靜默跳過該條目
           }
         }
 
@@ -313,7 +313,7 @@ export function getFreeOTPDecryptCode() {
               const masterKeyJson = content.substring(jsonStart, jsonEnd);
               result.masterKey = JSON.parse(masterKeyJson);
             } catch (error) {
-              // masterKey 解析失败时静默跳过
+              // masterKey 解析失敗時靜默跳過
             }
           }
         }
@@ -322,16 +322,16 @@ export function getFreeOTPDecryptCode() {
           return result;
         }
       } catch (error) {
-        // 解析失败时返回 null
+        // 解析失敗時返回 null
       }
 
       return null;
     }
 
     /**
-     * 将 Java 有符号字节数组转换为 Uint8Array
-     * @param {Array<number>|Uint8Array} bytes - 原始字节数组
-     * @returns {Uint8Array} 归一化后的字节数组
+     * 將 Java 有符號位元組陣列轉換為 Uint8Array
+     * @param {Array<number>|Uint8Array} bytes - 原始位元組陣列
+     * @returns {Uint8Array} 歸一化後的位元組陣列
      */
     function normalizeFreeOTPByteArray(bytes) {
       if (bytes instanceof Uint8Array) {
@@ -346,9 +346,9 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 构建 FreeOTP PBKDF2 hash 候选列表
-     * @param {string} algorithm - FreeOTP 备份中的 mAlgorithm
-     * @returns {Array<string>} Web Crypto 支持的 hash 名称候选
+     * 構建 FreeOTP PBKDF2 hash 候選列表
+     * @param {string} algorithm - FreeOTP 備份中的 mAlgorithm
+     * @returns {Array<string>} Web Crypto 支援的 hash 名稱候選
      */
     function buildFreeOTPPbkdf2HashCandidates(algorithm) {
       const candidates = [];
@@ -389,9 +389,9 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 解析 FreeOTP 的 GCM 参数
-     * @param {Array<number>|Uint8Array} parameters - ASN.1 编码的 GCM 参数
-     * @returns {{iv: Uint8Array, tagLengthCandidates: Array<number>}} 解析结果
+     * 解析 FreeOTP 的 GCM 引數
+     * @param {Array<number>|Uint8Array} parameters - ASN.1 編碼的 GCM 引數
+     * @returns {{iv: Uint8Array, tagLengthCandidates: Array<number>}} 解析結果
      */
     function parseFreeOTPGcmParameters(parameters) {
       const bytes = normalizeFreeOTPByteArray(parameters);
@@ -471,9 +471,9 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 归一化 AAD 候选列表
-     * @param {Array<Uint8Array|string|null|undefined>} aadCandidates - 候选列表
-     * @returns {Array<Uint8Array|null>} 去重后的候选列表
+     * 歸一化 AAD 候選列表
+     * @param {Array<Uint8Array|string|null|undefined>} aadCandidates - 候選列表
+     * @returns {Array<Uint8Array|null>} 去重後的候選列表
      */
     function normalizeFreeOTPAadCandidates(aadCandidates) {
       const normalizedCandidates = [];
@@ -513,12 +513,12 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 使用多组 AAD 与 tag length 回退解密 FreeOTP GCM 数据
-     * @param {CryptoKey} key - AES-GCM 密钥
+     * 使用多組 AAD 與 tag length 回退解密 FreeOTP GCM 資料
+     * @param {CryptoKey} key - AES-GCM 金鑰
      * @param {Array<number>|Uint8Array} cipherText - 密文
-     * @param {Array<number>|Uint8Array} parameters - ASN.1 GCM 参数
-     * @param {Array<Uint8Array|string|null|undefined>} aadCandidates - AAD 候选列表
-     * @returns {Promise<ArrayBuffer>} 解密后的 ArrayBuffer
+     * @param {Array<number>|Uint8Array} parameters - ASN.1 GCM 引數
+     * @param {Array<Uint8Array|string|null|undefined>} aadCandidates - AAD 候選列表
+     * @returns {Promise<ArrayBuffer>} 解密後的 ArrayBuffer
      */
     async function decryptFreeOTPGcmWithFallback(key, cipherText, parameters, aadCandidates) {
       const normalizedCipherText = normalizeFreeOTPByteArray(cipherText);
@@ -558,10 +558,10 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 解密 FreeOTP 备份中的密钥
-     * @param {Object} backupData - parseFreeOTPBackup 返回的数据
-     * @param {string} password - 用户密码
-     * @returns {Promise<Array<string>>} otpauth:// URL 数组
+     * 解密 FreeOTP 備份中的金鑰
+     * @param {Object} backupData - parseFreeOTPBackup 返回的資料
+     * @param {string} password - 使用者密碼
+     * @returns {Promise<Array<string>>} otpauth:// URL 陣列
      */
     async function decryptFreeOTPBackup(backupData, password) {
       if (!backupData || !backupData.masterKey) {
@@ -689,7 +689,7 @@ export function getFreeOTPDecryptCode() {
     }
 
     /**
-     * 解密并预览 FreeOTP 备份
+     * 解密並預覽 FreeOTP 備份
      */
     async function decryptAndPreviewFreeOTP() {
       const passwordInput = document.getElementById('freeotpPassword');

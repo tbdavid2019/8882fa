@@ -1,20 +1,20 @@
 /**
- * 智能备份系统
- * 实现事件驱动的即时备份策略
+ * 智慧備份系統
+ * 實現事件驅動的即時備份策略
  *
  * 策略：
- * 1. 数据变化时立即备份并推送 WebDAV（事件驱动，每次变更都备份）
- * 2. 保留定时备份作为兜底（每日检查一次）
- * 3. 自动清理旧备份（保留数量由用户设置的 maxBackups 控制，默认100个）
+ * 1. 資料變化時立即備份並推送 WebDAV（事件驅動，每次變更都備份）
+ * 2. 保留定時備份作為兜底（每日檢查一次）
+ * 3. 自動清理舊備份（保留數量由使用者設定的 maxBackups 控制，預設100個）
  *
- * 配置选项（BACKUP_CONFIG）：
- * - MAX_BACKUPS: 默认最大保留备份数（100），用户可在设置中自定义（0表示不限制）
- * - AUTO_CLEANUP_ENABLED: 是否启用自动清理（默认true）
+ * 配置選項（BACKUP_CONFIG）：
+ * - MAX_BACKUPS: 預設最大保留備份數（100），使用者可在設定中自定義（0表示不限制）
+ * - AUTO_CLEANUP_ENABLED: 是否啟用自動清理（預設true）
  *
- * 清理机制：
- * - 每次备份完成后自动触发清理检查
- * - 如果备份数量 > MAX_BACKUPS，保留最新的 MAX_BACKUPS 个，删除其余的
- * - 备份按时间戳排序，最早的备份优先被删除
+ * 清理機制：
+ * - 每次備份完成後自動觸發清理檢查
+ * - 如果備份數量 > MAX_BACKUPS，保留最新的 MAX_BACKUPS 個，刪除其餘的
+ * - 備份按時間戳排序，最早的備份優先被刪除
  */
 
 import { getLogger } from './logger.js';
@@ -29,20 +29,20 @@ import { clearPendingDataHash, saveDataHash } from './data-hash.js';
 import { DEFAULT_EXPORT_FORMAT, getDefaultExportFormat } from './settings.js';
 
 /**
- * 备份配置
+ * 備份配置
  */
 const BACKUP_CONFIG = {
-	// 默认最大保留备份数，用户可在设置中自定义（KV key: settings.maxBackups）
-	// 设置为 0 表示不限制（禁用自动清理）
+	// 預設最大保留備份數，使用者可在設定中自定義（KV key: settings.maxBackups）
+	// 設定為 0 表示不限制（停用自動清理）
 	MAX_BACKUPS: 100,
 
-	// 是否启用自动清理旧备份
+	// 是否啟用自動清理舊備份
 	AUTO_CLEANUP_ENABLED: true,
 
-	// 是否启用事件驱动备份
+	// 是否啟用事件驅動備份
 	EVENT_DRIVEN_ENABLED: true,
 
-	// 是否启用定时备份
+	// 是否啟用定時備份
 	SCHEDULED_BACKUP_ENABLED: true,
 };
 
@@ -59,9 +59,9 @@ export async function resolveConfiguredBackupFormat(env, logger) {
 }
 
 /**
- * 校验 maxBackups 值，非法值回退默认 100
- * @param {*} value - 待校验值
- * @returns {number} 合法的整数值（0~1000）
+ * 校驗 maxBackups 值，非法值回退預設 100
+ * @param {*} value - 待校驗值
+ * @returns {number} 合法的整數值（0~1000）
  */
 function sanitizeMaxBackups(value) {
 	if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 1000) {
@@ -71,7 +71,7 @@ function sanitizeMaxBackups(value) {
 }
 
 /**
- * 备份管理器
+ * 備份管理器
  */
 class BackupManager {
 	constructor(env) {
@@ -79,14 +79,14 @@ class BackupManager {
 		this.logger = getLogger(env);
 		this.backupInProgress = false;
 		this.pendingBackups = [];
-		this.pendingSecrets = null; // 并发期间暂存最新的密钥快照
+		this.pendingSecrets = null; // 併發期間暫存最新的金鑰快照
 		this.pendingReason = null;
 		this.pendingCtx = null;
 		this.pendingCompletion = null;
 	}
 
 	/**
-	 * 触发备份（事件驱动，每次数据变更立即执行）
+	 * 觸發備份（事件驅動，每次資料變更立即執行）
 	 */
 	async triggerBackup(secrets, options = {}) {
 		const { immediate = false, reason = 'event-driven', ctx, waitForCompletion = false } = options;
@@ -97,13 +97,13 @@ class BackupManager {
 			secretCount: secrets?.length || 0,
 		});
 
-		// 如果未启用事件驱动备份，跳过
+		// 如果未啟用事件驅動備份，跳過
 		if (!BACKUP_CONFIG.EVENT_DRIVEN_ENABLED && !immediate) {
 			this.logger.warn('⏭️ 事件驱动备份未启用', { reason });
 			return null;
 		}
 
-		// 检查是否正在备份：暂存最新快照，待当前备份完成后自动执行
+		// 檢查是否正在備份：暫存最新快照，待當前備份完成後自動執行
 		if (this.backupInProgress) {
 			this.logger.debug('⏳ 备份已在进行中，已暂存最新数据等待执行');
 			return this._queuePendingBackup(secrets, {
@@ -114,12 +114,12 @@ class BackupManager {
 			});
 		}
 
-		// 立即执行备份
+		// 立即執行備份
 		return this.executeBackup(secrets, reason, ctx);
 	}
 
 	/**
-	 * 执行备份
+	 * 執行備份
 	 */
 	async executeBackup(secrets, reason = 'manual', ctx) {
 		if (!secrets || secrets.length === 0) {
@@ -157,10 +157,10 @@ class BackupManager {
 				});
 			}
 
-			// 存储备份
+			// 儲存備份
 			await putBackupRecord(this.env, backupKey, backupContent, metadata);
 
-			// WebDAV 自动推送（通过 ctx.waitUntil 托管，确保 Worker 响应后推送仍能完成）
+			// WebDAV 自動推送（通過 ctx.waitUntil 託管，確保 Worker 響應後推送仍能完成）
 			const webdavPromise = pushToAllWebDAV(backupKey, backupContent, this.env).catch((err) => {
 				this.logger.warn('WebDAV 推送异常（不影响备份）', {}, err);
 			});
@@ -168,7 +168,7 @@ class BackupManager {
 				ctx.waitUntil(webdavPromise);
 			}
 
-			// S3 自动推送
+			// S3 自動推送
 			const s3Promise = pushToAllS3(backupKey, backupContent, this.env).catch((err) => {
 				this.logger.warn('S3 推送异常（不影响备份）', {}, err);
 			});
@@ -207,7 +207,7 @@ class BackupManager {
 				duration,
 			});
 
-			// 记录性能指标
+			// 記錄效能指標
 			try {
 				const monitoring = getMonitoring(this.env);
 				if (monitoring && monitoring.getPerformanceMonitor) {
@@ -218,11 +218,11 @@ class BackupManager {
 					});
 				}
 			} catch (metricsError) {
-				// 性能指标记录失败不影响备份
+				// 效能指標記錄失敗不影響備份
 				this.logger.debug('性能指标记录失败', {}, metricsError);
 			}
 
-			// 异步清理旧备份（不阻塞）
+			// 非同步清理舊備份（不阻塞）
 			this._cleanupOldBackupsAsync().catch((err) => {
 				this.logger.warn('清理旧备份失败（不影响主流程）', {}, err);
 			});
@@ -239,14 +239,14 @@ class BackupManager {
 		} catch (error) {
 			this.logger.error('❌ 备份失败', { reason }, error);
 
-			// 尝试捕获错误到监控系统
+			// 嘗試捕獲錯誤到監控系統
 			try {
 				const monitoring = getMonitoring(this.env);
 				if (monitoring && monitoring.getErrorMonitor) {
 					monitoring.getErrorMonitor().captureError(error, { operation: 'backup', reason });
 				}
 			} catch (monitoringError) {
-				// 监控系统错误不影响主流程
+				// 監控系統錯誤不影響主流程
 				this.logger.debug('监控系统捕获错误失败', {}, monitoringError);
 			}
 
@@ -395,7 +395,7 @@ class BackupManager {
 	}
 
 	/**
-	 * 从 KV 读取用户配置的 maxBackups，回退到 BACKUP_CONFIG.MAX_BACKUPS
+	 * 從 KV 讀取使用者配置的 maxBackups，回退到 BACKUP_CONFIG.MAX_BACKUPS
 	 * @private
 	 */
 	async _getMaxBackups() {
@@ -408,17 +408,17 @@ class BackupManager {
 				}
 			}
 		} catch {
-			// 读取失败时使用默认值
+			// 讀取失敗時使用預設值
 		}
 		return BACKUP_CONFIG.MAX_BACKUPS;
 	}
 
 	/**
-	 * 异步清理旧备份
+	 * 非同步清理舊備份
 	 * @private
 	 */
 	async _cleanupOldBackupsAsync() {
-		// 检查是否启用自动清理
+		// 檢查是否啟用自動清理
 		if (!BACKUP_CONFIG.AUTO_CLEANUP_ENABLED) {
 			this.logger.debug('⏭️ 自动清理已禁用，跳过');
 			return;
@@ -426,7 +426,7 @@ class BackupManager {
 
 		const maxBackups = await this._getMaxBackups();
 
-		// 检查是否设置了备份限制（0表示不限制）
+		// 檢查是否設定了備份限制（0表示不限制）
 		if (maxBackups === 0) {
 			this.logger.debug('⏭️ 备份数量不限制（maxBackups=0），跳过清理');
 			return;
@@ -445,10 +445,10 @@ class BackupManager {
 				return;
 			}
 
-			// 按文件名排序（最新的在前）
+			// 按檔名排序（最新的在前）
 			backupKeys.sort((a, b) => b.name.localeCompare(a.name));
 
-			// 保留最新的备份，删除其余的
+			// 保留最新的備份，刪除其餘的
 			const keysToDelete = backupKeys.slice(maxBackups);
 
 			this.logger.info('🧹 开始清理旧备份', {
@@ -457,7 +457,7 @@ class BackupManager {
 				toKeep: maxBackups,
 			});
 
-			// 批量删除（避免阻塞太久）
+			// 批次刪除（避免阻塞太久）
 			const deletePromises = keysToDelete.map((key) =>
 				deleteBackupRecord(this.env, key.name, key.metadata)
 					.then((result) => {
@@ -478,18 +478,18 @@ class BackupManager {
 			});
 		} catch (error) {
 			this.logger.error('清理旧备份失败', {}, error);
-			// 不抛出错误，避免影响主流程
+			// 不丟擲錯誤，避免影響主流程
 		}
 	}
 }
 
 /**
- * 全局备份管理器实例
+ * 全域性備份管理器例項
  */
 let backupManager = null;
 
 /**
- * 获取备份管理器实例
+ * 獲取備份管理器例項
  */
 export function getBackupManager(env) {
 	if (!backupManager || backupManager.env !== env) {
@@ -499,7 +499,7 @@ export function getBackupManager(env) {
 }
 
 /**
- * 快捷方法：触发备份
+ * 快捷方法：觸發備份
  */
 export async function triggerBackup(secrets, env, options = {}) {
 	const manager = getBackupManager(env);
@@ -507,7 +507,7 @@ export async function triggerBackup(secrets, env, options = {}) {
 }
 
 /**
- * 快捷方法：立即执行备份
+ * 快捷方法：立即執行備份
  */
 export async function executeImmediateBackup(secrets, env, reason = 'manual') {
 	const manager = getBackupManager(env);
@@ -515,25 +515,25 @@ export async function executeImmediateBackup(secrets, env, reason = 'manual') {
 }
 
 /**
- * 导出配置和类
+ * 匯出配置和類
  */
 export { BACKUP_CONFIG, BackupManager, sanitizeMaxBackups };
 
 /**
  * 使用示例：
  *
- * // 在 API 中触发事件驱动备份
+ * // 在 API 中觸發事件驅動備份
  * import { triggerBackup } from './utils/backup.js';
  *
- * // 添加密钥后
+ * // 新增金鑰後
  * await triggerBackup(secrets, env, { reason: 'secret-added' });
  *
- * // 更新密钥后
+ * // 更新金鑰後
  * await triggerBackup(secrets, env, { reason: 'secret-updated' });
  *
- * // 删除密钥后
+ * // 刪除金鑰後
  * await triggerBackup(secrets, env, { reason: 'secret-deleted' });
  *
- * // 立即备份（忽略防抖）
+ * // 立即備份（忽略防抖）
  * await triggerBackup(secrets, env, { immediate: true, reason: 'manual' });
  */

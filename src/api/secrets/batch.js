@@ -1,8 +1,8 @@
 /**
- * 批量导入处理器 - 批量添加密钥
+ * 批次匯入處理器 - 批次新增金鑰
  *
  * 包含功能:
- * - handleBatchAddSecrets: 批量导入密钥（带 Rate Limiting）
+ * - handleBatchAddSecrets: 批次匯入金鑰（帶 Rate Limiting）
  */
 
 import { saveSecretsToKV, getAllSecrets } from './shared.js';
@@ -14,26 +14,26 @@ import { ValidationError, StorageError, CryptoError, ConfigurationError, errorTo
 import { LIMITS } from '../../utils/constants.js';
 
 /**
- * 批量添加密钥 (带 Rate Limiting)
+ * 批次新增金鑰 (帶 Rate Limiting)
  *
- * 处理流程:
- * 1. Rate limiting 检查（防止批量操作滥用）
- * 2. 验证输入数据格式
- * 3. 逐个验证和创建密钥对象
- * 4. 检查重复
- * 5. 一次性保存所有成功的密钥
- * 6. 返回详细的成功/失败统计
+ * 處理流程:
+ * 1. Rate limiting 檢查（防止批次操作濫用）
+ * 2. 驗證輸入資料格式
+ * 3. 逐個驗證和建立金鑰物件
+ * 4. 檢查重複
+ * 5. 一次性儲存所有成功的金鑰
+ * 6. 返回詳細的成功/失敗統計
  *
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - Cloudflare Workers 环境对象
- * @param {Object} [ctx] - Cloudflare Workers 执行上下文
- * @returns {Response} 批量导入结果响应
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - Cloudflare Workers 環境物件
+ * @param {Object} [ctx] - Cloudflare Workers 執行上下文
+ * @returns {Response} 批次匯入結果響應
  */
 export async function handleBatchAddSecrets(request, env, ctx) {
 	const logger = getLogger(env);
 
 	try {
-		// 🛡️ Rate Limiting: 防止批量操作滥用
+		// 🛡️ Rate Limiting: 防止批次操作濫用
 		const clientIP = getClientIdentifier(request, 'ip');
 		const rateLimitInfo = await checkRateLimit(clientIP, env, RATE_LIMIT_PRESETS.bulk);
 
@@ -46,16 +46,16 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 			return createRateLimitResponse(rateLimitInfo);
 		}
 
-		// 🔍 使用验证中间件解析和验证请求（仅验证顶层结构）
+		// 🔍 使用驗證中介軟體解析和驗證請求（僅驗證頂層結構）
 		const data = await validateRequest(batchImportSchema)(request);
 		if (data instanceof Response) {
 			return data;
-		} // 验证失败
+		} // 驗證失敗
 
 		const { secrets, immediateBackup, chunkIndex, chunkCount } = data;
-		// 只有"满片 + 非末片 + 存在后续片"才被承认为中间片，用来跳过即时备份。
-		// 满片尺寸来自 LIMITS.BULK_IMPORT_CHUNK_SIZE，前端分片和本校验都以它为准，
-		// 防止客户端通过小尺寸 + 伪造 chunkCount 绕过事件驱动备份。
+		// 只有"滿片 + 非末片 + 存在後續片"才被承認為中間片，用來跳過即時備份。
+		// 滿片尺寸來自 LIMITS.BULK_IMPORT_CHUNK_SIZE，前端分片和本校驗都以它為準，
+		// 防止客戶端通過小尺寸 + 偽造 chunkCount 繞過事件驅動備份。
 		const isIntermediateChunk =
 			Number.isInteger(chunkIndex) &&
 			Number.isInteger(chunkCount) &&
@@ -64,19 +64,19 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 			chunkIndex < chunkCount &&
 			secrets.length === LIMITS.BULK_IMPORT_CHUNK_SIZE;
 
-		// 获取包含HOTP sidecar有效计数器的现有密钥列表
+		// 獲取包含HOTP sidecar有效計數器的現有金鑰列表
 		const existingSecrets = await getAllSecrets(env);
 
 		const results = [];
 		let successCount = 0;
 		let failCount = 0;
 
-		// 批量处理所有密钥（逐个验证）
+		// 批次處理所有金鑰（逐個驗證）
 		for (let i = 0; i < secrets.length; i++) {
 			const secretData = secrets[i];
 
 			try {
-				// 验证单个密钥数据
+				// 驗證單個金鑰資料
 				const validation = addSecretSchema.validate(secretData);
 				if (!validation.valid) {
 					results.push({
@@ -90,7 +90,7 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 
 				const validated = validation.data;
 
-				// 检查是否已存在完全相同的密钥（服务名+账户+密钥都相同）
+				// 檢查是否已存在完全相同的金鑰（服務名+賬戶+金鑰都相同）
 				if (checkDuplicateSecret(existingSecrets, validated.name, validated.account, validated.secret)) {
 					results.push({
 						index: i,
@@ -101,7 +101,7 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 					continue;
 				}
 
-				// 创建新密钥对象（数据已经通过验证和规范化）
+				// 建立新金鑰物件（資料已經通過驗證和規範化）
 				const newSecret = {
 					id: crypto.randomUUID(),
 					name: validated.name,
@@ -114,7 +114,7 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 					counter: validated.type === 'HOTP' ? validated.counter : undefined,
 				};
 
-				// 添加到现有列表
+				// 新增到現有列表
 				existingSecrets.push(newSecret);
 				results.push({
 					index: i,
@@ -132,11 +132,11 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 			}
 		}
 
-		// 一次性保存所有密钥到KV存储（自动排序）
-		// 🔄 事件驱动备份策略：
-		//   - 中间片 (isIntermediateChunk)：skipBackup 生效，event 备份被跳过，靠末片或 cron 兜底
-		//   - 非中间片：始终同步备份（immediate: true），保持历史契约——批量导入返回前备份已落盘
-		//     immediateBackup 客户端标志目前仅用于驱动前端分片的最后一片判定，服务端不单独使用
+		// 一次性儲存所有金鑰到KV儲存（自動排序）
+		// 🔄 事件驅動備份策略：
+		//   - 中間片 (isIntermediateChunk)：skipBackup 生效，event 備份被跳過，靠末片或 cron 兜底
+		//   - 非中間片：始終同步備份（immediate: true），保持歷史契約——批次匯入返回前備份已落盤
+		//     immediateBackup 客戶端標誌目前僅用於驅動前端分片的最後一片判定，服務端不單獨使用
 		await saveSecretsToKV(env, existingSecrets, 'batch-import', { immediate: !isIntermediateChunk, skipBackup: isIntermediateChunk }, ctx);
 
 		logger.info('✅ 批量导入完成', {
@@ -162,7 +162,7 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 			request,
 		);
 	} catch (error) {
-		// 如果是已知的错误类型，记录并转换
+		// 如果是已知的錯誤型別，記錄並轉換
 		if (
 			error instanceof ValidationError ||
 			error instanceof StorageError ||
@@ -173,7 +173,7 @@ export async function handleBatchAddSecrets(request, env, ctx) {
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error(
 			'批量导入失败',
 			{

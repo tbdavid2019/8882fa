@@ -1,16 +1,16 @@
 import { LIMITS } from '../../utils/constants.js';
 
 /**
- * 备份模块
- * 包含所有备份/恢复功能，用于管理密钥备份
+ * 備份模組
+ * 包含所有備份/恢復功能，用於管理金鑰備份
  */
 
 /**
- * 获取备份相关代码
- * @returns {string} 备份 JavaScript 代码
+ * 獲取備份相關程式碼
+ * @returns {string} 備份 JavaScript 程式碼
  */
 export function getBackupCode() {
-	return `    // ========== 备份恢复功能模块 ==========
+	return `    // ========== 備份恢復功能模組 ==========
 
     function getSavedDefaultBackupExportFormat() {
       return getCachedDefaultExportFormat();
@@ -41,7 +41,7 @@ export function getBackupCode() {
       defaultBtn.disabled = false;
     }
 
-    // 还原配置相关函数
+    // 還原配置相關函式
     async function syncBackupDefaultExportButton() {
       updateBackupDefaultExportButton();
       const format = await getServerDefaultExportFormat({ forceRefresh: true });
@@ -277,7 +277,7 @@ export function getBackupCode() {
       backupSelectElement.innerHTML = '<option value="">' + ((typeof t === 'function' ? t('restoreSelectPlaceholder') : null) || 'Please select a backup file...') + '</option>';
 
       backups.forEach((backup, index) => {
-        // 格式化日期为简洁格式，适配移动设备
+        // 格式化日期為簡潔格式，適配移動裝置
         const date = new Date(backup.created);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -293,7 +293,7 @@ export function getBackupCode() {
         option.value = index;
         option.textContent = optionText;
         option.dataset.backupKey = backup.key;
-        // 保存完整时间信息在 title 属性中，用于悬停提示
+        // 儲存完整時間資訊在 title 屬性中，用於懸停提示
         option.title = new Date(backup.created).toLocaleString() + ' | ' + formatLabel;
         option.selected = selectedBackupKey === backup.key;
 
@@ -408,7 +408,7 @@ export function getBackupCode() {
         exportBackupBtn.title = (typeof t === 'function' ? t('backupLoadingPreview') : null) || 'Loading backup preview...';
       }
 
-      // 显示备份预览
+      // 顯示備份預覽
       await showBackupPreview(backup, requestToken);
     }
 
@@ -598,7 +598,7 @@ export function getBackupCode() {
         const result = await response.json();
         showCenterToast('✅', (typeof t === 'function' ? t('backupRestoreSuccess', { count: result.count }) : null) || ('Restore successful! Restored ' + result.count + ' keys'));
 
-        // 关闭模态框并刷新页面
+        // 關閉模態框並重新整理頁面
         hideRestoreModal();
         setTimeout(() => {
           location.reload();
@@ -613,7 +613,7 @@ export function getBackupCode() {
       }
     }
 
-    // 显示备份导出格式选择模态框
+    // 顯示備份匯出格式選擇模態框
     function exportSelectedBackup() {
       if (!selectedBackup) {
         showCenterToast('❌', (typeof t === 'function' ? t('backupSelectRequired') : null) || 'Please select a backup file first');
@@ -624,7 +624,7 @@ export function getBackupCode() {
         return;
       }
 
-      // 显示格式选择模态框
+      // 顯示格式選擇模態框
       showBackupExportFormatModal();
     }
 
@@ -643,7 +643,7 @@ export function getBackupCode() {
       await selectBackupExportFormat(format);
     }
 
-    // 选择备份导出格式并执行导出
+    // 選擇備份匯出格式並執行匯出
     async function selectBackupExportFormat(format) {
       backupExportFormat = format;
       hideBackupExportFormatModal();

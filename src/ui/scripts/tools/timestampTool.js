@@ -1,14 +1,14 @@
 /**
- * 时间戳工具模块
+ * 時間戳工具模組
  */
 
 /**
- * 获取时间戳工具代码
- * @returns {string} 时间戳工具 JavaScript 代码
+ * 獲取時間戳工具程式碼
+ * @returns {string} 時間戳工具 JavaScript 程式碼
  */
 export function getTimestampToolCode() {
 	return `
-    // ==================== 时间戳工具 ====================
+    // ==================== 時間戳工具 ====================
 
     let currentPeriod = 30;
     let timestampFrame = null;
@@ -46,7 +46,7 @@ export function getTimestampToolCode() {
     function showTimestampModal() {
       showModal('timestampModal', () => {
         timestampActive = true;
-        // 设置默认周期
+        // 設定預設週期
         setPeriod(30);
         startTimestampAnimation();
       });
@@ -61,7 +61,7 @@ export function getTimestampToolCode() {
     function setPeriod(period) {
       currentPeriod = period;
 
-      // 更新按钮状态 - 使用CSS类而不是内联样式
+      // 更新按鈕狀態 - 使用CSS類而不是內聯樣式
       const buttons = ['period30Btn', 'period60Btn', 'period120Btn'];
       const periods = [30, 60, 120];
 

@@ -1,25 +1,25 @@
 /**
- * Service Worker 生成模块
- * 提供离线支持和缓存管理
+ * Service Worker 生成模組
+ * 提供離線支援和快取管理
  */
 
 import { createOfflinePage } from './offlinePage.js';
 
 /**
- * 生成 Service Worker 脚本
- * @returns {Response} Service Worker JavaScript 响应
+ * 生成 Service Worker 指令碼
+ * @returns {Response} Service Worker JavaScript 響應
  */
 export function createServiceWorker(env = {}) {
 	const embeddedBuildVersion = typeof globalThis.__BUILD_SW_VERSION__ === 'string' ? globalThis.__BUILD_SW_VERSION__ : '';
-	// 🚀 自动版本管理：从环境变量读取版本号
-	// 支持多种版本策略：
-	// 1. env.SW_VERSION - 构建时注入的版本号（推荐）
-	// 2. env.BUILD_TIMESTAMP - 构建时间戳
-	// 3. __BUILD_SW_VERSION__ - 单文件 release 构建时内嵌的版本号
-	// 4. 'v1' - 默认版本（后备）
+	// 🚀 自動版本管理：從環境變數讀取版本號
+	// 支援多種版本策略：
+	// 1. env.SW_VERSION - 構建時注入的版本號（推薦）
+	// 2. env.BUILD_TIMESTAMP - 構建時間戳
+	// 3. __BUILD_SW_VERSION__ - 單檔案 release 構建時內嵌的版本號
+	// 4. 'v1' - 預設版本（後備）
 	const version = env.SW_VERSION || env.BUILD_TIMESTAMP || embeddedBuildVersion || 'v1';
 
-	// 生成缓存名称
+	// 生成快取名稱
 	const CACHE_NAME = `2fa-cache-${version}`;
 	const RUNTIME_CACHE = `2fa-runtime-${version}`;
 
@@ -45,11 +45,11 @@ const STORE_NAME = 'pending-operations';
 const OFFLINE_PAGE = ${JSON.stringify(createOfflinePage())};
 let syncPendingOperationsPromise = null;
 
-// 版本信息（用于调试）
+// 版本資訊（用於除錯）
 console.log('[SW] Service Worker 版本:', SW_VERSION);
 console.log('[SW] 缓存名称:', CACHE_NAME);
 
-// 需要缓存的静态资源
+// 需要快取的靜態資源
 const STATIC_RESOURCES = [
   '/',
   '/manifest.json',
@@ -58,10 +58,10 @@ const STATIC_RESOURCES = [
   '/fonts/maple-mono-regular.woff2',
   '/fonts/maple-mono-bold.woff2',
   '/fonts/maple-mono-cjk.css'
-  // 注意：API 请求不缓存，因为需要实时数据
+  // 注意：API 請求不快取，因為需要即時資料
 ];
 
-// 外部 CDN 资源（Service Worker 会自动缓存）
+// 外部 CDN 資源（Service Worker 會自動快取）
 const CDN_RESOURCES = [
   'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'
@@ -70,7 +70,7 @@ const CDN_RESOURCES = [
 // ==================== IndexedDB 操作 ====================
 
 /**
- * 打开 IndexedDB 数据库
+ * 開啟 IndexedDB 資料庫
  * @returns {Promise<IDBDatabase>}
  */
 function openDatabase() {
@@ -91,7 +91,7 @@ function openDatabase() {
       console.log('[SW] IndexedDB 升级中...');
       const db = event.target.result;
 
-      // 创建对象存储（如果不存在）
+      // 建立物件儲存（如果不存在）
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
         objectStore.createIndex('timestamp', 'timestamp', { unique: false });
@@ -103,8 +103,8 @@ function openDatabase() {
 }
 
 /**
- * 保存待同步操作到 IndexedDB
- * @param {Object} operation - 操作对象
+ * 儲存待同步操作到 IndexedDB
+ * @param {Object} operation - 操作物件
  * @returns {Promise<string>} 操作ID
  */
 async function saveOperation(operation) {
@@ -134,7 +134,7 @@ async function saveOperation(operation) {
 }
 
 /**
- * 获取所有待同步操作
+ * 獲取所有待同步操作
  * @returns {Promise<Array>}
  */
 async function getPendingOperations() {
@@ -160,7 +160,7 @@ async function getPendingOperations() {
 }
 
 /**
- * 删除已同步操作
+ * 刪除已同步操作
  * @param {string} operationId - 操作ID
  * @returns {Promise<void>}
  */
@@ -184,9 +184,9 @@ async function deleteOperation(operationId) {
 }
 
 /**
- * 更新操作状态
+ * 更新操作狀態
  * @param {string} operationId - 操作ID
- * @param {Object} updates - 更新数据
+ * @param {Object} updates - 更新資料
  * @returns {Promise<void>}
  */
 async function updateOperation(operationId, updates) {
@@ -217,7 +217,7 @@ async function updateOperation(operationId, updates) {
 }
 
 /**
- * 获取待同步操作数量
+ * 獲取待同步運算元量
  * @returns {Promise<number>}
  */
 async function getPendingOperationsCount() {
@@ -231,8 +231,8 @@ async function getPendingOperationsCount() {
 }
 
 /**
- * Service Worker 安装事件
- * 预缓存静态资源
+ * Service Worker 安裝事件
+ * 預快取靜態資源
  */
 self.addEventListener('install', event => {
   console.log('[SW] 正在安装 Service Worker...');
@@ -240,16 +240,16 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[SW] 预缓存静态资源...');
-      // 只缓存静态资源，CDN 资源在首次请求时按需缓存
+      // 只快取靜態資源，CDN 資源在首次請求時按需快取
       return cache.addAll(STATIC_RESOURCES).catch(err => {
         console.warn('[SW] 预缓存静态资源部分失败:', err);
-        // 即使失败也继续，不影响 Service Worker 安装
+        // 即使失敗也繼續，不影響 Service Worker 安裝
         return Promise.resolve();
       });
     }).then(() => {
       console.log('[SW] Service Worker 安装完成');
       console.log('[SW] CDN 资源将在首次请求时自动缓存（使用 CORS 模式）');
-      // 立即激活，不等待
+      // 立即啟用，不等待
       return self.skipWaiting();
     }).catch(err => {
       console.error('[SW] Service Worker 安装失败:', err);
@@ -258,8 +258,8 @@ self.addEventListener('install', event => {
 });
 
 /**
- * Service Worker 激活事件
- * 清理旧缓存
+ * Service Worker 啟用事件
+ * 清理舊快取
  */
 self.addEventListener('activate', event => {
   console.log('[SW] 正在激活 Service Worker...');
@@ -269,7 +269,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames
           .filter(cacheName => {
-            // 删除旧版本缓存
+            // 刪除舊版本快取
             return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
           })
           .map(cacheName => {
@@ -279,7 +279,7 @@ self.addEventListener('activate', event => {
       );
     }).then(() => {
       console.log('[SW] Service Worker 激活完成');
-      // 立即控制所有页面
+      // 立即控制所有頁面
       return self.clients.claim();
     })
   );
@@ -287,13 +287,13 @@ self.addEventListener('activate', event => {
 
 /**
  * Service Worker Fetch 事件
- * 实现缓存策略和离线队列
+ * 實現快取策略和離線佇列
  */
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Favicon 代理请求：缓存优先策略（在 API 请求之前处理）
+  // Favicon 代理請求：快取優先策略（在 API 請求之前處理）
   if (url.pathname.startsWith('/api/favicon/')) {
     event.respondWith(
       caches.match(request).then(cachedResponse => {
@@ -302,10 +302,10 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
 
-        // 缓存未命中，从网络获取
+        // 快取未命中，從網路獲取
         console.log('[SW] Favicon 从网络获取:', url.pathname);
         return fetch(request).then(response => {
-          // 只缓存成功的响应
+          // 只快取成功的響應
           if (response && response.ok) {
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then(cache => {
@@ -316,7 +316,7 @@ self.addEventListener('fetch', event => {
           return response;
         }).catch(err => {
           console.error('[SW] Favicon 加载失败:', url.pathname, err);
-          // 返回空响应，触发 img onerror
+          // 返回空響應，觸發 img onerror
           return new Response('', {
             status: 404,
             statusText: 'Not Found',
@@ -328,17 +328,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // API 请求：网络优先，失败时保存到离线队列
+  // API 請求：網路優先，失敗時儲存到離線佇列
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request).catch(async err => {
         console.error('[SW] API 请求失败:', url.pathname, err);
 
-        // 只有修改数据的请求才保存到离线队列（POST、PUT、DELETE）
+        // 只有修改資料的請求才儲存到離線佇列（POST、PUT、DELETE）
         const method = request.method.toUpperCase();
         if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
           try {
-            // 读取请求体
+            // 讀取請求體
             const requestClone = request.clone();
             let requestBody = null;
 
@@ -349,7 +349,7 @@ self.addEventListener('fetch', event => {
               requestBody = await requestClone.text();
             }
 
-            // 确定操作类型
+            // 確定操作型別
             let operationType = 'UNKNOWN';
             if (method === 'POST' && url.pathname === '/api/secrets') {
               operationType = 'ADD';
@@ -377,7 +377,7 @@ self.addEventListener('fetch', event => {
               );
             }
 
-            // 保存到 IndexedDB
+            // 儲存到 IndexedDB
             const operation = {
               type: operationType,
               url: url.pathname,
@@ -391,7 +391,7 @@ self.addEventListener('fetch', event => {
             const operationId = await saveOperation(operation);
             console.log('[SW] 离线操作已保存，等待同步:', operationId, operationType);
 
-            // 注册 Background Sync
+            // 註冊 Background Sync
             try {
               await self.registration.sync.register('sync-operations');
               console.log('[SW] Background Sync 已注册');
@@ -399,7 +399,7 @@ self.addEventListener('fetch', event => {
               console.warn('[SW] Background Sync 注册失败:', syncError);
             }
 
-            // 通知前端操作已排队
+            // 通知前端操作已排隊
             return new Response(
               JSON.stringify({
                 success: true,
@@ -416,7 +416,7 @@ self.addEventListener('fetch', event => {
             );
           } catch (saveError) {
             console.error('[SW] 保存离线操作失败:', saveError);
-            // 如果保存失败，返回标准错误
+            // 如果儲存失敗，返回標準錯誤
             return new Response(
               JSON.stringify({
                 error: 'Network connection failed',
@@ -432,7 +432,7 @@ self.addEventListener('fetch', event => {
           }
         }
 
-        // GET 请求失败时返回标准错误（不保存到队列）
+        // GET 請求失敗時返回標準錯誤（不儲存到佇列）
         return new Response(
           JSON.stringify({
             error: 'Network connection failed',
@@ -450,13 +450,13 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // 主页和动态内容：网络优先，离线时使用缓存（Network First）
-  // 这确保用户总是看到最新版本，只有在离线时才使用缓存
+  // 主頁和動態內容：網路優先，離線時使用快取（Network First）
+  // 這確保使用者總是看到最新版本，只有在離線時才使用快取
   if (url.pathname === '/' || url.pathname === '') {
     event.respondWith(
       fetch(request, { redirect: 'follow' })
         .then(response => {
-          // 网络请求成功，更新缓存
+          // 網路請求成功，更新快取
           if (response && response.status === 200) {
             console.log('[SW] 从网络获取并更新缓存:', url.pathname);
             const responseToCache = response.clone();
@@ -467,14 +467,14 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(err => {
-          // 网络请求失败（离线），尝试使用缓存
+          // 網路請求失敗（離線），嘗試使用快取
           console.log('[SW] 网络请求失败，使用缓存:', url.pathname, err.message);
           return caches.match(request).then(cachedResponse => {
             if (cachedResponse) {
               console.log('[SW] 从缓存返回（离线模式）:', url.pathname);
               return cachedResponse;
             }
-            // 缓存也没有，返回离线页面提示
+            // 快取也沒有，返回離線頁面提示
             return new Response(
               OFFLINE_PAGE,
               {
@@ -489,18 +489,18 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // 外部资源（CDN 库、favicon、logo等）
+  // 外部資源（CDN 庫、favicon、logo等）
   if (url.origin !== location.origin) {
-    // 只缓存我们指定的 CDN 资源（jsQR 和 qrcode-generator）
+    // 只快取我們指定的 CDN 資源（jsQR 和 qrcode-generator）
     const isCDNLibrary = CDN_RESOURCES.some(cdn => url.href.startsWith(cdn));
     
     if (isCDNLibrary) {
-      // CDN 库：缓存优先策略（使用 CORS 模式）
+      // CDN 庫：快取優先策略（使用 CORS 模式）
       event.respondWith(
         caches.match(request).then(cachedResponse => {
           if (cachedResponse) {
             console.log('[SW] CDN 资源从缓存返回:', url.href);
-            // 后台更新策略（stale-while-revalidate）
+            // 後臺更新策略（stale-while-revalidate）
             fetch(request, { mode: 'cors', redirect: 'follow' }).then(response => {
               if (response && response.status === 200) {
                 caches.open(CACHE_NAME).then(cache => {
@@ -509,15 +509,15 @@ self.addEventListener('fetch', event => {
                 });
               }
             }).catch(() => {
-              // 后台更新失败，不影响
+              // 後臺更新失敗，不影響
             });
             return cachedResponse;
           }
           
-          // 缓存未命中，从网络获取（使用 CORS 模式）
+          // 快取未命中，從網路獲取（使用 CORS 模式）
           console.log('[SW] CDN 资源从网络获取:', url.href);
           return fetch(request, { mode: 'cors', redirect: 'follow' }).then(response => {
-            // 只缓存成功的 CORS 响应
+            // 只快取成功的 CORS 響應
             if (response && response.status === 200 && response.type === 'cors') {
               const responseToCache = response.clone();
               caches.open(CACHE_NAME).then(cache => {
@@ -528,7 +528,7 @@ self.addEventListener('fetch', event => {
             return response;
           }).catch(err => {
             console.error('[SW] CDN 资源加载失败:', url.href, err);
-            // 如果网络失败，尝试再次从缓存获取（防止竞态条件）
+            // 如果網路失敗，嘗試再次從快取獲取（防止競態條件）
             return caches.match(request).then(cached => {
               if (cached) {
                 console.log('[SW] 从缓存降级返回:', url.href);
@@ -540,12 +540,12 @@ self.addEventListener('fetch', event => {
         })
       );
     } else {
-      // 其他外部资源（favicon、logo等）：直接透传，不缓存
-      // 这样可以避免 CORS 错误和不必要的缓存
+      // 其他外部資源（favicon、logo等）：直接透傳，不快取
+      // 這樣可以避免 CORS 錯誤和不必要的快取
       event.respondWith(
         fetch(request, { redirect: 'follow' }).catch(() => {
-          // 加载失败时静默处理，返回空响应
-          // 避免控制台错误日志
+          // 載入失敗時靜默處理，返回空響應
+          // 避免控制台錯誤日誌
           return new Response('', {
             status: 404,
             statusText: 'Not Found'
@@ -556,11 +556,11 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // 其他请求：网络优先
+  // 其他請求：網路優先
   event.respondWith(
     fetch(request, { redirect: 'follow' }).catch(err => {
       console.error('[SW] 请求失败:', url.pathname, err);
-      // 返回离线页面或错误信息
+      // 返回離線頁面或錯誤資訊
       return new Response('Offline mode: unable to access this resource', {
         status: 503,
         statusText: 'Service Unavailable',
@@ -571,7 +571,7 @@ self.addEventListener('fetch', event => {
 });
 
 /**
- * 处理推送通知（未来功能）
+ * 處理推送通知（未來功能）
  */
 self.addEventListener('push', event => {
   console.log('[SW] 收到推送通知');
@@ -598,7 +598,7 @@ self.addEventListener('push', event => {
 });
 
 /**
- * 处理通知点击（未来功能）
+ * 處理通知點選（未來功能）
  */
 self.addEventListener('notificationclick', event => {
   console.log('[SW] 通知被点击');
@@ -610,15 +610,15 @@ self.addEventListener('notificationclick', event => {
 });
 
 /**
- * 处理后台同步
- * 网络恢复时自动同步离线操作
+ * 處理後臺同步
+ * 網路恢復時自動同步離線操作
  */
 self.addEventListener('sync', event => {
   console.log('[SW] 后台同步事件触发:', event.tag);
 
   if (event.tag === 'sync-operations') {
     event.waitUntil(syncPendingOperations().then(result => {
-      // Background Sync 以 Promise 拒绝判断是否需要稍后重试。
+      // Background Sync 以 Promise 拒絕判斷是否需要稍後重試。
       if (result && result.deferredCount > 0) {
         throw new Error('Network unavailable, offline operations pending retry');
       }
@@ -627,8 +627,8 @@ self.addEventListener('sync', event => {
 });
 
 /**
- * 同步所有待处理的离线操作
- * @returns {Promise<Object|undefined>} 本批同步结果，包含等待网络恢复的数量
+ * 同步所有待處理的離線操作
+ * @returns {Promise<Object|undefined>} 本批同步結果，包含等待網路恢復的數量
  */
 function syncPendingOperations() {
   if (syncPendingOperationsPromise) return syncPendingOperationsPromise;
@@ -658,7 +658,7 @@ async function performPendingOperationSync() {
 
     console.log(\`[SW] 找到 \${operations.length} 个待同步操作\`);
 
-    // 按时间戳顺序同步
+    // 按時間戳順序同步
     operations.sort((a, b) => a.timestamp - b.timestamp);
 
     let successCount = 0;
@@ -674,34 +674,34 @@ async function performPendingOperationSync() {
       try {
         console.log('[SW] 正在同步操作:', operation.id, operation.type);
 
-        // 构建请求
+        // 構建請求
         const requestOptions = {
           method: operation.method,
           headers: operation.headers || { 'Content-Type': 'application/json' },
           credentials: 'include' // 包含认证 Cookie
         };
 
-        // 添加请求体（如果有）
+        // 新增請求體（如果有）
         if (operation.data && (operation.method === 'POST' || operation.method === 'PUT')) {
           requestOptions.body = typeof operation.data === 'string'
             ? operation.data
             : JSON.stringify(operation.data);
         }
 
-        // 发送请求
+        // 傳送請求
         let response;
         try {
           response = await fetch(operation.url, requestOptions);
         } catch (error) {
-          // onLine 不能保证服务器可达。传输失败不消耗 HTTP 重试额度，
-          // 并停止本批，避免掉线后继续请求后面的操作。
+          // onLine 不能保證伺服器可達。傳輸失敗不消耗 HTTP 重試額度，
+          // 並停止本批，避免掉線後繼續請求後面的操作。
           console.warn('[SW] 网络请求未完成，保留操作等待重试:', operation.id, error);
           deferredCount = operations.length - successCount - failCount;
           break;
         }
 
         if (response.ok) {
-          // 同步成功，删除操作
+          // 同步成功，刪除操作
           await deleteOperation(operation.id);
           successCount++;
           console.log('[SW] 操作同步成功:', operation.id, operation.type);
@@ -714,11 +714,11 @@ async function performPendingOperationSync() {
             operationUrl: operation.url
           });
         } else {
-          // 同步失败，增加重试计数
+          // 同步失敗，增加重試計數
           const newRetryCount = (operation.retryCount || 0) + 1;
 
           if (newRetryCount >= 5) {
-            // 超过最大重试次数，标记为失败
+            // 超過最大重試次數，標記為失敗
             await updateOperation(operation.id, {
               status: 'failed',
               retryCount: newRetryCount,
@@ -727,7 +727,7 @@ async function performPendingOperationSync() {
             failCount++;
             console.error('[SW] 操作同步失败（超过最大重试次数）:', operation.id);
 
-            // 通知前端同步失败
+            // 通知前端同步失敗
             await notifyClients({
               type: 'SYNC_FAILED',
               operationId: operation.id,
@@ -736,7 +736,7 @@ async function performPendingOperationSync() {
               error: \`HTTP \${response.status}\`
             });
           } else {
-            // 更新重试计数
+            // 更新重試計數
             await updateOperation(operation.id, {
               retryCount: newRetryCount,
               lastError: \`HTTP \${response.status}: \${response.statusText}\`
@@ -746,7 +746,7 @@ async function performPendingOperationSync() {
           }
         }
       } catch (error) {
-        // 请求构建或本地存储异常（fetch 传输错误已在上方单独处理）
+        // 請求構建或本地儲存異常（fetch 傳輸錯誤已在上方單獨處理）
         console.error('[SW] 同步操作时出错:', operation.id, error);
         const newRetryCount = (operation.retryCount || 0) + 1;
 
@@ -793,8 +793,8 @@ async function performPendingOperationSync() {
 }
 
 /**
- * 通知所有客户端
- * @param {Object} message - 消息对象
+ * 通知所有客戶端
+ * @param {Object} message - 訊息物件
  * @returns {Promise<void>}
  */
 async function notifyClients(message) {
@@ -810,8 +810,8 @@ async function notifyClients(message) {
 }
 
 /**
- * 消息处理
- * 允许页面与 Service Worker 通信
+ * 訊息處理
+ * 允許頁面與 Service Worker 通訊
  */
 self.addEventListener('message', event => {
   console.log('[SW] 收到消息:', event.data);

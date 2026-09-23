@@ -1,6 +1,6 @@
 /**
- * Rate Limiting 滑动窗口算法测试
- * 重点测试窗口边界攻击防护
+ * Rate Limiting 滑動視窗演算法測試
+ * 重點測試視窗邊界攻擊防護
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -11,7 +11,7 @@ import {
   getRateLimitInfo
 } from '../../src/utils/rateLimit.js';
 
-// Mock KV 存储
+// Mock KV 儲存
 function createMockKV() {
   const store = new Map();
 
@@ -37,15 +37,15 @@ function createMockKV() {
     async delete(key) {
       store.delete(key);
     },
-    _store: store // 用于测试检查
+    _store: store // 用於測試檢查
   };
 }
 
-// Mock 环境
+// Mock 環境
 function createMockEnv() {
   return {
     SECRETS_KV: createMockKV(),
-    LOG_LEVEL: 'ERROR' // 减少测试输出
+    LOG_LEVEL: 'ERROR' // 減少測試輸出
   };
 }
 
@@ -79,12 +79,12 @@ describe('Rate Limiting - 滑动窗口算法', () => {
     it('应该拒绝超过限制的请求', async () => {
       const options = { maxAttempts: 3, windowSeconds: 60 };
 
-      // 发送3个请求（达到限制）
+      // 傳送3個請求（達到限制）
       await checkRateLimitSlidingWindow('test-key', env, options);
       await checkRateLimitSlidingWindow('test-key', env, options);
       await checkRateLimitSlidingWindow('test-key', env, options);
 
-      // 第4个请求应该被拒绝
+      // 第4個請求應該被拒絕
       const result = await checkRateLimitSlidingWindow('test-key', env, options);
 
       expect(result.allowed).toBe(false);
@@ -108,39 +108,39 @@ describe('Rate Limiting - 滑动窗口算法', () => {
 
   describe('窗口边界攻击防护（关键测试）', () => {
     it('应该防止窗口边界突发攻击', async () => {
-      const options = { maxAttempts: 5, windowSeconds: 2 }; // 2秒窗口，5次限制
+      const options = { maxAttempts: 5, windowSeconds: 2 }; // 2秒視窗，5次限制
       let now = Date.now();
 
       vi.spyOn(Date, 'now').mockImplementation(() => now);
 
       try {
-        // t=0s: 发送5个请求（达到限制）
+        // t=0s: 傳送5個請求（達到限制）
         for (let i = 0; i < 5; i++) {
           const result = await checkRateLimitSlidingWindow('attack-test', env, options);
           expect(result.allowed).toBe(true);
         }
 
-        // t=0s: 第6个请求应该被拒绝
+        // t=0s: 第6個請求應該被拒絕
         let result = await checkRateLimitSlidingWindow('attack-test', env, options);
         expect(result.allowed).toBe(false);
 
-        // t=1.0s: 窗口内还有5个请求，仍应拒绝
+        // t=1.0s: 視窗內還有5個請求，仍應拒絕
         now += 1000;
         result = await checkRateLimitSlidingWindow('attack-test', env, options);
         expect(result.allowed).toBe(false);
 
-        // t=2.001s: 所有旧请求刚过期，应该允许新请求
-        now += 1001; // 总共2.001秒
+        // t=2.001s: 所有舊請求剛過期，應該允許新請求
+        now += 1001; // 總共2.001秒
         result = await checkRateLimitSlidingWindow('attack-test', env, options);
         expect(result.allowed).toBe(true);
 
-        // 继续发送4个请求，填满窗口（现在窗口内有5个请求）
+        // 繼續傳送4個請求，填滿視窗（現在視窗內有5個請求）
         for (let i = 0; i < 4; i++) {
           result = await checkRateLimitSlidingWindow('attack-test', env, options);
           expect(result.allowed).toBe(true);
         }
 
-        // 下一个请求应该被拒绝（窗口内已有5个请求）
+        // 下一個請求應該被拒絕（視窗內已有5個請求）
         result = await checkRateLimitSlidingWindow('attack-test', env, options);
         expect(result.allowed).toBe(false);
 
@@ -150,7 +150,7 @@ describe('Rate Limiting - 滑动窗口算法', () => {
     });
 
     it('对比：固定窗口容易受到窗口边界攻击', async () => {
-      // 这个测试演示固定窗口的问题
+      // 這個測試演示固定視窗的問題
       const options = { maxAttempts: 5, windowSeconds: 2, algorithm: 'fixed-window' };
       const startTime = Date.now();
       let now = startTime;
@@ -158,24 +158,24 @@ describe('Rate Limiting - 滑动窗口算法', () => {
       vi.spyOn(Date, 'now').mockImplementation(() => now);
 
       try {
-        // t=0s: 发送5个请求（达到限制）
+        // t=0s: 傳送5個請求（達到限制）
         for (let i = 0; i < 5; i++) {
           const result = await checkRateLimit('fixed-attack', env, options);
           expect(result.allowed).toBe(true);
         }
 
-        // t=0s: 第6个请求被拒绝
+        // t=0s: 第6個請求被拒絕
         let result = await checkRateLimit('fixed-attack', env, options);
         expect(result.allowed).toBe(false);
 
-        // t=2.1s: 窗口重置后，立即可以再发5个请求
-        now = startTime + 2100; // 新窗口开始
+        // t=2.1s: 視窗重置後，立即可以再發5個請求
+        now = startTime + 2100; // 新視窗開始
         for (let i = 0; i < 5; i++) {
           result = await checkRateLimit('fixed-attack', env, options);
           expect(result.allowed).toBe(true);
         }
 
-        // 结果：固定窗口允许在极短时间内发送10个请求（窗口切换时）
+        // 結果：固定視窗允許在極短時間內傳送10個請求（視窗切換時）
 
       } finally {
         vi.restoreAllMocks();
@@ -189,34 +189,34 @@ describe('Rate Limiting - 滑动窗口算法', () => {
       vi.spyOn(Date, 'now').mockImplementation(() => now);
 
       try {
-        // 模拟均匀分布的请求
+        // 模擬均勻分佈的請求
         const results = [];
 
-        // 每500ms发送一个请求，持续4秒
+        // 每500ms傳送一個請求，持續4秒
         for (let i = 0; i < 8; i++) {
           const result = await checkRateLimitSlidingWindow('smooth-test', env, options);
           results.push({ time: now, allowed: result.allowed });
           now += 500;
         }
 
-        // 验证结果
-        // t=0.0s: 允许 (1/5)
-        // t=0.5s: 允许 (2/5)
-        // t=1.0s: 允许 (3/5)
-        // t=1.5s: 允许 (4/5)
-        // t=2.0s: 允许 (5/5)
-        // t=2.5s: 拒绝 (窗口内还有5个)
-        // t=3.0s: 允许 (t=0s的请求过期)
-        // t=3.5s: 允许 (t=0.5s的请求过期)
+        // 驗證結果
+        // t=0.0s: 允許 (1/5)
+        // t=0.5s: 允許 (2/5)
+        // t=1.0s: 允許 (3/5)
+        // t=1.5s: 允許 (4/5)
+        // t=2.0s: 允許 (5/5)
+        // t=2.5s: 拒絕 (視窗內還有5個)
+        // t=3.0s: 允許 (t=0s的請求過期)
+        // t=3.5s: 允許 (t=0.5s的請求過期)
 
         expect(results[0].allowed).toBe(true);
         expect(results[1].allowed).toBe(true);
         expect(results[2].allowed).toBe(true);
         expect(results[3].allowed).toBe(true);
         expect(results[4].allowed).toBe(true);
-        expect(results[5].allowed).toBe(false); // 窗口满
-        expect(results[6].allowed).toBe(true);  // 旧请求过期
-        expect(results[7].allowed).toBe(true);  // 旧请求过期
+        expect(results[5].allowed).toBe(false); // 視窗滿
+        expect(results[6].allowed).toBe(true);  // 舊請求過期
+        expect(results[7].allowed).toBe(true);  // 舊請求過期
 
       } finally {
         vi.restoreAllMocks();
@@ -232,24 +232,24 @@ describe('Rate Limiting - 滑动窗口算法', () => {
       vi.spyOn(Date, 'now').mockImplementation(() => now);
 
       try {
-        // 发送5个请求
+        // 傳送5個請求
         for (let i = 0; i < 5; i++) {
           await checkRateLimitSlidingWindow('cleanup-test', env, options);
         }
 
-        // 检查存储的数据
+        // 檢查儲存的資料
         const data1 = await env.SECRETS_KV.get('ratelimit:v2:cleanup-test', 'json');
         expect(data1.timestamps.length).toBe(5);
 
-        // 等待窗口过期
+        // 等待視窗過期
         now += 3000;
 
-        // 发送新请求
+        // 傳送新請求
         await checkRateLimitSlidingWindow('cleanup-test', env, options);
 
-        // 旧的时间戳应该被清理
+        // 舊的時間戳應該被清理
         const data2 = await env.SECRETS_KV.get('ratelimit:v2:cleanup-test', 'json');
-        expect(data2.timestamps.length).toBe(1); // 只有新请求
+        expect(data2.timestamps.length).toBe(1); // 只有新請求
 
       } finally {
         vi.restoreAllMocks();
@@ -259,12 +259,12 @@ describe('Rate Limiting - 滑动窗口算法', () => {
     it('应该限制时间戳数组的最大长度', async () => {
       const options = { maxAttempts: 5, windowSeconds: 60 };
 
-      // 发送大量请求（超过 maxAttempts * 2）
+      // 傳送大量請求（超過 maxAttempts * 2）
       for (let i = 0; i < 15; i++) {
         await checkRateLimitSlidingWindow('size-test', env, options);
       }
 
-      // 检查数组长度
+      // 檢查陣列長度
       const data = await env.SECRETS_KV.get('ratelimit:v2:size-test', 'json');
       expect(data.timestamps.length).toBeLessThanOrEqual(20); // maxAttempts * 2 或 20
     });
@@ -274,12 +274,12 @@ describe('Rate Limiting - 滑动窗口算法', () => {
     it('应该返回滑动窗口的准确信息', async () => {
       const options = { maxAttempts: 5, windowSeconds: 60 };
 
-      // 发送3个请求
+      // 傳送3個請求
       await checkRateLimitSlidingWindow('info-test', env, options);
       await checkRateLimitSlidingWindow('info-test', env, options);
       await checkRateLimitSlidingWindow('info-test', env, options);
 
-      // 获取信息
+      // 獲取資訊
       const info = await getRateLimitInfo('info-test', env, options);
 
       expect(info.count).toBe(3);
@@ -290,14 +290,14 @@ describe('Rate Limiting - 滑动窗口算法', () => {
 
   describe('resetRateLimit', () => {
     it('应该清理两个版本的数据', async () => {
-      // 创建v1和v2数据
+      // 建立v1和v2資料
       await env.SECRETS_KV.put('ratelimit:reset-test', JSON.stringify({ count: 5 }));
       await env.SECRETS_KV.put('ratelimit:v2:reset-test', JSON.stringify({ timestamps: [Date.now()] }));
 
       // 重置
       await resetRateLimit('reset-test', env);
 
-      // 验证清理
+      // 驗證清理
       const v1Data = await env.SECRETS_KV.get('ratelimit:reset-test');
       const v2Data = await env.SECRETS_KV.get('ratelimit:v2:reset-test');
 

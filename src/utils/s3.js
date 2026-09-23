@@ -1,13 +1,13 @@
 /**
- * S3 兼容存储客户端模块
- * 实现备份自动推送到多个 S3 兼容存储（AWS S3、Cloudflare R2、MinIO、阿里云 OSS 等）
+ * S3 相容儲存客戶端模組
+ * 實現備份自動推送到多個 S3 相容儲存（AWS S3、Cloudflare R2、MinIO、阿里雲 OSS 等）
  *
- * 设计原则：
- * - 推送失败只 warn 不抛异常，不阻断备份流程
- * - 配置支持加密存储（有 ENCRYPTION_KEY 时加密）
- * - 支持多目标并行推送，每个目标独立记录状态
- * - 15s 超时（AbortController）
- * - 使用 aws4fetch 实现 AWS Signature V4 签名
+ * 設計原則：
+ * - 推送失敗只 warn 不拋異常，不阻斷備份流程
+ * - 配置支援加密儲存（有 ENCRYPTION_KEY 時加密）
+ * - 支援多目標並行推送，每個目標獨立記錄狀態
+ * - 15s 超時（AbortController）
+ * - 使用 aws4fetch 實現 AWS Signature V4 簽名
  */
 
 import { AwsClient } from 'aws4fetch';
@@ -15,18 +15,18 @@ import { encryptData, decryptData, isEncrypted } from './encryption.js';
 import { getLogger } from './logger.js';
 import { getBackupContentType } from './backup-format.js';
 
-// ==================== 多目标配置管理 ====================
+// ==================== 多目標配置管理 ====================
 
 /**
- * 读取所有 S3 配置（含自动迁移）
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Array>} 配置数组
+ * 讀取所有 S3 配置（含自動遷移）
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Array>} 配置陣列
  */
 export async function getS3Configs(env) {
 	const logger = getLogger(env);
 
 	try {
-		// 先尝试读取新格式
+		// 先嚐試讀取新格式
 		const raw = await env.SECRETS_KV.get('s3_configs', 'text');
 
 		if (raw) {
@@ -36,7 +36,7 @@ export async function getS3Configs(env) {
 			return JSON.parse(raw);
 		}
 
-		// 新格式不存在，检查旧格式并迁移
+		// 新格式不存在，檢查舊格式並遷移
 		const oldRaw = await env.SECRETS_KV.get('s3_config', 'text');
 		if (!oldRaw) {
 			return [];
@@ -62,7 +62,7 @@ export async function getS3Configs(env) {
 
 		const configs = [newConfig];
 
-		// 迁移状态
+		// 遷移狀態
 		const [oldSuccess, oldError] = await Promise.all([
 			env.SECRETS_KV.get('s3_last_success', 'json'),
 			env.SECRETS_KV.get('s3_last_error', 'json'),
@@ -79,10 +79,10 @@ export async function getS3Configs(env) {
 			await env.SECRETS_KV.put(`s3_status_${id}`, JSON.stringify(status));
 		}
 
-		// 保存新格式
+		// 儲存新格式
 		await _saveConfigsToKV(env, 's3_configs', configs);
 
-		// 删除旧 key
+		// 刪除舊 key
 		await Promise.all([
 			env.SECRETS_KV.delete('s3_config'),
 			env.SECRETS_KV.delete('s3_last_success'),
@@ -98,9 +98,9 @@ export async function getS3Configs(env) {
 }
 
 /**
- * 保存整个 S3 配置数组
- * @param {Object} env - 环境变量对象
- * @param {Array} configs - 配置数组
+ * 儲存整個 S3 配置陣列
+ * @param {Object} env - 環境變數物件
+ * @param {Array} configs - 配置陣列
  * @returns {Promise<Object>} { success, encrypted, warning? }
  */
 export async function saveS3Configs(env, configs) {
@@ -108,16 +108,16 @@ export async function saveS3Configs(env, configs) {
 }
 
 /**
- * 新增或更新单个 S3 配置
- * @param {Object} env - 环境变量对象
- * @param {Object} config - 配置对象（有 id 则更新，无 id 则新增）
+ * 新增或更新單個 S3 配置
+ * @param {Object} env - 環境變數物件
+ * @param {Object} config - 配置物件（有 id 則更新，無 id 則新增）
  * @returns {Promise<Object>} { success, id, encrypted, warning? }
  */
 export async function saveS3SingleConfig(env, config) {
 	const configs = await getS3Configs(env);
 
 	if (config.id) {
-		// 更新现有
+		// 更新現有
 		const idx = configs.findIndex((c) => c.id === config.id);
 		if (idx === -1) {
 			return { success: false, error: '未找到指定的 S3 目标' };
@@ -136,9 +136,9 @@ export async function saveS3SingleConfig(env, config) {
 }
 
 /**
- * 删除单个 S3 配置
- * @param {Object} env - 环境变量对象
- * @param {string} id - 目标 ID
+ * 刪除單個 S3 配置
+ * @param {Object} env - 環境變數物件
+ * @param {string} id - 目標 ID
  * @returns {Promise<Object>} { success }
  */
 export async function deleteS3SingleConfig(env, id) {
@@ -152,20 +152,20 @@ export async function deleteS3SingleConfig(env, id) {
 	configs.splice(idx, 1);
 	await _saveConfigsToKV(env, 's3_configs', configs);
 
-	// 清理状态 key
+	// 清理狀態 key
 	try {
 		await env.SECRETS_KV.delete(`s3_status_${id}`);
 	} catch {
-		// 静默忽略
+		// 靜默忽略
 	}
 
 	return { success: true };
 }
 
 /**
- * 读取单个目标的状态
- * @param {Object} env - 环境变量对象
- * @param {string} id - 目标 ID
+ * 讀取單個目標的狀態
+ * @param {Object} env - 環境變數物件
+ * @param {string} id - 目標 ID
  * @returns {Promise<Object>} { lastSuccess?, lastError? }
  */
 export async function getS3Status(env, id) {
@@ -180,11 +180,11 @@ export async function getS3Status(env, id) {
 // ==================== 推送功能 ====================
 
 /**
- * 推送备份到所有已启用的 S3 目标（并行）
- * @param {string} backupKey - 备份文件名
- * @param {string} backupContent - 备份内容
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Object|null>} 推送结果汇总或 null
+ * 推送備份到所有已啟用的 S3 目標（並行）
+ * @param {string} backupKey - 備份檔名
+ * @param {string} backupContent - 備份內容
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Object|null>} 推送結果彙總或 null
  */
 export async function pushToAllS3(backupKey, backupContent, env) {
 	const logger = getLogger(env);
@@ -222,7 +222,7 @@ export async function pushToAllS3(backupKey, backupContent, env) {
 }
 
 /**
- * 推送备份到单个 S3 目标
+ * 推送備份到單個 S3 目標
  * @private
  */
 async function _pushToSingleS3(backupKey, backupContent, config, env) {
@@ -291,7 +291,7 @@ async function _pushToSingleS3(backupKey, backupContent, config, env) {
 			try {
 				await _recordS3StatusError(env, config.id, backupKey, errorMsg);
 			} catch {
-				// 静默忽略
+				// 靜默忽略
 			}
 			return { success: false, id: config.id, name: config.name, backupKey, error: errorMsg };
 		}
@@ -301,17 +301,17 @@ async function _pushToSingleS3(backupKey, backupContent, config, env) {
 		try {
 			await _recordS3StatusError(env, config.id, backupKey, error.message);
 		} catch {
-			// 静默忽略
+			// 靜默忽略
 		}
 
 		return { success: false, id: config.id, name: config.name, backupKey, error: error.message };
 	}
 }
 
-// ==================== 连接测试 ====================
+// ==================== 連線測試 ====================
 
 /**
- * 将 fetch 异常转换为简短友好提示
+ * 將 fetch 異常轉換為簡短友好提示
  * @private
  */
 function _friendlyFetchError(error, prefix = '连接') {
@@ -330,14 +330,14 @@ function _friendlyFetchError(error, prefix = '连接') {
 		return `${prefix}失败：SSL 证书错误`;
 	}
 
-	// 兜底：截断过长的消息
+	// 兜底：截斷過長的訊息
 	const short = msg.length > 60 ? msg.slice(0, 60) + '…' : msg;
 	return `${prefix}失败：${short}`;
 }
 
 /**
- * 测试 S3 连接
- * @param {Object} config - 配置对象
+ * 測試 S3 連線
+ * @param {Object} config - 配置物件
  * @returns {Promise<Object>} { success, message }
  */
 export async function testS3Connection(config) {
@@ -351,10 +351,10 @@ export async function testS3Connection(config) {
 		service: 's3',
 	});
 
-	// 第一步：ListObjectsV2 验证认证和 Bucket 访问
+	// 第一步：ListObjectsV2 驗證認證和 Bucket 訪問
 	const listUrl = `${endpoint}/${config.bucket}?list-type=2&max-keys=1`;
 
-	// 每个网络请求独立 15s 超时，避免第一步耗时挤占第二步预算
+	// 每個網路請求獨立 15s 超時，避免第一步耗時擠佔第二步預算
 	const fetchWithTimeout = async (url, options) => {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -392,7 +392,7 @@ export async function testS3Connection(config) {
 		return { success: false, message: _friendlyFetchError(error) };
 	}
 
-	// 第二步：上传测试文件
+	// 第二步：上傳測試檔案
 	const prefix = config.prefix ? config.prefix.replace(/\/+$/, '') + '/' : '';
 	const testFileName = '.2fa-s3-test.txt';
 	const testFileUrl = `${endpoint}/${config.bucket}/${prefix}${testFileName}`;
@@ -429,10 +429,10 @@ export async function testS3Connection(config) {
 	}
 }
 
-// ==================== 内部工具函数 ====================
+// ==================== 內部工具函式 ====================
 
 /**
- * 保存配置数组到 KV（含加密）
+ * 儲存配置陣列到 KV（含加密）
  * @private
  */
 async function _saveConfigsToKV(env, key, configs) {
@@ -452,7 +452,7 @@ async function _saveConfigsToKV(env, key, configs) {
 }
 
 /**
- * 记录 S3 目标状态
+ * 記錄 S3 目標狀態
  * @private
  */
 async function _recordS3Status(env, id, statusUpdate) {
@@ -461,12 +461,12 @@ async function _recordS3Status(env, id, statusUpdate) {
 		const merged = { ...existing, ...statusUpdate };
 		await env.SECRETS_KV.put(`s3_status_${id}`, JSON.stringify(merged));
 	} catch {
-		// 静默忽略
+		// 靜默忽略
 	}
 }
 
 /**
- * 记录 S3 推送错误
+ * 記錄 S3 推送錯誤
  * @private
  */
 async function _recordS3StatusError(env, id, backupKey, errorMsg) {
@@ -479,10 +479,10 @@ async function _recordS3StatusError(env, id, backupKey, errorMsg) {
 	});
 }
 
-// ==================== 兼容性导出 ====================
+// ==================== 相容性匯出 ====================
 
 /**
- * 读取单个 S3 配置（兼容旧 API）
+ * 讀取單個 S3 配置（相容舊 API）
  * @deprecated 使用 getS3Configs 代替
  */
 export async function getS3Config(env) {
@@ -491,7 +491,7 @@ export async function getS3Config(env) {
 }
 
 /**
- * 保存单个 S3 配置（兼容旧 API）
+ * 儲存單個 S3 配置（相容舊 API）
  * @deprecated 使用 saveS3SingleConfig 代替
  */
 export async function saveS3Config(env, config) {
@@ -499,7 +499,7 @@ export async function saveS3Config(env, config) {
 }
 
 /**
- * 推送到 S3（兼容旧 API）
+ * 推送到 S3（相容舊 API）
  * @deprecated 使用 pushToAllS3 代替
  */
 export async function pushToS3(backupKey, backupContent, env) {

@@ -1,15 +1,15 @@
 /**
- * Auth.js 集成测试
+ * Auth.js 整合測試
  *
- * 测试完整的身份验证流程，包括：
- * - 首次设置流程
- * - 登录流程
- * - Token刷新流程
- * - 认证中间件
- * - Rate Limiting集成
- * - Cookie和Authorization Header处理
+ * 測試完整的身份驗證流程，包括：
+ * - 首次設定流程
+ * - 登入流程
+ * - Token重新整理流程
+ * - 認證中介軟體
+ * - Rate Limiting整合
+ * - Cookie和Authorization Header處理
  *
- * 目标覆盖率：70%+
+ * 目標覆蓋率：70%+
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -27,7 +27,7 @@ import {
 // ==================== Mock KV Storage ====================
 
 /**
- * 模拟 Cloudflare KV 存储
+ * 模擬 Cloudflare KV 儲存
  */
 class MockKV {
   constructor() {
@@ -80,10 +80,10 @@ class MockKV {
   }
 }
 
-// ==================== 测试辅助函数 ====================
+// ==================== 測試輔助函式 ====================
 
 /**
- * 创建 Mock Request
+ * 建立 Mock Request
  */
 function createMockRequest({
   method = 'GET',
@@ -121,17 +121,17 @@ function createMockRequest({
 }
 
 /**
- * 创建 Mock Environment
+ * 建立 Mock Environment
  */
 function createMockEnv(kvStore = null) {
   return {
     SECRETS_KV: kvStore || new MockKV(),
-    LOG_LEVEL: 'ERROR' // 减少测试日志噪音
+    LOG_LEVEL: 'ERROR' // 減少測試日誌噪音
   };
 }
 
 /**
- * 从 Response 中提取 JSON body
+ * 從 Response 中提取 JSON body
  */
 async function getResponseJson(response) {
   const text = await response.text();
@@ -142,7 +142,7 @@ async function getResponseJson(response) {
   }
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Auth.js Integration Tests', () => {
 
@@ -175,17 +175,17 @@ describe('Auth.js Integration Tests', () => {
       expect(data.success).toBe(true);
       expect(data.message).toContain('设置成功');
 
-      // 验证密码已保存到KV
+      // 驗證密碼已儲存到KV
       const storedHash = await kvStore.get('user_password');
       expect(storedHash).toBeDefined();
       expect(storedHash).toContain('$'); // salt$hash格式
 
-      // 验证 Cookie 头包含 token
+      // 驗證 Cookie 頭包含 token
       const setCookieHeader = response.headers.get('Set-Cookie');
       expect(setCookieHeader).toBeDefined();
       expect(setCookieHeader).toContain('auth_token=');
 
-      // 验证密码正确 - 通过尝试登录
+      // 驗證密碼正確 - 通過嘗試登入
       const loginRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
@@ -194,7 +194,7 @@ describe('Auth.js Integration Tests', () => {
       const loginResponse = await handleLogin(loginRequest, env);
       expect(loginResponse.status).toBe(200);
 
-      // 验证不再需要设置
+      // 驗證不再需要設定
       const setupRequired = await checkIfSetupRequired(env);
       expect(setupRequired).toBe(false);
     });
@@ -202,10 +202,10 @@ describe('Auth.js Integration Tests', () => {
     it('应该拒绝弱密码', async () => {
       const weakPasswords = [
         'short',           // 太短
-        'alllowercase1',   // 缺少大写
-        'ALLUPPERCASE1',   // 缺少小写
-        'NoNumbers!',      // 缺少数字
-        'NoSpecial123'     // 缺少特殊字符
+        'alllowercase1',   // 缺少大寫
+        'ALLUPPERCASE1',   // 缺少小寫
+        'NoNumbers!',      // 缺少數字
+        'NoSpecial123'     // 缺少特殊字元
       ];
 
       for (const password of weakPasswords) {
@@ -225,7 +225,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('应该在已设置后拒绝重复设置', async () => {
-      // 第一次设置
+      // 第一次設定
       const password1 = 'FirstPassword123!';
       const request1 = createMockRequest({
         method: 'POST',
@@ -234,7 +234,7 @@ describe('Auth.js Integration Tests', () => {
       });
       await handleFirstTimeSetup(request1, env);
 
-      // 尝试再次设置
+      // 嘗試再次設定
       const password2 = 'SecondPassword456!';
       const request2 = createMockRequest({
         method: 'POST',
@@ -259,7 +259,7 @@ describe('Auth.js Integration Tests', () => {
       kvStore = new MockKV();
       env = createMockEnv(kvStore);
 
-      // 预先通过首次设置来配置密码
+      // 預先通過首次設定來配置密碼
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -281,7 +281,7 @@ describe('Auth.js Integration Tests', () => {
       const data = await getResponseJson(response);
       expect(data.success).toBe(true);
 
-      // 验证 Cookie
+      // 驗證 Cookie
       const setCookieHeader = response.headers.get('Set-Cookie');
       expect(setCookieHeader).toBeDefined();
       expect(setCookieHeader).toContain('auth_token=');
@@ -289,7 +289,7 @@ describe('Auth.js Integration Tests', () => {
       expect(setCookieHeader).toContain('Secure');
       expect(setCookieHeader).toContain('SameSite=Strict');
 
-      // 验证 token 有效 - 通过使用它访问受保护资源
+      // 驗證 token 有效 - 通過使用它訪問受保護資源
       const tokenMatch = setCookieHeader.match(/auth_token=([^;]+)/);
       const token = tokenMatch ? tokenMatch[1] : null;
       expect(token).toBeDefined();
@@ -332,10 +332,10 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('应该在多次失败后触发 rate limiting', async () => {
-      // 清空 rate limit 计数器
+      // 清空 rate limit 計數器
       const clientIP = '127.0.0.1';
 
-      // 尝试6次错误登录（rate limit是5次/分钟）
+      // 嘗試6次錯誤登入（rate limit是5次/分鐘）
       for (let i = 0; i < 6; i++) {
         const request = createMockRequest({
           method: 'POST',
@@ -349,10 +349,10 @@ describe('Auth.js Integration Tests', () => {
         const response = await handleLogin(request, env);
 
         if (i < 5) {
-          // 前5次应该返回401（密码错误）
+          // 前5次應該返回401（密碼錯誤）
           expect(response.status).toBe(401);
         } else {
-          // 第6次应该被 rate limit 阻止
+          // 第6次應該被 rate limit 阻止
           expect(response.status).toBe(429);
           const data = await getResponseJson(response);
           expect(data.error).toContain('请求过于频繁');
@@ -371,7 +371,7 @@ describe('Auth.js Integration Tests', () => {
       kvStore = new MockKV();
       env = createMockEnv(kvStore);
 
-      // 预先通过首次设置来配置密码
+      // 預先通過首次設定來配置密碼
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -379,14 +379,14 @@ describe('Auth.js Integration Tests', () => {
       });
       await handleFirstTimeSetup(setupRequest, env);
 
-      // 通过登录获取有效 token
+      // 通過登入獲取有效 token
       const loginRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
         body: { credential: testPassword }
       });
       const loginResponse = await handleLogin(loginRequest, env);
-      // 从 Cookie 头提取 token
+      // 從 Cookie 頭提取 token
       const setCookieHeader = loginResponse.headers.get('Set-Cookie');
       const tokenMatch = setCookieHeader?.match(/auth_token=([^;]+)/);
       validToken = tokenMatch ? tokenMatch[1] : null;
@@ -415,7 +415,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('应该拒绝过期或无效的 token', async () => {
-      // 使用明显无效的token格式
+      // 使用明顯無效的token格式
       const invalidToken = 'invalid.token.signature';
 
       const request = createMockRequest({
@@ -440,9 +440,9 @@ describe('Auth.js Integration Tests', () => {
     it('应该拒绝格式错误的 token', async () => {
       const malformedTokens = [
         'not-a-jwt',
-        'header.payload', // 缺少签名
+        'header.payload', // 缺少簽名
         'a.b.c.d', // 太多部分
-        '', // 空字符串
+        '', // 空字串
       ];
 
       for (const token of malformedTokens) {
@@ -467,7 +467,7 @@ describe('Auth.js Integration Tests', () => {
       kvStore = new MockKV();
       env = createMockEnv(kvStore);
 
-      // 预先通过首次设置来配置密码
+      // 預先通過首次設定來配置密碼
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -475,14 +475,14 @@ describe('Auth.js Integration Tests', () => {
       });
       await handleFirstTimeSetup(setupRequest, env);
 
-      // 通过登录获取有效 token
+      // 通過登入獲取有效 token
       const loginRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
         body: { credential: testPassword }
       });
       const loginResponse = await handleLogin(loginRequest, env);
-      // 从 Cookie 头提取 token
+      // 從 Cookie 頭提取 token
       const setCookieHeader = loginResponse.headers.get('Set-Cookie');
       const tokenMatch = setCookieHeader?.match(/auth_token=([^;]+)/);
       validToken = tokenMatch ? tokenMatch[1] : null;
@@ -501,9 +501,9 @@ describe('Auth.js Integration Tests', () => {
       const data = await getResponseJson(response);
       expect(data.success).toBe(true);
       expect(data.token).toBeDefined();
-      expect(data.token).not.toBe(validToken); // 新token应该不同
+      expect(data.token).not.toBe(validToken); // 新token應該不同
 
-      // 验证新 token 有效 - 通过使用它访问受保护资源
+      // 驗證新 token 有效 - 通過使用它訪問受保護資源
       const authRequest = createMockRequest({
         pathname: '/api/secrets',
         cookies: { auth_token: data.token }
@@ -513,7 +513,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('应该拒绝无效 token 的刷新', async () => {
-      // 使用无效token
+      // 使用無效token
       const invalidToken = 'invalid.token.here';
 
       const request = createMockRequest({
@@ -554,16 +554,16 @@ describe('Auth.js Integration Tests', () => {
       const data = await getResponseJson(response);
       const newToken = data.token;
 
-      // 解析新 token 的过期时间
+      // 解析新 token 的過期時間
       const parts = newToken.split('.');
       const payload = JSON.parse(atob(parts[1]));
 
-      // 验证新的过期时间应该在未来
-      const expiryTime = payload.exp * 1000; // 转为毫秒
+      // 驗證新的過期時間應該在未來
+      const expiryTime = payload.exp * 1000; // 轉為毫秒
       const now = Date.now();
       expect(expiryTime).toBeGreaterThan(now);
 
-      // 验证过期时间约为30天后
+      // 驗證過期時間約為30天后
       const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
       const timeDiff = expiryTime - now;
       expect(timeDiff).toBeGreaterThan(thirtyDaysMs * 0.9); // 至少27天
@@ -615,7 +615,7 @@ describe('Auth.js Integration Tests', () => {
         }
       });
 
-      // env 未传 / SECRETS_KV 未绑定时，限流应跳过而不是抛错
+      // env 未傳 / SECRETS_KV 未繫結時，限流應跳過而不是拋錯
       const response = await handleLogout(request, {});
 
       expect(response.status).toBe(200);
@@ -690,11 +690,11 @@ describe('Auth.js Integration Tests', () => {
       const request = createMockRequest({ pathname: '/api/secrets' });
       const response = createUnauthorizedResponse(null, request);
 
-      // 验证 CORS headers
+      // 驗證 CORS headers
       expect(response.headers.get('Access-Control-Allow-Origin')).toBeDefined();
       expect(response.headers.get('Access-Control-Allow-Methods')).toBeDefined();
 
-      // 验证内容类型
+      // 驗證內容型別
       expect(response.headers.get('Content-Type')).toContain('application/json');
     });
   });
@@ -710,7 +710,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('完整流程：首次设置 → 登录 → 访问受保护资源 → 刷新token', async () => {
-      // Step 1: 首次设置
+      // Step 1: 首次設定
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -720,7 +720,7 @@ describe('Auth.js Integration Tests', () => {
       const setupResponse = await handleFirstTimeSetup(setupRequest, env);
       expect(setupResponse.status).toBe(200);
 
-      // Step 2: 登录
+      // Step 2: 登入
       const loginRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
@@ -735,7 +735,7 @@ describe('Auth.js Integration Tests', () => {
       const token = tokenMatch ? tokenMatch[1] : null;
       expect(token).toBeDefined();
 
-      // Step 3: 使用 token 访问受保护资源
+      // Step 3: 使用 token 訪問受保護資源
       const authRequest = createMockRequest({
         pathname: '/api/secrets',
         cookies: { auth_token: token }
@@ -744,7 +744,7 @@ describe('Auth.js Integration Tests', () => {
       const isAuthorized = await verifyAuth(authRequest, env);
       expect(isAuthorized).toBe(true);
 
-      // Step 4: 刷新 token
+      // Step 4: 重新整理 token
       const refreshRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/refresh-token',
@@ -757,7 +757,7 @@ describe('Auth.js Integration Tests', () => {
       const refreshData = await getResponseJson(refreshResponse);
       const newToken = refreshData.token;
 
-      // Step 5: 使用新 token 访问受保护资源
+      // Step 5: 使用新 token 訪問受保護資源
       const newAuthRequest = createMockRequest({
         pathname: '/api/secrets',
         cookies: { auth_token: newToken }
@@ -768,7 +768,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('完整流程：登录失败 → Rate Limiting → 等待 → 成功登录', async () => {
-      // 预先通过首次设置来配置密码
+      // 預先通過首次設定來配置密碼
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -778,7 +778,7 @@ describe('Auth.js Integration Tests', () => {
 
       const clientIP = '192.168.1.100';
 
-      // Step 1: 连续5次错误登录
+      // Step 1: 連續5次錯誤登入
       for (let i = 0; i < 5; i++) {
         const request = createMockRequest({
           method: 'POST',
@@ -791,7 +791,7 @@ describe('Auth.js Integration Tests', () => {
         expect(response.status).toBe(401);
       }
 
-      // Step 2: 第6次应该被 rate limit
+      // Step 2: 第6次應該被 rate limit
       const rateLimitedRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
@@ -802,12 +802,12 @@ describe('Auth.js Integration Tests', () => {
       const rateLimitedResponse = await handleLogin(rateLimitedRequest, env);
       expect(rateLimitedResponse.status).toBe(429);
 
-      // Step 3: 清空 rate limit 计数器（模拟时间过去）
-      // 清理两个版本的 rate limit 数据（固定窗口和滑动窗口）
-      await kvStore.delete(`ratelimit:${clientIP}`);      // v1 固定窗口
-      await kvStore.delete(`ratelimit:v2:${clientIP}`);   // v2 滑动窗口
+      // Step 3: 清空 rate limit 計數器（模擬時間過去）
+      // 清理兩個版本的 rate limit 資料（固定視窗和滑動視窗）
+      await kvStore.delete(`ratelimit:${clientIP}`);      // v1 固定視窗
+      await kvStore.delete(`ratelimit:v2:${clientIP}`);   // v2 滑動視窗
 
-      // Step 4: 使用正确密码登录
+      // Step 4: 使用正確密碼登入
       const successRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/login',
@@ -834,7 +834,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('应该处理KV存储失败', async () => {
-      // 模拟KV存储失败
+      // 模擬KV儲存失敗
       const mockEnv = {
         SECRETS_KV: {
           get: vi.fn().mockRejectedValue(new Error('KV Storage Error'))
@@ -842,21 +842,21 @@ describe('Auth.js Integration Tests', () => {
         LOG_LEVEL: 'ERROR'
       };
 
-      // checkIfSetupRequired应该安全处理KV失败
+      // checkIfSetupRequired應該安全處理KV失敗
       let isSetupRequired;
       try {
         isSetupRequired = await checkIfSetupRequired(mockEnv);
       } catch {
-        // 如果抛出错误，这也是可以接受的行为
+        // 如果丟擲錯誤，這也是可以接受的行為
         isSetupRequired = true;
       }
 
-      // 应该假设需要设置（安全默认）或抛出错误
+      // 應該假設需要設定（安全預設）或丟擲錯誤
       expect(isSetupRequired).toBe(true);
     });
 
     it('应该处理密码哈希验证失败', async () => {
-      // 存储一个无效的哈希格式
+      // 儲存一個無效的雜湊格式
       await kvStore.put('user_password', 'invalid-hash-format');
 
       const request = createMockRequest({
@@ -866,12 +866,12 @@ describe('Auth.js Integration Tests', () => {
       });
 
       const response = await handleLogin(request, env);
-      // 无效哈希格式会导致验证失败，返回401或500
+      // 無效雜湊格式會導致驗證失敗，返回401或500
       expect([401, 500]).toContain(response.status);
     });
 
     it('应该处理JWT验证中的各种异常', async () => {
-      // 先设置有效密码
+      // 先設定有效密碼
       const setupRequest = createMockRequest({
         method: 'POST',
         pathname: '/api/setup',
@@ -906,7 +906,7 @@ describe('Auth.js Integration Tests', () => {
       });
 
       const response = await handleLogin(request, env);
-      // JSON解析错误可能返回400或500
+      // JSON解析錯誤可能返回400或500
       expect([400, 500]).toContain(response.status);
 
       const data = await getResponseJson(response);
@@ -929,7 +929,7 @@ describe('Auth.js Integration Tests', () => {
     });
 
     it('handleFirstTimeSetup 在请求体为 null 时不应误报为 KV 未绑定', async () => {
-      // 发送无 body 的请求，解构会抛 TypeError，但 KV 已绑定，不应误判
+      // 傳送無 body 的請求，解構會拋 TypeError，但 KV 已繫結，不應誤判
       const request = new Request('https://example.com/api/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -940,12 +940,12 @@ describe('Auth.js Integration Tests', () => {
       expect(response.status).toBe(500);
 
       const data = await getResponseJson(response);
-      // 不应包含 KV 相关的错误提示
+      // 不應包含 KV 相關的錯誤提示
       expect(data.message).not.toContain('KV 存储未绑定');
     });
 
     it('handleFirstTimeSetup 未知错误不应暴露 error.message 细节', async () => {
-      // 用 null body 触发 TypeError 类的未知错误
+      // 用 null body 觸發 TypeError 類的未知錯誤
       const request = new Request('https://example.com/api/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -956,7 +956,7 @@ describe('Auth.js Integration Tests', () => {
       expect(response.status).toBe(500);
 
       const data = await getResponseJson(response);
-      // 错误消息应该是通用的，不包含内部实现细节
+      // 錯誤訊息應該是通用的，不包含內部實現細節
       expect(data.message).toBe('处理设置请求时发生错误');
     });
   });

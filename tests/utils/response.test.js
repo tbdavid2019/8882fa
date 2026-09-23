@@ -1,6 +1,6 @@
 /**
- * Response 工具模块测试
- * 测试标准化响应格式和安全头处理
+ * Response 工具模組測試
+ * 測試標準化響應格式和安全頭處理
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -22,7 +22,7 @@ vi.mock('../../src/utils/security.js', () => ({
   }))
 }));
 
-// 创建 Mock Request
+// 建立 Mock Request
 function createMockRequest(origin = 'https://example.com') {
   return {
     headers: new Headers({
@@ -68,9 +68,9 @@ describe('Response Utils', () => {
     });
 
     it('不带 request 参数时应该使用默认 CORS 配置', async () => {
-      // 导入重置函数（用于测试）
+      // 匯入重置函式（用於測試）
       const { _resetWarningFlag } = await import('../../src/utils/response.js');
-      _resetWarningFlag(); // 重置警告标志，确保此测试能触发警告
+      _resetWarningFlag(); // 重置警告標誌，確保此測試能觸發警告
 
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -115,7 +115,7 @@ describe('Response Utils', () => {
         additionalHeaders
       );
 
-      // 额外的 headers 优先级更高，应该覆盖安全头
+      // 額外的 headers 優先順序更高，應該覆蓋安全頭
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://override.com');
     });
 
@@ -141,7 +141,7 @@ describe('Response Utils', () => {
 
       const response2 = createJsonResponse({ value: undefined });
       const body2 = await response2.json();
-      expect(body2).toEqual({}); // JSON.stringify 会移除 undefined 值
+      expect(body2).toEqual({}); // JSON.stringify 會移除 undefined 值
     });
   });
 
@@ -393,7 +393,7 @@ describe('Response Utils', () => {
       }
 
       const end = performance.now();
-      expect(end - start).toBeLessThan(200); // 1000 次调用应该在 200ms 内（允许性能波动）
+      expect(end - start).toBeLessThan(200); // 1000 次呼叫應該在 200ms 內（允許效能波動）
     });
 
     it('创建错误响应应该很快', () => {
@@ -404,7 +404,7 @@ describe('Response Utils', () => {
       }
 
       const end = performance.now();
-      expect(end - start).toBeLessThan(200); // 1000 次调用应该在 200ms 内（允许性能波动）
+      expect(end - start).toBeLessThan(200); // 1000 次呼叫應該在 200ms 內（允許效能波動）
     });
   });
 });

@@ -16,13 +16,14 @@ describe('version utils', () => {
 		});
 	});
 
-	// 版本号所有写入位置的一致性校验（发版用 npm run release:*，修复不一致用 npm run release:sync）
+	// 版本號所有寫入位置的一致性校驗（發版用 npm run release:*，修復不一致用 npm run release:sync）
 	describe('version consistency', () => {
 		it.each(['README.md', 'README_EN.md'])('%s badge should match package.json version', (file) => {
 			const content = readFileSync(new URL(`../../${file}`, import.meta.url), 'utf-8');
-			const match = content.match(/badge\/version-(\d+\.\d+\.\d+)-blue/);
+			const match = content.match(/badge\/version-(\d{4}\.\d{2}\.\d{2})-blue/);
 			expect(match, `${file} 应包含版本徽章`).not.toBeNull();
-			expect(match[1], `${file} 徽章版本应与 package.json 一致`).toBe(pkg.version);
+			const [year, month, day] = pkg.version.split('.');
+			expect(match[1], `${file} 徽章版本应与 package.json 日期一致`).toBe(`${year}.${month.padStart(2, '0')}.${day.padStart(2, '0')}`);
 		});
 	});
 

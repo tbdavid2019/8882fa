@@ -1,14 +1,14 @@
 /**
- * PWA Manifest 生成模块
- * 提供 Web App Manifest 用于支持 PWA 安装和 WebAPK
+ * PWA Manifest 生成模組
+ * 提供 Web App Manifest 用於支援 PWA 安裝和 WebAPK
  */
 
 import { BRAND_SVG, createBrandAssetResponse } from './assets/brandAssets.js';
 
 /**
  * 生成 Web App Manifest
- * @param {Request} request - HTTP 请求对象（用于获取主机名和语系偏好）
- * @returns {Response} Manifest JSON 响应
+ * @param {Request} request - HTTP 請求物件（用於獲取主機名和語系偏好）
+ * @returns {Response} Manifest JSON 響應
  */
 export function createManifest(request) {
 	const url = new URL(request.url);
@@ -114,9 +114,9 @@ export function createManifest(request) {
 }
 
 /**
- * 生成默认图标
- * @param {number} size - 图标大小
- * @returns {Response} 图标响应
+ * 生成預設圖示
+ * @param {number} size - 圖示大小
+ * @returns {Response} 圖示響應
  */
 export function createDefaultIcon(size = 192) {
 	if (size <= 32) {

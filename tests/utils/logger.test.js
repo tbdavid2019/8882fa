@@ -1,6 +1,6 @@
 /**
- * Logger 日志系统测试
- * 测试结构化日志、性能计时、请求日志
+ * Logger 日誌系統測試
+ * 測試結構化日誌、效能計時、請求日誌
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -15,10 +15,10 @@ import {
 } from '../../src/utils/logger.js';
 import { APP_VERSION } from '../../src/utils/version.js';
 
-// ==================== 测试辅助工具 ====================
+// ==================== 測試輔助工具 ====================
 
 /**
- * 创建 Mock Request
+ * 建立 Mock Request
  */
 function createMockRequest(options = {}) {
   const {
@@ -42,7 +42,7 @@ function createMockRequest(options = {}) {
 }
 
 /**
- * 创建 Mock Response
+ * 建立 Mock Response
  */
 function createMockResponse(status = 200, statusText = 'OK') {
   return {
@@ -54,11 +54,11 @@ function createMockResponse(status = 200, statusText = 'OK') {
   };
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Logger System', () => {
 
-  // 每个测试前重置全局状态
+  // 每個測試前重置全域性狀態
   beforeEach(() => {
     resetLogger();
     vi.clearAllMocks();
@@ -351,7 +351,7 @@ describe('Logger System', () => {
         remoteEndpoint: 'https://logs.example.com'
       });
 
-      // 不应该抛出错误
+      // 不應該丟擲錯誤
       await expect(
         logger._logToRemote({ message: 'test' })
       ).resolves.toBeUndefined();
@@ -361,7 +361,7 @@ describe('Logger System', () => {
   describe('Logger - debug/info/warn/error/fatal', () => {
     it('debug() 应该记录 DEBUG 日志', () => {
       const logger = new Logger();
-      logger.setMinLevel(LogLevel.DEBUG); // 使用setMinLevel避免构造函数的0值bug
+      logger.setMinLevel(LogLevel.DEBUG); // 使用setMinLevel避免建構函式的0值bug
       const result = logger.debug('Debug message', { foo: 'bar' });
 
       expect(result).toMatchObject({
@@ -559,14 +559,14 @@ describe('Logger System', () => {
     });
 
     it('无 env 创建后，首次携带 env 的调用应该就地更新配置', () => {
-      // 模拟模块加载阶段的无 env 调用（如 ErrorMonitor 构造函数）
+      // 模擬模組載入階段的無 env 呼叫（如 ErrorMonitor 建構函式）
       const early = getLogger();
-      expect(early.minLevel).toBe(LogLevel.DEBUG); // 无 env 默认 development → DEBUG
+      expect(early.minLevel).toBe(LogLevel.DEBUG); // 無 env 預設 development → DEBUG
 
-      // 首个请求携带 env（worker.js fetch 入口）
+      // 首個請求攜帶 env（worker.js fetch 入口）
       const configured = getLogger({ LOG_LEVEL: 'ERROR', ENVIRONMENT: 'production' });
 
-      // 同一实例：已持有该 logger 引用的对象（如 ErrorMonitor）同样拿到新配置
+      // 同一例項：已持有該 logger 引用的物件（如 ErrorMonitor）同樣拿到新配置
       expect(configured).toBe(early);
       expect(early.minLevel).toBe(LogLevel.ERROR);
       expect(early.environment).toBe('production');
@@ -580,17 +580,17 @@ describe('Logger System', () => {
     });
 
     it('minLevel 为非法值时应回退 INFO', () => {
-      // NaN 若被保留，level < NaN 恒为 false，会放开全部日志
+      // NaN 若被保留，level < NaN 恆為 false，會放開全部日誌
       expect(new Logger({ minLevel: NaN }).minLevel).toBe(LogLevel.INFO);
       expect(new Logger({ minLevel: Infinity }).minLevel).toBe(LogLevel.INFO);
       expect(new Logger({ minLevel: -Infinity }).minLevel).toBe(LogLevel.INFO);
       expect(new Logger({ minLevel: 'abc' }).minLevel).toBe(LogLevel.INFO);
-      expect(new Logger({ minLevel: '2' }).minLevel).toBe(LogLevel.INFO); // 数字字符串不接受
+      expect(new Logger({ minLevel: '2' }).minLevel).toBe(LogLevel.INFO); // 數字字串不接受
       expect(new Logger({ minLevel: true }).minLevel).toBe(LogLevel.INFO);
     });
 
     it('minLevel 越界或非整数时应回退 INFO', () => {
-      // 5 会让 level < 5 恒真，连 FATAL 都被屏蔽；-1 则放开全部日志
+      // 5 會讓 level < 5 恆真，連 FATAL 都被遮蔽；-1 則放開全部日誌
       expect(new Logger({ minLevel: 5 }).minLevel).toBe(LogLevel.INFO);
       expect(new Logger({ minLevel: -1 }).minLevel).toBe(LogLevel.INFO);
       expect(new Logger({ minLevel: 1.5 }).minLevel).toBe(LogLevel.INFO);
@@ -850,7 +850,7 @@ describe('Logger System', () => {
 
       requestLogger.logResponse(timer, null, error);
 
-      // error被包含在logEntry.error字段中，不是console.error的第三个参数
+      // error被包含在logEntry.error欄位中，不是console.error的第三個引數
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Request failed'),
         expect.objectContaining({
@@ -877,18 +877,18 @@ describe('Logger System', () => {
       const logger = new Logger();
       const requestLogger = createRequestLogger(logger);
 
-      // 1. 记录请求
+      // 1. 記錄請求
       const request = createMockRequest({
         method: 'POST',
         url: 'https://api.example.com/secrets'
       });
       const timer = requestLogger.logRequest(request);
 
-      // 2. 记录响应
+      // 2. 記錄響應
       const response = createMockResponse(201, 'Created');
       requestLogger.logResponse(timer, response);
 
-      // 验证两次日志调用
+      // 驗證兩次日誌呼叫
       expect(console.log).toHaveBeenCalledTimes(3); // request + response + timer.end
     });
 
@@ -933,9 +933,9 @@ describe('Logger System', () => {
     it('应该处理 null 数据（测试源代码bug）', () => {
       const logger = new Logger();
 
-      // 注意：源代码在 _formatMessage 中有bug：
-      // if (data.request) 会在data为null时抛TypeError
-      // 这是一个已知的源代码bug
+      // 注意：原始碼在 _formatMessage 中有bug：
+      // if (data.request) 會在data為null時拋TypeError
+      // 這是一個已知的原始碼bug
       expect(() => {
         logger.info('Test', null);
       }).toThrow(TypeError);
@@ -969,7 +969,7 @@ describe('Logger System', () => {
       const obj = { name: 'test' };
       obj.self = obj;
 
-      // 应该能处理循环引用或至少不崩溃
+      // 應該能處理迴圈引用或至少不崩潰
       expect(() => {
         logger.info('Test', obj);
       }).not.toThrow();
@@ -989,7 +989,7 @@ describe('Logger System', () => {
     it('无效的 LOG_LEVEL 应该使用默认', () => {
       const logger = getLogger({ LOG_LEVEL: 'INVALID' });
 
-      // 应该降级到默认级别（DEBUG for development）
+      // 應該降級到預設級別（DEBUG for development）
       expect(logger.minLevel).toBe(LogLevel.DEBUG);
     });
   });

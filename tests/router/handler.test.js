@@ -1,12 +1,12 @@
 /**
- * Router Handler 路由处理器测试
- * 测试请求路由和分发逻辑
+ * Router Handler 路由處理器測試
+ * 測試請求路由和分發邏輯
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handleRequest, handleCORS } from '../../src/router/handler.js';
 
-// ==================== Mock 模块 ====================
+// ==================== Mock 模組 ====================
 
 // Mock API handlers
 vi.mock('../../src/api/secrets/index.js', () => ({
@@ -155,7 +155,7 @@ vi.mock('../../src/utils/logger.js', () => ({
 // ==================== Mock 工具 ====================
 
 /**
- * 创建 Mock Request
+ * 建立 Mock Request
  */
 function createMockRequest({
   method = 'GET',
@@ -185,7 +185,7 @@ function createMockRequest({
 }
 
 /**
- * 创建 Mock Environment
+ * 建立 Mock Environment
  */
 function createMockEnv() {
   return {
@@ -200,7 +200,7 @@ function createMockEnv() {
   };
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Router Handler', () => {
 
@@ -287,7 +287,7 @@ describe('Router Handler', () => {
       requiresAuth.mockReturnValueOnce(true);
 
       const env = createMockEnv();
-      env.SECRETS_KV.get.mockResolvedValueOnce('hashed-password'); // 有密码
+      env.SECRETS_KV.get.mockResolvedValueOnce('hashed-password'); // 有密碼
 
       const request = createMockRequest({ pathname: '/api/secrets' });
 
@@ -318,7 +318,7 @@ describe('Router Handler', () => {
       requiresAuth.mockReturnValueOnce(true);
 
       const env = createMockEnv();
-      env.SECRETS_KV.get.mockResolvedValueOnce(null); // 无密码
+      env.SECRETS_KV.get.mockResolvedValueOnce(null); // 無密碼
 
       const request = createMockRequest({ pathname: '/api/secrets' });
 
@@ -743,7 +743,7 @@ describe('Router Handler', () => {
       expect(response.status).toBe(405);
     });
 
-    // WebDAV 配置 API 路由测试
+    // WebDAV 配置 API 路由測試
     it('应该处理 GET /api/webdav/config', async () => {
       const { handleGetWebDAVConfigs } = await import('../../src/api/webdav.js');
 
@@ -827,7 +827,7 @@ describe('Router Handler', () => {
       expect(response.status).toBe(405);
     });
 
-    // 修改密码 API 路由测试
+    // 修改密碼 API 路由測試
     it('应该处理 POST /api/change-password', async () => {
       const { handleChangePassword } = await import('../../src/api/password.js');
 
@@ -1006,13 +1006,13 @@ describe('Router Handler', () => {
     it('应该处理带参数的 /otp/{secret}', async () => {
       const { handleGenerateOTP } = await import('../../src/api/secrets/index.js');
 
-      // 查询参数在 URL 中，不在 pathname 中
+      // 查詢引數在 URL 中，不在 pathname 中
       const request = createMockRequest({ pathname: '/otp/JBSWY3DPEHPK3PXP' });
       const env = createMockEnv();
 
       const response = await handleRequest(request, env);
 
-      // 路由器只从 pathname 提取 secret，查询参数通过 request 传递
+      // 路由器只從 pathname 提取 secret，查詢引數通過 request 傳遞
       expect(handleGenerateOTP).toHaveBeenCalledWith('JBSWY3DPEHPK3PXP', request);
       expect(response.status).toBe(200);
     });
@@ -1048,7 +1048,7 @@ describe('Router Handler', () => {
       const { getLogger } = await import('../../src/utils/logger.js');
       const { createMainPage } = await import('../../src/ui/page.js');
 
-      // 创建一个持久的 mock logger
+      // 建立一個持久的 mock logger
       const mockLogger = {
         info: vi.fn(),
         error: vi.fn(),
@@ -1167,7 +1167,7 @@ describe('Router Handler', () => {
       requiresAuth.mockReturnValueOnce(true);
       verifyAuthWithDetails.mockResolvedValueOnce({ valid: false });
 
-      const env = {}; // 没有 SECRETS_KV
+      const env = {}; // 沒有 SECRETS_KV
 
       const request = createMockRequest({ pathname: '/api/secrets' });
 
@@ -1192,7 +1192,7 @@ describe('Router Handler', () => {
 
       const response = await handleRequest(request, env);
 
-      // 应该正确处理 URL 编码
+      // 應該正確處理 URL 編碼
       expect(response).toBeDefined();
     });
 

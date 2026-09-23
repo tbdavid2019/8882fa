@@ -1,6 +1,6 @@
 /**
- * 身份验证工具模块
- * 提供 JWT Token 认证功能，支持自动过期
+ * 身份驗證工具模組
+ * 提供 JWT Token 認證功能，支援自動過期
  */
 
 import { createErrorResponse } from './response.js';
@@ -19,21 +19,21 @@ import {
 } from './errors.js';
 
 // JWT 配置
-const JWT_EXPIRY_DAYS_DEFAULT = 30; // JWT 默认有效期：30天
+const JWT_EXPIRY_DAYS_DEFAULT = 30; // JWT 預設有效期：30天
 const JWT_ALGORITHM = 'HS256';
 
 // Cookie 配置
 const COOKIE_NAME = 'auth_token';
 
-// KV 存储键
+// KV 儲存鍵
 const KV_USER_PASSWORD_KEY = 'user_password';
 const KV_SETUP_COMPLETED_KEY = 'setup_completed';
 const KV_SETTINGS_KEY = 'settings';
 
 /**
- * 获取 JWT 过期天数（从 KV settings 读取）
- * @param {Object} env - 环境变量对象
- * @returns {Promise<number>} JWT 过期天数
+ * 獲取 JWT 過期天數（從 KV settings 讀取）
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<number>} JWT 過期天數
  */
 export async function getJwtExpiryDays(env) {
 	if (env && env.SECRETS_KV) {
@@ -49,30 +49,30 @@ export async function getJwtExpiryDays(env) {
 				}
 			}
 		} catch {
-			// 解析失败，使用默认值
+			// 解析失敗，使用預設值
 		}
 	}
 	return JWT_EXPIRY_DAYS_DEFAULT;
 }
 
 /**
- * 获取 JWT 自动续期阈值天数
- * 默认为过期天数的 1/4，至少 1 天
- * @param {Object} env - 环境变量对象
- * @returns {Promise<number>} 自动续期阈值天数
+ * 獲取 JWT 自動續期閾值天數
+ * 預設為過期天數的 1/4，至少 1 天
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<number>} 自動續期閾值天數
  */
 async function getJwtRefreshThresholdDays(env) {
 	const expiryDays = await getJwtExpiryDays(env);
 	return Math.max(1, Math.floor(expiryDays / 4));
 }
 
-// 密码配置
+// 密碼配置
 const PASSWORD_MIN_LENGTH = 8;
-const PBKDF2_ITERATIONS = 100000; // PBKDF2 迭代次数
+const PBKDF2_ITERATIONS = 100000; // PBKDF2 迭代次數
 
 /**
- * 验证密码强度
- * @param {string} password - 密码
+ * 驗證密碼強度
+ * @param {string} password - 密碼
  * @returns {Object} { valid: boolean, message: string }
  */
 export function validatePasswordStrength(password) {
@@ -105,30 +105,30 @@ export function validatePasswordStrength(password) {
 }
 
 /**
- * 使用 PBKDF2 加密密码
- * ⚠️ 强制验证密码强度，不符合要求将抛出错误
- * @param {string} password - 明文密码
- * @returns {Promise<string>} 加密后的密码（格式：salt$hash）
- * @throws {ValidationError} 密码强度不符合要求时抛出错误
+ * 使用 PBKDF2 加密密碼
+ * ⚠️ 強制驗證密碼強度，不符合要求將丟擲錯誤
+ * @param {string} password - 明文密碼
+ * @returns {Promise<string>} 加密後的密碼（格式：salt$hash）
+ * @throws {ValidationError} 密碼強度不符合要求時丟擲錯誤
  */
 export async function hashPassword(password) {
-	// 🔒 强制验证密码强度（防御性编程）
+	// 🔒 強制驗證密碼強度（防禦性程式設計）
 	const validation = validatePasswordStrength(password);
 	if (!validation.valid) {
 		throw ErrorFactory.passwordWeak(validation.message, { password: '***' });
 	}
 
-	// 生成随机盐值
+	// 生成隨機鹽值
 	const salt = crypto.getRandomValues(new Uint8Array(16));
 
-	// 将密码转换为 ArrayBuffer
+	// 將密碼轉換為 ArrayBuffer
 	const encoder = new TextEncoder();
 	const passwordBuffer = encoder.encode(password);
 
-	// 导入密码作为密钥
+	// 匯入密碼作為金鑰
 	const keyMaterial = await crypto.subtle.importKey('raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveBits']);
 
-	// 使用 PBKDF2 派生密钥
+	// 使用 PBKDF2 派生金鑰
 	const hashBuffer = await crypto.subtle.deriveBits(
 		{
 			name: 'PBKDF2',
@@ -137,10 +137,10 @@ export async function hashPassword(password) {
 			hash: 'SHA-256',
 		},
 		keyMaterial,
-		256, // 输出 256 位
+		256, // 輸出 256 位
 	);
 
-	// 将盐值和哈希值转换为 Base64
+	// 將鹽值和雜湊值轉換為 Base64
 	const saltB64 = btoa(String.fromCharCode(...salt));
 	const hashB64 = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 
@@ -149,31 +149,31 @@ export async function hashPassword(password) {
 }
 
 /**
- * 验证密码
- * @param {string} password - 明文密码
- * @param {string} storedHash - 存储的哈希值（格式：salt$hash）
- * @param {Object} env - 环境变量对象（可选，用于日志）
+ * 驗證密碼
+ * @param {string} password - 明文密碼
+ * @param {string} storedHash - 儲存的雜湊值（格式：salt$hash）
+ * @param {Object} env - 環境變數物件（可選，用於日誌）
  * @returns {Promise<boolean>} 是否匹配
  */
 export async function verifyPassword(password, storedHash, env = null) {
 	try {
-		// 分离盐值和哈希值
+		// 分離鹽值和雜湊值
 		const [saltB64, hashB64] = storedHash.split('$');
 		if (!saltB64 || !hashB64) {
 			return false;
 		}
 
-		// 解码盐值
+		// 解碼鹽值
 		const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
 
-		// 将密码转换为 ArrayBuffer
+		// 將密碼轉換為 ArrayBuffer
 		const encoder = new TextEncoder();
 		const passwordBuffer = encoder.encode(password);
 
-		// 导入密码作为密钥
+		// 匯入密碼作為金鑰
 		const keyMaterial = await crypto.subtle.importKey('raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveBits']);
 
-		// 使用相同的盐值派生密钥
+		// 使用相同的鹽值派生金鑰
 		const hashBuffer = await crypto.subtle.deriveBits(
 			{
 				name: 'PBKDF2',
@@ -185,10 +185,10 @@ export async function verifyPassword(password, storedHash, env = null) {
 			256,
 		);
 
-		// 将计算的哈希值转换为 Base64
+		// 將計算的雜湊值轉換為 Base64
 		const calculatedHashB64 = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 
-		// 比较哈希值
+		// 比較雜湊值
 		return calculatedHashB64 === hashB64;
 	} catch (error) {
 		if (env) {
@@ -207,9 +207,9 @@ export async function verifyPassword(password, storedHash, env = null) {
 
 /**
  * 生成 JWT Token
- * @param {Object} payload - 要编码的数据
- * @param {string} secret - 签名密钥
- * @param {number} expiryDays - 过期天数
+ * @param {Object} payload - 要編碼的資料
+ * @param {string} secret - 簽名金鑰
+ * @param {number} expiryDays - 過期天數
  * @returns {Promise<string>} JWT token
  */
 export async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_DEFAULT) {
@@ -221,11 +221,11 @@ export async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_
 	const now = Math.floor(Date.now() / 1000);
 	const jwtPayload = {
 		...payload,
-		iat: now, // 签发时间
-		exp: now + expiryDays * 24 * 60 * 60, // 过期时间
+		iat: now, // 簽發時間
+		exp: now + expiryDays * 24 * 60 * 60, // 過期時間
 	};
 
-	// Base64URL 编码
+	// Base64URL 編碼
 	const base64UrlEncode = (str) => {
 		return btoa(String.fromCharCode(...new Uint8Array(typeof str === 'string' ? new TextEncoder().encode(str) : str)))
 			.replace(/\+/g, '-')
@@ -237,7 +237,7 @@ export async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_
 	const payloadB64 = base64UrlEncode(JSON.stringify(jwtPayload));
 	const data = `${headerB64}.${payloadB64}`;
 
-	// 使用 HMAC-SHA256 签名
+	// 使用 HMAC-SHA256 簽名
 	const encoder = new TextEncoder();
 	const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
 
@@ -248,11 +248,11 @@ export async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_
 }
 
 /**
- * 验证并解析 JWT Token
+ * 驗證並解析 JWT Token
  * @param {string} token - JWT token
- * @param {string} secret - 签名密钥
- * @param {Object} env - 环境变量对象（可选，用于日志）
- * @returns {Promise<Object|null>} 解析后的 payload，验证失败返回 null
+ * @param {string} secret - 簽名金鑰
+ * @param {Object} env - 環境變數物件（可選，用於日誌）
+ * @returns {Promise<Object|null>} 解析後的 payload，驗證失敗返回 null
  */
 async function verifyJWT(token, secret, env = null) {
 	const logger = env ? getLogger(env) : null;
@@ -266,7 +266,7 @@ async function verifyJWT(token, secret, env = null) {
 		const [headerB64, payloadB64, signatureB64] = parts;
 		const data = `${headerB64}.${payloadB64}`;
 
-		// Base64URL 解码
+		// Base64URL 解碼
 		const base64UrlDecode = (str) => {
 			str = str.replace(/-/g, '+').replace(/_/g, '/');
 			const pad = str.length % 4;
@@ -277,7 +277,7 @@ async function verifyJWT(token, secret, env = null) {
 			return new Uint8Array([...binary].map((c) => c.charCodeAt(0)));
 		};
 
-		// 验证签名
+		// 驗證簽名
 		const encoder = new TextEncoder();
 		const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
 
@@ -296,7 +296,7 @@ async function verifyJWT(token, secret, env = null) {
 		const payloadJson = new TextDecoder().decode(payloadBytes);
 		const payload = JSON.parse(payloadJson);
 
-		// 检查是否过期
+		// 檢查是否過期
 		const now = Math.floor(Date.now() / 1000);
 		if (payload.exp && payload.exp < now) {
 			if (logger) {
@@ -324,7 +324,7 @@ async function verifyJWT(token, secret, env = null) {
 }
 
 /**
- * 创建 Set-Cookie header 值
+ * 建立 Set-Cookie header 值
  * @param {string} token - JWT token
  * @param {number} maxAge - Cookie 最大有效期（秒）
  * @returns {string} Set-Cookie header 值
@@ -334,16 +334,16 @@ export function createSetCookieHeader(token, maxAge) {
 		`${COOKIE_NAME}=${token}`,
 		`Max-Age=${maxAge}`,
 		'Path=/',
-		'HttpOnly', // 防止 XSS 攻击访问 Cookie
-		'SameSite=Strict', // 防止 CSRF 攻击
-		'Secure', // 仅在 HTTPS 下传输
+		'HttpOnly', // 防止 XSS 攻擊訪問 Cookie
+		'SameSite=Strict', // 防止 CSRF 攻擊
+		'Secure', // 僅在 HTTPS 下傳輸
 	];
 
 	return cookieAttributes.join('; ');
 }
 
 /**
- * 创建清除认证 Cookie 的 Set-Cookie header 值
+ * 建立清除認證 Cookie 的 Set-Cookie header 值
  * @returns {string} Set-Cookie header 值
  */
 function createClearCookieHeader() {
@@ -361,10 +361,10 @@ function createClearCookieHeader() {
 }
 
 /**
- * 判断退出登录请求是否来自同源页面。
- * 前端 fetch 会携带 X-Requested-With；跨站表单无法添加该头。
- * @param {Request} request - HTTP 请求对象
- * @returns {boolean} 是否允许处理退出登录
+ * 判斷退出登入請求是否來自同源頁面。
+ * 前端 fetch 會攜帶 X-Requested-With；跨站表單無法新增該頭。
+ * @param {Request} request - HTTP 請求物件
+ * @returns {boolean} 是否允許處理退出登入
  */
 function isLogoutRequestAllowed(request) {
 	if (request.headers.get('X-Requested-With') !== 'XMLHttpRequest') {
@@ -385,8 +385,8 @@ function isLogoutRequestAllowed(request) {
 }
 
 /**
- * 从请求中获取 Cookie 中的 token
- * @param {Request} request - HTTP 请求对象
+ * 從請求中獲取 Cookie 中的 token
+ * @param {Request} request - HTTP 請求物件
  * @returns {string|null} Token 或 null
  */
 function getTokenFromCookie(request) {
@@ -406,25 +406,25 @@ function getTokenFromCookie(request) {
 }
 
 /**
- * 验证请求的 Authorization Token
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<boolean>} 是否验证通过
+ * 驗證請求的 Authorization Token
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<boolean>} 是否驗證通過
  */
 export async function verifyAuth(request, env) {
 	const logger = getLogger(env);
 
-	// 🔑 检查 KV 中的用户密码
+	// 🔑 檢查 KV 中的使用者密碼
 	if (env.SECRETS_KV) {
 		const storedPasswordHash = await env.SECRETS_KV.get(KV_USER_PASSWORD_KEY);
 
 		if (!storedPasswordHash) {
-			// 未设置密码，需要首次设置
+			// 未設定密碼，需要首次設定
 			logger.info('未设置用户密码，需要首次设置');
 			return false;
 		}
 
-		// 从 Cookie 或 Authorization header 获取 token
+		// 從 Cookie 或 Authorization header 獲取 token
 		let token = getTokenFromCookie(request);
 		if (!token) {
 			const authHeader = request.headers.get('Authorization');
@@ -437,7 +437,7 @@ export async function verifyAuth(request, env) {
 			return false;
 		}
 
-		// 尝试作为 JWT 验证（使用用户密码哈希作为密钥）
+		// 嘗試作為 JWT 驗證（使用使用者密碼雜湊作為金鑰）
 		if (token.includes('.')) {
 			const payload = await verifyJWT(token, storedPasswordHash, env);
 			if (payload) {
@@ -451,21 +451,21 @@ export async function verifyAuth(request, env) {
 		return false;
 	}
 
-	// ❌ 没有配置 KV 存储
+	// ❌ 沒有配置 KV 儲存
 	logger.error('未配置 KV 存储，拒绝访问');
 	return false;
 }
 
 /**
- * 验证认证并返回详细信息（用于自动续期）
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Object|null>} 认证信息对象 { valid: boolean, payload: Object, remainingDays: number, needsRefresh: boolean } 或 null
+ * 驗證認證並返回詳細資訊（用於自動續期）
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Object|null>} 認證資訊物件 { valid: boolean, payload: Object, remainingDays: number, needsRefresh: boolean } 或 null
  */
 export async function verifyAuthWithDetails(request, env) {
 	const logger = getLogger(env);
 
-	// 🔑 检查 KV 中的用户密码
+	// 🔑 檢查 KV 中的使用者密碼
 	if (!env.SECRETS_KV) {
 		logger.error('未配置 KV 存储，拒绝访问');
 		return null;
@@ -478,7 +478,7 @@ export async function verifyAuthWithDetails(request, env) {
 		return null;
 	}
 
-	// 从 Cookie 或 Authorization header 获取 token
+	// 從 Cookie 或 Authorization header 獲取 token
 	let token = getTokenFromCookie(request);
 	if (!token) {
 		const authHeader = request.headers.get('Authorization');
@@ -491,7 +491,7 @@ export async function verifyAuthWithDetails(request, env) {
 		return null;
 	}
 
-	// 尝试作为 JWT 验证（使用用户密码哈希作为密钥）
+	// 嘗試作為 JWT 驗證（使用使用者密碼雜湊作為金鑰）
 	if (token.includes('.')) {
 		const payload = await verifyJWT(token, storedPasswordHash, env);
 		if (payload && payload.exp) {
@@ -520,35 +520,35 @@ export async function verifyAuthWithDetails(request, env) {
 }
 
 /**
- * 创建未授权响应
- * @param {string} message - 错误消息（可选）
- * @param {Request} request - HTTP 请求对象（用于安全头）
- * @returns {Response} 401 未授权响应
+ * 建立未授權響應
+ * @param {string} message - 錯誤訊息（可選）
+ * @param {Request} request - HTTP 請求物件（用於安全頭）
+ * @returns {Response} 401 未授權響應
  */
 export function createUnauthorizedResponse(message = '未授权访问', request = null) {
 	return createErrorResponse('身份验证失败', message || '请提供有效的访问令牌。如果您忘记了令牌，请联系管理员重新配置。', 401, request);
 }
 
 /**
- * 检查是否需要首次设置
- * @param {Object} env - 环境变量对象
- * @returns {Promise<boolean>} 是否需要首次设置
+ * 檢查是否需要首次設定
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<boolean>} 是否需要首次設定
  */
 export async function checkIfSetupRequired(env) {
-	// 检查 KV 中是否已设置密码
+	// 檢查 KV 中是否已設定密碼
 	if (env.SECRETS_KV) {
 		const storedPasswordHash = await env.SECRETS_KV.get(KV_USER_PASSWORD_KEY);
-		return !storedPasswordHash; // 未设置则需要首次设置
+		return !storedPasswordHash; // 未設定則需要首次設定
 	}
 
-	return true; // 没有 KV 也需要设置
+	return true; // 沒有 KV 也需要設定
 }
 
 /**
- * 处理首次设置请求
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Response>} 响应
+ * 處理首次設定請求
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Response>} 響應
  */
 export async function handleFirstTimeSetup(request, env) {
 	const logger = getLogger(env);
@@ -569,7 +569,7 @@ export async function handleFirstTimeSetup(request, env) {
 
 		const { password, confirmPassword } = await request.json();
 
-		// 验证密码
+		// 驗證密碼
 		if (!password || !confirmPassword) {
 			throw new ValidationError('请提供密码和确认密码', {
 				missing: !password ? 'password' : 'confirmPassword',
@@ -582,7 +582,7 @@ export async function handleFirstTimeSetup(request, env) {
 			});
 		}
 
-		// 检查是否已经设置过
+		// 檢查是否已經設定過
 		const existingHash = await env.SECRETS_KV.get(KV_USER_PASSWORD_KEY);
 		if (existingHash) {
 			throw new ConflictError('密码已设置，无法重复设置。如需修改密码，请联系管理员。', {
@@ -591,8 +591,8 @@ export async function handleFirstTimeSetup(request, env) {
 			});
 		}
 
-		// 验证密码强度（快速失败，提供友好的错误消息）
-		// 注意：hashPassword() 也会进行验证作为最后的防线
+		// 驗證密碼強度（快速失敗，提供友好的錯誤訊息）
+		// 注意：hashPassword() 也會進行驗證作為最後的防線
 		const validation = validatePasswordStrength(password);
 		if (!validation.valid) {
 			throw ErrorFactory.passwordWeak(validation.message, {
@@ -600,10 +600,10 @@ export async function handleFirstTimeSetup(request, env) {
 			});
 		}
 
-		// 加密密码（内部会再次验证密码强度）
+		// 加密密碼（內部會再次驗證密碼強度）
 		const passwordHash = await hashPassword(password);
 
-		// 存储到 KV
+		// 儲存到 KV
 		await env.SECRETS_KV.put(KV_USER_PASSWORD_KEY, passwordHash);
 		await env.SECRETS_KV.put(KV_SETUP_COMPLETED_KEY, new Date().toISOString());
 
@@ -625,7 +625,7 @@ export async function handleFirstTimeSetup(request, env) {
 
 		const expiryDate = new Date(Date.now() + jwtExpiryDays * 24 * 60 * 60 * 1000);
 
-		// 🍪 使用 HttpOnly Cookie 存储 JWT token
+		// 🍪 使用 HttpOnly Cookie 儲存 JWT token
 		const securityHeaders = getSecurityHeaders(request);
 
 		return new Response(
@@ -648,13 +648,13 @@ export async function handleFirstTimeSetup(request, env) {
 			},
 		);
 	} catch (error) {
-		// 如果是已知的应用错误，直接转换为响应
+		// 如果是已知的應用錯誤，直接轉換為響應
 		if (error instanceof ValidationError || error instanceof ConflictError || error instanceof AuthenticationError) {
 			logError(error, logger, { operation: 'first_time_setup' });
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error(
 			'首次设置失败',
 			{
@@ -663,7 +663,7 @@ export async function handleFirstTimeSetup(request, env) {
 			error,
 		);
 
-		// 检测 KV 未绑定的情况
+		// 檢測 KV 未繫結的情況
 		if (!env.SECRETS_KV) {
 			return createErrorResponse(
 				'设置失败',
@@ -678,10 +678,10 @@ export async function handleFirstTimeSetup(request, env) {
 }
 
 /**
- * 验证登录请求并返回 JWT
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Response|null>} 如果验证失败返回错误响应，否则返回 null
+ * 驗證登入請求並返回 JWT
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Response|null>} 如果驗證失敗返回錯誤響應，否則返回 null
  */
 export async function handleLogin(request, env) {
 	const logger = getLogger(env);
@@ -708,7 +708,7 @@ export async function handleLogin(request, env) {
 			});
 		}
 
-		// 🔑 KV 密码认证
+		// 🔑 KV 密碼認證
 		if (!env.SECRETS_KV) {
 			throw new ConfigurationError('服务器未配置 KV 存储，请联系管理员', {
 				missingConfig: 'SECRETS_KV',
@@ -724,7 +724,7 @@ export async function handleLogin(request, env) {
 			});
 		}
 
-		// 验证密码
+		// 驗證密碼
 		const isValid = await verifyPassword(credential, storedPasswordHash, env);
 
 		if (!isValid) {
@@ -751,7 +751,7 @@ export async function handleLogin(request, env) {
 			JSON.stringify({
 				success: true,
 				message: '登录成功',
-				token: jwtToken, // 同时在响应 body 中返回 token（供测试和客户端使用）
+				token: jwtToken, // 同時在響應 body 中返回 token（供測試和客戶端使用）
 				expiresAt: expiryDate.toISOString(),
 				expiresIn: `${jwtExpiryDays}天`,
 			}),
@@ -768,7 +768,7 @@ export async function handleLogin(request, env) {
 			},
 		);
 	} catch (error) {
-		// 如果是已知的应用错误，直接转换为响应
+		// 如果是已知的應用錯誤，直接轉換為響應
 		if (
 			error instanceof ValidationError ||
 			error instanceof AuthenticationError ||
@@ -779,7 +779,7 @@ export async function handleLogin(request, env) {
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error(
 			'登录处理失败',
 			{
@@ -792,16 +792,16 @@ export async function handleLogin(request, env) {
 }
 
 /**
- * 刷新 JWT Token
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Response>} 包含新 token 的响应
+ * 重新整理 JWT Token
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Response>} 包含新 token 的響應
  */
 export async function handleRefreshToken(request, env) {
 	const logger = getLogger(env);
 
 	try {
-		// 优先从 Cookie 获取 token，向后兼容 Authorization header
+		// 優先從 Cookie 獲取 token，向後相容 Authorization header
 		let token = getTokenFromCookie(request);
 
 		if (!token) {
@@ -814,7 +814,7 @@ export async function handleRefreshToken(request, env) {
 			token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
 		}
 
-		// 获取 KV 中的密码哈希作为 JWT 密钥
+		// 獲取 KV 中的密碼雜湊作為 JWT 金鑰
 		if (!env.SECRETS_KV) {
 			throw new ConfigurationError('服务器未配置 KV 存储', {
 				missingConfig: 'SECRETS_KV',
@@ -829,7 +829,7 @@ export async function handleRefreshToken(request, env) {
 			});
 		}
 
-		// 验证当前 token
+		// 驗證當前 token
 		const payload = await verifyJWT(token, storedPasswordHash, env);
 		if (!payload) {
 			throw ErrorFactory.jwtInvalid({
@@ -851,30 +851,30 @@ export async function handleRefreshToken(request, env) {
 
 		const expiryDate = new Date(Date.now() + jwtExpiryDays * 24 * 60 * 60 * 1000);
 
-		// 🍪 使用 HttpOnly Cookie 存储刷新后的 JWT token
-		// 🔒 使用安全头（CORS, CSP 等）
+		// 🍪 使用 HttpOnly Cookie 儲存重新整理後的 JWT token
+		// 🔒 使用安全頭（CORS, CSP 等）
 		const securityHeaders = getSecurityHeaders(request);
 
 		return new Response(
 			JSON.stringify({
 				success: true,
 				message: '令牌刷新成功',
-				token: newToken, // 同时在响应 body 中返回 token（供测试和客户端使用）
+				token: newToken, // 同時在響應 body 中返回 token（供測試和客戶端使用）
 				expiresAt: expiryDate.toISOString(),
 				expiresIn: `${jwtExpiryDays}天`,
 			}),
 			{
 				status: 200,
 				headers: {
-					...securityHeaders, // 🔒 包含 CORS, CSP 等安全头
+					...securityHeaders, // 🔒 包含 CORS, CSP 等安全頭
 					'Content-Type': 'application/json',
-					// 🍪 设置新的 HttpOnly Cookie
+					// 🍪 設定新的 HttpOnly Cookie
 					'Set-Cookie': createSetCookieHeader(newToken, jwtExpiryDays * 24 * 60 * 60),
 				},
 			},
 		);
 	} catch (error) {
-		// 如果是已知的应用错误，直接转换为响应
+		// 如果是已知的應用錯誤，直接轉換為響應
 		if (
 			error instanceof ValidationError ||
 			error instanceof AuthenticationError ||
@@ -885,7 +885,7 @@ export async function handleRefreshToken(request, env) {
 			return errorToResponse(error, request);
 		}
 
-		// 未知错误
+		// 未知錯誤
 		logger.error(
 			'刷新令牌失败',
 			{
@@ -898,18 +898,18 @@ export async function handleRefreshToken(request, env) {
 }
 
 /**
- * 处理退出登录请求
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象（用于限流）
- * @returns {Response} 清除认证 Cookie 的响应
+ * 處理退出登入請求
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件（用於限流）
+ * @returns {Response} 清除認證 Cookie 的響應
  */
 export async function handleLogout(request, env) {
 	if (!isLogoutRequestAllowed(request)) {
 		return createErrorResponse('请求被拒绝', '退出登录请求必须来自同源页面', 403, request);
 	}
 
-	// 🛡️ Rate Limiting: 防止滥用登出端点制造日志噪音/CSRF 探测
-	// 使用 sensitive 预设（10 次/分钟）—— 正常用户登出频率远低于此
+	// 🛡️ Rate Limiting: 防止濫用登出端點製造日誌噪音/CSRF 探測
+	// 使用 sensitive 預設（10 次/分鐘）—— 正常使用者登出頻率遠低於此
 	if (env && env.SECRETS_KV) {
 		const clientIP = getClientIdentifier(request, 'ip');
 		const rateLimitInfo = await checkRateLimit(clientIP, env, RATE_LIMIT_PRESETS.sensitive);
@@ -937,48 +937,48 @@ export async function handleLogout(request, env) {
 }
 
 /**
- * 检查路径是否需要认证
- * @param {string} pathname - 请求路径
- * @returns {boolean} 是否需要认证
+ * 檢查路徑是否需要認證
+ * @param {string} pathname - 請求路徑
+ * @returns {boolean} 是否需要認證
  */
 export function requiresAuth(pathname) {
-	// 不需要认证的路径
+	// 不需要認證的路徑
 	const publicPaths = [
-		'/', // 主页（会显示登录界面）
-		'/api/login', // 登录接口
-		'/api/logout', // 退出登录接口
-		'/api/refresh-token', // Token 刷新接口（已在内部验证）
-		'/api/setup', // 首次设置接口
-		'/api/time', // 客户端 TOTP 时间校准接口
-		'/setup', // 设置页面
+		'/', // 主頁（會顯示登入介面）
+		'/api/login', // 登入介面
+		'/api/logout', // 退出登入介面
+		'/api/refresh-token', // Token 重新整理介面（已在內部驗證）
+		'/api/setup', // 首次設定介面
+		'/api/time', // 客戶端 TOTP 時間校準介面
+		'/setup', // 設定頁面
 		'/manifest.json', // PWA manifest
 		'/sw.js', // Service Worker
-		'/icon-192.png', // PWA 图标
-		'/icon-512.png', // PWA 图标
-		'/favicon.ico', // 网站图标
-		'/favicon.svg', // 网站矢量图标
-		'/favicon-32x32.png', // 32x32 图标
-		'/favicon-16x16.png', // 16x16 图标
-		'/apple-touch-icon.png', // iOS 桌面图标
-		'/apple-touch-icon-precomposed.png', // iOS 兼容图标
-		'/og-image.jpg', // Open Graph / Twitter 分享封面图
-		'/og-image.png', // Open Graph PNG 别名
+		'/icon-192.png', // PWA 圖示
+		'/icon-512.png', // PWA 圖示
+		'/favicon.ico', // 網站圖示
+		'/favicon.svg', // 網站向量圖示
+		'/favicon-32x32.png', // 32x32 圖示
+		'/favicon-16x16.png', // 16x16 圖示
+		'/apple-touch-icon.png', // iOS 桌面圖示
+		'/apple-touch-icon-precomposed.png', // iOS 相容圖示
+		'/og-image.jpg', // Open Graph / Twitter 分享封面圖
+		'/og-image.png', // Open Graph PNG 別名
 		'/fonts/maple-mono-regular.woff2', // UI webfont
 		'/fonts/maple-mono-bold.woff2', // UI webfont
 		'/fonts/maple-mono-cjk.css', // Maple Mono CJK glyph subsets
-		'/otp', // OTP 生成页面（无参数）
+		'/otp', // OTP 生成頁面（無引數）
 		'/api/onedrive/oauth/callback',
 		'/api/gdrive/oauth/callback',
-		'/api/webauthn/login-options', // WebAuthn 登录 Challenge 生成
-		'/api/webauthn/login', // WebAuthn 登录验证
+		'/api/webauthn/login-options', // WebAuthn 登入 Challenge 生成
+		'/api/webauthn/login', // WebAuthn 登入驗證
 	];
 
-	// 精确匹配公开路径
+	// 精確匹配公開路徑
 	if (publicPaths.includes(pathname)) {
 		return false;
 	}
 
-	// OTP 生成路径不需要认证（公开访问）
+	// OTP 生成路徑不需要認證（公開訪問）
 	if (pathname.startsWith('/otp/')) {
 		return false;
 	}
@@ -986,11 +986,11 @@ export function requiresAuth(pathname) {
 		return false;
 	}
 
-	// Favicon 代理路径不需要认证（公开访问）
+	// Favicon 代理路徑不需要認證（公開訪問）
 	if (pathname.startsWith('/api/favicon/')) {
 		return false;
 	}
 
-	// 所有其他路径默认需要认证（包括 /api/, /admin, /settings 等）
+	// 所有其他路徑預設需要認證（包括 /api/, /admin, /settings 等）
 	return true;
 }

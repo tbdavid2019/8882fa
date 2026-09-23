@@ -1,219 +1,221 @@
-# 案例：坚果云 WebDAV 在 Cloudflare Workers 上返回 520 错误
+# 案例：堅果雲 WebDAV 在 Cloudflare Workers 上返回 520 錯誤
 
-> 排查过程全记录，从现象到根因，适合零基础阅读。
+> 排查過程全記錄，從現象到根因，適合零基礎閱讀。
 
 ---
 
-## 目录
+## 目錄
 
-1. [背景介绍](#1-背景介绍)
-2. [问题现象](#2-问题现象)
-3. [排查过程](#3-排查过程)
-   - [第一轮：以为是 HTTP 方法不支持](#31-第一轮以为是-http-方法不支持)
-   - [第二轮：以为是缺少 User-Agent](#32-第二轮以为是缺少-user-agent)
-   - [第三轮：加调试信息，发现 Cloudflare](#33-第三轮加调试信息发现-cloudflare)
-   - [第四轮：海外 VPS 验证，修正根因](#34-第四轮海外-vps-验证修正根因)
+1. [背景介紹](#1-背景介紹)
+2. [問題現象](#2-問題現象)
+3. [排查過程](#3-排查過程)
+   - [第一輪：以為是 HTTP 方法不支援](#31-第一輪以為是-http-方法不支援)
+   - [第二輪：以為是缺少 User-Agent](#32-第二輪以為是缺少-user-agent)
+   - [第三輪：加除錯資訊，發現 Cloudflare](#33-第三輪加除錯資訊發現-cloudflare)
+   - [第四輪：海外 VPS 驗證，修正根因](#34-第四輪海外-vps-驗證修正根因)
 4. [根因分析](#4-根因分析)
-5. [知识点详解](#5-知识点详解)
-   - [什么是 HTTP 520 错误？](#51-什么是-http-520-错误)
-   - [什么是 Cloudflare CDN？](#52-什么是-cloudflare-cdn)
-   - [什么是 Cloudflare Workers？](#53-什么是-cloudflare-workers)
-   - [什么是 WebDAV？](#54-什么是-webdav)
-   - [如何判断一个网站是否在 Cloudflare 后面？](#55-如何判断一个网站是否在-cloudflare-后面)
-6. [最终解决方案](#6-最终解决方案)
-7. [教训与收获](#7-教训与收获)
-8. [参考资料](#8-参考资料)
+5. [知識點詳解](#5-知識點詳解)
+   - [什麼是 HTTP 520 錯誤？](#51-什麼是-http-520-錯誤)
+   - [什麼是 Cloudflare CDN？](#52-什麼是-cloudflare-cdn)
+   - [什麼是 Cloudflare Workers？](#53-什麼是-cloudflare-workers)
+   - [什麼是 WebDAV？](#54-什麼是-webdav)
+   - [如何判斷一個網站是否在 Cloudflare 後面？](#55-如何判斷一個網站是否在-cloudflare-後面)
+6. [最終解決方案](#6-最終解決方案)
+7. [教訓與收穫](#7-教訓與收穫)
+8. [參考資料](#8-參考資料)
 
 ---
 
-## 1. 背景介绍
+## 1. 背景介紹
 
-### 项目是什么？
+### 專案是什麼？
 
-「2FA Manager」是一个部署在 **Cloudflare Workers** 上的两步验证密钥管理工具。它可以：
-- 存储你各个网站的 2FA 密钥
-- 生成 TOTP 验证码
-- 自动备份密钥数据
+「2FA Manager」是一個部署在 **Cloudflare Workers** 上的兩步驗證金鑰管理工具。它可以：
 
-### 想做什么？
+- 儲存你各個網站的 2FA 金鑰
+- 生成 TOTP 驗證碼
+- 自動備份金鑰資料
 
-我们想给这个工具加一个「WebDAV 自动推送」功能：每次备份时，自动把备份文件推送到用户的 WebDAV 网盘（比如坚果云），这样即使 Cloudflare KV 数据丢失，用户也有一份备份在自己的网盘里。
+### 想做什麼？
 
-### 用户的配置
+我們想給這個工具加一個「WebDAV 自動推送」功能：每次備份時，自動把備份檔案推送到使用者的 WebDAV 網盤（比如堅果雲），這樣即使 Cloudflare KV 資料丟失，使用者也有一份備份在自己的網盤裡。
 
-| 配置项 | 值 |
-|--------|-----|
-| WebDAV 服务器 | `https://dav.jianguoyun.com/dav` (坚果云) |
-| 用户名 | `user@example.com` |
-| 密码 | 坚果云的应用专用密码 |
-| 备份路径 | `/` |
+### 使用者的配置
 
-用户确认账号密码没有问题，在其他 WebDAV 客户端中可以正常使用。
+| 配置項        | 值                                        |
+| ------------- | ----------------------------------------- |
+| WebDAV 伺服器 | `https://dav.jianguoyun.com/dav` (堅果雲) |
+| 使用者名稱    | `user@example.com`                        |
+| 密碼          | 堅果雲的應用專用密碼                      |
+| 備份路徑      | `/`                                       |
 
----
-
-## 2. 问题现象
-
-部署完成后，用户在 `https://2fa.guts.eu.org/` 页面打开 WebDAV 设置，填入坚果云的地址和凭据，点击「测试连接」按钮，页面提示：
-
-> ❌ 服务器返回 520
-
-用户反复检查了账号密码，确认无误，但始终无法连接。
+使用者確認賬號密碼沒有問題，在其他 WebDAV 客戶端中可以正常使用。
 
 ---
 
-## 3. 排查过程
+## 2. 問題現象
 
-### 3.1 第一轮：以为是 HTTP 方法不支持
+部署完成後，使用者在 `https://2fa.guts.eu.org/` 頁面開啟 WebDAV 設定，填入堅果雲的地址和憑據，點選「測試連線」按鈕，頁面提示：
 
-**假设：** WebDAV 使用的 `PROPFIND` 方法不被坚果云支持，所以返回错误。
+> ❌ 伺服器返回 520
 
-**做了什么：** 在 `PROPFIND` 失败后，加了回退逻辑，先试 `PROPFIND`，如果返回 405（方法不允许），就改用 `OPTIONS` 方法。
-
-```
-PROPFIND 失败(405) → 回退到 OPTIONS
-```
-
-**结果：** 部署后依然报 520。因为 520 ≠ 405，回退逻辑没被触发。
-
-**修正：** 把 520 也加入回退条件。
-
-```
-PROPFIND 失败(405 或 520) → 回退到 OPTIONS
-```
-
-**结果：** 依然失败。OPTIONS 方法也返回 520。
-
-**反思：** 说明不是某个方法不被支持的问题——是所有方法都失败了。
+使用者反覆檢查了賬號密碼，確認無誤，但始終無法連線。
 
 ---
 
-### 3.2 第二轮：以为是缺少 User-Agent
+## 3. 排查過程
 
-**假设：** Cloudflare Workers 的 `fetch()` 默认不发送 `User-Agent` 请求头，坚果云服务器可能会拒绝没有 `User-Agent` 的请求。
+### 3.1 第一輪：以為是 HTTP 方法不支援
 
-**做了什么：** 给所有 WebDAV 请求加上了 `User-Agent` 头：
+**假設：** WebDAV 使用的 `PROPFIND` 方法不被堅果雲支援，所以返回錯誤。
+
+**做了什麼：** 在 `PROPFIND` 失敗後，加了回退邏輯，先試 `PROPFIND`，如果返回 405（方法不允許），就改用 `OPTIONS` 方法。
+
+```
+PROPFIND 失敗(405) → 回退到 OPTIONS
+```
+
+**結果：** 部署後依然報 520。因為 520 ≠ 405，回退邏輯沒被觸發。
+
+**修正：** 把 520 也加入回退條件。
+
+```
+PROPFIND 失敗(405 或 520) → 回退到 OPTIONS
+```
+
+**結果：** 依然失敗。OPTIONS 方法也返回 520。
+
+**反思：** 說明不是某個方法不被支援的問題——是所有方法都失敗了。
+
+---
+
+### 3.2 第二輪：以為是缺少 User-Agent
+
+**假設：** Cloudflare Workers 的 `fetch()` 預設不傳送 `User-Agent` 請求頭，堅果雲伺服器可能會拒絕沒有 `User-Agent` 的請求。
+
+**做了什麼：** 給所有 WebDAV 請求加上了 `User-Agent` 頭：
 
 ```javascript
 const WEBDAV_USER_AGENT = '2FA-Manager/1.0 (Cloudflare Workers; WebDAV Client)';
 
-// 每个 fetch 调用都加上：
+// 每個 fetch 呼叫都加上：
 headers: {
     Authorization: authHeader,
     'User-Agent': WEBDAV_USER_AGENT,
 }
 ```
 
-同时扩展了测试方法，改为依次尝试三种方法：
+同時擴充套件了測試方法，改為依次嘗試三種方法：
 
 ```
 PROPFIND → HEAD → GET
 ```
 
-**结果：** 三种方法全部返回 520。
+**結果：** 三種方法全部返回 520。
 
-**反思：** 不是请求头的问题。三种完全不同的 HTTP 方法都返回同样的错误，说明问题在更底层。
+**反思：** 不是請求頭的問題。三種完全不同的 HTTP 方法都返回同樣的錯誤，說明問題在更底層。
 
 ---
 
-### 3.3 第三轮：加调试信息，发现 Cloudflare
+### 3.3 第三輪：加除錯資訊，發現 Cloudflare
 
-**做了什么：** 在 `testWebDAVConnection` 函数中加入了调试代码，捕获每次请求的完整响应信息（状态码、响应头、响应体前 200 字符），一并返回给前端。
+**做了什麼：** 在 `testWebDAVConnection` 函式中加入了除錯程式碼，捕獲每次請求的完整響應資訊（狀態碼、響應頭、響應體前 200 字元），一併返回給前端。
 
-然后在浏览器控制台直接调用测试 API：
+然後在瀏覽器控制台直接呼叫測試 API：
 
 ```javascript
 const resp = await fetch('/api/webdav/test', {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        url: 'https://dav.jianguoyun.com/dav',
-        username: 'user@example.com',
-        password: 'YOUR_APP_PASSWORD',
-        path: '/'
-    })
+	method: 'POST',
+	credentials: 'include',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({
+		url: 'https://dav.jianguoyun.com/dav',
+		username: 'user@example.com',
+		password: 'YOUR_APP_PASSWORD',
+		path: '/',
+	}),
 });
 const data = await resp.json();
 console.log(JSON.stringify(data, null, 2));
 ```
 
-**看到的调试数据：**
+**看到的除錯資料：**
 
 ```json
 {
-    "success": false,
-    "message": "连接失败：所有测试方法均不可用，请检查服务器地址和网络",
-    "debug": [
-        {
-            "method": "PROPFIND",
-            "status": 520,
-            "headers": {
-                "server": "cloudflare",
-                "cf-ray": "9d58d8a4a2c8dcfa-LAX"
-            },
-            "bodyPreview": "error code: 520"
-        },
-        {
-            "method": "HEAD",
-            "status": 520,
-            "headers": {
-                "server": "cloudflare",
-                "cf-ray": "9d58d8a74387dcfa-LAX"
-            },
-            "bodyPreview": ""
-        },
-        {
-            "method": "GET",
-            "status": 520,
-            "headers": {
-                "server": "cloudflare",
-                "cf-ray": "9d58d8aa1461dcfa-LAX"
-            },
-            "bodyPreview": "error code: 520"
-        }
-    ]
+	"success": false,
+	"message": "連線失敗：所有測試方法均不可用，請檢查伺服器地址和網路",
+	"debug": [
+		{
+			"method": "PROPFIND",
+			"status": 520,
+			"headers": {
+				"server": "cloudflare",
+				"cf-ray": "9d58d8a4a2c8dcfa-LAX"
+			},
+			"bodyPreview": "error code: 520"
+		},
+		{
+			"method": "HEAD",
+			"status": 520,
+			"headers": {
+				"server": "cloudflare",
+				"cf-ray": "9d58d8a74387dcfa-LAX"
+			},
+			"bodyPreview": ""
+		},
+		{
+			"method": "GET",
+			"status": 520,
+			"headers": {
+				"server": "cloudflare",
+				"cf-ray": "9d58d8aa1461dcfa-LAX"
+			},
+			"bodyPreview": "error code: 520"
+		}
+	]
 }
 ```
 
-**关键发现：**
+**關鍵發現：**
 
-响应头中出现了两个决定性的字段：
-- `"server": "cloudflare"` → 请求经过了 Cloudflare 的基础设施
-- `"cf-ray": "...-LAX"` → 请求经过了 Cloudflare 的洛杉矶（LAX）节点
+響應頭中出現了兩個決定性的欄位：
 
-**初步结论（后来被修正）：** 坚果云使用了 Cloudflare CDN，CDN 看不懂 WebDAV 的 207 响应，所以返回 520。
+- `"server": "cloudflare"` → 請求經過了 Cloudflare 的基礎設施
+- `"cf-ray": "...-LAX"` → 請求經過了 Cloudflare 的洛杉磯（LAX）節點
 
-但这个结论对吗？我们决定用海外 VPS 进一步验证。
+**初步結論（後來被修正）：** 堅果雲使用了 Cloudflare CDN，CDN 看不懂 WebDAV 的 207 響應，所以返回 520。
+
+但這個結論對嗎？我們決定用海外 VPS 進一步驗證。
 
 ---
 
-### 3.4 第四轮：海外 VPS 验证，修正根因
+### 3.4 第四輪：海外 VPS 驗證，修正根因
 
-**为什么要再验证？** 第三轮得出的结论是「Cloudflare CDN 看不懂 WebDAV 响应」。但如果这是真的，那么任何通过 Cloudflare CDN 访问坚果云的客户端都应该失败。我们用一台洛杉矶的 VPS 来验证。
+**為什麼要再驗證？** 第三輪得出的結論是「Cloudflare CDN 看不懂 WebDAV 響應」。但如果這是真的，那麼任何通過 Cloudflare CDN 訪問堅果雲的客戶端都應該失敗。我們用一臺洛杉磯的 VPS 來驗證。
 
-**做了什么：** 在美国洛杉矶的 VPS（RackNerd）上执行了三组测试。
+**做了什麼：** 在美國洛杉磯的 VPS（RackNerd）上執行了三組測試。
 
-**测试 1：国内直连 vs 海外访问**
+**測試 1：國內直連 vs 海外訪問**
 
 ```bash
-# 国内电脑
+# 國內電腦
 $ curl -sI https://dav.jianguoyun.com | head -3
 HTTP/1.1 403 Forbidden
-Server: nginx                    ← 国内直连坚果云 nginx，不经过 CF
+Server: nginx                    ← 國內直連堅果雲 nginx，不經過 CF
 
-# 洛杉矶 VPS
+# 洛杉磯 VPS
 $ curl -sI https://dav.jianguoyun.com | head -3
 HTTP/2 403
 server: nginx                    ← 等等... 海外也是 nginx？！
 ```
 
-**意外发现：** 虽然 DNS 解析到了 Cloudflare IP，但 `server` 头显示的是 `nginx`，不是 `cloudflare`。Cloudflare 在这里是作为负载均衡器（Load Balancer）透传请求，没有改写响应头。
+**意外發現：** 雖然 DNS 解析到了 Cloudflare IP，但 `server` 頭顯示的是 `nginx`，不是 `cloudflare`。Cloudflare 在這裡是作為負載均衡器（Load Balancer）透傳請求，沒有改寫響應頭。
 
-**测试 2：带认证的 WebDAV 请求**
+**測試 2：帶認證的 WebDAV 請求**
 
 ```bash
-# 洛杉矶 VPS - PROPFIND 请求
+# 洛杉磯 VPS - PROPFIND 請求
 $ curl -sI -X PROPFIND \
     -H "Authorization: Basic $(echo -n 'user@example.com:YOUR_APP_PASSWORD' | base64)" \
     -H "Depth: 0" \
@@ -224,9 +226,9 @@ server: nginx
 content-type: text/xml; charset=UTF-8
 ```
 
-**关键发现：** 从海外 VPS 通过 Cloudflare CDN 访问坚果云 WebDAV，**PROPFIND 返回 207 完全正常**！这直接推翻了「CDN 看不懂 WebDAV 响应」的假设。
+**關鍵發現：** 從海外 VPS 通過 Cloudflare CDN 訪問堅果雲 WebDAV，**PROPFIND 返回 207 完全正常**！這直接推翻了「CDN 看不懂 WebDAV 響應」的假設。
 
-**测试 3：DNS 解析链路**
+**測試 3：DNS 解析鏈路**
 
 ```bash
 $ nslookup dav.jianguoyun.com
@@ -236,210 +238,215 @@ dav.jianguoyun.com      → app.jianguoyun.com
                         → 172.65.209.49 (Cloudflare IP)
 ```
 
-DNS CNAME 链中的 `cloudflarelb` 明确表明坚果云使用 Cloudflare 作为**负载均衡器**（LB），不是传统的 CDN 代理。
+DNS CNAME 鏈中的 `cloudflarelb` 明確表明堅果雲使用 Cloudflare 作為**負載均衡器**（LB），不是傳統的 CDN 代理。
 
-**对比结论：**
+**對比結論：**
 
-| 请求来源 | 路径 | PROPFIND 结果 |
-|---------|------|--------------|
-| 海外 VPS（curl） | curl → Cloudflare LB → 坚果云 | **207 成功** |
-| Cloudflare Workers（fetch） | Workers → Cloudflare LB → 坚果云 | **520 失败** |
+| 請求來源                    | 路徑                             | PROPFIND 結果 |
+| --------------------------- | -------------------------------- | ------------- |
+| 海外 VPS（curl）            | curl → Cloudflare LB → 堅果雲    | **207 成功**  |
+| Cloudflare Workers（fetch） | Workers → Cloudflare LB → 堅果雲 | **520 失敗**  |
 
-同样经过 Cloudflare，curl 正常但 Workers 的 `fetch()` 失败 → **问题出在 Workers fetch() 自身**。
+同樣經過 Cloudflare，curl 正常但 Workers 的 `fetch()` 失敗 → **問題出在 Workers fetch() 自身**。
 
 ---
 
 ## 4. 根因分析
 
-### 正常情况下的网络路径
+### 正常情況下的網路路徑
 
-当你在国内的电脑或手机上使用坚果云 WebDAV 时：
+當你在國內的電腦或手機上使用堅果雲 WebDAV 時：
 
 ```
-你的设备 (国内)
-  → 坚果云源服务器 (国内 nginx)
-  ✅ 直连，正常工作
+你的裝置 (國內)
+  → 堅果雲源伺服器 (國內 nginx)
+  ✅ 直連，正常工作
 ```
 
-当你从海外 VPS（如洛杉矶）使用坚果云 WebDAV 时：
+當你從海外 VPS（如洛杉磯）使用堅果雲 WebDAV 時：
 
 ```
 海外 VPS
-  → Cloudflare 负载均衡 (坚果云的 LB)
-    → 坚果云源服务器
+  → Cloudflare 負載均衡 (堅果雲的 LB)
+    → 堅果雲源伺服器
   ✅ 正常返回 207，WebDAV 工作正常
 ```
 
-### 出问题的网络路径
+### 出問題的網路路徑
 
-当 Cloudflare Workers 去连接坚果云时：
+當 Cloudflare Workers 去連線堅果雲時：
 
 ```
-你的浏览器
-  → Cloudflare Workers (你的 2FA 应用)  ← 第一层 Cloudflare
-    → Cloudflare LB (坚果云的负载均衡)  ← 第二层 Cloudflare
-      → 坚果云源服务器 (国内)
+你的瀏覽器
+  → Cloudflare Workers (你的 2FA 應用)  ← 第一層 Cloudflare
+    → Cloudflare LB (堅果雲的負載均衡)  ← 第二層 Cloudflare
+      → 堅果雲源伺服器 (國內)
 ```
 
-形成了 **Cloudflare → Cloudflare → 源站** 的「套娃」结构。
+形成了 **Cloudflare → Cloudflare → 源站** 的「套娃」結構。
 
-### 为什么会失败？
+### 為什麼會失敗？
 
-这是排查中最关键的发现：**Cloudflare CDN 本身能正确传递 WebDAV 的 207 响应**（海外 VPS 用 curl 通过同一条 DNS 链路访问完全正常）。
+這是排查中最關鍵的發現：**Cloudflare CDN 本身能正確傳遞 WebDAV 的 207 響應**（海外 VPS 用 curl 通過同一條 DNS 鏈路訪問完全正常）。
 
-520 的真正原因是 **Cloudflare Workers 的 `fetch()` 请求另一个 Cloudflare 代理的域名时，触发了 Cloudflare 内部的路由冲突或回环检测机制**。
+520 的真正原因是 **Cloudflare Workers 的 `fetch()` 請求另一個 Cloudflare 代理的域名時，觸發了 Cloudflare 內部的路由衝突或迴環檢測機制**。
 
-具体来说：
-1. Cloudflare Workers 的 `fetch()` 发出请求，出口 IP 在海外（本次是 LAX 节点）
-2. DNS 将 `dav.jianguoyun.com` 解析到 Cloudflare IP（`172.65.209.49`），因为坚果云使用了 Cloudflare 负载均衡
-3. 请求从 Cloudflare Workers 边缘节点发往 Cloudflare 负载均衡节点——**两者都是 Cloudflare 内部基础设施**
-4. Cloudflare 检测到这是一个从自身边缘网络发往自身边缘网络的请求，触发内部安全机制，返回 520
+具體來說：
 
-这类似于一个信件在邮局内部转来转去，最终因为「内部循环」被退回——信件本身没问题，收件地址也没问题，问题在于转运方式。
+1. Cloudflare Workers 的 `fetch()` 發出請求，出口 IP 在海外（本次是 LAX 節點）
+2. DNS 將 `dav.jianguoyun.com` 解析到 Cloudflare IP（`172.65.209.49`），因為堅果雲使用了 Cloudflare 負載均衡
+3. 請求從 Cloudflare Workers 邊緣節點發往 Cloudflare 負載均衡節點——**兩者都是 Cloudflare 內部基礎設施**
+4. Cloudflare 檢測到這是一個從自身邊緣網路發往自身邊緣網路的請求，觸發內部安全機制，返回 520
 
-### 一张图理解
+這類似於一個信件在郵局內部轉來轉去，最終因為「內部迴圈」被退回——信件本身沒問題，收件地址也沒問題，問題在於轉運方式。
+
+### 一張圖理解
 
 ```
 ┌─────────────┐     ┌──────────────────┐     ┌──────────────────┐     ┌──────────────┐
-│   你的浏览器  │──→ │ Cloudflare Workers │──→ │  Cloudflare LB    │──→ │  坚果云源服务器 │
-│             │     │ (你的 2FA 应用)    │     │ (坚果云的负载均衡) │     │   (国内)      │
+│   你的瀏覽器  │──→ │ Cloudflare Workers │──→ │  Cloudflare LB    │──→ │  堅果雲源伺服器 │
+│             │     │ (你的 2FA 應用)    │     │ (堅果雲的負載均衡) │     │   (國內)      │
 └─────────────┘     └──────────────────┘     └──────────────────┘     └──────────────┘
                            │                        │                        │
-                      发出 PROPFIND            Cloudflare 内部            正常返回 207
-                      HEAD/GET 请求            路由冲突，返回 520          XML 目录列表
-                           │                        │                   （但根本到不了这里）
+                      發出 PROPFIND            Cloudflare 內部            正常返回 207
+                      HEAD/GET 請求            路由衝突，返回 520          XML 目錄列表
+                           │                        │                   （但根本到不了這裡）
                            │←─── HTTP 520 ──────────│
                            │
-                      所有方法都失败
+                      所有方法都失敗
 ```
 
-### 对比实验：为什么海外 VPS 没问题？
+### 對比實驗：為什麼海外 VPS 沒問題？
 
-| 请求来源 | 到 Cloudflare LB 的请求来源 | 结果 |
-|---------|--------------------------|------|
-| 国内电脑 | 来自普通客户端 IP | ✅ server: nginx, 正常 |
-| 海外 VPS (curl) | 来自普通服务器 IP | ✅ server: nginx, 207 正常 |
-| Cloudflare Workers (fetch) | 来自 Cloudflare 内部边缘节点 IP | ❌ 520 错误 |
+| 請求來源                   | 到 Cloudflare LB 的請求來源     | 結果                       |
+| -------------------------- | ------------------------------- | -------------------------- |
+| 國內電腦                   | 來自普通客戶端 IP               | ✅ server: nginx, 正常     |
+| 海外 VPS (curl)            | 來自普通伺服器 IP               | ✅ server: nginx, 207 正常 |
+| Cloudflare Workers (fetch) | 來自 Cloudflare 內部邊緣節點 IP | ❌ 520 錯誤                |
 
-关键区别：Workers 的 `fetch()` 请求源 IP 属于 Cloudflare 自身的 IP 段。当 Cloudflare 负载均衡收到来自 Cloudflare 自身 IP 的请求时，触发了内部保护机制。
+關鍵區別：Workers 的 `fetch()` 請求源 IP 屬於 Cloudflare 自身的 IP 段。當 Cloudflare 負載均衡收到來自 Cloudflare 自身 IP 的請求時，觸發了內部保護機制。
 
-### 为什么国内直连没问题？
+### 為什麼國內直連沒問題？
 
-从国内网络访问 `dav.jianguoyun.com` 时，DNS 解析到坚果云的国内 nginx 服务器 IP（不经过 Cloudflare），WebDAV 响应直接返回给客户端，完全不涉及 Cloudflare。
+從國內網路訪問 `dav.jianguoyun.com` 時，DNS 解析到堅果雲的國內 nginx 伺服器 IP（不經過 Cloudflare），WebDAV 響應直接返回給客戶端，完全不涉及 Cloudflare。
 
 ---
 
-## 5. 知识点详解
+## 5. 知識點詳解
 
-### 5.1 什么是 HTTP 520 错误？
+### 5.1 什麼是 HTTP 520 錯誤？
 
-**520 不是标准的 HTTP 状态码**，它是 Cloudflare 自定义的。标准 HTTP 状态码只定义到 511。
+**520 不是標準的 HTTP 狀態碼**，它是 Cloudflare 自定義的。標準 HTTP 狀態碼只定義到 511。
 
-| 状态码 | 含义 | 谁定义的 |
-|--------|------|---------|
-| 200 | 成功 | HTTP 标准 |
-| 404 | 页面未找到 | HTTP 标准 |
-| 500 | 服务器内部错误 | HTTP 标准 |
-| **520** | **源站返回了未知响应** | **Cloudflare 自定义** |
-| 521 | 源站拒绝连接 | Cloudflare 自定义 |
-| 522 | 连接源站超时 | Cloudflare 自定义 |
-| 523 | 源站不可达 | Cloudflare 自定义 |
-| 524 | 源站响应超时 | Cloudflare 自定义 |
+| 狀態碼  | 含義                   | 誰定義的              |
+| ------- | ---------------------- | --------------------- |
+| 200     | 成功                   | HTTP 標準             |
+| 404     | 頁面未找到             | HTTP 標準             |
+| 500     | 伺服器內部錯誤         | HTTP 標準             |
+| **520** | **源站返回了未知響應** | **Cloudflare 自定義** |
+| 521     | 源站拒絕連線           | Cloudflare 自定義     |
+| 522     | 連線源站超時           | Cloudflare 自定義     |
+| 523     | 源站不可達             | Cloudflare 自定義     |
+| 524     | 源站響應超時           | Cloudflare 自定義     |
 
-Cloudflare 官方对 520 的描述：
+Cloudflare 官方對 520 的描述：
 
 > Error 520 occurs when the origin server returns an **empty, unknown, or unexpected response** to Cloudflare.
 
-翻译：当源站返回了空的、未知的或意外的响应时，Cloudflare 就返回 520。
+翻譯：當源站返回了空的、未知的或意外的響應時，Cloudflare 就返回 520。
 
-**官方文档地址：**
+**官方文件地址：**
 [https://developers.cloudflare.com/support/troubleshooting/cloudflare-errors/troubleshooting-cloudflare-5xx-errors/#error-520](https://developers.cloudflare.com/support/troubleshooting/cloudflare-errors/troubleshooting-cloudflare-5xx-errors/#error-520)
 
 ---
 
-### 5.2 什么是 Cloudflare CDN？
+### 5.2 什麼是 Cloudflare CDN？
 
-**CDN（Content Delivery Network）** 叫「内容分发网络」，你可以理解为在全球各地放了很多个「缓存服务器」。
+**CDN（Content Delivery Network）** 叫「內容分發網路」，你可以理解為在全球各地放了很多個「快取伺服器」。
 
-打个比方：
-- 没有 CDN：你在福州，想吃北京烤鸭，要从北京快递过来 → 很慢
-- 有 CDN：北京烤鸭在福州设了分店（缓存节点），就近供应 → 很快
+打個比方：
 
-**Cloudflare CDN** 就是最大的 CDN 服务商之一。很多网站（包括坚果云）把自己的域名解析到 Cloudflare 的 IP 上，让 Cloudflare 帮忙加速和防护。
+- 沒有 CDN：你在福州，想吃北京烤鴨，要從北京快遞過來 → 很慢
+- 有 CDN：北京烤鴨在福州設了分店（快取節點），就近供應 → 很快
 
-当你访问一个使用了 Cloudflare CDN 的网站时，实际的访问路径是：
+**Cloudflare CDN** 就是最大的 CDN 服務商之一。很多網站（包括堅果雲）把自己的域名解析到 Cloudflare 的 IP 上，讓 Cloudflare 幫忙加速和防護。
+
+當你訪問一個使用了 Cloudflare CDN 的網站時，實際的訪問路徑是：
 
 ```
-你 → Cloudflare CDN 节点 → 源站服务器
+你 → Cloudflare CDN 節點 → 源站伺服器
 ```
 
-Cloudflare 在中间「代理」了请求和响应。大部分时候这能加速访问，并且能正确传递各种 HTTP 响应（包括 WebDAV 的 207 响应）。但当请求来自 Cloudflare 自身的基础设施（如 Workers）时，可能触发内部路由冲突（比如我们遇到的 520）。
+Cloudflare 在中間「代理」了請求和響應。大部分時候這能加速訪問，並且能正確傳遞各種 HTTP 響應（包括 WebDAV 的 207 響應）。但當請求來自 Cloudflare 自身的基礎設施（如 Workers）時，可能觸發內部路由衝突（比如我們遇到的 520）。
 
 ---
 
-### 5.3 什么是 Cloudflare Workers？
+### 5.3 什麼是 Cloudflare Workers？
 
-**Cloudflare Workers** 是 Cloudflare 提供的「无服务器计算平台」。你可以把 JavaScript 代码部署在 Cloudflare 的全球边缘网络上运行，不需要自己买服务器。
+**Cloudflare Workers** 是 Cloudflare 提供的「無伺服器計算平臺」。你可以把 JavaScript 程式碼部署在 Cloudflare 的全球邊緣網路上執行，不需要自己買伺服器。
 
-优点：
-- 免费额度够个人使用
-- 全球部署，访问速度快
-- 不需要维护服务器
+優點：
+
+- 免費額度夠個人使用
+- 全球部署，訪問速度快
+- 不需要維護伺服器
 
 限制：
-- 代码运行在 Cloudflare 的环境中，有一些限制
-- **`fetch()` 发出的请求出口 IP 在海外**（这就是我们遇到问题的原因之一）
+
+- 程式碼執行在 Cloudflare 的環境中，有一些限制
+- **`fetch()` 發出的請求出口 IP 在海外**（這就是我們遇到問題的原因之一）
 
 ---
 
-### 5.4 什么是 WebDAV？
+### 5.4 什麼是 WebDAV？
 
-**WebDAV（Web Distributed Authoring and Versioning）** 是 HTTP 协议的扩展，让你可以通过网络像操作本地文件一样管理远程文件（上传、下载、创建文件夹、列目录等）。
+**WebDAV（Web Distributed Authoring and Versioning）** 是 HTTP 協議的擴充套件，讓你可以通過網路像操作本地檔案一樣管理遠端檔案（上傳、下載、建立資料夾、列目錄等）。
 
-它在标准 HTTP 方法（GET、POST、PUT、DELETE）基础上增加了几个专有方法：
+它在標準 HTTP 方法（GET、POST、PUT、DELETE）基礎上增加了幾個專有方法：
 
-| 方法 | 作用 | 说明 |
-|------|------|------|
-| `PROPFIND` | 查看文件/目录属性 | 类似 `ls -la` |
-| `MKCOL` | 创建目录 | 类似 `mkdir` |
-| `COPY` | 复制文件 | 类似 `cp` |
-| `MOVE` | 移动/重命名文件 | 类似 `mv` |
-| `LOCK/UNLOCK` | 锁定/解锁文件 | 防止并发修改 |
+| 方法          | 作用              | 說明          |
+| ------------- | ----------------- | ------------- |
+| `PROPFIND`    | 檢視檔案/目錄屬性 | 類似 `ls -la` |
+| `MKCOL`       | 建立目錄          | 類似 `mkdir`  |
+| `COPY`        | 複製檔案          | 類似 `cp`     |
+| `MOVE`        | 移動/重新命名檔案 | 類似 `mv`     |
+| `LOCK/UNLOCK` | 鎖定/解鎖檔案     | 防止併發修改  |
 
-WebDAV 响应也有自己的格式，比如 `207 Multi-Status` 状态码配合 XML 响应体。经过实测验证，**Cloudflare CDN/LB 能正确传递这些响应**（海外 VPS 通过 Cloudflare 访问坚果云 PROPFIND 返回 207 完全正常）。520 错误的原因并非 CDN 看不懂 WebDAV 响应，而是 Workers 内部的路由冲突机制。
+WebDAV 響應也有自己的格式，比如 `207 Multi-Status` 狀態碼配合 XML 響應體。經過實測驗證，**Cloudflare CDN/LB 能正確傳遞這些響應**（海外 VPS 通過 Cloudflare 訪問堅果雲 PROPFIND 返回 207 完全正常）。520 錯誤的原因並非 CDN 看不懂 WebDAV 響應，而是 Workers 內部的路由衝突機制。
 
-坚果云、NextCloud、Alist 等工具都支持 WebDAV 协议。
+堅果雲、NextCloud、Alist 等工具都支援 WebDAV 協議。
 
 ---
 
-### 5.5 如何判断一个网站是否在 Cloudflare 后面？
+### 5.5 如何判斷一個網站是否在 Cloudflare 後面？
 
-#### 方法一：浏览器 F12（最简单）
+#### 方法一：瀏覽器 F12（最簡單）
 
-1. 打开浏览器，按 F12 打开开发者工具
-2. 切换到 Network（网络）面板
-3. 刷新页面
-4. 点击第一个请求，查看 Response Headers（响应头）
-5. 找这两个字段：
+1. 開啟瀏覽器，按 F12 開啟開發者工具
+2. 切換到 Network（網路）面板
+3. 重新整理頁面
+4. 點選第一個請求，檢視 Response Headers（響應頭）
+5. 找這兩個欄位：
 
 ```
-server: cloudflare              ← 看到这个就确认了
-cf-ray: 9d58d8a4a2c8dcfa-LAX    ← Cloudflare 请求 ID，LAX 是节点代号
+server: cloudflare              ← 看到這個就確認了
+cf-ray: 9d58d8a4a2c8dcfa-LAX    ← Cloudflare 請求 ID，LAX 是節點代號
 ```
 
-#### 方法二：命令行 curl
+#### 方法二：命令列 curl
 
 ```bash
 curl -sI https://dav.jianguoyun.com | grep -i "server\|cf-ray"
 ```
 
-如果输出：
+如果輸出：
+
 ```
 server: cloudflare
 cf-ray: xxxxxxx-LAX
 ```
 
-就说明在 Cloudflare 后面。
+就說明在 Cloudflare 後面。
 
 #### 方法三：查 DNS 解析
 
@@ -447,77 +454,80 @@ cf-ray: xxxxxxx-LAX
 nslookup dav.jianguoyun.com
 ```
 
-如果解析到的 IP 在以下范围内，就属于 Cloudflare：
+如果解析到的 IP 在以下範圍內，就屬於 Cloudflare：
+
 - `104.16.x.x` ~ `104.31.x.x`
 - `172.64.x.x` ~ `172.71.x.x`
 - `103.21.244.x` ~ `103.22.201.x`
 
 完整列表：[https://www.cloudflare.com/ips/](https://www.cloudflare.com/ips/)
 
-#### 方法四：在线工具
+#### 方法四：線上工具
 
-- [BuiltWith](https://builtwith.com) — 输入域名，看技术栈里有没有 Cloudflare
-- [SecurityTrails](https://securitytrails.com) — 查域名的 DNS 历史
+- [BuiltWith](https://builtwith.com) — 輸入域名，看技術棧裡有沒有 Cloudflare
+- [SecurityTrails](https://securitytrails.com) — 查域名的 DNS 歷史
 
 ---
 
-## 6. 最终解决方案
+## 6. 最終解決方案
 
-### 代码修改
+### 程式碼修改
 
-清理了所有调试代码，在 `testWebDAVConnection` 函数中加入了 520 专用检测：
+清理了所有除錯程式碼，在 `testWebDAVConnection` 函式中加入了 520 專用檢測：
 
 ```javascript
-// 跟踪是否所有请求都返回 520
+// 跟蹤是否所有請求都返回 520
 let all520 = true;
 
 for (const { method, headers } of methods) {
-    // ... 发送请求 ...
+	// ... 傳送請求 ...
 
-    if (response.status !== 520) {
-        all520 = false;
-    }
+	if (response.status !== 520) {
+		all520 = false;
+	}
 
-    // 520/405 继续尝试下一个方法
-    if (response.status === 520 || response.status === 405) {
-        continue;
-    }
+	// 520/405 繼續嘗試下一個方法
+	if (response.status === 520 || response.status === 405) {
+		continue;
+	}
 }
 
-// 所有请求都返回 520：给用户明确的提示
+// 所有請求都返回 520：給使用者明確的提示
 if (all520) {
-    return {
-        success: false,
-        message: '该 WebDAV 服务器使用了 Cloudflare CDN，'
-               + 'Cloudflare Workers 内部请求会触发路由冲突（错误 520）。'
-               + '请使用未经 Cloudflare 代理的 WebDAV 服务，如自建 NextCloud、Alist 等。',
-    };
+	return {
+		success: false,
+		message:
+			'該 WebDAV 伺服器使用了 Cloudflare CDN，' +
+			'Cloudflare Workers 內部請求會觸發路由衝突（錯誤 520）。' +
+			'請使用未經 Cloudflare 代理的 WebDAV 服務，如自建 NextCloud、Alist 等。',
+	};
 }
 ```
 
-### 为什么不能在代码层面修复？
+### 為什麼不能在程式碼層面修復？
 
-这是 Cloudflare 平台级的限制，不是代码 bug。根本原因是 Workers 的 `fetch()` 请求源 IP 属于 Cloudflare 自身的 IP 段，当目标域名也在 Cloudflare 后面时，Cloudflare 内部的路由/回环检测机制会拦截请求返回 520。
+這是 Cloudflare 平臺級的限制，不是程式碼 bug。根本原因是 Workers 的 `fetch()` 請求源 IP 屬於 Cloudflare 自身的 IP 段，當目標域名也在 Cloudflare 後面時，Cloudflare 內部的路由/迴環檢測機制會攔截請求返回 520。
 
-Cloudflare 官方提供了几个绕过方案，但大部分对第三方服务（如坚果云）不适用：
+Cloudflare 官方提供了幾個繞過方案，但大部分對第三方服務（如堅果雲）不適用：
 
-| 官方方案 | 适用场景 | 对坚果云是否可行 |
-|---------|---------|----------------|
-| Service Bindings | 同账户下 Worker 互调 | ❌ 坚果云不是你的 Worker |
-| `cf.resolveOverride` | 自定义 DNS 解析绕过 CF | ❌ 仅 Enterprise 付费计划 |
-| 灰云 DNS（关闭 CF 代理） | 你控制目标域名的 DNS | ❌ 你无法控制坚果云的 DNS |
-| 不挂 Worker 路由的子域名 | 同 Zone 下分流 | ❌ 坚果云不在你的 Zone |
+| 官方方案                 | 適用場景               | 對堅果雲是否可行          |
+| ------------------------ | ---------------------- | ------------------------- |
+| Service Bindings         | 同賬戶下 Worker 互調   | ❌ 堅果雲不是你的 Worker  |
+| `cf.resolveOverride`     | 自定義 DNS 解析繞過 CF | ❌ 僅 Enterprise 付費計劃 |
+| 灰雲 DNS（關閉 CF 代理） | 你控制目標域名的 DNS   | ❌ 你無法控制堅果雲的 DNS |
+| 不掛 Worker 路由的子域名 | 同 Zone 下分流         | ❌ 堅果雲不在你的 Zone    |
 
-### 用户可以怎么办？
+### 使用者可以怎麼辦？
 
-#### 方案一：VPS 反向代理中转（推荐，你已有 VPS）
+#### 方案一：VPS 反向代理中轉（推薦，你已有 VPS）
 
-利用你已有的洛杉矶 VPS 做中转。已验证 VPS 直连坚果云 WebDAV 完全正常（PROPFIND 返回 207）。
+利用你已有的洛杉磯 VPS 做中轉。已驗證 VPS 直連堅果雲 WebDAV 完全正常（PROPFIND 返回 207）。
 
 **原理：**
+
 ```
-之前（失败）：Workers fetch() [CF IP] → Cloudflare LB → 坚果云 → 520
-现在（成功）：Workers fetch() → 你的 VPS [普通 IP] → 坚果云 → 207 ✅
+之前（失敗）：Workers fetch() [CF IP] → Cloudflare LB → 堅果雲 → 520
+現在（成功）：Workers fetch() → 你的 VPS [普通 IP] → 堅果雲 → 207 ✅
 ```
 
 **VPS 上的 nginx 配置：**
@@ -539,110 +549,112 @@ server {
 }
 ```
 
-然后 Worker 中把 WebDAV URL 从 `https://dav.jianguoyun.com/dav` 改为 `https://webdav-proxy.yourdomain.com/dav` 即可。
+然後 Worker 中把 WebDAV URL 從 `https://dav.jianguoyun.com/dav` 改為 `https://webdav-proxy.yourdomain.com/dav` 即可。
 
-| 项目 | 说明 |
-|------|------|
-| 难度 | ⭐⭐ 中等（需要有 VPS 和域名） |
-| 费用 | 低（你已有 VPS） |
-| 优点 | 不改变用户习惯，备份仍在坚果云 |
-| 缺点 | 多一跳延迟，VPS 挂了备份中断 |
+| 專案 | 說明                             |
+| ---- | -------------------------------- |
+| 難度 | ⭐⭐ 中等（需要有 VPS 和域名）   |
+| 費用 | 低（你已有 VPS）                 |
+| 優點 | 不改變使用者習慣，備份仍在堅果雲 |
+| 缺點 | 多一跳延遲，VPS 掛了備份中斷     |
 
-#### 方案二：改用 Cloudflare R2 存储备份（最稳定）
+#### 方案二：改用 Cloudflare R2 儲存備份（最穩定）
 
-放弃 WebDAV，用 Cloudflare R2（S3 兼容的对象存储）存备份。R2 和 Workers 同属 Cloudflare 内部网络，通过 binding 直连，不走 HTTP，完全不存在路由冲突问题。
+放棄 WebDAV，用 Cloudflare R2（S3 相容的物件儲存）存備份。R2 和 Workers 同屬 Cloudflare 內部網路，通過 binding 直連，不走 HTTP，完全不存在路由衝突問題。
 
 **wrangler.toml 配置：**
+
 ```toml
 [[r2_buckets]]
 binding = "BACKUP_BUCKET"
 bucket_name = "2fa-backups"
 ```
 
-**代码示例：**
+**程式碼示例：**
+
 ```javascript
-// 存储备份
+// 儲存備份
 await env.BACKUP_BUCKET.put(backupKey, backupContent);
 
-// 读取备份
+// 讀取備份
 const object = await env.BACKUP_BUCKET.get(backupKey);
 const content = await object.text();
 
-// 列出所有备份
+// 列出所有備份
 const list = await env.BACKUP_BUCKET.list({ prefix: 'backup_' });
 ```
 
-| 项目 | 说明 |
-|------|------|
-| 难度 | ⭐⭐ 中等（需要改代码） |
-| 费用 | 免费（R2 免费额度：10GB 存储 + 每月 1000 万次读 + 100 万次写） |
-| 优点 | 零延迟、最稳定、无外部依赖、和 Workers 原生集成 |
-| 缺点 | 用户不能像网盘一样直接浏览文件；需要单独做导出功能 |
+| 專案 | 說明                                                           |
+| ---- | -------------------------------------------------------------- |
+| 難度 | ⭐⭐ 中等（需要改程式碼）                                      |
+| 費用 | 免費（R2 免費額度：10GB 儲存 + 每月 1000 萬次讀 + 100 萬次寫） |
+| 優點 | 零延遲、最穩定、無外部依賴、和 Workers 原生整合                |
+| 缺點 | 使用者不能像網盤一樣直接瀏覽檔案；需要單獨做匯出功能           |
 
-#### 方案三：换用不在 Cloudflare 后面的 WebDAV 服务
+#### 方案三：換用不在 Cloudflare 後面的 WebDAV 服務
 
-| 替代服务 | 说明 |
-|---------|------|
-| 自建 NextCloud | 开源私有云，支持 WebDAV，部署在自己的 VPS 上 |
-| Alist | 轻量存储管理工具，支持 WebDAV，Docker 一键部署 |
-| 群晖 NAS WebDAV | 如果有群晖 NAS，自带 WebDAV Server 套件 |
-| InfiniCLOUD (teracloud.jp) | 日本免费 WebDAV 服务，不在 Cloudflare 后面 |
+| 替代服務                   | 說明                                           |
+| -------------------------- | ---------------------------------------------- |
+| 自建 NextCloud             | 開源私有云，支援 WebDAV，部署在自己的 VPS 上   |
+| Alist                      | 輕量儲存管理工具，支援 WebDAV，Docker 一鍵部署 |
+| 群暉 NAS WebDAV            | 如果有群暉 NAS，自帶 WebDAV Server 套件        |
+| InfiniCLOUD (teracloud.jp) | 日本免費 WebDAV 服務，不在 Cloudflare 後面     |
 
-| 项目 | 说明 |
-|------|------|
-| 难度 | ⭐ 简单（只需更换 WebDAV 地址） |
-| 费用 | 免费~低 |
-| 优点 | 不需要改代码，现有 WebDAV 功能直接可用 |
-| 缺点 | 需要用户迁移，放弃坚果云 |
+| 專案 | 說明                                     |
+| ---- | ---------------------------------------- |
+| 難度 | ⭐ 簡單（只需更換 WebDAV 地址）          |
+| 費用 | 免費~低                                  |
+| 優點 | 不需要改程式碼，現有 WebDAV 功能直接可用 |
+| 缺點 | 需要使用者遷移，放棄堅果雲               |
 
-### 方案对比总结
+### 方案對比總結
 
-| 方案 | 难度 | 费用 | 是否需要改代码 | 备份位置 | 稳定性 |
-|------|------|------|--------------|---------|--------|
-| VPS 反代中转 | ⭐⭐ | 低 | 不需要 | 坚果云 | 依赖 VPS |
-| Cloudflare R2 | ⭐⭐ | 免费 | 需要 | R2 存储桶 | 最高 |
-| 换 WebDAV 服务 | ⭐ | 免费~低 | 不需要 | 新的 WebDAV 服务 | 取决于服务 |
-
----
-
-## 7. 教训与收获
-
-### 排查方法论
-
-| 步骤 | 我们做了什么 | 教训 |
-|------|------------|------|
-| 1. 先猜测 | 猜是 HTTP 方法不支持 | 猜测可以作为起点，但不能只靠猜 |
-| 2. 加回退 | 加了 PROPFIND → OPTIONS 回退 | 修了一个可能的原因，但没验证根因 |
-| 3. 继续猜 | 猜是缺少 User-Agent | 多种方法都失败时，要怀疑更底层的原因 |
-| 4. 加调试 | 返回完整的响应头和响应体 | **看数据说话**，发现了 Cloudflare 的介入 |
-| 5. 初步结论 | 以为是 CDN 看不懂 WebDAV 响应 | 看起来合理，但未经验证的结论可能是错的 |
-| 6. 交叉验证 | 用海外 VPS curl 同一域名 | **推翻了初步结论**，发现 CDN 能正确传递 207 |
-| 7. 修正根因 | 确认是 Workers → CF 内部路由冲突 | 多维度验证才能得到正确结论 |
-
-### 核心教训
-
-1. **先看数据，再下结论。** 头两轮排查都是在猜测，浪费了时间。第三轮加了调试信息后，一眼就看到了 `server: cloudflare`。
-
-2. **结论需要交叉验证。** 看到 `server: cloudflare` 后，我们最初以为是「CDN 看不懂 WebDAV 响应」。但用海外 VPS 做对比实验后发现，同样经过 Cloudflare 的 curl 请求完全正常（207），直接推翻了这个假设。**如果没有这一步验证，我们会带着错误的根因给用户错误的建议。**
-
-3. **当所有变种都失败时，问题不在变种本身。** PROPFIND、HEAD、GET 全部返回 520，说明问题不在 HTTP 方法，而在更底层（网络路径）。
-
-4. **Cloudflare Workers 的 `fetch()` 有隐含限制。** 它的出口 IP 属于 Cloudflare 自身的 IP 段，当目标域名也在 Cloudflare 后面时，会触发内部路由冲突或回环检测，产生 520 错误。这是一个平台级的限制，无法在应用层规避。
-
-5. **「套娃」架构要警惕。** Cloudflare Workers（第一层 CF）→ Cloudflare LB（第二层 CF）→ 源站，两层 Cloudflare 之间的内部路由冲突是问题根源，而非协议不兼容。
+| 方案           | 難度 | 費用    | 是否需要改程式碼 | 備份位置         | 穩定性     |
+| -------------- | ---- | ------- | ---------------- | ---------------- | ---------- |
+| VPS 反代中轉   | ⭐⭐ | 低      | 不需要           | 堅果雲           | 依賴 VPS   |
+| Cloudflare R2  | ⭐⭐ | 免費    | 需要             | R2 儲存桶        | 最高       |
+| 換 WebDAV 服務 | ⭐   | 免費~低 | 不需要           | 新的 WebDAV 服務 | 取決於服務 |
 
 ---
 
-## 8. 参考资料
+## 7. 教訓與收穫
 
-- [Cloudflare 5XX 错误排查官方文档](https://developers.cloudflare.com/support/troubleshooting/cloudflare-errors/troubleshooting-cloudflare-5xx-errors/#error-520)
+### 排查方法論
+
+| 步驟        | 我們做了什麼                     | 教訓                                        |
+| ----------- | -------------------------------- | ------------------------------------------- |
+| 1. 先猜測   | 猜是 HTTP 方法不支援             | 猜測可以作為起點，但不能只靠猜              |
+| 2. 加回退   | 加了 PROPFIND → OPTIONS 回退     | 修了一個可能的原因，但沒驗證根因            |
+| 3. 繼續猜   | 猜是缺少 User-Agent              | 多種方法都失敗時，要懷疑更底層的原因        |
+| 4. 加除錯   | 返回完整的響應頭和響應體         | **看資料說話**，發現了 Cloudflare 的介入    |
+| 5. 初步結論 | 以為是 CDN 看不懂 WebDAV 響應    | 看起來合理，但未經驗證的結論可能是錯的      |
+| 6. 交叉驗證 | 用海外 VPS curl 同一域名         | **推翻了初步結論**，發現 CDN 能正確傳遞 207 |
+| 7. 修正根因 | 確認是 Workers → CF 內部路由衝突 | 多維度驗證才能得到正確結論                  |
+
+### 核心教訓
+
+1. **先看資料，再下結論。** 頭兩輪排查都是在猜測，浪費了時間。第三輪加了除錯資訊後，一眼就看到了 `server: cloudflare`。
+
+2. **結論需要交叉驗證。** 看到 `server: cloudflare` 後，我們最初以為是「CDN 看不懂 WebDAV 響應」。但用海外 VPS 做對比實驗後發現，同樣經過 Cloudflare 的 curl 請求完全正常（207），直接推翻了這個假設。**如果沒有這一步驗證，我們會帶著錯誤的根因給使用者錯誤的建議。**
+
+3. **當所有變種都失敗時，問題不在變種本身。** PROPFIND、HEAD、GET 全部返回 520，說明問題不在 HTTP 方法，而在更底層（網路路徑）。
+
+4. **Cloudflare Workers 的 `fetch()` 有隱含限制。** 它的出口 IP 屬於 Cloudflare 自身的 IP 段，當目標域名也在 Cloudflare 後面時，會觸發內部路由衝突或迴環檢測，產生 520 錯誤。這是一個平臺級的限制，無法在應用層規避。
+
+5. **「套娃」架構要警惕。** Cloudflare Workers（第一層 CF）→ Cloudflare LB（第二層 CF）→ 源站，兩層 Cloudflare 之間的內部路由衝突是問題根源，而非協議不相容。
+
+---
+
+## 8. 參考資料
+
+- [Cloudflare 5XX 錯誤排查官方文件](https://developers.cloudflare.com/support/troubleshooting/cloudflare-errors/troubleshooting-cloudflare-5xx-errors/#error-520)
 - [Cloudflare IP 地址列表](https://www.cloudflare.com/ips/)
-- [Cloudflare Workers 文档](https://developers.cloudflare.com/workers/)
-- [WebDAV 协议 (RFC 4918)](https://datatracker.ietf.org/doc/html/rfc4918)
-- [坚果云 WebDAV 文档](https://help.jianguoyun.com/?p=2064)
-- [Cloudflare Community Forum](https://community.cloudflare.com) — 搜索 "520 error" 可找到更多案例
+- [Cloudflare Workers 文件](https://developers.cloudflare.com/workers/)
+- [WebDAV 協議 (RFC 4918)](https://datatracker.ietf.org/doc/html/rfc4918)
+- [堅果雲 WebDAV 文件](https://help.jianguoyun.com/?p=2064)
+- [Cloudflare Community Forum](https://community.cloudflare.com) — 搜尋 "520 error" 可找到更多案例
 
 ---
 
-*文档生成日期：2026-03-01（根因修正于同日）*
-*问题发现到定位耗时：4 轮排查，4 次部署，1 次海外 VPS 交叉验证*
+_文件生成日期：2026-03-01（根因修正於同日）_
+_問題發現到定位耗時：4 輪排查，4 次部署，1 次海外 VPS 交叉驗證_

@@ -1,5 +1,5 @@
 /**
- * 基础样式模块 - 使用 CSS 变量
+ * 基礎樣式模組 - 使用 CSS 變數
  */
 export function getBaseStyles() {
 	return `    * {
@@ -63,7 +63,7 @@ export function getBaseStyles() {
       padding: 30px 20px 20px 20px;
     }
 
-    /* 搜索功能样式 */
+    /* 搜尋功能樣式 */
     .search-section {
       margin-bottom: 20px;
     }
@@ -118,7 +118,7 @@ export function getBaseStyles() {
       font-weight: 400;
     }
 
-    /* 隐藏浏览器原生的搜索清除按钮（type="search" 自带的"x"号） */
+    /* 隱藏瀏覽器原生的搜尋清除按鈕（type="search" 自帶的"x"號） */
     .search-input::-webkit-search-cancel-button {
       display: none;
       -webkit-appearance: none;
@@ -168,7 +168,7 @@ export function getBaseStyles() {
       border: 0;
     }
 
-    /* 平板和中等屏幕优化 */
+    /* 平板和中等螢幕最佳化 */
     @media (min-width: 481px) and (max-width: 768px) {
       .search-action-row {
         gap: 12px;
@@ -179,7 +179,7 @@ export function getBaseStyles() {
       }
     }
 
-    /* 搜索框和操作按钮的水平布局 */
+    /* 搜尋框和操作按鈕的水平佈局 */
     .search-action-row {
       display: flex;
       align-items: center;
@@ -218,7 +218,7 @@ export function getBaseStyles() {
       box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
     }
 
-    /* ========== P1.2 排序 popover（搜索右侧 icon-button） ========== */
+    /* ========== P1.2 排序 popover（搜尋右側 icon-button） ========== */
     .sort-select-hidden {
       display: none !important;
     }
@@ -387,7 +387,7 @@ export function getBaseStyles() {
       font-weight: bold;
     }
 
-    /* 手机端：隐藏 trigger 文字，保留 icon，压缩为 44x44 icon-button */
+    /* 手機端：隱藏 trigger 文字，保留 icon，壓縮為 44x44 icon-button */
     @media (max-width: 768px) {
       .sort-trigger-label {
         display: none;
@@ -406,7 +406,7 @@ export function getBaseStyles() {
       }
     }
 
-    /* 独立的操作菜单容器 - 固定在右下角，兼容 iOS safe area */
+    /* 獨立的操作選單容器 - 固定在右下角，相容 iOS safe area */
     .action-menu-float {
       position: fixed;
       bottom: calc(24px + env(safe-area-inset-bottom, 0px));
@@ -414,7 +414,7 @@ export function getBaseStyles() {
       z-index: 1001;
     }
 
-    /* 拖拽中：禁用过渡，避免位置跟手时出现回弹 */
+    /* 拖拽中：停用過渡，避免位置跟手時出現回彈 */
     .action-menu-float.dragging,
     .action-menu-float.dragging .main-action-button {
       transition: none !important;
@@ -445,7 +445,7 @@ export function getBaseStyles() {
       animation: fab-breath 4s ease-in-out infinite;
     }
 
-    /* 轻微的呼吸灯效果：紫色光晕缓慢明暗 */
+    /* 輕微的呼吸燈效果：紫色光暈緩慢明暗 */
     @keyframes fab-breath {
       0%, 100% {
         box-shadow:
@@ -459,21 +459,21 @@ export function getBaseStyles() {
       }
     }
 
-    /* 激活 / 拖拽时暂停呼吸，避免与其他状态视觉冲突 */
+    /* 啟用 / 拖拽時暫停呼吸，避免與其他狀態視覺衝突 */
     .main-action-button.active,
     .action-menu-float.dragging .main-action-button {
       animation: none;
     }
 
-    /* 悬停暂停仅在支持 hover 的设备启用：
-       触摸设备点按后 :hover 会粘滞在按钮上，若不加保护呼吸灯将一直停到用户点击别处 */
+    /* 懸停暫停僅在支援 hover 的裝置啟用：
+       觸控裝置點按後 :hover 會粘滯在按鈕上，若不加保護呼吸燈將一直停到使用者點選別處 */
     @media (hover: hover) {
       .main-action-button:hover {
         animation: none;
       }
     }
 
-    /* 尊重系统的"减弱动效"无障碍偏好 */
+    /* 尊重系統的"減弱動效"無障礙偏好 */
     @media (prefers-reduced-motion: reduce) {
       .main-action-button {
         animation: none;
@@ -502,7 +502,7 @@ export function getBaseStyles() {
       background: var(--danger-dark);
     }
 
-    /* 优化后的子菜单设计 - FAB 在右下角，子菜单向上展开 */
+    /* 最佳化後的子選單設計 - FAB 在右下角，子菜單向上展開 */
     .action-submenu {
       position: absolute;
       bottom: 70px;
@@ -564,7 +564,7 @@ export function getBaseStyles() {
       flex: 1;
     }
 
-    /* 为每个菜单项添加特色颜色 - 根据新顺序调整 */
+    /* 為每個選單項新增特色顏色 - 根據新順序調整 */
     .action-submenu.show .submenu-item:nth-child(1):hover {
       background: var(--primary-50);
       color: var(--primary-600);
@@ -614,7 +614,7 @@ export function getBaseStyles() {
       visibility: visible;
     }
 
-    /* 响应式调整 — P1.2：搜索与排序 icon-button 同行展示 */
+    /* 響應式調整 — P1.2：搜尋與排序 icon-button 同行展示 */
     @media (max-width: 768px) {
       .search-action-row {
         flex-direction: row;
@@ -632,7 +632,7 @@ export function getBaseStyles() {
         width: auto;
       }
 
-      /* menu 在手机上贴右对齐，不超过屏幕宽度 */
+      /* menu 在手機上貼右對齊，不超過螢幕寬度 */
       .sort-menu {
         max-width: calc(100vw - 32px);
       }

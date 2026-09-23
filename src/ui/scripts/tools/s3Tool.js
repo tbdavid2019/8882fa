@@ -1,15 +1,15 @@
 /**
- * S3 同步工具模块
- * 提供多目标 S3 兼容存储配置管理 UI
+ * S3 同步工具模組
+ * 提供多目標 S3 相容儲存配置管理 UI
  */
 
 /**
- * 获取 S3 工具代码
- * @returns {string} S3 工具 JavaScript 代码
+ * 獲取 S3 工具程式碼
+ * @returns {string} S3 工具 JavaScript 程式碼
  */
 export function getS3ToolCode() {
 	return `
-    // ==================== S3 同步工具（多目标） ====================
+    // ==================== S3 同步工具（多目標） ====================
 
     function _escapeS3Html(str) {
       const div = document.createElement('div');
@@ -40,17 +40,17 @@ export function getS3ToolCode() {
         const response = await authenticatedFetch('/api/s3/config');
         const data = await response.json();
 
-        // 渲染目标列表
+        // 渲染目標列表
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderS3Card(dest)).join('');
         } else {
           listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('s3EmptyList') : null) || 'No S3 targets. Click button below to add') + '</div>';
         }
 
-        // 达到上限时隐藏添加按钮
+        // 達到上限時隱藏新增按鈕
         addBtn.dataset.canAdd = data.count < data.maxAllowed ? 'true' : 'false';
 
-        // 隐藏表单
+        // 隱藏表單
         hideS3Form();
       } catch (error) {
         console.error('加载 S3 配置失败:', error);
@@ -101,7 +101,7 @@ export function getS3ToolCode() {
       addBtn.style.display = 'none';
 
       if (!id) {
-        // 新增模式：清空表单
+        // 新增模式：清空表單
         document.getElementById('s3EditId').value = '';
         document.getElementById('s3Name').value = '';
         document.getElementById('s3Endpoint').value = '';

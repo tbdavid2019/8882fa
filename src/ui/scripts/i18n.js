@@ -1,18 +1,18 @@
 /**
- * 前端国际化与多语言模块 (i18n Module)
- * 支持 简体中文 (zh-CN)、繁體中文 (zh-TW) 与 英文 (en)
+ * 前端國際化與多語言模組 (i18n Module)
+ * 支援 簡體中文 (zh-CN)、繁體中文 (zh-TW) 與 英文 (en)
  */
 
 import { LOCALES } from '../locales/index.js';
 
 /**
- * 获取 i18n 客户端代码
- * @returns {string} i18n JavaScript 代码
+ * 獲取 i18n 客戶端程式碼
+ * @returns {string} i18n JavaScript 程式碼
  */
 export function getI18nCode() {
 	const localesJSON = JSON.stringify(LOCALES);
 
-	return `    // ========== 国际化与多语言模块 (i18n) ==========
+	return `    // ========== 國際化與多語言模組 (i18n) ==========
     const I18N_LOCALES = ${localesJSON};
     let currentLanguagePreference = 'auto';
     let currentResolvedLanguage = 'en';
@@ -164,7 +164,7 @@ export function getI18nCode() {
       }
       updateQuickLanguageControl();
 
-      // 重新渲染当前可能处于活动状态的动态列表
+      // 重新渲染當前可能處於活動狀態的動態列表
       if (typeof renderSecrets === 'function' && Array.isArray(secrets) && secrets.length > 0) {
         renderSecrets();
       } else if (typeof updateSearchStats === 'function') {
@@ -182,7 +182,7 @@ export function getI18nCode() {
       return String(a || '').localeCompare(String(b || ''), locale, options);
     }
 
-    // 初始化语言
+    // 初始化語言
     initLanguage();
     if (typeof document !== 'undefined') {
       const onReady = function() {

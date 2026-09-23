@@ -1,11 +1,11 @@
 /**
- * 全局状态模块
- * 全局变量定义
+ * 全域性狀態模組
+ * 全域性變數定義
  */
 
 /**
- * 获取 State 相关代码
- * @returns {string} State JavaScript 代码
+ * 獲取 State 相關程式碼
+ * @returns {string} State JavaScript 程式碼
  */
 export function getStateCode() {
 	return `    let secrets = [];
@@ -23,7 +23,7 @@ export function getStateCode() {
     let secretLoadGeneration = 0;
     let secretRenderGeneration = 0;
     let saveQueue = Promise.resolve(); // 保存操作队列，确保串行执行避免并发覆盖
-    // authToken 已移除 - 现在使用 HttpOnly Cookie
+    // authToken 已移除 - 現在使用 HttpOnly Cookie
 
 `;
 }

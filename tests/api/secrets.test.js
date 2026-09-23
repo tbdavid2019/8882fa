@@ -1,6 +1,6 @@
 /**
- * API Secrets 模块集成测试
- * 测试密钥 CRUD 操作、备份恢复功能
+ * API Secrets 模組整合測試
+ * 測試金鑰 CRUD 操作、備份恢復功能
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -13,9 +13,9 @@ import {
   handleGenerateOTP
 } from '../../src/api/secrets/index.js';
 
-// ==================== Mock 模块 ====================
+// ==================== Mock 模組 ====================
 
-// Mock KV 存储
+// Mock KV 儲存
 class MockKV {
   constructor() {
     this.store = new Map();
@@ -57,10 +57,10 @@ class MockKV {
   }
 }
 
-// Mock 环境
+// Mock 環境
 function createMockEnv() {
   const kv = new MockKV();
-  // 正确的 32 字节加密密钥
+  // 正確的 32 位元組加密金鑰
   const encryptionKey = Buffer.from('12345678901234567890123456789012').toString('base64');
 
   return {
@@ -70,7 +70,7 @@ function createMockEnv() {
   };
 }
 
-// 创建 Mock Request
+// 建立 Mock Request
 function createMockRequest(body = {}, method = 'POST', url = 'https://example.com/api/secrets') {
   return {
     method,
@@ -99,7 +99,7 @@ async function seedEncryptedSecret(env, overrides = {}) {
   };
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('API Secrets Module', () => {
 
@@ -117,7 +117,7 @@ describe('API Secrets Module', () => {
     it('应该返回所有密钥（解密后）', async () => {
       const env = createMockEnv();
 
-      // 先添加一个密钥
+      // 先新增一個金鑰
       const addRequest = createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP',
@@ -125,7 +125,7 @@ describe('API Secrets Module', () => {
       });
       await handleAddSecret(addRequest, env);
 
-      // 获取密钥列表
+      // 獲取金鑰列表
       const response = await handleGetSecrets(env);
       const data = await response.json();
 
@@ -138,7 +138,7 @@ describe('API Secrets Module', () => {
     it('应该按添加顺序返回密钥', async () => {
       const env = createMockEnv();
 
-      // 添加多个密钥（按特定顺序）
+      // 新增多個金鑰（按特定順序）
       await handleAddSecret(createMockRequest({ name: 'Zoom', secret: 'JBSWY3DPEHPK3PXP' }), env);
       await handleAddSecret(createMockRequest({ name: 'Apple', secret: 'MFRGGZDFMZTWQ2LK' }), env);
       await handleAddSecret(createMockRequest({ name: 'Microsoft', secret: 'KRSXG5CTMVRXEZLU' }), env);
@@ -147,7 +147,7 @@ describe('API Secrets Module', () => {
       const data = await response.json();
 
       expect(data).toHaveLength(3);
-      // 应该按添加顺序返回（不是按名称排序）
+      // 應該按新增順序返回（不是按名稱排序）
       expect(data[0].name).toBe('Zoom');
       expect(data[1].name).toBe('Apple');
       expect(data[2].name).toBe('Microsoft');
@@ -224,7 +224,7 @@ describe('API Secrets Module', () => {
       const env = createMockEnv();
       const request = createMockRequest({
         name: 'GitHub',
-        secret: 'INVALID01289' // 包含无效字符
+        secret: 'INVALID01289' // 包含無效字元
       });
 
       const response = await handleAddSecret(request, env);
@@ -240,7 +240,7 @@ describe('API Secrets Module', () => {
       const request = createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP',
-        digits: 4 // 无效：只支持 6 或 8
+        digits: 4 // 無效：只支援 6 或 8
       });
 
       const response = await handleAddSecret(request, env);
@@ -259,10 +259,10 @@ describe('API Secrets Module', () => {
         secret: 'JBSWY3DPEHPK3PXP'
       };
 
-      // 第一次添加
+      // 第一次新增
       await handleAddSecret(createMockRequest(secretData), env);
 
-      // 第二次添加相同密钥
+      // 第二次新增相同金鑰
       const response = await handleAddSecret(createMockRequest(secretData), env);
       const data = await response.json();
 
@@ -274,14 +274,14 @@ describe('API Secrets Module', () => {
     it('应该允许相同服务名不同账户', async () => {
       const env = createMockEnv();
 
-      // 添加第一个账户
+      // 新增第一個賬戶
       await handleAddSecret(createMockRequest({
         name: 'GitHub',
         account: 'user1@example.com',
         secret: 'JBSWY3DPEHPK3PXP'
       }), env);
 
-      // 添加第二个账户
+      // 新增第二個賬戶
       const response = await handleAddSecret(createMockRequest({
         name: 'GitHub',
         account: 'user2@example.com',
@@ -297,7 +297,7 @@ describe('API Secrets Module', () => {
       const env = createMockEnv();
       const request = createMockRequest({
         name: 'Test',
-        secret: 'JBSWY3DP' // 弱密钥（40位）
+        secret: 'JBSWY3DP' // 弱金鑰（40位）
       });
 
       const response = await handleAddSecret(request, env);
@@ -363,7 +363,7 @@ describe('API Secrets Module', () => {
     it('应该成功更新密钥', async () => {
       const env = createMockEnv();
 
-      // 先添加
+      // 先新增
       const addResponse = await handleAddSecret(createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP'
@@ -388,7 +388,7 @@ describe('API Secrets Module', () => {
       expect(data.data.secret.name).toBe('GitHub Updated');
       expect(data.data.secret.secret).toBe('MFRGGZDFMZTWQ2LK');
       expect(data.data.secret.digits).toBe(8);
-      expect(data.data.secret.id).toBe(secretId); // ID 不变
+      expect(data.data.secret.id).toBe(secretId); // ID 不變
     });
 
     it('应该拒绝更新不存在的密钥', async () => {
@@ -411,7 +411,7 @@ describe('API Secrets Module', () => {
     it('应该拒绝更新为已存在的密钥', async () => {
       const env = createMockEnv();
 
-      // 添加两个密钥
+      // 新增兩個金鑰
       await handleAddSecret(createMockRequest({
         name: 'GitHub',
         account: 'user1@example.com',
@@ -425,11 +425,11 @@ describe('API Secrets Module', () => {
       }), env);
       const secretId2 = (await addResponse2.json()).data.secret.id;
 
-      // 尝试将 GitLab 更新为与 GitHub 完全相同的名称、账户和密钥
+      // 嘗試將 GitLab 更新為與 GitHub 完全相同的名稱、賬戶和金鑰
       const updateRequest = createMockRequest({
         name: 'GitHub',
         account: 'user1@example.com',
-        secret: 'JBSWY3DPEHPK3PXP'  // 使用相同的 secret 才算重复
+        secret: 'JBSWY3DPEHPK3PXP'  // 使用相同的 secret 才算重複
       }, 'PUT', `https://example.com/api/secrets/${secretId2}`);
 
       const response = await handleUpdateSecret(updateRequest, env);
@@ -443,7 +443,7 @@ describe('API Secrets Module', () => {
     it('应该允许更新时保持相同的名称和账户', async () => {
       const env = createMockEnv();
 
-      // 添加密钥
+      // 新增金鑰
       const addResponse = await handleAddSecret(createMockRequest({
         name: 'GitHub',
         account: 'user@example.com',
@@ -451,11 +451,11 @@ describe('API Secrets Module', () => {
       }), env);
       const secretId = (await addResponse.json()).data.secret.id;
 
-      // 更新密钥（保持相同的名称和账户，只改密钥）
+      // 更新金鑰（保持相同的名稱和賬戶，只改金鑰）
       const updateRequest = createMockRequest({
         name: 'GitHub',
         account: 'user@example.com',
-        secret: 'MFRGGZDFMZTWQ2LK' // 只改密钥
+        secret: 'MFRGGZDFMZTWQ2LK' // 只改金鑰
       }, 'PUT', `https://example.com/api/secrets/${secretId}`);
 
       const response = await handleUpdateSecret(updateRequest, env);
@@ -487,14 +487,14 @@ describe('API Secrets Module', () => {
     it('应该成功删除密钥', async () => {
       const env = createMockEnv();
 
-      // 先添加
+      // 先新增
       const addResponse = await handleAddSecret(createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP'
       }), env);
       const secretId = (await addResponse.json()).data.secret.id;
 
-      // 删除
+      // 刪除
       const deleteRequest = createMockRequest({}, 'DELETE', `https://example.com/api/secrets/${secretId}`);
       const response = await handleDeleteSecret(deleteRequest, env);
       const data = await response.json();
@@ -503,7 +503,7 @@ describe('API Secrets Module', () => {
       expect(data.success).toBe(true);
       expect(data.message).toContain('删除成功');
 
-      // 验证已删除
+      // 驗證已刪除
       const getResponse = await handleGetSecrets(env);
       const secrets = await getResponse.json();
       expect(secrets).toHaveLength(0);
@@ -525,17 +525,17 @@ describe('API Secrets Module', () => {
     it('删除后其他密钥应该不受影响', async () => {
       const env = createMockEnv();
 
-      // 添加多个密钥
+      // 新增多個金鑰
       await handleAddSecret(createMockRequest({ name: 'GitHub', secret: 'JBSWY3DPEHPK3PXP' }), env);
       const addResponse2 = await handleAddSecret(createMockRequest({ name: 'GitLab', secret: 'MFRGGZDFMZTWQ2LK' }), env);
       await handleAddSecret(createMockRequest({ name: 'Bitbucket', secret: 'KRSXG5CTMVRXEZLU' }), env);
 
       const secretId2 = (await addResponse2.json()).data.secret.id;
 
-      // 删除中间的密钥
+      // 刪除中間的金鑰
       await handleDeleteSecret(createMockRequest({}, 'DELETE', `https://example.com/api/secrets/${secretId2}`), env);
 
-      // 验证剩余密钥
+      // 驗證剩餘金鑰
       const getResponse = await handleGetSecrets(env);
       const secrets = await getResponse.json();
 
@@ -589,9 +589,9 @@ describe('API Secrets Module', () => {
       const request = createMockRequest({
         secrets: [
           { name: 'GitHub', secret: 'JBSWY3DPEHPK3PXP' }, // 有效
-          { name: '', secret: 'INVALID' },                 // 无效：空名称
+          { name: '', secret: 'INVALID' },                 // 無效：空名稱
           { name: 'GitLab', secret: 'MFRGGZDFMZTWQ2LK' },  // 有效
-          { name: 'Test', secret: 'INVALID01289' }         // 无效：无效 Base32
+          { name: 'Test', secret: 'INVALID01289' }         // 無效：無效 Base32
         ]
       });
 
@@ -609,16 +609,16 @@ describe('API Secrets Module', () => {
     it('应该跳过重复的密钥', async () => {
       const env = createMockEnv();
 
-      // 先添加一个密钥
+      // 先新增一個金鑰
       await handleAddSecret(createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP'
       }), env);
 
-      // 批量添加（包含重复的）- 重复需要 name + account + secret 都相同
+      // 批次新增（包含重複的）- 重複需要 name + account + secret 都相同
       const request = createMockRequest({
         secrets: [
-          { name: 'GitHub', secret: 'JBSWY3DPEHPK3PXP' },  // 重复（相同 name + account + secret）
+          { name: 'GitHub', secret: 'JBSWY3DPEHPK3PXP' },  // 重複（相同 name + account + secret）
           { name: 'GitLab', secret: 'KRSXG5CTMVRXEZLU' }   // 新的
         ]
       });
@@ -743,12 +743,12 @@ describe('API Secrets Module', () => {
     it('完整的 CRUD 流程', async () => {
       const env = createMockEnv();
 
-      // 1. 初始状态：空列表
+      // 1. 初始狀態：空列表
       let response = await handleGetSecrets(env);
       let secrets = await response.json();
       expect(secrets).toHaveLength(0);
 
-      // 2. 添加密钥
+      // 2. 新增金鑰
       const addResponse = await handleAddSecret(createMockRequest({
         name: 'GitHub',
         account: 'user@example.com',
@@ -756,29 +756,29 @@ describe('API Secrets Module', () => {
       }), env);
       const secretId = (await addResponse.json()).data.secret.id;
 
-      // 3. 读取密钥列表
+      // 3. 讀取金鑰列表
       response = await handleGetSecrets(env);
       secrets = await response.json();
       expect(secrets).toHaveLength(1);
       expect(secrets[0].name).toBe('GitHub');
 
-      // 4. 更新密钥
+      // 4. 更新金鑰
       await handleUpdateSecret(createMockRequest({
         name: 'GitHub Enterprise',
         account: 'admin@company.com',
         secret: 'MFRGGZDFMZTWQ2LK'
       }, 'PUT', `https://example.com/api/secrets/${secretId}`), env);
 
-      // 5. 验证更新
+      // 5. 驗證更新
       response = await handleGetSecrets(env);
       secrets = await response.json();
       expect(secrets[0].name).toBe('GitHub Enterprise');
       expect(secrets[0].account).toBe('admin@company.com');
 
-      // 6. 删除密钥
+      // 6. 刪除金鑰
       await handleDeleteSecret(createMockRequest({}, 'DELETE', `https://example.com/api/secrets/${secretId}`), env);
 
-      // 7. 验证删除
+      // 7. 驗證刪除
       response = await handleGetSecrets(env);
       secrets = await response.json();
       expect(secrets).toHaveLength(0);
@@ -787,24 +787,24 @@ describe('API Secrets Module', () => {
     it('数据加密和解密应该透明', async () => {
       const env = createMockEnv();
 
-      // 添加密钥（自动加密存储）
+      // 新增金鑰（自動加密儲存）
       await handleAddSecret(createMockRequest({
         name: 'GitHub',
         secret: 'JBSWY3DPEHPK3PXP'
       }), env);
 
-      // 直接从 KV 读取原始数据
+      // 直接從 KV 讀取原始資料
       const rawData = await env.SECRETS_KV.get('secrets', 'text');
 
-      // 应该是加密的（格式：v1:IV:encryptedData）
+      // 應該是加密的（格式：v1:IV:encryptedData）
       expect(rawData).toMatch(/^v1:[A-Za-z0-9+/]+=*:[A-Za-z0-9+/]+=*$/);
-      expect(rawData).not.toContain('JBSWY3DPEHPK3PXP'); // 原始密钥不应出现在加密数据中
+      expect(rawData).not.toContain('JBSWY3DPEHPK3PXP'); // 原始金鑰不應出現在加密資料中
 
-      // 通过 API 读取应该自动解密
+      // 通過 API 讀取應該自動解密
       const response = await handleGetSecrets(env);
       const secrets = await response.json();
 
-      expect(secrets[0].secret).toBe('JBSWY3DPEHPK3PXP'); // 解密后的明文
+      expect(secrets[0].secret).toBe('JBSWY3DPEHPK3PXP'); // 解密後的明文
     });
 
     it('并发添加密钥应该正确处理', async () => {

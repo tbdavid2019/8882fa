@@ -1,25 +1,25 @@
 /**
- * 版本显示与新版本检测模块
- * 页面底部显示当前版本号，并定期检查 GitHub 仓库是否发布了新版本（tag）
+ * 版本顯示與新版本檢測模組
+ * 頁面底部顯示當前版本號，並定期檢查 GitHub 倉庫是否釋出了新版本（tag）
  */
 
 import { APP_VERSION } from '../../utils/version.js';
 
 const GITHUB_REPO = 'tbdavid2019/8882fa';
-// 检查结果缓存 24 小时，避免频繁请求 GitHub API（匿名限额 60 次/小时/IP）
+// 檢查結果快取 24 小時，避免頻繁請求 GitHub API（匿名限額 60 次/小時/IP）
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 /**
- * 获取版本检测代码
- * @returns {string} 版本检测 JavaScript 代码
+ * 獲取版本檢測程式碼
+ * @returns {string} 版本檢測 JavaScript 程式碼
  */
 export function getVersionCheckCode() {
-	return `// ==================== 版本显示与新版本检测 ====================
+	return `// ==================== 版本顯示與新版本檢測 ====================
 
     window.APP_VERSION = '${APP_VERSION}';
 
-    // 与 src/utils/version.js 的 compareVersions 逻辑一致。
-    // 不能用 compareVersions.toString() 内联：esbuild 打包会往函数体注入 __name() 辅助调用，浏览器端没有该函数
+    // 與 src/utils/version.js 的 compareVersions 邏輯一致。
+    // 不能用 compareVersions.toString() 內聯：esbuild 打包會往函式體注入 __name() 輔助呼叫，瀏覽器端沒有該函式
     function compareVersions(a, b) {
       const parse = (v) =>
         String(v)
@@ -44,7 +44,7 @@ export function getVersionCheckCode() {
     }
 
     /**
-     * 检查 GitHub 仓库是否有新版本 tag，有则在 footer 显示提示
+     * 檢查 GitHub 倉庫是否有新版本 tag，有則在 footer 顯示提示
      */
     async function checkForNewVersion() {
       const CACHE_KEY = '2fa-version-check';
@@ -57,7 +57,7 @@ export function getVersionCheckCode() {
           latest = cached.latest;
         }
       } catch (e) {
-        // 缓存损坏，忽略
+        // 快取損壞，忽略
       }
 
       if (!latest) {
@@ -68,7 +68,7 @@ export function getVersionCheckCode() {
           if (!response.ok) return;
           const tags = await response.json();
           if (!Array.isArray(tags) || tags.length === 0) return;
-          // 取语义化版本最大的 tag（API 返回顺序不保证按版本排列）
+          // 取語義化版本最大的 tag（API 返回順序不保證按版本排列）
           latest = tags
             .map((t) => t.name)
             .filter((name) => /^v?\\d+(\\.\\d+)*$/.test(name))
@@ -78,10 +78,10 @@ export function getVersionCheckCode() {
           try {
             localStorage.setItem(CACHE_KEY, JSON.stringify({ latest, checkedAt: now }));
           } catch (e) {
-            // 存储失败不影响本次提示
+            // 儲存失敗不影響本次提示
           }
         } catch (e) {
-          // 网络失败（离线、被墙、限额）静默降级
+          // 網路失敗（離線、被牆、限額）靜默降級
           return;
         }
       }
@@ -96,7 +96,7 @@ export function getVersionCheckCode() {
       }
     }
 
-    // 延迟执行，避免与首屏加载竞争
+    // 延遲執行，避免與首屏載入競爭
     window.addEventListener('load', () => {
       setTimeout(checkForNewVersion, 3000);
     });

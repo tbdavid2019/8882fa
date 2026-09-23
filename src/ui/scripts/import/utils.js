@@ -1,21 +1,21 @@
 /**
- * 导入工具函数模块
- * 包含编码转换、格式检测等通用工具函数
+ * 匯入工具函式模組
+ * 包含編碼轉換、格式檢測等通用工具函式
  */
 
 /**
- * 获取导入工具函数代码
- * @returns {string} JavaScript 代码
+ * 獲取匯入工具函式程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getImportUtilsCode() {
 	return String.raw`
-    // ========== 导入工具函数 ==========
+    // ========== 匯入工具函式 ==========
 
     /**
-     * 字节数组转 Base32 编码
-     * 用于处理 FreeOTP+ 旧版本的字节数组格式密钥
-     * @param {Array<number>} bytes - 字节数组
-     * @returns {string} Base32 编码字符串
+     * 位元組陣列轉 Base32 編碼
+     * 用於處理 FreeOTP+ 舊版本的位元組陣列格式金鑰
+     * @param {Array<number>} bytes - 位元組陣列
+     * @returns {string} Base32 編碼字串
      */
     function bytesToBase32(bytes) {
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -24,7 +24,7 @@ export function getImportUtilsCode() {
       let value = 0;
 
       for (let i = 0; i < bytes.length; i++) {
-        // 处理有符号字节（Java 导出可能是 -128 到 127）
+        // 處理有符號位元組（Java 匯出可能是 -128 到 127）
         let byte = bytes[i];
         if (byte < 0) byte += 256;
 
@@ -37,7 +37,7 @@ export function getImportUtilsCode() {
         }
       }
 
-      // 处理剩余位
+      // 處理剩餘位
       if (bits > 0) {
         result += alphabet[(value << (5 - bits)) & 0x1f];
       }
@@ -46,25 +46,25 @@ export function getImportUtilsCode() {
     }
 
     /**
-     * 十六进制字符串转 Base32 编码
-     * 用于处理 TOTP Authenticator 的十六进制格式密钥
-     * @param {string} hex - 十六进制字符串
-     * @returns {string} Base32 编码字符串
+     * 十六進位制字串轉 Base32 編碼
+     * 用於處理 TOTP Authenticator 的十六進位制格式金鑰
+     * @param {string} hex - 十六進位制字串
+     * @returns {string} Base32 編碼字串
      */
     function hexToBase32(hex) {
-      // 十六进制转字节数组
+      // 十六進位制轉位元組陣列
       const bytes = [];
       for (let i = 0; i < hex.length; i += 2) {
         bytes.push(parseInt(hex.substr(i, 2), 16));
       }
-      // 使用现有的 bytesToBase32 函数
+      // 使用現有的 bytesToBase32 函式
       return bytesToBase32(bytes);
     }
 
     /**
-     * 解析CSV行（处理逗号、引号等转义）
+     * 解析CSV行（處理逗號、引號等轉義）
      * @param {string} line - CSV行
-     * @returns {Array<string>} - 字段数组
+     * @returns {Array<string>} - 欄位陣列
      */
     function parseCSVLine(line) {
       const fields = [];
@@ -77,15 +77,15 @@ export function getImportUtilsCode() {
 
         if (char === '"') {
           if (inQuotes && nextChar === '"') {
-            // 转义的引号
+            // 轉義的引號
             current += '"';
             i++; // 跳过下一个引号
           } else {
-            // 切换引号状态
+            // 切換引號狀態
             inQuotes = !inQuotes;
           }
         } else if (char === ',' && !inQuotes) {
-          // 字段分隔符
+          // 欄位分隔符
           fields.push(current.trim());
           current = '';
         } else {
@@ -93,17 +93,17 @@ export function getImportUtilsCode() {
         }
       }
 
-      // 添加最后一个字段
+      // 新增最後一個欄位
       fields.push(current.trim());
 
       return fields;
     }
 
     /**
-     * 将 Uint8Array 转成二进制字符串
-     * 保留 Java 序列化等二进制格式中的原始字节值
-     * @param {Uint8Array} bytes - 原始字节数组
-     * @returns {string} 二进制字符串
+     * 將 Uint8Array 轉成二進位制字串
+     * 保留 Java 序列化等二進位制格式中的原始位元組值
+     * @param {Uint8Array} bytes - 原始位元組陣列
+     * @returns {string} 二進位制字串
      */
     function bytesToBinaryString(bytes) {
       let result = '';
@@ -118,11 +118,11 @@ export function getImportUtilsCode() {
     }
 
     /**
-     * 解码导入文件内容
-     * 兼容普通 UTF-8/UTF-16 文本以及 FreeOTP 的 Java 序列化二进制备份
-     * @param {string} fileName - 文件名
-     * @param {ArrayBuffer|Uint8Array} arrayBuffer - 文件二进制内容
-     * @returns {string} 解码后的文本内容
+     * 解碼匯入檔案內容
+     * 相容普通 UTF-8/UTF-16 文本以及 FreeOTP 的 Java 序列化二進位制備份
+     * @param {string} fileName - 檔名
+     * @param {ArrayBuffer|Uint8Array} arrayBuffer - 檔案二進位制內容
+     * @returns {string} 解碼後的文本內容
      */
     function decodeImportFileContent(fileName, arrayBuffer) {
       const bytes = arrayBuffer instanceof Uint8Array ? arrayBuffer : new Uint8Array(arrayBuffer);

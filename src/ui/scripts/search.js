@@ -1,16 +1,16 @@
 /**
- * 搜索和排序模块
- * 包含搜索和排序密钥的功能
+ * 搜尋和排序模組
+ * 包含搜尋和排序金鑰的功能
  */
 
 /**
- * 获取搜索和排序相关代码
- * @returns {string} 搜索 JavaScript 代码
+ * 獲取搜尋和排序相關程式碼
+ * @returns {string} 搜尋 JavaScript 程式碼
  */
 export function getSearchCode() {
-	return `    // ========== 搜索和排序模块 ==========
+	return `    // ========== 搜尋和排序模組 ==========
 
-    // 排序和显示模式相关变量
+    // 排序和顯示模式相關變數
     let currentSortType = 'oldest-first';
     let currentFlatSortType = 'oldest-first';
     let currentGroupedItemSortType = 'oldest-first';
@@ -195,7 +195,7 @@ export function getSearchCode() {
       await renderFilteredSecrets();
     }
 
-    // 从 localStorage 恢复排序选择
+    // 從 localStorage 恢復排序選擇
     function restoreSortPreference() {
       let legacySort = null;
       let savedFlatSort = null;
@@ -248,7 +248,7 @@ export function getSearchCode() {
       });
     }
 
-    // popover 选择事件：写入隐藏 select 并触发排序
+    // popover 選擇事件：寫入隱藏 select 並觸發排序
     function selectSort(value) {
       const normalizedValue = currentViewMode === 'grouped' ? normalizeGroupedItemSortType(value) : normalizeSortType(value);
       const sortSelect = document.getElementById('sortSelect');
@@ -257,7 +257,7 @@ export function getSearchCode() {
       applySorting();
     }
 
-    // 点击 popover 外或按 Escape 关闭
+    // 點選 popover 外或按 Escape 關閉
     function initSortDropdownOutsideClose() {
       const initializedDropdown = document.getElementById('sortDropdown');
       if (initializedDropdown) {
@@ -295,7 +295,7 @@ export function getSearchCode() {
       });
     }
 
-    // 保存排序选择到 localStorage
+    // 儲存排序選擇到 localStorage
     function saveSortPreference(sortType) {
       try {
         if (currentViewMode === 'grouped') {
@@ -311,7 +311,7 @@ export function getSearchCode() {
       }
     }
 
-    // 搜索过滤功能
+    // 搜尋過濾功能
     function scheduleSecretFilter(query) {
       if (searchFilterTimer !== null) {
         clearTimeout(searchFilterTimer);
@@ -388,7 +388,7 @@ export function getSearchCode() {
       await renderFilteredSecrets();
     }
 
-    // 清除搜索
+    // 清除搜尋
     function clearSearch() {
       if (searchFilterTimer !== null) {
         clearTimeout(searchFilterTimer);
@@ -399,7 +399,7 @@ export function getSearchCode() {
       document.getElementById('searchInput').focus();
     }
 
-    // 应用排序
+    // 應用排序
     async function applySorting() {
       const sortSelect = document.getElementById('sortSelect');
       currentSortType = currentViewMode === 'grouped'
@@ -407,13 +407,13 @@ export function getSearchCode() {
         : normalizeSortType(sortSelect.value);
       sortSelect.value = currentSortType;
       
-      // 保存用户的排序选择
+      // 儲存使用者的排序選擇
       saveSortPreference(currentSortType);
       
       await renderFilteredSecrets();
     }
 
-    // 排序密钥
+    // 排序金鑰
     function sortSecrets(secretsToSort, sortType) {
       if (!secretsToSort || secretsToSort.length === 0) {
         return secretsToSort;
@@ -451,16 +451,16 @@ export function getSearchCode() {
           });
 
         case 'oldest-first':
-          // 最早添加：按添加顺序（保持原有顺序）
+          // 最早新增：按新增順序（保持原有順序）
           return sortedSecrets;
 
         case 'newest-first':
-          // 最晚添加：按添加顺序倒序
+          // 最晚新增：按新增順序倒序
           return sortedSecrets.reverse();
 
         case 'default':
         default:
-          // 兼容旧版本，默认使用最早添加
+          // 相容舊版本，預設使用最早新增
           return sortedSecrets;
       }
     }

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * 自动化部署脚本
+ * 自動化部署指令碼
  *
  * 功能：
- * 1. 自动生成 Service Worker 版本号
- * 2. 注入版本到环境变量
- * 3. 执行 wrangler 部署
+ * 1. 自動生成 Service Worker 版本號
+ * 2. 注入版本到環境變數
+ * 3. 執行 wrangler 部署
  *
  * 使用方式：
- *   node scripts/deploy.js                  # 使用时间戳版本
+ *   node scripts/deploy.js                  # 使用時間戳版本
  *   node scripts/deploy.js --git            # 使用 git commit 版本
  *   node scripts/deploy.js --package        # 使用 package.json 版本
- *   node scripts/deploy.js --env production # 部署到生产环境
+ *   node scripts/deploy.js --env production # 部署到生產環境
  */
 
 import { execSync } from 'child_process';
@@ -62,7 +62,7 @@ try {
   console.log(`   ✅ 已注入版本: ${version}`);
   console.log('');
 
-  // Step 2.5: 自动检测并绑定已有 KV namespace，防止重复创建
+  // Step 2.5: 自動檢測並繫結已有 KV namespace，防止重複建立
   console.log('🔍 Step 2.5: 检测已有 KV namespace...');
   const workerName = extractWorkerName(modifiedConfig, envName);
   const existingKv = findExistingKvId(workerName, envName);
@@ -74,7 +74,7 @@ try {
   }
   console.log('');
 
-  // Step 2.6: 从本地环境或 .env 中注入 Account ID 和自订网域（保持公开仓库乾净）
+  // Step 2.6: 從本地環境或 .env 中注入 Account ID 和自訂網域（保持公開倉庫乾淨）
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   if (accountId) {
     modifiedConfig = injectAccountId(modifiedConfig, accountId);
@@ -150,30 +150,30 @@ function findExistingKvId(workerName, envName = null) {
   }
   if (!namespaces.length) return null;
 
-  // 短名映射：开发环境常缩写为 dev / prod
+  // 短名對映：開發環境常縮寫為 dev / prod
   const ENV_ALIASES = { development: 'dev', production: 'prod' };
   const envAlias = envName ? (ENV_ALIASES[envName] || envName) : null;
 
-  // 推断 base 名（去除可能的 env 后缀）：worker "2fa-dev" + envAlias "dev" → base "2fa"
+  // 推斷 base 名（去除可能的 env 字尾）：worker "2fa-dev" + envAlias "dev" → base "2fa"
   const stripSuffix = (name, suffix) =>
     suffix && name.endsWith(`-${suffix}`) ? name.slice(0, -(suffix.length + 1)) : name;
   const baseName = envAlias ? stripSuffix(workerName, envAlias) : workerName;
 
-  // 候选 title 列表，越靠前越优先
+  // 候選 title 列表，越靠前越優先
   const candidates = [];
   if (envName) {
     candidates.push(
       `${workerName}-secrets-kv`,                // 2fa-dev-secrets-kv
       `${workerName}-SECRETS_KV`,
-      `${baseName}-secrets-kv-${envAlias}`,      // 2fa-secrets-kv-dev  ← 当前命名
+      `${baseName}-secrets-kv-${envAlias}`,      // 2fa-secrets-kv-dev  ← 當前命名
       `${baseName}-secrets-kv-${envName}`,       // 2fa-secrets-kv-development
       `${envAlias}-${baseName}-SECRETS_KV`,
       `${envName}-${baseName}-SECRETS_KV`,
-      `${envName}-SECRETS_KV`,                   // development-SECRETS_KV（旧命名）
+      `${envName}-SECRETS_KV`,                   // development-SECRETS_KV（舊命名）
     );
   } else {
     candidates.push(
-      `${workerName}-secrets-kv`,                // 2fa-secrets-kv  ← 当前命名
+      `${workerName}-secrets-kv`,                // 2fa-secrets-kv  ← 當前命名
       `${workerName}-SECRETS_KV`,
       'SECRETS_KV',
       workerName,
@@ -185,10 +185,10 @@ function findExistingKvId(workerName, envName = null) {
     if (match) return { id: match.id, title: match.title };
   }
 
-  // env 部署只走精确匹配，避免误把生产 KV 命中给 dev
+  // env 部署只走精確匹配，避免誤把生產 KV 命中給 dev
   if (envName) return null;
 
-  // 顶层部署的 fuzzy 兜底（保持原有兼容性）
+  // 頂層部署的 fuzzy 兜底（保持原有相容性）
   const fuzzy =
     namespaces.find(ns => ns.title.includes('SECRETS_KV')) ||
     namespaces.find(ns => ns.title.includes('secrets-kv')) ||

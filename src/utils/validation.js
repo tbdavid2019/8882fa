@@ -1,16 +1,16 @@
 /**
- * 验证工具模块
- * 提供各种验证功能和请求验证中间件
+ * 驗證工具模組
+ * 提供各種驗證功能和請求驗證中介軟體
  */
 
 import { createErrorResponse } from './response.js';
 import { LIMITS } from './constants.js';
 
-// ==================== 验证中间件系统 ====================
+// ==================== 驗證中介軟體系統 ====================
 
 /**
- * Schema 验证器类
- * 用于定义和验证请求数据结构
+ * Schema 驗證器類
+ * 用於定義和驗證請求資料結構
  */
 class Schema {
 	constructor(definition) {
@@ -18,8 +18,8 @@ class Schema {
 	}
 
 	/**
-	 * 验证数据是否符合schema定义
-	 * @param {Object} data - 要验证的数据
+	 * 驗證資料是否符合schema定義
+	 * @param {Object} data - 要驗證的資料
 	 * @returns {Object} { valid: boolean, errors: string[], data: Object }
 	 */
 	validate(data) {
@@ -29,13 +29,13 @@ class Schema {
 		for (const [field, rules] of Object.entries(this.definition)) {
 			const value = data[field];
 
-			// 处理必填字段
+			// 處理必填欄位
 			if (rules.required && (value === undefined || value === null || value === '')) {
 				errors.push(rules.message || `字段 "${field}" 是必填项`);
 				continue;
 			}
 
-			// 可选字段且未提供值，使用默认值
+			// 可選欄位且未提供值，使用預設值
 			if (!rules.required && (value === undefined || value === null)) {
 				if (rules.default !== undefined) {
 					validated[field] = rules.default;
@@ -43,7 +43,7 @@ class Schema {
 				continue;
 			}
 
-			// 类型验证
+			// 型別驗證
 			if (rules.type && value !== undefined && value !== null) {
 				const typeValid = this._validateType(value, rules.type);
 				if (!typeValid) {
@@ -52,7 +52,7 @@ class Schema {
 				}
 			}
 
-			// 自定义验证函数
+			// 自定義驗證函式
 			if (rules.validator) {
 				const result = rules.validator(value, data);
 				if (result !== true) {
@@ -61,7 +61,7 @@ class Schema {
 				}
 			}
 
-			// 值转换
+			// 值轉換
 			let finalValue = value;
 			if (rules.transform) {
 				finalValue = rules.transform(value);
@@ -96,33 +96,33 @@ class Schema {
 }
 
 /**
- * 请求验证中间件
- * 自动解析 JSON body 并验证
+ * 請求驗證中介軟體
+ * 自動解析 JSON body 並驗證
  *
- * @param {Schema|Object} schema - 验证规则（Schema实例或定义对象）
- * @returns {Function} 验证中间件函数
+ * @param {Schema|Object} schema - 驗證規則（Schema例項或定義物件）
+ * @returns {Function} 驗證中介軟體函式
  *
  * @example
  * const body = await validateRequest(addSecretSchema)(request, env);
- * if (body instanceof Response) return body; // 验证失败
- * // body 现在是验证并规范化后的数据
+ * if (body instanceof Response) return body; // 驗證失敗
+ * // body 現在是驗證並規範化後的資料
  */
 export function validateRequest(schema) {
 	const schemaInstance = schema instanceof Schema ? schema : new Schema(schema);
 
 	return async (request) => {
 		try {
-			// 解析请求体
+			// 解析請求體
 			const body = await request.json();
 
-			// 验证数据
+			// 驗證資料
 			const result = schemaInstance.validate(body);
 
 			if (!result.valid) {
 				return createErrorResponse('请求验证失败', result.errors.join('; '), 400, request);
 			}
 
-			// 返回验证后的数据
+			// 返回驗證後的資料
 			return result.data;
 		} catch (error) {
 			if (error.name === 'SyntaxError') {
@@ -133,10 +133,10 @@ export function validateRequest(schema) {
 	};
 }
 
-// ==================== 预定义验证规则 ====================
+// ==================== 預定義驗證規則 ====================
 
 /**
- * 添加密钥的验证规则
+ * 新增金鑰的驗證規則
  */
 export const addSecretSchema = new Schema({
 	name: {
@@ -241,7 +241,7 @@ export const advanceHOTPCounterSchema = new Schema({
 });
 
 /**
- * 更新密钥的验证规则（与添加相同，但需要ID）
+ * 更新金鑰的驗證規則（與新增相同，但需要ID）
  */
 export const updateSecretSchema = new Schema({
 	id: {
@@ -253,7 +253,7 @@ export const updateSecretSchema = new Schema({
 });
 
 /**
- * 批量导入验证规则
+ * 批次匯入驗證規則
  */
 export const batchImportSchema = new Schema({
 	secrets: {
@@ -291,7 +291,7 @@ export const batchImportSchema = new Schema({
 });
 
 /**
- * 备份恢复验证规则
+ * 備份恢復驗證規則
  */
 export const restoreBackupSchema = new Schema({
 	backupKey: {
@@ -313,7 +313,7 @@ export const restoreBackupSchema = new Schema({
 });
 
 /**
- * WebDAV 配置验证规则
+ * WebDAV 配置驗證規則
  */
 export const webdavConfigSchema = new Schema({
 	id: { required: false, type: 'string' },
@@ -357,7 +357,7 @@ export const webdavConfigSchema = new Schema({
 });
 
 /**
- * S3 配置验证规则
+ * S3 配置驗證規則
  */
 export const s3ConfigSchema = new Schema({
 	id: { required: false, type: 'string' },
@@ -406,7 +406,7 @@ export const s3ConfigSchema = new Schema({
 });
 
 /**
- * OAuth 网盘配置验证规则
+ * OAuth 網盤配置驗證規則
  */
 export const cloudDriveConfigSchema = new Schema({
 	id: { required: false, type: 'string' },
@@ -449,26 +449,26 @@ export const cloudDriveConfigSchema = new Schema({
 });
 
 /**
- * 仅包含目标 ID 的验证规则
+ * 僅包含目標 ID 的驗證規則
  */
 export const destinationIdSchema = new Schema({
 	id: { required: true, type: 'string', message: '目标 ID 不能为空' },
 });
 
 /**
- * 目标启用/禁用切换验证规则
+ * 目標啟用/停用切換驗證規則
  */
 export const toggleDestinationSchema = new Schema({
 	id: { required: true, type: 'string', message: '目标 ID 不能为空' },
 	enabled: { required: true, type: 'boolean', message: '启用状态不能为空' },
 });
 
-// ==================== 原有验证函数 ====================
+// ==================== 原有驗證函式 ====================
 
 /**
- * 验证Base32密钥格式和安全性
- * @param {string} secret - Base32编码的密钥
- * @returns {Object} 验证结果 {valid: boolean, error?: string, warning?: string}
+ * 驗證Base32金鑰格式和安全性
+ * @param {string} secret - Base32編碼的金鑰
+ * @returns {Object} 驗證結果 {valid: boolean, error?: string, warning?: string}
  */
 export function validateBase32(secret) {
 	if (!secret || !secret.trim()) {
@@ -485,7 +485,7 @@ export function validateBase32(secret) {
 		};
 	}
 
-	// 计算解码后的字节长度 (Base32每8个字符编码5个字节)
+	// 計算解碼後的位元組長度 (Base32每8個字元編碼5個位元組)
 	const paddingCount = (cleanSecret.match(/=/g) || []).length;
 	const encodedLength = cleanSecret.length - paddingCount;
 	const byteLength = Math.floor((encodedLength * 5) / 8);
@@ -506,7 +506,7 @@ export function validateBase32(secret) {
 	}
 
 	if (bitLength >= 128) {
-		return { valid: true }; // 强密钥，无警告
+		return { valid: true }; // 強金鑰，無警告
 	}
 
 	return {
@@ -516,9 +516,9 @@ export function validateBase32(secret) {
 }
 
 /**
- * 验证密钥数据的完整性
- * @param {Object} secretData - 密钥数据对象
- * @returns {Object} 验证结果 {valid: boolean, error?: string}
+ * 驗證金鑰資料的完整性
+ * @param {Object} secretData - 金鑰資料物件
+ * @returns {Object} 驗證結果 {valid: boolean, error?: string}
  */
 export function validateSecretData(secretData) {
 	const { name, secret } = secretData;
@@ -540,7 +540,7 @@ export function validateSecretData(secretData) {
 		return { valid: false, error: `密钥验证失败：${secretValidation.error}` };
 	}
 
-	// 如果有安全警告，也包含在返回结果中
+	// 如果有安全警告，也包含在返回結果中
 	if (secretValidation.warning) {
 		return {
 			valid: true,
@@ -552,17 +552,17 @@ export function validateSecretData(secretData) {
 }
 
 /**
- * 验证OTP参数的有效性
- * @param {Object} params - OTP参数
- * @param {string} params.type - OTP类型 (TOTP/HOTP)
- * @param {number} params.digits - 验证码位数
- * @param {number} params.period - TOTP周期（秒）
- * @param {string} params.algorithm - 哈希算法 (SHA1/SHA256/SHA512)
- * @param {number} params.counter - HOTP计数器值
- * @returns {Object} 验证结果 {valid: boolean, error?: string}
+ * 驗證OTP引數的有效性
+ * @param {Object} params - OTP引數
+ * @param {string} params.type - OTP型別 (TOTP/HOTP)
+ * @param {number} params.digits - 驗證碼位數
+ * @param {number} params.period - TOTP週期（秒）
+ * @param {string} params.algorithm - 雜湊演算法 (SHA1/SHA256/SHA512)
+ * @param {number} params.counter - HOTP計數器值
+ * @returns {Object} 驗證結果 {valid: boolean, error?: string}
  */
 export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algorithm = 'SHA1', counter = 0 }) {
-	// 验证OTP类型
+	// 驗證OTP型別
 	const validTypes = ['TOTP', 'HOTP'];
 	const normalizedType = type.toUpperCase();
 
@@ -573,7 +573,7 @@ export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algo
 		};
 	}
 
-	// 验证验证码位数
+	// 驗證驗證碼位數
 	if (![6, 8].includes(digits)) {
 		return {
 			valid: false,
@@ -581,7 +581,7 @@ export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algo
 		};
 	}
 
-	// 验证TOTP周期
+	// 驗證TOTP週期
 	if (normalizedType === 'TOTP' && ![30, 60, 120].includes(period)) {
 		return {
 			valid: false,
@@ -589,7 +589,7 @@ export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algo
 		};
 	}
 
-	// 验证哈希算法
+	// 驗證雜湊演算法
 	const validAlgorithms = ['SHA1', 'SHA256', 'SHA512'];
 	const normalizedAlgorithm = algorithm.toUpperCase();
 
@@ -600,7 +600,7 @@ export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algo
 		};
 	}
 
-	// 验证HOTP计数器
+	// 驗證HOTP計數器
 	if (normalizedType === 'HOTP' && (counter < 0 || !Number.isSafeInteger(counter))) {
 		return {
 			valid: false,
@@ -612,18 +612,18 @@ export function validateOTPParams({ type = 'TOTP', digits = 6, period = 30, algo
 }
 
 /**
- * 创建标准化的密钥对象
- * @param {Object} data - 密钥数据
- * @param {string} data.name - 服务名称
- * @param {string} data.service - 账户名称（可选）
- * @param {string} data.secret - Base32密钥
- * @param {string} data.type - OTP类型
- * @param {number} data.digits - 验证码位数
- * @param {number} data.period - TOTP周期
- * @param {string} data.algorithm - 哈希算法
- * @param {number} data.counter - HOTP计数器
- * @param {string} existingId - 现有ID（用于更新）
- * @returns {Object} 标准化的密钥对象
+ * 建立標準化的金鑰物件
+ * @param {Object} data - 金鑰資料
+ * @param {string} data.name - 服務名稱
+ * @param {string} data.service - 賬戶名稱（可選）
+ * @param {string} data.secret - Base32金鑰
+ * @param {string} data.type - OTP型別
+ * @param {number} data.digits - 驗證碼位數
+ * @param {number} data.period - TOTP週期
+ * @param {string} data.algorithm - 雜湊演算法
+ * @param {number} data.counter - HOTP計數器
+ * @param {string} existingId - 現有ID（用於更新）
+ * @returns {Object} 標準化的金鑰物件
  */
 export function createSecretObject(
 	{ name, service, secret, type = 'TOTP', digits = 6, period = 30, algorithm = 'SHA1', counter = 0 },
@@ -647,26 +647,26 @@ export function createSecretObject(
 }
 
 /**
- * 按服务名称排序密钥列表
- * @param {Array} secrets - 密钥数组
- * @returns {Array} 排序后的密钥数组
+ * 按服務名稱排序金鑰列表
+ * @param {Array} secrets - 金鑰陣列
+ * @returns {Array} 排序後的金鑰陣列
  */
 export function sortSecretsByName(secrets) {
 	return secrets.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 }
 
 /**
- * 检查密钥是否重复
- * 只有当服务名+账户名+密钥都相同时才视为重复
- * @param {Array} secrets - 密钥数组
- * @param {string} name - 服务名称
- * @param {string} account - 账户名称
- * @param {string} secret - 密钥
- * @param {number} excludeIndex - 要排除的索引（用于更新时排除自己）
- * @returns {boolean} 是否存在重复
+ * 檢查金鑰是否重複
+ * 只有當服務名+賬戶名+金鑰都相同時才視為重複
+ * @param {Array} secrets - 金鑰陣列
+ * @param {string} name - 服務名稱
+ * @param {string} account - 賬戶名稱
+ * @param {string} secret - 金鑰
+ * @param {number} excludeIndex - 要排除的索引（用於更新時排除自己）
+ * @returns {boolean} 是否存在重複
  */
 export function checkDuplicateSecret(secrets, name, account, secret = '', excludeIndex = -1) {
-	// 规范化密钥用于比较（移除空格，转大写）
+	// 規範化金鑰用於比較（移除空格，轉大寫）
 	const normalizedSecret = secret.replace(/\s+/g, '').toUpperCase();
 
 	return secrets.some((s, index) => {
@@ -674,7 +674,7 @@ export function checkDuplicateSecret(secrets, name, account, secret = '', exclud
 			return false;
 		}
 		const existingSecret = (s.secret || '').replace(/\s+/g, '').toUpperCase();
-		// 只有名称、账户、密钥都相同时才视为重复
+		// 只有名稱、賬戶、金鑰都相同時才視為重複
 		return s.name === name && s.account === account && existingSecret === normalizedSecret;
 	});
 }

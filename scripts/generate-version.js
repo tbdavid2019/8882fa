@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * 自动版本生成脚本
- * 用于 Service Worker 缓存版本管理
+ * 自動版本生成指令碼
+ * 用於 Service Worker 快取版本管理
  *
- * 支持多种版本策略：
- * 1. 时间戳（默认）：格式 v20250102-123456
+ * 支援多種版本策略：
+ * 1. 時間戳（預設）：格式 v20250102-123456
  * 2. Git Commit：格式 v<short-hash>
  * 3. Package版本：格式 v1.0.0
  *
  * 使用方式：
- * - node scripts/generate-version.js            # 时间戳版本
+ * - node scripts/generate-version.js            # 時間戳版本
  * - node scripts/generate-version.js --git      # Git commit版本
  * - node scripts/generate-version.js --package  # Package.json版本
  */
@@ -23,14 +23,14 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 解析命令行参数
+// 解析命令列引數
 const args = process.argv.slice(2);
 const strategy = args.includes('--git') ? 'git' :
                  args.includes('--package') ? 'package' :
                  'timestamp';
 
 /**
- * 生成时间戳版本
+ * 生成時間戳版本
  * @returns {string} 格式: v20250102-123456
  */
 function generateTimestampVersion() {
@@ -51,10 +51,10 @@ function generateTimestampVersion() {
  */
 function generateGitVersion() {
   try {
-    // 获取短 commit hash
+    // 獲取短 commit hash
     const hash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
 
-    // 检查是否有未提交的更改
+    // 檢查是否有未提交的更改
     const isDirty = execSync('git status --porcelain', { encoding: 'utf-8' }).trim().length > 0;
 
     return `v${hash}${isDirty ? '-dirty' : ''}`;
@@ -66,7 +66,7 @@ function generateGitVersion() {
 }
 
 /**
- * 从 package.json 读取版本
+ * 從 package.json 讀取版本
  * @returns {string} 格式: v1.0.0
  */
 function generatePackageVersion() {
@@ -82,9 +82,9 @@ function generatePackageVersion() {
 }
 
 /**
- * 生成版本号
+ * 生成版本號
  * @param {string} strategy - 版本策略
- * @returns {string} 版本号
+ * @returns {string} 版本號
  */
 function generateVersion(strategy) {
   switch (strategy) {
@@ -98,14 +98,14 @@ function generateVersion(strategy) {
   }
 }
 
-// 主逻辑
+// 主邏輯
 function main() {
   const version = generateVersion(strategy);
 
-  // 输出版本信息（用于 wrangler 读取）
+  // 輸出版本資訊（用於 wrangler 讀取）
   console.log(version);
 
-  // 如果有 --verbose 参数，输出详细信息
+  // 如果有 --verbose 引數，輸出詳細資訊
   if (args.includes('--verbose')) {
     console.error(`\n📦 版本信息:`);
     console.error(`   策略: ${strategy}`);
@@ -116,5 +116,5 @@ function main() {
   return version;
 }
 
-// 执行
+// 執行
 main();

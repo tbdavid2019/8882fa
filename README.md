@@ -4,7 +4,7 @@
 
 **[繁體中文](#-888-2fa) · [English](#-888-2fa-english)**
 
-[![Version](https://img.shields.io/badge/version-1.9.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.09.23-blue.svg)](CHANGELOG.md)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 
@@ -15,11 +15,11 @@
 ## 🌟 888 2FA 核心亮點
 
 - 🛡️ **WebAuthn / Passkey / Touch ID 邊緣免密登入**：
-  在 Cloudflare Workers 邊緣運行時以**純 Web Crypto API 零外部依賴**實作 FIDO2 密鑰認證。支援 Apple Touch ID / Face ID、Windows Hello、Android 生物辨識與 YubiKey 實體金鑰一鍵登入，並可在「系統設定」隨時管理與綁定多台裝置通行密鑰。
+  在 Cloudflare Workers 邊緣執行時以**純 Web Crypto API 零外部依賴**實作 FIDO2 金鑰認證。支援 Apple Touch ID / Face ID、Windows Hello、Android 生物辨識與 YubiKey 實體金鑰一鍵登入，並可在「系統設定」隨時管理與繫結多臺裝置通行金鑰。
 - 📱 **原生級 PWA 離線體驗與智慧安裝提示**：
-  支援完整 PWA 離線運作，即使完全斷網亦可在本機即時計算 TOTP / HOTP 驗證碼；內建智慧浮動安裝提示條（Chromium / Android 一鍵調用原生安裝、iOS Safari 加入主畫面指引、獨立視窗 Standalone 模式自動適配）。
+  支援完整 PWA 離線運作，即使完全斷網亦可在本機即時計算 TOTP / HOTP 驗證碼；內建智慧浮動安裝提示條（Chromium / Android 一鍵呼叫原生安裝、iOS Safari 加入主畫面指引、獨立視窗 Standalone 模式自動適配）。
 - 🎨 **全新 888 品牌識別與 100/100 SEO & Open Graph**：
-  具現代深藍漸層與科技質感的 888 專屬鎖頭圖標，自動輸出向量 SVG、高解析 Favicon (32x32 / 16x16)、Apple Touch Icon (180x180) 以及 1200x630 社群分享封面圖（`/og-image.jpg`），並完整支援 Schema.org JSON-LD 結構化資料。
+  具現代深藍漸層與科技質感的 888 專屬鎖頭圖示，自動輸出向量 SVG、高解析 Favicon (32x32 / 16x16)、Apple Touch Icon (180x180) 以及 1200x630 社群分享封面圖（`/og-image.jpg`），並完整支援 Schema.org JSON-LD 結構化資料。
 - ☁️ **全能雲端備份與多端同步**：
   支援 WebDAV（Nextcloud、Synology、堅果雲等）、Amazon S3 相容儲存（Cloudflare R2、AWS S3、MinIO）、Microsoft OneDrive 與 Google Drive 自動背景推播與還原。
 - ⏱️ **極致精確的客戶端時間校準 (`/api/time`)**：
@@ -43,7 +43,7 @@
 
 ### 方式一：一鍵部署（推薦）
 
-點擊下方按鈕將專案一鍵自動部署至您的 Cloudflare 帳戶：
+點選下方按鈕將專案一鍵自動部署至您的 Cloudflare 帳戶：
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
@@ -76,25 +76,25 @@ npm run deploy
 
 ### 推薦安全設定：啟用主資料加密金鑰
 
-強烈建議在 **Cloudflare Dashboard → Workers → 您的 8882fa Worker → Settings → Variables** 中新增環境變數密鑰 `ENCRYPTION_KEY`：
+強烈建議在 **Cloudflare Dashboard → Workers → 您的 8882fa Worker → Settings → Variables** 中新增環境變數金鑰 `ENCRYPTION_KEY`：
 
 ```bash
-# 產生 256-bit 高強度 Base64 加密密鑰（任選一種）
+# 產生 256-bit 高強度 Base64 加密金鑰（任選一種）
 openssl rand -base64 32
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
-> ⚠️ **重要提醒**：請務必將此密鑰妥善保存於離線安全密碼庫中。設定後，金鑰庫、雲端同步備份與憑證均會以 AES-GCM 256 位元加密；若遺失此密鑰，舊有加密資料將無法復原。
+> ⚠️ **重要提醒**：請務必將此金鑰妥善儲存於離線安全密碼庫中。設定後，金鑰庫、雲端同步備份與憑證均會以 AES-GCM 256 位元加密；若遺失此金鑰，舊有加密資料將無法復原。
 
 ---
 
-## 🔑 通行密鑰 (Passkey / Touch ID) 設定指引
+## 🔑 通行金鑰 (Passkey / Touch ID) 設定指引
 
-1. 以主密碼登入後，點擊右下角浮動選單中的 **設定**（齒輪圖示）。
-2. 在 **安全性** 面板中找到 **通行密鑰與 Touch ID**。
-3. 點選 **新增通行密鑰**，為當前裝置命名（例如 `MacBook Pro Touch ID` 或 `iPhone Face ID`）。
-4. 依瀏覽器提示進行指紋或臉部辨識，完成綁定。
-5. 下次造訪時，在登入視窗直接點選 **使用 Touch ID / 通行密鑰登入**，無須手動輸入主密碼即可瞬間解鎖！
+1. 以主密碼登入後，點選右下角浮動選單中的 **設定**（齒輪圖示）。
+2. 在 **安全性** 面板中找到 **通行金鑰與 Touch ID**。
+3. 點選 **新增通行金鑰**，為當前裝置命名（例如 `MacBook Pro Touch ID` 或 `iPhone Face ID`）。
+4. 依瀏覽器提示進行指紋或臉部辨識，完成繫結。
+5. 下次造訪時，在登入視窗直接點選 **使用 Touch ID / 通行金鑰登入**，無須手動輸入主密碼即可瞬間解鎖！
 
 ---
 
@@ -115,7 +115,7 @@ Portions Copyright (C) 2024 wuzf <https://github.com/wuzf>
 
 A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powered by Cloudflare Workers. Free edge deployment, global acceleration, comprehensive PWA offline capabilities, and instant WebAuthn / Passkey biometric sign-in.
 
-[![Version](https://img.shields.io/badge/version-1.9.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.09.23-blue.svg)](CHANGELOG.md)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 

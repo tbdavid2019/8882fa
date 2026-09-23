@@ -1,34 +1,34 @@
 /**
- * OTP 计算模块
- * 包含 TOTP/HOTP 算法实现和相关辅助函数
+ * OTP 計算模組
+ * 包含 TOTP/HOTP 演算法實現和相關輔助函式
  */
 
 /**
- * 获取 OTP 计算相关代码
- * @returns {string} OTP JavaScript 代码
+ * 獲取 OTP 計算相關程式碼
+ * @returns {string} OTP JavaScript 程式碼
  */
 export function getOTPCode() {
-	return `    // ========== OTP 计算模块 ==========
+	return `    // ========== OTP 計算模組 ==========
 
-    // OTP计算核心类
+    // OTP計算核心類
     class OTPCalculator {
       constructor() {
         this.cache = new Map(); // 缓存计算结果
         this.cacheTimeout = 1000; // 缓存1秒
       }
 
-      // 获取当前时间窗口
+      // 獲取當前時間視窗
       getCurrentTimeWindow(period = 30) {
         const currentTime = Math.floor(getCorrectedNowMs() / 1000);
         return Math.floor(currentTime / period);
       }
 
-      // 获取下一个时间窗口
+      // 獲取下一個時間視窗
       getNextTimeWindow(period = 30) {
         return this.getCurrentTimeWindow(period) + 1;
       }
 
-      // 获取剩余时间
+      // 獲取剩餘時間
       getRemainingTime(period = 30) {
         const currentTime = Math.floor(getCorrectedNowMs() / 1000);
         const currentWindow = this.getCurrentTimeWindow(period);
@@ -36,12 +36,12 @@ export function getOTPCode() {
         return Math.max(0, nextRefresh - currentTime);
       }
 
-      // 生成缓存键
+      // 生成快取鍵
       getCacheKey(secret, counter, options) {
         return secret + '_' + counter + '_' + options.digits + '_' + options.algorithm;
       }
 
-      // HOTP 计数器必须能被 JavaScript 精确表示；offset 用于预计算下一个验证码。
+      // HOTP 計數器必須能被 JavaScript 精確表示；offset 用於預計算下一個驗證碼。
       getHOTPCounter(secret, offset = 0) {
         const counter = secret && secret.counter !== undefined ? secret.counter : 0;
         if (!Number.isSafeInteger(counter) || counter < 0) {
@@ -55,7 +55,7 @@ export function getOTPCode() {
         return resolvedCounter;
       }
 
-      // RFC 4226 使用 8 字节大端计数器，不能只写低 32 位。
+      // RFC 4226 使用 8 位元組大端計數器，不能只寫低 32 位。
       getCounterBytes(counter) {
         if (!Number.isSafeInteger(counter) || counter < 0) {
           throw new RangeError('OTP counter must be a non-negative safe integer');
@@ -70,7 +70,7 @@ export function getOTPCode() {
         return counterBytes;
       }
 
-      // 检查缓存
+      // 檢查快取
       getCachedResult(cacheKey) {
         const cached = this.cache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
@@ -79,7 +79,7 @@ export function getOTPCode() {
         return null;
       }
 
-      // 设置缓存
+      // 設定快取
       setCachedResult(cacheKey, value) {
         this.cache.set(cacheKey, {
           value,
@@ -91,7 +91,7 @@ export function getOTPCode() {
         this.cache.clear();
       }
 
-      // 计算当前OTP
+      // 計算當前OTP
       async calculateCurrentOTP(secret) {
         const options = {
           digits: secret.digits || 6,
@@ -118,7 +118,7 @@ export function getOTPCode() {
         }
       }
 
-      // 计算下一个OTP
+      // 計算下一個OTP
       async calculateNextOTP(secret) {
         const options = {
           digits: secret.digits || 6,
@@ -145,16 +145,16 @@ export function getOTPCode() {
         }
       }
 
-      // 生成TOTP（统一入口）
+      // 生成TOTP（統一入口）
       async generateTOTP(secret, counter, options = {}) {
         try {
-          // 检查crypto.subtle支持
+          // 檢查crypto.subtle支援
           if (!window.crypto || !window.crypto.subtle) {
             console.warn('crypto.subtle not supported, using fallback');
             return this.generateTOTPFallback(secret, counter, options);
           }
 
-          // 映射算法名称
+          // 對映演算法名稱
           const hashAlgMap = {
             'SHA1': 'SHA-1',
             'SHA-1': 'SHA-1',
@@ -190,17 +190,17 @@ export function getOTPCode() {
         }
       }
 
-      // 备用TOTP生成函数（纯JavaScript实现）
+      // 備用TOTP生成函式（純JavaScript實現）
       generateTOTPFallback(secret, counter, options = {}) {
         try {
           const digits = options.digits || 6;
           const algorithm = options.algorithm || 'SHA1';
 
-          // 使用纯JavaScript的HMAC实现
+          // 使用純JavaScript的HMAC實現
           const key = this.base32Decode(secret);
           const counterBytes = this.getCounterBytes(counter);
 
-          // 简化的HMAC-SHA1实现
+          // 簡化的HMAC-SHA1實現
           const hmac = this.simpleHMAC(key, new Uint8Array(counterBytes), algorithm);
           const offset = hmac[hmac.length - 1] & 0x0f;
           const binary = ((hmac[offset] & 0x7f) << 24) |
@@ -216,21 +216,21 @@ export function getOTPCode() {
         }
       }
 
-      // 简化的HMAC实现
+      // 簡化的HMAC實現
       simpleHMAC(key, message, algorithm) {
-        // 这是一个简化的实现，仅用于SHA1
+        // 這是一個簡化的實現，僅用於SHA1
         const blockSize = 64;
         const keyBytes = new Uint8Array(key);
         let keyArray = new Uint8Array(blockSize);
 
         if (keyBytes.length > blockSize) {
-          // 简化处理：直接截断
+          // 簡化處理：直接截斷
           keyArray.set(keyBytes.slice(0, blockSize));
         } else {
           keyArray.set(keyBytes);
         }
 
-        // 创建ipad和opad
+        // 建立ipad和opad
         const ipad = new Uint8Array(blockSize);
         const opad = new Uint8Array(blockSize);
 
@@ -239,12 +239,12 @@ export function getOTPCode() {
           opad[i] = keyArray[i] ^ 0x5c;
         }
 
-        // 创建消息
+        // 建立訊息
         const innerMessage = new Uint8Array(blockSize + message.length);
         innerMessage.set(ipad);
         innerMessage.set(message, blockSize);
 
-        // 使用简化的SHA1实现
+        // 使用簡化的SHA1實現
         const hash1 = this.simpleSHA1(innerMessage);
         const outerMessage = new Uint8Array(blockSize + 20);
         outerMessage.set(opad);
@@ -252,38 +252,38 @@ export function getOTPCode() {
         return this.simpleSHA1(outerMessage);
       }
 
-      // 简化的SHA1实现
+      // 簡化的SHA1實現
       simpleSHA1(message) {
         const msg = new Uint8Array(message);
         const msgLength = msg.length;
         const bitLength = msgLength * 8;
 
-        // 添加填充
+        // 新增填充
         const paddedLength = Math.ceil((msgLength + 9) / 64) * 64;
         const padded = new Uint8Array(paddedLength);
         padded.set(msg);
         padded[msgLength] = 0x80;
 
-        // 添加长度（64位）
+        // 新增長度（64位）
         const lengthBytes = new ArrayBuffer(8);
         const lengthView = new DataView(lengthBytes);
         lengthView.setUint32(0, Math.floor(bitLength / 0x100000000), false);
         lengthView.setUint32(4, bitLength & 0xffffffff, false);
         padded.set(new Uint8Array(lengthBytes), paddedLength - 8);
 
-        // 初始化哈希值
+        // 初始化雜湊值
         let h0 = 0x67452301;
         let h1 = 0xEFCDAB89;
         let h2 = 0x98BADCFE;
         let h3 = 0x10325476;
         let h4 = 0xC3D2E1F0;
 
-        // 处理每个512位块
+        // 處理每個512位塊
         for (let i = 0; i < paddedLength; i += 64) {
           const chunk = padded.slice(i, i + 64);
           const words = new Array(80);
 
-          // 将块转换为16个32位字
+          // 將塊轉換為16個32位字
           for (let j = 0; j < 16; j++) {
             words[j] = (chunk[j * 4] << 24) |
                       (chunk[j * 4 + 1] << 16) |
@@ -291,15 +291,15 @@ export function getOTPCode() {
                       chunk[j * 4 + 3];
           }
 
-          // 扩展16个字到80个字
+          // 擴充套件16個字到80個字
           for (let j = 16; j < 80; j++) {
             words[j] = this.rotateLeft(words[j - 3] ^ words[j - 8] ^ words[j - 14] ^ words[j - 16], 1);
           }
 
-          // 初始化哈希值
+          // 初始化雜湊值
           let a = h0, b = h1, c = h2, d = h3, e = h4;
 
-          // 主循环
+          // 主迴圈
           for (let j = 0; j < 80; j++) {
             let f, k;
             if (j < 20) {
@@ -324,7 +324,7 @@ export function getOTPCode() {
             a = temp;
           }
 
-          // 添加到哈希值
+          // 新增到雜湊值
           h0 = (h0 + a) >>> 0;
           h1 = (h1 + b) >>> 0;
           h2 = (h2 + c) >>> 0;
@@ -332,7 +332,7 @@ export function getOTPCode() {
           h4 = (h4 + e) >>> 0;
         }
 
-        // 返回哈希值
+        // 返回雜湊值
         const result = new Uint8Array(20);
         const view = new DataView(result.buffer);
         view.setUint32(0, h0, false);
@@ -343,12 +343,12 @@ export function getOTPCode() {
         return result;
       }
 
-      // 左旋转函数
+      // 左旋轉函式
       rotateLeft(value, amount) {
         return ((value << amount) | (value >>> (32 - amount))) >>> 0;
       }
 
-      // Base32解码函数
+      // Base32解碼函式
       base32Decode(encoded) {
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         const cleanInput = encoded.toUpperCase().replace(/=+$/, '');
@@ -379,25 +379,25 @@ export function getOTPCode() {
       }
     }
 
-    // 创建全局OTP计算器实例
+    // 建立全域性OTP計算器例項
     const otpCalculator = new OTPCalculator();
 
-    // 保存每个验证码节点最近一次成功提交的窗口，避免首次加载或重复刷新时误触发动效
+    // 儲存每個驗證碼節點最近一次成功提交的視窗，避免首次載入或重複重新整理時誤觸發動效
     const otpTransitionStates = new WeakMap();
-    // HOTP 文本只有与生成它的参数、counter 和实际 DOM 节点绑定后才允许复制。
+    // HOTP 文本只有與生成它的引數、counter 和實際 DOM 節點繫結後才允許複製。
     const committedHOTPTokenStates = new WeakMap();
     const otpAnimationTimers = new WeakMap();
     const activeOTPAnimationRecords = new Set();
-    // 动画会暂时让 flyer 展示旧的“下一个”验证码，而 DOM 已提交新值。
-    // 明确记录这一过渡期，供复制逻辑阻止复制与画面不一致的隐藏值。
+    // 動畫會暫時讓 flyer 展示舊的“下一個”驗證碼，而 DOM 已提交新值。
+    // 明確記錄這一過渡期，供複製邏輯阻止複製與畫面不一致的隱藏值。
     const activeOTPNextTransitions = new WeakMap();
-    // 同一帧内完成的多个交接统一读取布局、再一起写入 class，避免卡片之间出现明显时差
+    // 同一幀內完成的多個交接統一讀取佈局、再一起寫入 class，避免卡片之間出現明顯時差
     const queuedOTPAnimationJobs = new Set();
     const otpQueuedAnimationJobs = new WeakMap();
-    // updateOTP 可能同时被倒计时、安全检查和焦点恢复触发；相同窗口只保留一个计算请求
+    // updateOTP 可能同時被倒計時、安全檢查和焦點恢復觸發；相同視窗只保留一個計算請求
     const otpUpdateInFlight = new Map();
     let otpUpdateRequestGeneration = 0;
-    // 每张卡仍保留自己的进度条定时器，但验证码窗口切换由一个共享调度器触发
+    // 每張卡仍保留自己的進度條定時器，但驗證碼視窗切換由一個共享排程器觸發
     const otpWindowSchedulerEntries = new Map();
     let otpWindowSchedulerTimer = null;
     let otpWindowSchedulerRunning = false;
@@ -462,7 +462,7 @@ export function getOTPCode() {
     try {
       otpAnimationMode = normalizeOTPAnimationMode(localStorage.getItem(OTP_ANIMATION_STORAGE_KEY));
     } catch {
-      // localStorage 不可用时保留本次会话内的默认动效
+      // localStorage 不可用時保留本次會話內的預設動效
     }
 
     function getOTPAnimationMode() {
@@ -476,10 +476,10 @@ export function getOTPCode() {
       try {
         localStorage.setItem(OTP_ANIMATION_STORAGE_KEY, nextMode);
       } catch {
-        // localStorage 不可用时仍让选择在本次会话生效
+        // localStorage 不可用時仍讓選擇在本次會話生效
       }
 
-      // 用户切换设置时立即停止排队中或仍在播放的旧动效
+      // 使用者切換設定時立即停止排隊中或仍在播放的舊動效
       clearAllOTPAnimations();
       return nextMode;
     }
@@ -505,7 +505,7 @@ export function getOTPCode() {
         typeof element.classList.remove === 'function'
       );
       if (!hasAnimationAPI) return false;
-      // DOM 重绘后旧节点可能仍被异步结果引用；不要给脱离文档的节点加动画
+      // DOM 重繪後舊節點可能仍被非同步結果引用；不要給脫離文件的節點加動畫
       return !('isConnected' in element) || element.isConnected;
     }
 
@@ -556,7 +556,7 @@ export function getOTPCode() {
         return window.requestAnimationFrame(callback);
       }
 
-      // 非浏览器或测试环境没有布局帧，直接执行以保持功能可用
+      // 非瀏覽器或測試環境沒有佈局幀，直接執行以保持功能可用
       callback();
       return null;
     }
@@ -674,7 +674,7 @@ export function getOTPCode() {
       try {
         element.classList.remove(className);
       } catch {
-        // 某些测试或嵌入环境可能提供不完整的 classList，实现上忽略清理失败
+        // 某些測試或嵌入環境可能提供不完整的 classList，實現上忽略清理失敗
       }
     }
 
@@ -688,7 +688,7 @@ export function getOTPCode() {
           flyer.parentNode.removeChild(flyer);
         }
       } catch {
-        // 动画层已脱离文档时忽略清理异常
+        // 動畫層已脫離文件時忽略清理異常
       }
     }
 
@@ -705,7 +705,7 @@ export function getOTPCode() {
           }
         }
       } catch {
-        // 非浏览器 DOM 或文本节点不可测量时回退到元素盒模型
+        // 非瀏覽器 DOM 或文本節點不可測量時回退到元素盒模型
       }
 
       try {
@@ -714,7 +714,7 @@ export function getOTPCode() {
           return elementRect;
         }
       } catch {
-        // 某些嵌入环境不提供布局信息
+        // 某些嵌入環境不提供佈局資訊
       }
 
       return null;
@@ -850,7 +850,7 @@ export function getOTPCode() {
       );
     }
 
-    // 在同一个布局帧中先读取所有卡片几何，再统一添加 class，保证交接起始时间一致
+    // 在同一個佈局幀中先讀取所有卡片幾何，再統一新增 class，保證交接起始時間一致
     function startOTPPromotionAnimation(animationJob, geometry) {
       const animationConfig = OTP_ANIMATION_CONFIG[animationJob.animationMode];
       if (!animationConfig || !geometry || !isOTPAnimationJobCurrent(animationJob)) {
@@ -940,7 +940,7 @@ export function getOTPCode() {
         visibleJobs.push(animationJob);
       });
 
-      // 先统一移除旧状态，再集中读取几何，最后统一写入动画 class，避免交替触发布局刷新。
+      // 先統一移除舊狀態，再集中讀取幾何，最後統一寫入動畫 class，避免交替觸發佈局重新整理。
       visibleJobs.forEach(animationJob => {
         const animationConfig = OTP_ANIMATION_CONFIG[animationJob.animationMode];
         clearOTPAnimationTimer(animationJob.otpElement);
@@ -965,7 +965,7 @@ export function getOTPCode() {
         }
       });
 
-      // 所有几何读取完成后再统一写入 DOM，避免多卡片之间交替触发布局刷新
+      // 所有幾何讀取完成後再統一寫入 DOM，避免多卡片之間交替觸發佈局重新整理
       preparedJobs.forEach(({ animationJob, geometry }) => {
         startOTPPromotionAnimation(animationJob, geometry);
       });
@@ -1088,8 +1088,8 @@ export function getOTPCode() {
       }
     }
 
-    // 执行一次稳定窗口更新。计算期间跨过窗口或时钟重新同步时，丢弃结果并重试，
-    // 避免旧结果触发错误的交接动画。
+    // 執行一次穩定視窗更新。計算期間跨過視窗或時鐘重新同步時，丟棄結果並重試，
+    // 避免舊結果觸發錯誤的交接動畫。
     function isCurrentOTPUpdateRequest(secretId, request) {
       return !request || otpUpdateInFlight.get(secretId) === request;
     }
@@ -1133,7 +1133,7 @@ export function getOTPCode() {
         tokenDigits
       } = result;
 
-      // 批处理中较快的计算会等待慢卡；真正写 DOM 前必须再次确认请求、窗口和时钟代次。
+      // 批處理中較快的計算會等待慢卡；真正寫 DOM 前必須再次確認請求、視窗和時鐘代次。
       if (!isCurrentOTPUpdateRequest(secretId, request)) return;
       if (isHOTP && hotpFingerprint !== getHOTPTokenFingerprint(secret)) return;
       if (!isHOTP) {
@@ -1141,7 +1141,7 @@ export function getOTPCode() {
         if (currentWindow !== otpCalculator.getCurrentTimeWindow(timeStep)) return;
       }
 
-      // 在提交前读取旧的下一个验证码，用于确认它是否正好晋升为当前验证码。
+      // 在提交前讀取舊的下一個驗證碼，用於確認它是否正好晉升為當前驗證碼。
       const otpElement = document.getElementById('otp-' + secretId);
       const nextOtpElement = document.getElementById('next-otp-' + secretId);
       const previousCurrentToken = otpElement ? otpElement.textContent : null;
@@ -1177,7 +1177,7 @@ export function getOTPCode() {
         previousNextToken === nextToken
       );
 
-      // 同窗同值刷新保留正在播放的动画；任何新状态提交都先撤销旧 flyer/class。
+      // 同窗同值重新整理保留正在播放的動畫；任何新狀態提交都先撤銷舊 flyer/class。
       if (!preservesCurrentAnimation) {
         clearOTPAnimationTimer(otpElement);
         clearOTPAnimationTimer(nextOtpElement);
@@ -1243,13 +1243,13 @@ export function getOTPCode() {
 
           console.log('更新OTP:', secret.name, '当前时间窗口:', currentWindow, '下一个时间窗口:', nextWindow, '时间:', new Date(currentTime * 1000).toLocaleTimeString());
 
-          // 并行计算当前和下一个OTP
+          // 平行計算當前和下一個OTP
           const [currentToken, nextToken] = await Promise.all([
             otpCalculator.calculateCurrentOTP(secret),
             otpCalculator.calculateNextOTP(secret)
           ]);
 
-          // 如果同一张卡随后以新的窗口/时钟代次发起了请求，旧结果只能丢弃。
+          // 如果同一張卡隨後以新的視窗/時鐘代次發起了請求，舊結果只能丟棄。
           if (!isCurrentOTPUpdateRequest(secretId, request)) {
             return completeOTPUpdateRequest(request);
           }
@@ -1319,8 +1319,8 @@ export function getOTPCode() {
       );
     }
 
-    // 倒计时、安全检查、焦点恢复可能在同一时刻请求同一张卡；相同窗口复用同一个 Promise。
-    // 如果窗口或时钟代次已经改变，则允许新请求取代旧请求，旧结果会在提交前被丢弃。
+    // 倒計時、安全檢查、焦點恢復可能在同一時刻請求同一張卡；相同視窗複用同一個 Promise。
+    // 如果視窗或時鐘代次已經改變，則允許新請求取代舊請求，舊結果會在提交前被丟棄。
     function updateOTP(secretId, animationBatch = null, secretHint = null) {
       const context = getOTPUpdateContext(secretId, secretHint);
       if (!context) return Promise.resolve();
@@ -1332,8 +1332,8 @@ export function getOTPCode() {
         }
       }
 
-      // 新 batch 不能接管已启动的非 batch 请求，否则旧请求会在整批 seal 前提前写 DOM。
-      // 取代任何旧请求时也立即取消其 batch task，避免过期 WebCrypto 阻塞旧批次。
+      // 新 batch 不能接管已啟動的非 batch 請求，否則舊請求會在整批 seal 前提前寫 DOM。
+      // 取代任何舊請求時也立即取消其 batch task，避免過期 WebCrypto 阻塞舊批次。
       if (existing) cancelOTPAnimationBatchTask(existing);
 
       const animationBatchTask = registerOTPAnimationBatchTask(animationBatch);
@@ -1493,7 +1493,7 @@ export function getOTPCode() {
 
       entry.lastWindow = window;
       resetOTPWindowRetry(entry, window, clockGeneration);
-      // OTP 文本提交后立刻把进度条推进到同一个校准时间点，不等待下一次 1 秒 interval。
+      // OTP 文本提交後立刻把進度條推進到同一個校準時間點，不等待下一次 1 秒 interval。
       updateCountdown(secretId, secret);
     }
 
@@ -1519,7 +1519,7 @@ export function getOTPCode() {
           settleOTPWindowSchedulerAttempt(refreshEntry, false);
         });
       });
-      // 所有请求已同步注册；最后一个计算 settle 时统一写 DOM 并只排一个 RAF。
+      // 所有請求已同步註冊；最後一個計算 settle 時統一寫 DOM 並只排一個 RAF。
       sealOTPAnimationBatch(animationBatch);
     }
 
@@ -1566,7 +1566,7 @@ export function getOTPCode() {
           }
           entry.pendingAttempt = null;
         }
-        // 安全检查或焦点恢复可能已经提交了这一窗口，避免再次启动计算/动画。
+        // 安全檢查或焦點恢復可能已經提交了這一視窗，避免再次啟動計算/動畫。
         if (hasCommittedOTPWindow(entry.secretId, period, currentWindow, clockGeneration, secret.digits)) {
           entry.lastWindow = currentWindow;
           resetOTPWindowRetry(entry, currentWindow, clockGeneration);
@@ -1608,7 +1608,7 @@ export function getOTPCode() {
 
       try {
         const timer = setInterval(runOTPWindowScheduler, OTP_WINDOW_SCHEDULER_TICK_MS);
-        // 测试或嵌入环境的 setInterval 可能不返回句柄；running 标记仍需生效，避免重复注册。
+        // 測試或嵌入環境的 setInterval 可能不返回控制代碼；running 標記仍需生效，避免重複註冊。
         otpWindowSchedulerTimer = typeof timer === 'undefined' ? true : timer;
         otpWindowSchedulerRunning = true;
       } catch (error) {
@@ -1660,17 +1660,17 @@ export function getOTPCode() {
       window.addEventListener('beforeunload', stopOTPWindowScheduler);
     }
 
-    // 计算下一个OTP（保持向后兼容）
+    // 計算下一個OTP（保持向後相容）
     async function calculateNextOTP(secretObj) {
       return await otpCalculator.calculateNextOTP(secretObj);
     }
 
-    // 启动OTP倒计时（仅对TOTP有效，HOTP不需要倒计时）
+    // 啟動OTP倒計時（僅對TOTP有效，HOTP不需要倒計時）
     function startOTPInterval(secretId, secretHint = null) {
       const secret = secretHint || secrets.find(s => s.id === secretId);
       if (!secret) return;
 
-      // HOTP 不需要倒计时，直接返回
+      // HOTP 不需要倒計時，直接返回
       if (secret.type && secret.type.toUpperCase() === 'HOTP') {
         if (otpIntervals && Object.prototype.hasOwnProperty.call(otpIntervals, String(secretId))) {
           clearInterval(otpIntervals[secretId]);
@@ -1693,13 +1693,13 @@ export function getOTPCode() {
       updateCountdown(secretId, secret);
     }
 
-    // 更新倒计时（仅对TOTP有效）
+    // 更新倒計時（僅對TOTP有效）
     function updateCountdown(secretId, secretHint = null) {
       const secret = secretHint || secrets.find(s => s.id === secretId);
       if (!secret) return;
       if (document.hidden) return;
 
-      // HOTP 不需要倒计时，直接返回
+      // HOTP 不需要倒計時，直接返回
       if (secret.type && secret.type.toUpperCase() === 'HOTP') {
         return;
       }
@@ -1713,7 +1713,7 @@ export function getOTPCode() {
         progressElement.style.width = progress + '%';
       }
 
-      // 🔄 防御性检查：如果验证码显示为默认值，立即刷新
+      // 🔄 防禦性檢查：如果驗證碼顯示為預設值，立即重新整理
       const otpElement = document.getElementById('otp-' + secretId);
       if (
         otpElement &&
@@ -1734,7 +1734,7 @@ export function getOTPCode() {
           secret.digits
         ) !== currentWindow
       ) {
-        // 只有共享调度器不可用时才由单卡兜底，避免抢先触发交接动画。
+        // 只有共享排程器不可用時才由單卡兜底，避免搶先觸發交接動畫。
         updateOTP(secretId, null, secret);
       }
     }

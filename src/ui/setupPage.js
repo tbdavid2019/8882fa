@@ -1,6 +1,6 @@
 /**
- * 首次设置页面模块
- * 用于用户首次访问时设置管理员密码
+ * 首次設定頁面模組
+ * 用於使用者首次訪問時設定管理員密碼
  */
 
 import { getSetupStyles } from './styles/setup.js';
@@ -8,8 +8,8 @@ import { dialogIcon } from './dialogIcons.js';
 import { LOCALES } from './locales/index.js';
 
 /**
- * 创建首次设置页面
- * @returns {Response} HTML响应
+ * 建立首次設定頁面
+ * @returns {Response} HTML響應
  */
 export async function createSetupPage() {
 	const setupLocales = {};
@@ -252,7 +252,7 @@ export async function createSetupPage() {
       applySetupLanguage(lang);
     })();
 
-    // 检测不安全上下文：HTTP 下浏览器无法保存 Secure Cookie，登录状态无法保持
+    // 檢測不安全上下文：HTTP 下瀏覽器無法儲存 Secure Cookie，登入狀態無法保持
     (function() {
       let insecure;
       if (typeof window.isSecureContext === 'boolean') {
@@ -266,7 +266,7 @@ export async function createSetupPage() {
       }
     })();
 
-    // 切换密码可见性
+    // 切換密碼可見性
     function togglePasswordVisibility(inputId) {
       const input = document.getElementById(inputId);
       const button = input.nextElementSibling;
@@ -278,24 +278,24 @@ export async function createSetupPage() {
       buttonAria(button, visible, label);
     }
 
-    // 检查密码强度
+    // 檢查密碼強度
     function checkPasswordStrength() {
       const password = document.getElementById('password').value;
       const strengthBar = document.getElementById('passwordStrengthBar');
 
       let strength = 0;
 
-      // 检查长度
+      // 檢查長度
       if (password.length >= 8) strength++;
       if (password.length >= 12) strength++;
 
-      // 检查复杂性
+      // 檢查複雜性
       if (/[a-z]/.test(password)) strength++;
       if (/[A-Z]/.test(password)) strength++;
       if (/[0-9]/.test(password)) strength++;
       if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-      // 更新进度条
+      // 更新進度條
       strengthBar.className = 'password-strength-bar';
       if (strength <= 2) {
         strengthBar.classList.add('strength-weak');
@@ -306,26 +306,26 @@ export async function createSetupPage() {
       }
     }
 
-    // 显示错误消息
+    // 顯示錯誤訊息
     function showError(message) {
       const errorDiv = document.getElementById('errorMessage');
       errorDiv.textContent = message;
       errorDiv.style.display = 'block';
 
-      // 5秒后自动隐藏
+      // 5秒後自動隱藏
       setTimeout(() => {
         errorDiv.style.display = 'none';
       }, 5000);
     }
 
-    // 显示成功消息
+    // 顯示成功訊息
     function showSuccess(message) {
       const successDiv = document.getElementById('successMessage');
       successDiv.textContent = message;
       successDiv.style.display = 'block';
     }
 
-    // 处理表单提交
+    // 處理表單提交
     async function handleSetup(event) {
       event.preventDefault();
 
@@ -333,13 +333,13 @@ export async function createSetupPage() {
       const confirmPassword = document.getElementById('confirmPassword').value;
       const submitButton = document.getElementById('submitButton');
 
-      // 验证密码
+      // 驗證密碼
       if (password !== confirmPassword) {
         showError(t('setupErrMismatch'));
         return;
       }
 
-      // 验证密码强度
+      // 驗證密碼強度
       if (password.length < 8) {
         showError(t('setupErrLength'));
         return;
@@ -365,7 +365,7 @@ export async function createSetupPage() {
         return;
       }
 
-      // 禁用按钮，显示加载状态
+      // 停用按鈕，顯示載入狀態
       submitButton.disabled = true;
       submitButton.innerHTML = '<span class="loading-spinner"></span>' + t('setupSubmitting');
 
@@ -386,7 +386,7 @@ export async function createSetupPage() {
         if (response.ok) {
           showSuccess(data.message || t('setupSuccess'));
 
-          // 2秒后跳转到主页
+          // 2秒後跳轉到主頁
           setTimeout(() => {
             window.location.href = '/';
           }, 2000);

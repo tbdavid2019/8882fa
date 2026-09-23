@@ -1,6 +1,6 @@
 /**
- * Security 安全配置模块测试
- * 测试 CORS、CSP、预检请求等安全功能
+ * Security 安全配置模組測試
+ * 測試 CORS、CSP、預檢請求等安全功能
  */
 
 import { describe, it, expect } from 'vitest';
@@ -17,12 +17,12 @@ import {
 // ==================== Mock 工具 ====================
 
 /**
- * 创建 Mock Request
- * @param {Object} options - 配置选项
+ * 建立 Mock Request
+ * @param {Object} options - 配置選項
  * @param {string} options.host - Host header
  * @param {string} options.origin - Origin header
  * @param {string} options.method - HTTP 方法
- * @param {Object} options.headers - 额外的 headers
+ * @param {Object} options.headers - 額外的 headers
  */
 function createMockRequest({
   host = 'example.com',
@@ -46,7 +46,7 @@ function createMockRequest({
   };
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Security Utils', () => {
 
@@ -142,7 +142,7 @@ describe('Security Utils', () => {
     it('同 Host 的 HTTP 协议应该被允许（本地开发支持）', () => {
       const request = createMockRequest({
         host: 'example.com',
-        origin: 'http://example.com'  // HTTP 也被允许
+        origin: 'http://example.com'  // HTTP 也被允許
       });
 
       const result = getAllowedOrigin(request);
@@ -200,7 +200,7 @@ describe('Security Utils', () => {
       expect(headers['Access-Control-Allow-Credentials']).toBeUndefined();
       expect(headers['Vary']).toBeUndefined();
 
-      // 其他安全头应该存在
+      // 其他安全頭應該存在
       expect(headers['X-Frame-Options']).toBe('DENY');
       expect(headers['Content-Security-Policy']).toBeDefined();
     });
@@ -229,7 +229,7 @@ describe('Security Utils', () => {
       expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
       expect(headers['Access-Control-Allow-Credentials']).toBeUndefined();
 
-      // 其他安全头应该存在
+      // 其他安全頭應該存在
       expect(headers['X-Frame-Options']).toBe('DENY');
     });
 
@@ -255,7 +255,7 @@ describe('Security Utils', () => {
 
       expect(headers['Content-Security-Policy']).toBeUndefined();
 
-      // 其他安全头应该存在
+      // 其他安全頭應該存在
       expect(headers['X-Frame-Options']).toBe('DENY');
       expect(headers['Access-Control-Allow-Origin']).toBe('https://example.com');
     });
@@ -272,7 +272,7 @@ describe('Security Utils', () => {
         includeCSP: false
       });
 
-      // 只有基础安全头
+      // 只有基礎安全頭
       expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
       expect(headers['Content-Security-Policy']).toBeUndefined();
       expect(headers['X-Frame-Options']).toBe('DENY');
@@ -432,11 +432,11 @@ describe('Security Utils', () => {
 
       const merged = mergeSecurityHeaders(request, existingHeaders);
 
-      // 应该包含安全头
+      // 應該包含安全頭
       expect(merged['X-Frame-Options']).toBe('DENY');
       expect(merged['Access-Control-Allow-Origin']).toBe('https://example.com');
 
-      // 应该包含现有 headers
+      // 應該包含現有 headers
       expect(merged['Content-Type']).toBe('application/json');
       expect(merged['Cache-Control']).toBe('no-cache');
     });
@@ -448,7 +448,7 @@ describe('Security Utils', () => {
       });
 
       const existingHeaders = {
-        'X-Frame-Options': 'SAMEORIGIN'  // 覆盖默认的 'DENY'
+        'X-Frame-Options': 'SAMEORIGIN'  // 覆蓋預設的 'DENY'
       };
 
       const merged = mergeSecurityHeaders(request, existingHeaders);
@@ -513,7 +513,7 @@ describe('Security Utils', () => {
     it('CSP 策略应该使用分号分隔', () => {
       const csp = getCSPPolicy();
 
-      // 应该包含至少 10 个分号（有多个指令）
+      // 應該包含至少 10 個分號（有多個指令）
       const semicolonCount = (csp.match(/;/g) || []).length;
       expect(semicolonCount).toBeGreaterThanOrEqual(10);
     });
@@ -527,14 +527,14 @@ describe('Security Utils', () => {
         method: 'POST'
       });
 
-      // 1. 检查不是预检请求
+      // 1. 檢查不是預檢請求
       expect(isPreflightRequest(request)).toBe(false);
 
-      // 2. 获取允许的 Origin
+      // 2. 獲取允許的 Origin
       const allowedOrigin = getAllowedOrigin(request);
       expect(allowedOrigin).toBe('https://example.com');
 
-      // 3. 获取安全头
+      // 3. 獲取安全頭
       const headers = getSecurityHeaders(request);
       expect(headers['Access-Control-Allow-Origin']).toBe('https://example.com');
       expect(headers['X-Frame-Options']).toBe('DENY');
@@ -551,15 +551,15 @@ describe('Security Utils', () => {
         }
       });
 
-      // 1. 识别为预检请求
+      // 1. 識別為預檢請求
       expect(isPreflightRequest(request)).toBe(true);
 
-      // 2. 创建预检响应
+      // 2. 建立預檢響應
       const response = createPreflightResponse(request);
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(204);
 
-      // 3. 验证预检响应头
+      // 3. 驗證預檢響應頭
       expect(response.headers.get('Access-Control-Allow-Methods')).toContain('DELETE');
       expect(response.headers.get('Access-Control-Max-Age')).toBe('86400');
     });
@@ -571,15 +571,15 @@ describe('Security Utils', () => {
         method: 'POST'
       });
 
-      // 1. Origin 不被允许
+      // 1. Origin 不被允許
       const allowedOrigin = getAllowedOrigin(request);
       expect(allowedOrigin).toBeNull();
 
-      // 2. 安全头中不包含 CORS
+      // 2. 安全頭中不包含 CORS
       const headers = getSecurityHeaders(request);
       expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
 
-      // 3. 但仍包含其他安全头
+      // 3. 但仍包含其他安全頭
       expect(headers['X-Frame-Options']).toBe('DENY');
       expect(headers['Content-Security-Policy']).toBeDefined();
     });
@@ -604,8 +604,8 @@ describe('Security Utils', () => {
         origin: 'not-a-valid-url'
       });
 
-      // 畸形 URL 会导致 new URL() 抛出 TypeError
-      // 这是当前实现的行为（在 localhost 特殊处理时解析 URL）
+      // 畸形 URL 會導致 new URL() 丟擲 TypeError
+      // 這是當前實現的行為（在 localhost 特殊處理時解析 URL）
       expect(() => getAllowedOrigin(request)).toThrow(TypeError);
     });
 
@@ -660,7 +660,7 @@ describe('Security Utils', () => {
       }
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(50); // 1000 次调用 < 50ms
+      expect(end - start).toBeLessThan(50); // 1000 次呼叫 < 50ms
     });
 
     it('getSecurityHeaders 应该快速执行', () => {
@@ -675,7 +675,7 @@ describe('Security Utils', () => {
       }
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(100); // 1000 次调用 < 100ms
+      expect(end - start).toBeLessThan(100); // 1000 次呼叫 < 100ms
     });
   });
 });

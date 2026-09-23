@@ -1,8 +1,8 @@
 /**
- * WebDAV 配置 API 端点
- * 提供多目标 WebDAV 配置的 CRUD 操作、启用/禁用切换和连接测试
+ * WebDAV 配置 API 端點
+ * 提供多目標 WebDAV 配置的 CRUD 操作、啟用/停用切換和連線測試
  *
- * 所有写操作接口使用 checkRateLimit + RATE_LIMIT_PRESETS.sensitive
+ * 所有寫操作介面使用 checkRateLimit + RATE_LIMIT_PRESETS.sensitive
  */
 
 import {
@@ -20,9 +20,9 @@ import { validateRequest, webdavConfigSchema, toggleDestinationSchema } from '..
 const MAX_ALLOWED = 5;
 
 /**
- * 获取所有 WebDAV 配置
- * 密码字段返回空字符串，附加 hasPassword 标记
- * 同时返回各目标的推送状态
+ * 獲取所有 WebDAV 配置
+ * 密碼欄位返回空字串，附加 hasPassword 標記
+ * 同時返回各目標的推送狀態
  */
 export async function handleGetWebDAVConfigs(request, env) {
 	const logger = getLogger(env);
@@ -69,9 +69,9 @@ export async function handleGetWebDAVConfigs(request, env) {
 }
 
 /**
- * 保存 WebDAV 配置（新增或更新）
- * body 含 id 时更新，不含 id 时新增
- * password 为空时保留已保存的密码
+ * 儲存 WebDAV 配置（新增或更新）
+ * body 含 id 時更新，不含 id 時新增
+ * password 為空時保留已儲存的密碼
  */
 export async function handleSaveWebDAVConfig(request, env) {
 	const logger = getLogger(env);
@@ -89,10 +89,10 @@ export async function handleSaveWebDAVConfig(request, env) {
 			return body;
 		}
 
-		// password 为空时保留旧密码
+		// password 為空時保留舊密碼
 		if (!body.password) {
 			if (body.id) {
-				// 更新已有配置：从已保存的目标中找密码
+				// 更新已有配置：從已儲存的目標中找密碼
 				const configs = await getWebDAVConfigs(env);
 				const existing = configs.find((c) => c.id === body.id);
 				if (existing && existing.password) {
@@ -101,7 +101,7 @@ export async function handleSaveWebDAVConfig(request, env) {
 					return createErrorResponse('请求验证失败', '密码不能为空（无已保存的配置）', 400, request);
 				}
 			} else {
-				// 新增配置：首次必须提供密码
+				// 新增配置：首次必須提供密碼
 				return createErrorResponse('请求验证失败', '首次配置时密码不能为空', 400, request);
 			}
 		}
@@ -138,8 +138,8 @@ export async function handleSaveWebDAVConfig(request, env) {
 }
 
 /**
- * 删除 WebDAV 配置
- * 通过 query param id 指定要删除的目标
+ * 刪除 WebDAV 配置
+ * 通過 query param id 指定要刪除的目標
  */
 export async function handleDeleteWebDAVConfig(request, env) {
 	const logger = getLogger(env);
@@ -182,8 +182,8 @@ export async function handleDeleteWebDAVConfig(request, env) {
 }
 
 /**
- * 测试 WebDAV 连接
- * password 为空时从已保存的配置中读取（需提供 id）
+ * 測試 WebDAV 連線
+ * password 為空時從已儲存的配置中讀取（需提供 id）
  */
 export async function handleTestWebDAV(request, env) {
 	const logger = getLogger(env);
@@ -201,7 +201,7 @@ export async function handleTestWebDAV(request, env) {
 			return body;
 		}
 
-		// password 为空时从 KV 读取已保存的密码
+		// password 為空時從 KV 讀取已儲存的密碼
 		if (!body.password) {
 			if (body.id) {
 				const configs = await getWebDAVConfigs(env);
@@ -233,7 +233,7 @@ export async function handleTestWebDAV(request, env) {
 }
 
 /**
- * 启用/禁用 WebDAV 目标
+ * 啟用/停用 WebDAV 目標
  */
 export async function handleToggleWebDAV(request, env) {
 	const logger = getLogger(env);

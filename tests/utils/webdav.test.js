@@ -1,5 +1,5 @@
 /**
- * WebDAV 工具模块单元测试
+ * WebDAV 工具模組單元測試
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -109,15 +109,15 @@ describe('WebDAV Utils Module (Multi-Destination)', () => {
 			expect(configs[0].enabled).toBe(true);
 			expect(configs[0].id).toBeTruthy();
 
-			// 旧 key 应被删除
+			// 舊 key 應被刪除
 			expect(await env.SECRETS_KV.get('webdav_config')).toBeNull();
 			expect(await env.SECRETS_KV.get('webdav_last_success')).toBeNull();
 
-			// 新格式应已保存
+			// 新格式應已儲存
 			const saved = await env.SECRETS_KV.get('webdav_configs');
 			expect(saved).toBeTruthy();
 
-			// 状态应迁移到新 key
+			// 狀態應遷移到新 key
 			const status = await env.SECRETS_KV.get(`webdav_status_${configs[0].id}`, 'json');
 			expect(status.lastSuccess.backupKey).toBe('test.json');
 		});
@@ -238,7 +238,7 @@ describe('WebDAV Utils Module (Multi-Destination)', () => {
 				password: 'p',
 				path: '/',
 			});
-			// 获取配置然后禁用
+			// 獲取配置然後停用
 			const configs = await getWebDAVConfigs(env);
 			configs[0].enabled = false;
 			await saveWebDAVConfigs(env, configs);
@@ -303,13 +303,13 @@ describe('WebDAV Utils Module (Multi-Destination)', () => {
 
 				expect(result.successCount).toBe(1);
 
-				// 验证状态记录
+				// 驗證狀態記錄
 				const status = await getWebDAVStatus(env, addResult.id);
 				expect(status.lastSuccess).toBeTruthy();
 				expect(status.lastSuccess.backupKey).toBe('backup_test.json');
 				expect(status.lastError).toBeNull();
 
-				// 验证 fetch URL
+				// 驗證 fetch URL
 				const fetchCall = globalThis.fetch.mock.calls[0];
 				expect(fetchCall[0]).toBe('https://dav.example.com/backup/backup_test.json');
 			} finally {
@@ -375,7 +375,7 @@ describe('WebDAV Utils Module (Multi-Destination)', () => {
 		});
 	});
 
-	// ==================== 兼容性导出 ====================
+	// ==================== 相容性匯出 ====================
 	describe('Backward Compatibility', () => {
 		it('getWebDAVConfig 应返回第一个配置', async () => {
 			await saveWebDAVSingleConfig(env, {

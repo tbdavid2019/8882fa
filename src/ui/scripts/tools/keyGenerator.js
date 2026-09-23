@@ -1,23 +1,23 @@
 /**
- * 密钥生成器工具模块
+ * 金鑰生成器工具模組
  */
 
 /**
- * 获取密钥生成器工具代码
- * @returns {string} 密钥生成器工具 JavaScript 代码
+ * 獲取金鑰生成器工具程式碼
+ * @returns {string} 金鑰生成器工具 JavaScript 程式碼
  */
 export function getKeyGeneratorToolCode() {
 	return `
-    // ==================== 密钥生成器 ====================
+    // ==================== 金鑰生成器 ====================
 
     let currentKeyLength = 16;
 
     function showKeyGeneratorModal() {
       showModal('keyGeneratorModal', () => {
-        // 设置默认长度
+        // 設定預設長度
         setKeyLength(16);
 
-        // 隐藏结果区域
+        // 隱藏結果區域
         document.getElementById('keyResultSection').style.display = 'none';
       });
     }
@@ -29,7 +29,7 @@ export function getKeyGeneratorToolCode() {
     function setKeyLength(length) {
       currentKeyLength = length;
 
-      // 更新按钮状态 - 使用CSS类而不是内联样式
+      // 更新按鈕狀態 - 使用CSS類而不是內聯樣式
       const buttons = ['length16Btn', 'length26Btn', 'length32Btn'];
       const lengths = [16, 26, 32];
 

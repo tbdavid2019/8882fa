@@ -1,5 +1,5 @@
 /**
- * WebDAV API 端点单元测试
+ * WebDAV API 端點單元測試
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -210,7 +210,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 		});
 
 		it('更新配置时密码为空应保留旧密码', async () => {
-			// 先保存初始配置
+			// 先儲存初始配置
 			const addReq = createMockRequest({
 				name: 'NAS',
 				url: 'https://dav.example.com',
@@ -221,7 +221,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 			const addResp = await handleSaveWebDAVConfig(addReq, env);
 			const addData = await addResp.json();
 
-			// 更新配置时不提供密码
+			// 更新配置時不提供密碼
 			const updateReq = createMockRequest({
 				id: addData.id,
 				name: 'NAS-Updated',
@@ -276,7 +276,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 	// ==================== handleDeleteWebDAVConfig ====================
 	describe('handleDeleteWebDAVConfig', () => {
 		it('应成功删除指定配置', async () => {
-			// 先添加
+			// 先新增
 			const addReq = createMockRequest({
 				name: 'NAS',
 				url: 'https://dav.example.com',
@@ -287,7 +287,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 			const addResp = await handleSaveWebDAVConfig(addReq, env);
 			const addData = await addResp.json();
 
-			// 删除
+			// 刪除
 			const deleteReq = createMockRequest({}, 'DELETE', `https://example.com/api/webdav/config?id=${addData.id}`);
 			const response = await handleDeleteWebDAVConfig(deleteReq, env);
 			const data = await response.json();
@@ -341,7 +341,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 		});
 
 		it('密码为空且有已保存配置（通过 id）应使用保存的密码', async () => {
-			// 先保存配置
+			// 先儲存配置
 			const addReq = createMockRequest({
 				name: 'NAS',
 				url: 'https://dav.example.com',
@@ -379,7 +379,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 			}
 		});
 		it('无 id 且密码为空时应返回 400（不得回退已保存凭据）', async () => {
-			// 先保存一个配置（确保 KV 中有凭据可被误用）
+			// 先儲存一個配置（確保 KV 中有憑據可被誤用）
 			await handleSaveWebDAVConfig(
 				createMockRequest({
 					name: 'NAS',
@@ -391,7 +391,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 				env,
 			);
 
-			// 不带 id、密码为空 → 必须 400，不能回退使用已保存的密码
+			// 不帶 id、密碼為空 → 必須 400，不能回退使用已儲存的密碼
 			const request = createMockRequest({
 				name: 'Other',
 				url: 'https://evil.example.com',
@@ -408,7 +408,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 	// ==================== handleToggleWebDAV ====================
 	describe('handleToggleWebDAV', () => {
 		it('应成功启用/禁用目标', async () => {
-			// 先添加
+			// 先新增
 			const addReq = createMockRequest({
 				name: 'NAS',
 				url: 'https://dav.example.com',
@@ -419,7 +419,7 @@ describe('WebDAV API Module (Multi-Destination)', () => {
 			const addResp = await handleSaveWebDAVConfig(addReq, env);
 			const addData = await addResp.json();
 
-			// 禁用
+			// 停用
 			const toggleReq = createMockRequest(
 				{ id: addData.id, enabled: false },
 				'POST',

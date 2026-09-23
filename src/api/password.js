@@ -1,5 +1,5 @@
 /**
- * 修改密码 API 处理模块
+ * 修改密碼 API 處理模組
  */
 
 import { createJsonResponse, createErrorResponse } from '../utils/response.js';
@@ -8,14 +8,14 @@ import { getLogger } from '../utils/logger.js';
 import { validatePasswordStrength, verifyPassword, hashPassword } from '../utils/auth.js';
 import { ValidationError, AuthenticationError, ConfigurationError, ErrorFactory, errorToResponse, logError } from '../utils/errors.js';
 
-// KV 存储键
+// KV 儲存鍵
 const KV_USER_PASSWORD_KEY = 'user_password';
 
 /**
- * 处理修改密码请求
- * @param {Request} request - HTTP 请求对象
- * @param {Object} env - 环境变量对象
- * @returns {Promise<Response>} 响应
+ * 處理修改密碼請求
+ * @param {Request} request - HTTP 請求物件
+ * @param {Object} env - 環境變數物件
+ * @returns {Promise<Response>} 響應
  */
 export async function handleChangePassword(request, env) {
 	const logger = getLogger(env);
@@ -36,7 +36,7 @@ export async function handleChangePassword(request, env) {
 
 		const { currentPassword, newPassword, confirmPassword } = await request.json();
 
-		// 参数验证
+		// 引數驗證
 		if (!currentPassword || !newPassword || !confirmPassword) {
 			throw new ValidationError('请提供当前密码、新密码和确认密码', {
 				missing: [!currentPassword && 'currentPassword', !newPassword && 'newPassword', !confirmPassword && 'confirmPassword'].filter(
@@ -45,21 +45,21 @@ export async function handleChangePassword(request, env) {
 			});
 		}
 
-		// 验证新密码一致
+		// 驗證新密碼一致
 		if (newPassword !== confirmPassword) {
 			throw new ValidationError('两次输入的新密码不一致', {
 				issue: 'password_mismatch',
 			});
 		}
 
-		// 检查 KV 存储
+		// 檢查 KV 儲存
 		if (!env.SECRETS_KV) {
 			throw new ConfigurationError('服务器未配置 KV 存储', {
 				missingConfig: 'SECRETS_KV',
 			});
 		}
 
-		// 获取当前密码哈希
+		// 獲取當前密碼雜湊
 		const storedPasswordHash = await env.SECRETS_KV.get(KV_USER_PASSWORD_KEY);
 		if (!storedPasswordHash) {
 			throw new ConfigurationError('未设置密码，请先完成首次设置', {
@@ -67,7 +67,7 @@ export async function handleChangePassword(request, env) {
 			});
 		}
 
-		// 验证当前密码
+		// 驗證當前密碼
 		const isValid = await verifyPassword(currentPassword, storedPasswordHash);
 		if (!isValid) {
 			throw ErrorFactory.passwordIncorrect({
@@ -75,7 +75,7 @@ export async function handleChangePassword(request, env) {
 			});
 		}
 
-		// 验证新密码强度
+		// 驗證新密碼強度
 		const validation = validatePasswordStrength(newPassword);
 		if (!validation.valid) {
 			throw ErrorFactory.passwordWeak(validation.message, {
@@ -83,7 +83,7 @@ export async function handleChangePassword(request, env) {
 			});
 		}
 
-		// 加密新密码
+		// 加密新密碼
 		const newPasswordHash = await hashPassword(newPassword);
 
 		// 更新 KV

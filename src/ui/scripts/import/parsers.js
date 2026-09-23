@@ -1,21 +1,21 @@
 /**
- * 导入解析器模块
- * 包含各种格式的解析函数（CSV、HTML、JSON等）
+ * 匯入解析器模組
+ * 包含各種格式的解析函式（CSV、HTML、JSON等）
  */
 
 /**
- * 获取CSV解析器代码
- * @returns {string} JavaScript 代码
+ * 獲取CSV解析器程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getCSVParserCode() {
 	return `
     // ========== CSV 解析器 ==========
 
     /**
-     * 解析CSV格式的导入数据
-     * 支持2FA导出的CSV格式和Bitwarden Authenticator CSV格式
-     * @param {string} csvContent - CSV内容
-     * @returns {Array<string>} - 转换为 otpauth:// URL 格式的数组
+     * 解析CSV格式的匯入資料
+     * 支援2FA匯出的CSV格式和Bitwarden Authenticator CSV格式
+     * @param {string} csvContent - CSV內容
+     * @returns {Array<string>} - 轉換為 otpauth:// URL 格式的陣列
      */
     function parseCSVImport(csvContent) {
       const otpauthUrls = [];
@@ -29,10 +29,10 @@ export function getCSVParserCode() {
           return otpauthUrls;
         }
 
-        // 检查第一行是否是标题行
+        // 檢查第一行是否是標題行
         const header = lines[0];
 
-        // 检测 Bitwarden Authenticator CSV 格式: folder,favorite,type,name,login_uri,login_totp
+        // 檢測 Bitwarden Authenticator CSV 格式: folder,favorite,type,name,login_uri,login_totp
         const bitwardenHeaders = parseCSVLine(header).map(column => column.toLowerCase());
         if (bitwardenHeaders.includes('login_totp') && bitwardenHeaders.includes('folder')) {
           console.log('检测到 Bitwarden Authenticator CSV 格式');
@@ -59,7 +59,7 @@ export function getCSVParserCode() {
           return otpauthUrls;
         }
 
-        // 原有的 2FA CSV 格式检测
+        // 原有的 2FA CSV 格式檢測
         const isCSVFormat = header.includes('服务名称') || header.includes('密钥') ||
                            header.toLowerCase().includes('service') || header.toLowerCase().includes('secret');
 
@@ -68,7 +68,7 @@ export function getCSVParserCode() {
           return otpauthUrls;
         }
 
-        // 解析标题行，确定列的索引
+        // 解析標題行，確定列的索引
         const headers = parseCSVLine(header);
         const serviceIndex = headers.findIndex(h => h === '服务名称' || h.toLowerCase() === 'service');
         const accountIndex = headers.findIndex(h => h === '账户信息' || h === '账户' || h.toLowerCase() === 'account');
@@ -80,7 +80,7 @@ export function getCSVParserCode() {
 
         console.log('CSV列索引:', { serviceIndex, accountIndex, secretIndex, typeIndex, digitsIndex, periodIndex, algoIndex });
 
-        // 解析数据行（跳过标题行）
+        // 解析資料行（跳過標題行）
         for (let i = 1; i < lines.length; i++) {
           try {
             const line = lines[i].trim();
@@ -96,16 +96,16 @@ export function getCSVParserCode() {
             const period = periodIndex >= 0 ? parseInt(fields[periodIndex]) || 30 : 30;
             const algo = algoIndex >= 0 ? fields[algoIndex] : 'SHA1';
 
-            // 验证必要数据
+            // 驗證必要資料
             if (!secret || !secret.trim()) {
               console.warn('第', i + 1, '行：跳过空密钥');
               continue;
             }
 
-            // 清理密钥
+            // 清理金鑰
             const cleanSecret = secret.replace(/\\s+/g, '').toUpperCase();
 
-            // 构建 otpauth:// URL
+            // 構建 otpauth:// URL
             let label = '';
             if (service && account) {
               label = encodeURIComponent(service) + ':' + encodeURIComponent(account);
@@ -146,8 +146,8 @@ export function getCSVParserCode() {
 }
 
 /**
- * 获取JSON解析器代码（LastPass等格式）
- * @returns {string} JavaScript 代码
+ * 獲取JSON解析器程式碼（LastPass等格式）
+ * @returns {string} JavaScript 程式碼
  */
 export function getJSONParserCode() {
 	return `
@@ -475,19 +475,19 @@ export function getJSONParserCode() {
 
     /**
      * 解析 LastPass JSON 格式
-     * @param {Object} jsonData - JSON 数据
-     * @returns {Array<string>} otpauth:// URL 数组
+     * @param {Object} jsonData - JSON 資料
+     * @returns {Array<string>} otpauth:// URL 陣列
      */
     function parseLastPassJSON(jsonData) {
       const otpauthUrls = [];
 
       try {
-        // LastPass JSON 结构: { accounts: [...] }
+        // LastPass JSON 結構: { accounts: [...] }
         const accounts = jsonData.accounts || [];
 
         accounts.forEach((account, index) => {
           try {
-            // LastPass 账户结构
+            // LastPass 賬戶結構
             const issuer = account.issuerName || account.issuer || '';
             const name = account.userName || account.name || '';
             const secret = account.secret || '';
@@ -532,9 +532,9 @@ export function getJSONParserCode() {
     }
 
     /**
-     * 统一解析支持的 JSON 导入格式
-     * @param {Object|Array} jsonData - JSON 数据
-     * @returns {Array<string>} otpauth:// URL 数组
+     * 統一解析支援的 JSON 匯入格式
+     * @param {Object|Array} jsonData - JSON 資料
+     * @returns {Array<string>} otpauth:// URL 陣列
      */
     function parseJsonImport(jsonData) {
       if (Array.isArray(jsonData)) {

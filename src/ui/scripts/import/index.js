@@ -1,6 +1,6 @@
 /**
- * 导入模块入口
- * 组合所有导入子模块，提供完整的导入功能
+ * 匯入模組入口
+ * 組合所有匯入子模組，提供完整的匯入功能
  */
 
 import { getImportUtilsCode } from './utils.js';
@@ -11,12 +11,12 @@ import { getTOTPAuthDecryptCode, getFreeOTPDecryptCode } from './crypto.js';
 import { getPreviewImportCode, getExecuteImportCode } from './core.js';
 
 /**
- * 获取所有导入相关代码（向后兼容）
- * @returns {string} 完整的导入 JavaScript 代码
+ * 獲取所有匯入相關程式碼（向後相容）
+ * @returns {string} 完整的匯入 JavaScript 程式碼
  */
 export function getImportCode() {
-	// 组合所有子模块的代码
-	// 注意顺序：工具函数 -> 解析器 -> 加密解密 -> UI -> 核心逻辑
+	// 組合所有子模組的程式碼
+	// 注意順序：工具函式 -> 解析器 -> 加密解密 -> UI -> 核心邏輯
 	return [
 		'// ========== 导入功能模块 ==========',
 		getImportUtilsCode(),
@@ -31,7 +31,7 @@ export function getImportCode() {
 	].join('\n');
 }
 
-// 导出子模块函数，支持按需加载
+// 匯出子模組函式，支援按需載入
 export {
 	getImportUtilsCode,
 	getImportUICode,

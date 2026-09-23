@@ -1,22 +1,22 @@
 /**
- * OTP（一次性密码）生成模块
- * 实现TOTP（时间基准一次性密码）算法
+ * OTP（一次性密碼）生成模組
+ * 實現TOTP（時間基準一次性密碼）演算法
  */
 
 import { getLogger } from '../utils/logger.js';
 
 /**
- * 生成 OTP 验证码（支持 TOTP、HOTP）
- * @param {string} secret - Base32编码的密钥
- * @param {number} loadTime - 页面加载时间戳
- * @param {Object} options - 可选参数
- * @param {number} options.digits - OTP位数，默认6
- * @param {number} options.period - 时间步长（秒），默认30
- * @param {string} options.algorithm - 算法，默认SHA1
- * @param {string} options.type - OTP类型：TOTP、HOTP，默认TOTP
- * @param {number} options.counter - HOTP计数器（仅HOTP需要）
- * @param {Object} options.env - 环境变量对象（可选，用于日志）
- * @returns {Promise<string>} OTP验证码
+ * 生成 OTP 驗證碼（支援 TOTP、HOTP）
+ * @param {string} secret - Base32編碼的金鑰
+ * @param {number} loadTime - 頁面載入時間戳
+ * @param {Object} options - 可選引數
+ * @param {number} options.digits - OTP位數，預設6
+ * @param {number} options.period - 時間步長（秒），預設30
+ * @param {string} options.algorithm - 演算法，預設SHA1
+ * @param {string} options.type - OTP型別：TOTP、HOTP，預設TOTP
+ * @param {number} options.counter - HOTP計數器（僅HOTP需要）
+ * @param {Object} options.env - 環境變數物件（可選，用於日誌）
+ * @returns {Promise<string>} OTP驗證碼
  */
 export async function generateOTP(secret, loadTime, options = {}) {
 	const logger = options.env ? getLogger(options.env) : null;
@@ -29,37 +29,37 @@ export async function generateOTP(secret, loadTime, options = {}) {
 
 		let counter;
 
-		// 根据类型计算 counter
+		// 根據型別計算 counter
 		switch (type.toUpperCase()) {
 			case 'HOTP':
 				counter = options.counter || 0;
 				break;
 			case 'TOTP':
 			default: {
-				// 如果提供了 loadTime，直接使用它（用于测试和客户端预览）
-				// 否则使用当前时间
+				// 如果提供了 loadTime，直接使用它（用於測試和客戶端預覽）
+				// 否則使用當前時間
 				const timeForCalculation = loadTime || Math.floor(Date.now() / 1000);
 				counter = Math.floor(timeForCalculation / period);
 				break;
 			}
 		}
 
-		// 将counter转换为8字节大端序数组
+		// 將counter轉換為8位元組大端序陣列
 		const counterBytes = new ArrayBuffer(8);
 		const counterView = new DataView(counterBytes);
 
-		// 将 counter 分解为高 32 位和低 32 位（大端序）
-		// JavaScript 数字是 64 位浮点数，但整数运算精确到 53 位
-		// 对于超大的计数器值，需要正确拆分为两个 32 位值
+		// 將 counter 分解為高 32 位和低 32 位（大端序）
+		// JavaScript 數字是 64 位浮點數，但整數運算精確到 53 位
+		// 對於超大的計數器值，需要正確拆分為兩個 32 位值
 		const highBits = Math.floor(counter / 0x100000000); // 高 32 位
-		const lowBits = counter >>> 0; // 低 32 位（无符号右移确保正数）
+		const lowBits = counter >>> 0; // 低 32 位（無符號右移確保正數）
 
 		counterView.setUint32(0, highBits, false); // 偏移 0：高 32 位（大端序）
 		counterView.setUint32(4, lowBits, false); // 偏移 4：低 32 位（大端序）
 
 		const secretBytes = base32toByteArray(secret);
 
-		// 支持多种哈希算法
+		// 支援多種雜湊演算法
 		const hashAlgorithm = getHashAlgorithm(algorithm);
 
 		const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: { name: hashAlgorithm } }, false, ['sign']);
@@ -71,7 +71,7 @@ export async function generateOTP(secret, loadTime, options = {}) {
 		const truncatedHash = hmacArray.slice(offset, offset + 4);
 		const otpValue = new DataView(new Uint8Array(truncatedHash).buffer).getUint32(0) & 0x7fffffff;
 
-		// 生成标准数字 OTP
+		// 生成標準數字 OTP
 		const modulus = Math.pow(10, digits);
 		const otp = (otpValue % modulus).toString().padStart(digits, '0');
 		return otp;
@@ -91,9 +91,9 @@ export async function generateOTP(secret, loadTime, options = {}) {
 }
 
 /**
- * 获取哈希算法名称
- * @param {string} algorithm - 算法名称
- * @returns {string} Web Crypto API支持的算法名称
+ * 獲取雜湊演算法名稱
+ * @param {string} algorithm - 演算法名稱
+ * @returns {string} Web Crypto API支援的演算法名稱
  */
 export function getHashAlgorithm(algorithm) {
 	const algMap = {
@@ -109,10 +109,10 @@ export function getHashAlgorithm(algorithm) {
 }
 
 /**
- * 将Base32编码的密钥转换为字节数组
- * @param {string} base32 - Base32编码的字符串
- * @returns {Uint8Array} 转换后的字节数组
- * @throws {Error} 当Base32格式无效时抛出错误
+ * 將Base32編碼的金鑰轉換為位元組陣列
+ * @param {string} base32 - Base32編碼的字串
+ * @returns {Uint8Array} 轉換後的位元組陣列
+ * @throws {Error} 當Base32格式無效時丟擲錯誤
  */
 export function base32toByteArray(base32) {
 	const charTable = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -147,14 +147,14 @@ export function base32toByteArray(base32) {
 }
 
 /**
- * 客户端OTP生成函数（用于预览下一个代码，支持所有类型）
- * @param {string} secret - Base32编码的密钥
- * @param {number} counter - 时间计数器或HOTP计数器
- * @param {Object} options - 可选参数
- * @param {number} options.digits - OTP位数，默认6
- * @param {string} options.algorithm - 算法，默认SHA1
- * @param {string} options.type - OTP类型：TOTP、HOTP，默认TOTP
- * @returns {Promise<string>} OTP验证码
+ * 客戶端OTP生成函式（用於預覽下一個程式碼，支援所有型別）
+ * @param {string} secret - Base32編碼的金鑰
+ * @param {number} counter - 時間計數器或HOTP計數器
+ * @param {Object} options - 可選引數
+ * @param {number} options.digits - OTP位數，預設6
+ * @param {string} options.algorithm - 演算法，預設SHA1
+ * @param {string} options.type - OTP型別：TOTP、HOTP，預設TOTP
+ * @returns {Promise<string>} OTP驗證碼
  */
 export async function generateTOTP(secret, counter, options = {}) {
 	try {
@@ -162,10 +162,10 @@ export async function generateTOTP(secret, counter, options = {}) {
 		const algorithm = options.algorithm || 'SHA1';
 		const _type = options.type || 'TOTP';
 
-		// Base32解码
+		// Base32解碼
 		const key = base32toByteArray(secret);
 
-		// 将counter转换为8字节数组
+		// 將counter轉換為8位元組陣列
 		const counterBytes = new ArrayBuffer(8);
 		const counterView = new DataView(counterBytes);
 		const highBits = Math.floor(counter / 0x100000000);
@@ -173,41 +173,41 @@ export async function generateTOTP(secret, counter, options = {}) {
 		counterView.setUint32(0, highBits, false);
 		counterView.setUint32(4, lowBits, false);
 
-		// 支持多种哈希算法
+		// 支援多種雜湊演算法
 		const hashAlgorithm = getHashAlgorithm(algorithm);
 
-		// 使用Web Crypto API进行HMAC
+		// 使用Web Crypto API進行HMAC
 		const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: hashAlgorithm }, false, ['sign']);
 
 		const signature = await crypto.subtle.sign('HMAC', cryptoKey, counterBytes);
 		const hmac = new Uint8Array(signature);
 
-		// 动态截取
+		// 動態擷取
 		const offset = hmac[hmac.length - 1] & 0x0f;
 		const binary =
 			((hmac[offset] & 0x7f) << 24) | ((hmac[offset + 1] & 0xff) << 16) | ((hmac[offset + 2] & 0xff) << 8) | (hmac[offset + 3] & 0xff);
 
-		// 生成标准数字 OTP (TOTP/HOTP)
+		// 生成標準數字 OTP (TOTP/HOTP)
 		const modulus = Math.pow(10, digits);
 		const otp = binary % modulus;
 		return otp.toString().padStart(digits, '0');
 	} catch {
-		// 客户端预览失败时返回占位符（不记录日志，避免污染客户端控制台）
+		// 客戶端預覽失敗時返回佔位符（不記錄日誌，避免汙染客戶端控制台）
 		return '-'.repeat(options.digits || 6);
 	}
 }
 
 /**
- * 生成OTP Auth URL用于二维码
- * @param {string} serviceName - 服务名称
- * @param {string} accountName - 账户名称
- * @param {string} secret - Base32密钥
- * @param {Object} options - 可选参数
- * @param {number} options.digits - OTP位数，默认6
- * @param {number} options.period - 时间步长（秒），默认30
- * @param {string} options.algorithm - 算法，默认SHA1
- * @param {string} options.type - OTP类型：TOTP、HOTP，默认TOTP
- * @param {number} options.counter - HOTP计数器（仅HOTP需要）
+ * 生成OTP Auth URL用於二維碼
+ * @param {string} serviceName - 服務名稱
+ * @param {string} accountName - 賬戶名稱
+ * @param {string} secret - Base32金鑰
+ * @param {Object} options - 可選引數
+ * @param {number} options.digits - OTP位數，預設6
+ * @param {number} options.period - 時間步長（秒），預設30
+ * @param {string} options.algorithm - 演算法，預設SHA1
+ * @param {string} options.type - OTP型別：TOTP、HOTP，預設TOTP
+ * @param {number} options.counter - HOTP計數器（僅HOTP需要）
  * @returns {string} otpauth:// URL
  */
 export function generateOTPAuthURL(serviceName, accountName, secret, options = {}) {
@@ -217,10 +217,10 @@ export function generateOTPAuthURL(serviceName, accountName, secret, options = {
 	const type = options.type || 'TOTP';
 	const counter = options.counter || 0;
 
-	// 构建标签，格式：服务名:账户名
+	// 構建標籤，格式：服務名:賬戶名
 	const label = serviceName + (accountName ? ':' + encodeURIComponent(accountName) : '');
 
-	// 根据类型构建不同的 URL
+	// 根據型別構建不同的 URL
 	let scheme, params;
 
 	switch (type.toUpperCase()) {

@@ -1,47 +1,47 @@
 /**
- * 导入UI交互模块
- * 包含模态框、拖拽、文件处理等UI相关功能
+ * 匯入UI互動模組
+ * 包含模態框、拖拽、檔案處理等UI相關功能
  */
 
 /**
- * 获取导入UI交互代码
- * @returns {string} JavaScript 代码
+ * 獲取匯入UI互動程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getImportUICode() {
 	return `
-    // ========== 导入UI交互 ==========
+    // ========== 匯入UI互動 ==========
 
-    // 导入预览数据
+    // 匯入預覽資料
     let importPreviewData = [];
     let pendingImportRetryItems = null;
-    // 续传累计状态：上一次分片导入中已完成部分的成功/失败计数及失败明细，
-    // 让用户在多轮续传后仍能看到整批导入的真实汇总（含早先分片里服务端返回的失败项）
+    // 續傳累計狀態：上一次分片匯入中已完成部分的成功/失敗計數及失敗明細，
+    // 讓使用者在多輪續傳後仍能看到整批匯入的真實彙總（含早先分片裡服務端返回的失敗項）
     let pendingImportPriorSuccessCount = 0;
     let pendingImportPriorFailCount = 0;
     let pendingImportPriorFailures = [];
-    // 进度面板用：首轮进入时记录整批原始总数 + 每轮结束时累加的"已处理"计数，
-    // 这样续传时 totalItems/processedItems 与 successCount/failCount 同处一个坐标系，
-    // 不再出现 "20 / 20 成功 120 失败 3" 这种本轮分母 + 累计计数的混显
+    // 進度面板用：首輪進入時記錄整批原始總數 + 每輪結束時累加的"已處理"計數，
+    // 這樣續傳時 totalItems/processedItems 與 successCount/failCount 同處一個座標系，
+    // 不再出現 "20 / 20 成功 120 失敗 3" 這種本輪分母 + 累計計數的混顯
     let pendingImportOriginalTotalItems = 0;
     let pendingImportPriorProcessedItems = 0;
 
-    // 自动预览防抖计时器
+    // 自動預覽防抖計時器
     let autoPreviewTimer = null;
 
-    // 自动预览导入（带防抖）
+    // 自動預覽匯入（帶防抖）
     function autoPreviewImport() {
-      // 清除之前的计时器
+      // 清除之前的計時器
       if (autoPreviewTimer) {
         clearTimeout(autoPreviewTimer);
       }
 
-      // 设置新的计时器，500ms 后触发预览
+      // 設定新的計時器，500ms 後觸發預覽
       autoPreviewTimer = setTimeout(() => {
         const text = document.getElementById('importText').value.trim();
         if (text) {
           previewImport();
         } else {
-          // 如果文本为空，隐藏预览区域并重置按钮
+          // 如果文本為空，隱藏預覽區域並重置按鈕
           document.getElementById('importPreview').style.display = 'none';
           document.getElementById('executeImportBtn').disabled = true;
           importPreviewData = [];
@@ -51,9 +51,9 @@ export function getImportUICode() {
       }, 500);
     }
 
-    // ========== 智能输入区拖拽功能 ==========
+    // ========== 智慧輸入區拖拽功能 ==========
 
-    // 处理拖拽悬停
+    // 處理拖拽懸停
     function handleDragOver(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -63,7 +63,7 @@ export function getImportUICode() {
       }
     }
 
-    // 处理拖拽离开
+    // 處理拖拽離開
     function handleDragLeave(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -73,7 +73,7 @@ export function getImportUICode() {
       }
     }
 
-    // 处理文件拖放
+    // 處理檔案拖放
     function handleFileDrop(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -89,26 +89,26 @@ export function getImportUICode() {
       }
     }
 
-    // 清除已选文件
+    // 清除已選檔案
     function clearSelectedFile(event) {
       event.stopPropagation();
 
-      // 重置文件输入
+      // 重置檔案輸入
       const fileInput = document.getElementById('importFileInput');
       if (fileInput) fileInput.value = '';
 
-      // 隐藏文件信息徽章
+      // 隱藏檔案資訊徽章
       const badge = document.getElementById('fileInfoBadge');
       if (badge) badge.style.display = 'none';
 
-      // 重置文本区域状态
+      // 重置文本區域狀態
       const textarea = document.getElementById('importText');
       if (textarea) {
         textarea.value = '';
         textarea.classList.remove('has-content');
       }
 
-      // 隐藏预览并禁用导入按钮
+      // 隱藏預覽並停用匯入按鈕
       document.getElementById('importPreview').style.display = 'none';
       document.getElementById('executeImportBtn').disabled = true;
       importPreviewData = [];
@@ -116,7 +116,7 @@ export function getImportUICode() {
       resetImportProgress();
     }
 
-    // 更新文件信息徽章显示
+    // 更新檔案資訊徽章顯示
     function updateFileInfo(file) {
       const badge = document.getElementById('fileInfoBadge');
       const nameEl = document.getElementById('selectedFileName');
@@ -129,12 +129,12 @@ export function getImportUICode() {
       if (textarea) textarea.classList.add('has-content');
     }
 
-    // 处理导入文件（统一处理拖拽和选择）
+    // 處理匯入檔案（統一處理拖拽和選擇）
     function processImportFile(file) {
       if (!file) return;
 
-      // 检查文件类型
-      // 支持 .html.txt (Ente Auth 导出格式)
+      // 檢查檔案型別
+      // 支援 .html.txt (Ente Auth 匯出格式)
       const validExtensions = ['.txt', '.csv', '.json', '.html', '.htm', '.2fas', '.xml', '.html.txt', '.authpro', '.encrypt'];
       const fileName = file.name.toLowerCase();
       const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
@@ -144,7 +144,7 @@ export function getImportUICode() {
         return;
       }
 
-      // 更新文件信息徽章
+      // 更新檔案資訊徽章
       updateFileInfo(file);
 
       const reader = new FileReader();
@@ -152,7 +152,7 @@ export function getImportUICode() {
         const content = decodeImportFileContent(file.name, e.target.result);
         document.getElementById('importText').value = content;
 
-        // 自动预览
+        // 自動預覽
         setTimeout(() => {
           previewImport();
         }, 100);
@@ -163,7 +163,7 @@ export function getImportUICode() {
       reader.readAsArrayBuffer(file);
     }
 
-    // 更新导入统计信息（新的内联统计）
+    // 更新匯入統計資訊（新的內聯統計）
     function updateImportStats(validCount, invalidCount, skippedCount) {
       const statValid = document.getElementById('statValid');
       const statInvalid = document.getElementById('statInvalid');
@@ -177,7 +177,7 @@ export function getImportUICode() {
       }
     }
 
-    // 清空续传累计状态（pendingImportRetryItems 要同步清空时一起调用，保证不残留旧的失败明细）
+    // 清空續傳累計狀態（pendingImportRetryItems 要同步清空時一起呼叫，保證不殘留舊的失敗明細）
     function resetImportRetryState() {
       pendingImportRetryItems = null;
       pendingImportPriorSuccessCount = 0;
@@ -187,7 +187,7 @@ export function getImportUICode() {
       pendingImportPriorProcessedItems = 0;
     }
 
-    // 显示导入模态框
+    // 顯示匯入模態框
     function setImportProgressVisible(visible) {
       const progressPanel = document.getElementById('importProgress');
       if (progressPanel) {
@@ -258,68 +258,68 @@ export function getImportUICode() {
 
     function showImportModal() {
       showModal('importModal', () => {
-        // 清空文本输入框
+        // 清空文本輸入框
         const textarea = document.getElementById('importText');
         if (textarea) {
           textarea.value = '';
           textarea.classList.remove('has-content', 'drag-over');
         }
-        // 隐藏预览区域
+        // 隱藏預覽區域
         document.getElementById('importPreview').style.display = 'none';
-        // 重置导入按钮
+        // 重置匯入按鈕
         const executeBtn = document.getElementById('executeImportBtn');
         executeBtn.disabled = true;
         executeBtn.textContent = (typeof t === 'function' ? t('importBtnText') : null) || 'Import';
-        // 隐藏文件信息徽章
+        // 隱藏檔案資訊徽章
         const badge = document.getElementById('fileInfoBadge');
         if (badge) badge.style.display = 'none';
-        // 重置文件输入框
+        // 重置檔案輸入框
         const fileInput = document.getElementById('importFileInput');
         if (fileInput) fileInput.value = '';
-        // 重置统计信息
+        // 重置統計資訊
         updateImportStats(0, 0, 0);
         resetImportProgress();
-        // 清空预览数据
+        // 清空預覽資料
         importPreviewData = [];
         resetImportRetryState();
       });
     }
 
-    // 隐藏导入模态框
+    // 隱藏匯入模態框
     function hideImportModal() {
-      // 清除自动预览计时器
+      // 清除自動預覽計時器
       if (autoPreviewTimer) {
         clearTimeout(autoPreviewTimer);
         autoPreviewTimer = null;
       }
 
       hideModal('importModal', () => {
-        // 清空文本输入框并重置状态
+        // 清空文本輸入框並重置狀態
         const textarea = document.getElementById('importText');
         if (textarea) {
           textarea.value = '';
           textarea.classList.remove('has-content', 'drag-over');
         }
-        // 隐藏预览区域
+        // 隱藏預覽區域
         document.getElementById('importPreview').style.display = 'none';
-        // 清空预览列表内容
+        // 清空預覽列表內容
         const previewList = document.getElementById('importPreviewList');
         if (previewList) {
           previewList.innerHTML = '';
         }
-        // 重置导入按钮
+        // 重置匯入按鈕
         const executeBtn = document.getElementById('executeImportBtn');
         executeBtn.disabled = true;
         executeBtn.textContent = (typeof t === 'function' ? t('importBtnText') : null) || 'Import';
-        // 清空预览数据数组
+        // 清空預覽資料陣列
         importPreviewData = [];
         resetImportRetryState();
-        // 重置文件输入框，确保下次可以选择同一个文件
+        // 重置檔案輸入框，確保下次可以選擇同一個檔案
         const fileInput = document.getElementById('importFileInput');
         if (fileInput) {
           fileInput.value = '';
         }
-        // 隐藏文件信息徽章
+        // 隱藏檔案資訊徽章
         const badge = document.getElementById('fileInfoBadge');
         if (badge) {
           badge.style.display = 'none';
@@ -328,7 +328,7 @@ export function getImportUICode() {
       });
     }
 
-    // 处理导入文件（选择文件）
+    // 處理匯入檔案（選擇檔案）
     function handleImportFile(event) {
       const file = event.target.files[0];
       processImportFile(file);

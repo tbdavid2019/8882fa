@@ -1,5 +1,5 @@
 /**
- * 组件样式模块
+ * 元件樣式模組
  */
 export function getComponentStyles() {
 	return `    .clock-warning {
@@ -251,7 +251,7 @@ export function getComponentStyles() {
       background: var(--bg-hover);
     }
 
-    /* P1.6 手机端保证 ≥44px 触控面积（iOS HIG） */
+    /* P1.6 手機端保證 ≥44px 觸控面積（iOS HIG） */
     @media (max-width: 768px) {
       .card-menu {
         min-width: 44px;
@@ -386,7 +386,7 @@ export function getComponentStyles() {
       align-items: center;
       gap: 16px;
       justify-content: space-between;
-      /* Chrome兼容性修复 */
+      /* Chrome相容性修復 */
       display: -webkit-flex;
       -webkit-align-items: center;
       -webkit-justify-content: space-between;
@@ -395,7 +395,7 @@ export function getComponentStyles() {
     .otp-code-container {
       flex: 1;
       min-width: 0;
-      /* Chrome兼容性修复 */
+      /* Chrome相容性修復 */
       -webkit-flex: 1;
       -webkit-box-flex: 1;
     }
@@ -440,7 +440,7 @@ export function getComponentStyles() {
       flex-direction: column;
       justify-content: center;
       align-items: flex-end;
-      /* Chrome兼容性修复 */
+      /* Chrome相容性修復 */
       -webkit-flex-shrink: 0;
       -webkit-box-flex: 0;
     }
@@ -465,7 +465,7 @@ export function getComponentStyles() {
       text-align: right;
     }
 
-    /* TOTP 窗口切换动效：同一组 nextToken 通过流转、翻牌或聚光显现完成交接 */
+    /* TOTP 視窗切換動效：同一組 nextToken 通過流轉、翻牌或聚光顯現完成交接 */
     @keyframes otp-promote-current-slide {
       0%, 38% {
         opacity: 0;
@@ -736,7 +736,7 @@ export function getComponentStyles() {
       width: 0%;
     }
 
-    /* ========== 同步目标卡片 ========== */
+    /* ========== 同步目標卡片 ========== */
     .dest-card {
       background: var(--bg-secondary);
       border: 1px solid var(--border-primary);
@@ -842,7 +842,7 @@ export function getComponentStyles() {
       background: var(--danger-light, rgba(239, 68, 68, 0.1));
     }
 
-    /* 开关切换 */
+    /* 開關切換 */
     .dest-toggle {
       position: relative;
       display: inline-block;
@@ -890,7 +890,7 @@ export function getComponentStyles() {
       transform: translateX(18px);
     }
 
-    /* ========== 页面底部 Footer ========== */
+    /* ========== 頁面底部 Footer ========== */
     .page-footer {
       margin-top: 40px;
       padding: 15px 20px 20px 20px;
@@ -977,7 +977,7 @@ export function getComponentStyles() {
       color: var(--footer-link-hover);
     }
 
-    /* ========== 离线状态横幅 ========== */
+    /* ========== 離線狀態橫幅 ========== */
     .offline-banner {
       position: fixed;
       top: 0;
@@ -987,7 +987,7 @@ export function getComponentStyles() {
       color: white;
       padding: 12px 20px;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-      z-index: 999; /* 低于操作菜单（1001），不会遮挡"+"按钮 */
+      z-index: 999; /* 低於操作選單（1001），不會遮擋"+"按鈕 */
       transform: translateY(-100%);
       transition: transform 0.3s ease;
       display: flex;
@@ -1009,18 +1009,18 @@ export function getComponentStyles() {
       font-weight: 600;
     }
 
-    /* 离线模式下的页面样式调整 */
+    /* 離線模式下的頁面樣式調整 */
     body.offline-mode {
-      padding-top: 44px; /* 为离线横幅留出空间 */
+      padding-top: 44px; /* 為離線橫幅留出空間 */
     }
 
     body.offline-mode .secret-card {
       opacity: 0.95;
     }
 
-    /* ========== 离线横幅响应式 ========== */
+    /* ========== 離線橫幅響應式 ========== */
 
-    /* 移动设备 */
+    /* 移動裝置 */
     @media (max-width: 480px) {
       .offline-banner {
         padding: 10px 16px;
@@ -1039,7 +1039,7 @@ export function getComponentStyles() {
       }
     }
 
-    /* 超小屏幕 */
+    /* 超小螢幕 */
     @media (max-width: 360px) {
       .offline-banner {
         padding: 8px 12px;
@@ -1058,7 +1058,7 @@ export function getComponentStyles() {
       }
     }
 
-    /* ========== PWA 浮动安装横幅 ========== */
+    /* ========== PWA 浮動安裝橫幅 ========== */
     .pwa-install-banner {
       position: fixed;
       bottom: 24px;
@@ -1167,7 +1167,7 @@ export function getComponentStyles() {
       }
     }
 
-    /* 超宽屏幕 */
+    /* 超寬螢幕 */
     @media (min-width: 1440px) {
       .action-menu-float {
         right: calc(32px + env(safe-area-inset-right, 0px));

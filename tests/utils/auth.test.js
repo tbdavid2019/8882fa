@@ -1,17 +1,17 @@
 /**
- * JWT 认证功能测试
- * 测试密码哈希、JWT 生成/验证、Cookie 处理
+ * JWT 認證功能測試
+ * 測試密碼雜湊、JWT 生成/驗證、Cookie 處理
  */
 
 import { describe, it, expect } from 'vitest';
 import { requiresAuth } from '../../src/utils/auth.js';
 
 /**
- * 由于 auth.js 中的关键函数未导出，我们需要复制它们用于测试
- * 这些是实际生产代码的副本，用于单元测试
+ * 由於 auth.js 中的關鍵函式未匯出，我們需要複製它們用於測試
+ * 這些是實際生產程式碼的副本，用於單元測試
  */
 
-// ==================== 密码强度验证 ====================
+// ==================== 密碼強度驗證 ====================
 const PASSWORD_MIN_LENGTH = 8;
 
 function validatePasswordStrength(password) {
@@ -43,11 +43,11 @@ function validatePasswordStrength(password) {
   return { valid: true, message: '密码强度符合要求' };
 }
 
-// ==================== PBKDF2 密码哈希 ====================
+// ==================== PBKDF2 密碼雜湊 ====================
 const PBKDF2_ITERATIONS = 100000;
 
 async function hashPassword(password) {
-  // 🔒 强制验证密码强度（防御性编程）
+  // 🔒 強制驗證密碼強度（防禦性程式設計）
   const validation = validatePasswordStrength(password);
   if (!validation.valid) {
     throw new Error(`密码强度不足: ${validation.message}`);
@@ -119,7 +119,7 @@ async function verifyPassword(password, storedHash) {
   }
 }
 
-// ==================== JWT 生成和验证 ====================
+// ==================== JWT 生成和驗證 ====================
 const JWT_ALGORITHM = 'HS256';
 const JWT_EXPIRY_DAYS = 1;
 
@@ -224,7 +224,7 @@ async function verifyJWT(token, secret) {
   }
 }
 
-// ==================== Cookie 处理 ====================
+// ==================== Cookie 處理 ====================
 const COOKIE_NAME = 'auth_token';
 const COOKIE_MAX_AGE = JWT_EXPIRY_DAYS * 24 * 60 * 60;
 
@@ -256,7 +256,7 @@ function getTokenFromCookie(request) {
   return cookies[COOKIE_NAME] || null;
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('JWT Authentication Utils', () => {
 
@@ -350,10 +350,10 @@ describe('JWT Authentication Utils', () => {
       const hash1 = await hashPassword(password);
       const hash2 = await hashPassword(password);
 
-      // 不同的盐值导致不同的哈希
+      // 不同的鹽值導致不同的雜湊
       expect(hash1).not.toBe(hash2);
 
-      // 但都能验证相同的密码
+      // 但都能驗證相同的密碼
       expect(await verifyPassword(password, hash1)).toBe(true);
       expect(await verifyPassword(password, hash2)).toBe(true);
     });
@@ -361,16 +361,16 @@ describe('JWT Authentication Utils', () => {
     it('应该拒绝无效的哈希格式', async () => {
       const password = 'TestPass123!';
 
-      // 无 $ 分隔符
+      // 無 $ 分隔符
       expect(await verifyPassword(password, 'invalidhash')).toBe(false);
 
-      // 只有盐值没有哈希
+      // 只有鹽值沒有雜湊
       expect(await verifyPassword(password, 'salt$')).toBe(false);
 
-      // 只有哈希没有盐值
+      // 只有雜湊沒有鹽值
       expect(await verifyPassword(password, '$hash')).toBe(false);
 
-      // 空字符串
+      // 空字串
       expect(await verifyPassword(password, '')).toBe(false);
     });
 
@@ -389,7 +389,7 @@ describe('JWT Authentication Utils', () => {
       }
     });
 
-    // ==================== 强制密码验证测试 ====================
+    // ==================== 強制密碼驗證測試 ====================
     it('应该强制验证密码长度（防御性编程）', async () => {
       const weakPassword = 'short';
 
@@ -433,7 +433,7 @@ describe('JWT Authentication Utils', () => {
     it('强密码应该通过强制验证', async () => {
       const strongPassword = 'StrongPass123!';
 
-      // 不应该抛出错误
+      // 不應該丟擲錯誤
       const hash = await hashPassword(strongPassword);
       expect(hash).toBeDefined();
       expect(hash).toContain('$');
@@ -460,7 +460,7 @@ describe('JWT Authentication Utils', () => {
       expect(token).toBeDefined();
       expect(token.split('.').length).toBe(3); // header.payload.signature
 
-      // 验证 Base64URL 格式（不应包含 +, /, =）
+      // 驗證 Base64URL 格式（不應包含 +, /, =）
       expect(token).not.toMatch(/[+/=]/);
     });
 
@@ -514,11 +514,11 @@ describe('JWT Authentication Utils', () => {
 
     it('应该拒绝格式错误的 token', async () => {
       const invalidTokens = [
-        'invalid.token',           // 只有两部分
+        'invalid.token',           // 只有兩部分
         'invalid',                  // 只有一部分
         'a.b.c.d',                 // 四部分
-        '',                        // 空字符串
-        'header.payload.'          // 缺少签名
+        '',                        // 空字串
+        'header.payload.'          // 缺少簽名
       ];
 
       for (const invalidToken of invalidTokens) {
@@ -528,7 +528,7 @@ describe('JWT Authentication Utils', () => {
     });
 
     it('应该拒绝过期的 token', async () => {
-      // 创建一个已过期的 token（过期时间为 -1 天）
+      // 建立一個已過期的 token（過期時間為 -1 天）
       const expiredToken = await generateJWT(testPayload, testSecret, -1);
       const payload = await verifyJWT(expiredToken, testSecret);
 
@@ -573,7 +573,7 @@ describe('JWT Authentication Utils', () => {
 
     it('应该支持自定义 maxAge', () => {
       const token = 'test-jwt-token';
-      const customMaxAge = 3600; // 1小时
+      const customMaxAge = 3600; // 1小時
       const cookieHeader = createSetCookieHeader(token, customMaxAge);
 
       expect(cookieHeader).toContain('Max-Age=3600');
@@ -707,7 +707,7 @@ describe('JWT Authentication Utils', () => {
       await hashPassword(password);
       const end = performance.now();
 
-      // PBKDF2 with 100,000 iterations - 应该在 500ms 内完成
+      // PBKDF2 with 100,000 iterations - 應該在 500ms 內完成
       expect(end - start).toBeLessThan(500);
     });
 
@@ -719,7 +719,7 @@ describe('JWT Authentication Utils', () => {
       await verifyPassword(password, hash);
       const end = performance.now();
 
-      // 应该在 500ms 内完成
+      // 應該在 500ms 內完成
       expect(end - start).toBeLessThan(500);
     });
 
@@ -731,7 +731,7 @@ describe('JWT Authentication Utils', () => {
       await generateJWT(payload, secret);
       const end = performance.now();
 
-      // 应该在 50ms 内完成
+      // 應該在 50ms 內完成
       expect(end - start).toBeLessThan(50);
     });
 
@@ -744,7 +744,7 @@ describe('JWT Authentication Utils', () => {
       await verifyJWT(token, secret);
       const end = performance.now();
 
-      // 应该在 50ms 内完成
+      // 應該在 50ms 內完成
       expect(end - start).toBeLessThan(50);
     });
 
@@ -763,7 +763,7 @@ describe('JWT Authentication Utils', () => {
       const end = performance.now();
 
       expect(tokens.length).toBe(50);
-      expect(end - start).toBeLessThan(1000); // 50 次生成应该在 1 秒内完成
+      expect(end - start).toBeLessThan(1000); // 50 次生成應該在 1 秒內完成
     });
   });
 
@@ -819,11 +819,11 @@ describe('JWT Authentication Utils', () => {
         hashes.push(await hashPassword(password));
       }
 
-      // 所有哈希应该不同
+      // 所有雜湊應該不同
       const uniqueHashes = new Set(hashes);
       expect(uniqueHashes.size).toBe(10);
 
-      // 但都能验证相同的密码
+      // 但都能驗證相同的密碼
       for (const hash of hashes) {
         expect(await verifyPassword(password, hash)).toBe(true);
       }
@@ -835,15 +835,15 @@ describe('JWT Authentication Utils', () => {
 
       const token1 = await generateJWT(payload, secret);
 
-      // 等待 1100ms 确保时间戳不同（秒级精度）
+      // 等待 1100ms 確保時間戳不同（秒級精度）
       await new Promise(resolve => setTimeout(resolve, 1100));
 
       const token2 = await generateJWT(payload, secret);
 
-      // Token 应该不同（因为 iat 不同）
+      // Token 應該不同（因為 iat 不同）
       expect(token1).not.toBe(token2);
 
-      // 但都能验证
+      // 但都能驗證
       expect(await verifyJWT(token1, secret)).toBeDefined();
       expect(await verifyJWT(token2, secret)).toBeDefined();
     });
@@ -851,16 +851,16 @@ describe('JWT Authentication Utils', () => {
     it('Cookie 应该包含所有安全属性', () => {
       const cookieHeader = createSetCookieHeader('test-token');
 
-      // HttpOnly: 防止 XSS 攻击
+      // HttpOnly: 防止 XSS 攻擊
       expect(cookieHeader).toContain('HttpOnly');
 
-      // Secure: 仅在 HTTPS 下传输
+      // Secure: 僅在 HTTPS 下傳輸
       expect(cookieHeader).toContain('Secure');
 
-      // SameSite=Strict: 防止 CSRF 攻击
+      // SameSite=Strict: 防止 CSRF 攻擊
       expect(cookieHeader).toContain('SameSite=Strict');
 
-      // Path=/: Cookie 作用于整个域
+      // Path=/: Cookie 作用於整個域
       expect(cookieHeader).toContain('Path=/');
     });
 
@@ -880,19 +880,19 @@ describe('JWT Authentication Utils', () => {
     });
 
     it('密码哈希应该使用 PBKDF2-SHA256', async () => {
-      // 这是一个集成测试，验证 PBKDF2 的行为
+      // 這是一個整合測試，驗證 PBKDF2 的行為
       const password = 'TestPass123!';
       const hash = await hashPassword(password);
 
-      // 哈希格式正确
+      // 雜湊格式正確
       expect(hash).toMatch(/^[A-Za-z0-9+/]+=*\$[A-Za-z0-9+/]+=*$/);
 
-      // 盐值应该是 16 字节 base64（24 个字符）
+      // 鹽值應該是 16 位元組 base64（24 個字元）
       const [saltB64] = hash.split('$');
       const saltBytes = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
       expect(saltBytes.length).toBe(16);
 
-      // 哈希值应该是 32 字节 base64（256 位 = 32 字节 = 44 个 base64 字符）
+      // 雜湊值應該是 32 位元組 base64（256 位 = 32 位元組 = 44 個 base64 字元）
       const [, hashB64] = hash.split('$');
       const hashBytes = Uint8Array.from(atob(hashB64), c => c.charCodeAt(0));
       expect(hashBytes.length).toBe(32);

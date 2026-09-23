@@ -1,13 +1,13 @@
 /**
- * 二维码生成工具模块
+ * 二維碼生成工具模組
  */
 
 /**
- * 获取二维码生成工具代码
- * @returns {string} 二维码生成工具 JavaScript 代码
+ * 獲取二維碼生成工具程式碼
+ * @returns {string} 二維碼生成工具 JavaScript 程式碼
  */
 export function getQRGenerateToolCode() {
-	return `    // ==================== 二维码生成工具 ====================
+	return `    // ==================== 二維碼生成工具 ====================
 
     function showQRGenerateModal() {
       showModal('qrGenerateModal', () => {
@@ -34,7 +34,7 @@ export function getQRGenerateToolCode() {
         let qrDataURL = null;
         let generationMethod = 'unknown';
 
-        // 使用客户端本地生成二维码（隐私安全）
+        // 使用客戶端本地生成二維碼（隱私安全）
         qrDataURL = await generateQRCodeDataURL(content, {
           width: 300,
           height: 300

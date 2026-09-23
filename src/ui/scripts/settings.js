@@ -1,17 +1,17 @@
 /**
- * Settings Module - 设置模块
- * 提供设置弹窗的标签切换、修改密码、偏好设置等功能
+ * Settings Module - 設定模組
+ * 提供設定彈窗的標籤切換、修改密碼、偏好設定等功能
  */
 
 /**
- * 获取设置模块代码
- * @returns {string} Settings JavaScript 代码
+ * 獲取設定模組程式碼
+ * @returns {string} Settings JavaScript 程式碼
  */
 export function getSettingsCode() {
 	return `
-    // ========== 设置模块 ==========
+    // ========== 設定模組 ==========
 
-    // 当前激活的设置标签
+    // 當前啟用的設定標籤
     let activeSettingsTab = 'security';
     let preferencesLoadRequestId = 0;
     let defaultExportFormatChangeVersion = 0;
@@ -39,39 +39,39 @@ export function getSettingsCode() {
     }
 
     /**
-     * 切换设置标签
-     * @param {string} tabName - 标签名称
+     * 切換設定標籤
+     * @param {string} tabName - 標籤名稱
      */
     function switchSettingsTab(tabName) {
       activeSettingsTab = tabName;
 
-      // 更新标签按钮状态
+      // 更新標籤按鈕狀態
       document.querySelectorAll('.settings-tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.tab === tabName);
       });
 
-      // 更新内容面板
+      // 更新內容面板
       document.querySelectorAll('.settings-panel').forEach(panel => {
         panel.classList.toggle('active', panel.dataset.panel === tabName);
       });
 
-      // 每次进入标签页都从顶部开始，避免沿用上一个面板的滚动位置。
+      // 每次進入標籤頁都從頂部開始，避免沿用上一個面板的滾動位置。
       const settingsContent = document.querySelector('#settingsModal .settings-content');
       if (settingsContent) {
         settingsContent.scrollTop = 0;
       }
 
-      // 安全设置标签页打开时加载 Passkeys
+      // 安全設定標籤頁開啟時載入 Passkeys
       if (tabName === 'security') {
         loadPasskeys();
       }
 
-      // 同步设置标签页打开时加载配置
+      // 同步設定標籤頁開啟時載入配置
       if (tabName === 'sync') {
         loadSyncStatus();
       }
 
-      // 偏好设置标签页打开时加载当前值
+      // 偏好設定標籤頁開啟時載入當前值
       if (tabName === 'preferences') {
         loadPreferences();
         if (typeof updateSettingsPwaInstallButton === 'function') {
@@ -81,10 +81,10 @@ export function getSettingsCode() {
     }
 
     /**
-     * 加载同步配置状态（WebDAV 和 S3）
+     * 載入同步配置狀態（WebDAV 和 S3）
      */
     async function loadSyncStatus() {
-      // 加载 WebDAV 状态
+      // 載入 WebDAV 狀態
       try {
         const webdavResp = await authenticatedFetch('/api/webdav/config');
         const webdavData = await webdavResp.json();
@@ -106,7 +106,7 @@ export function getSettingsCode() {
         }
       }
 
-      // 加载 S3 状态
+      // 載入 S3 狀態
       try {
         const s3Resp = await authenticatedFetch('/api/s3/config');
         const s3Data = await s3Resp.json();
@@ -128,7 +128,7 @@ export function getSettingsCode() {
         }
       }
 
-      // 加载 OneDrive 状态
+      // 載入 OneDrive 狀態
       try {
         const oneDriveResp = await authenticatedFetch('/api/onedrive/config');
         const oneDriveData = await oneDriveResp.json();
@@ -150,7 +150,7 @@ export function getSettingsCode() {
         }
       }
 
-      // 加载 Google Drive 状态
+      // 載入 Google Drive 狀態
       try {
         const googleDriveResp = await authenticatedFetch('/api/gdrive/config');
         const googleDriveData = await googleDriveResp.json();
@@ -174,18 +174,18 @@ export function getSettingsCode() {
     }
 
     /**
-     * 从设置弹窗打开 WebDAV 配置
+     * 從設定彈窗開啟 WebDAV 配置
      */
     function openWebdavFromSettings() {
       hideSettingsModal();
-      // 延迟打开以避免两个模态框重叠
+      // 延遲開啟以避免兩個模態框重疊
       setTimeout(() => {
         showWebdavModal(() => showSettingsModal());
       }, 350);
     }
 
     /**
-     * 从设置弹窗打开 S3 配置
+     * 從設定彈窗開啟 S3 配置
      */
     function openS3FromSettings() {
       hideSettingsModal();
@@ -195,7 +195,7 @@ export function getSettingsCode() {
     }
 
     /**
-     * 从设置弹窗打开 OneDrive 配置
+     * 從設定彈窗開啟 OneDrive 配置
      */
     function openOneDriveFromSettings() {
       hideSettingsModal();
@@ -205,7 +205,7 @@ export function getSettingsCode() {
     }
 
     /**
-     * 从设置弹窗打开 Google Drive 配置
+     * 從設定彈窗開啟 Google Drive 配置
      */
     function openGoogleDriveFromSettings() {
       hideSettingsModal();
@@ -215,7 +215,7 @@ export function getSettingsCode() {
     }
 
     /**
-     * 修改密码
+     * 修改密碼
      */
     async function changePassword() {
       const currentPassword = document.getElementById('settingsCurrentPassword').value;
@@ -223,7 +223,7 @@ export function getSettingsCode() {
       const confirmPassword = document.getElementById('settingsConfirmPassword').value;
       const resultEl = document.getElementById('changePasswordResult');
 
-      // 前端验证
+      // 前端驗證
       if (!currentPassword || !newPassword || !confirmPassword) {
         resultEl.textContent = (typeof t === 'function' ? t('setupErrorEmpty') : null) || 'Please fill in all password fields';
         resultEl.className = 'change-password-result error';
@@ -265,12 +265,12 @@ export function getSettingsCode() {
           resultEl.className = 'change-password-result success';
           resultEl.style.display = 'block';
 
-          // 清空表单
+          // 清空表單
           document.getElementById('settingsCurrentPassword').value = '';
           document.getElementById('settingsNewPassword').value = '';
           document.getElementById('settingsConfirmPassword').value = '';
 
-          // 延迟后退出登录
+          // 延遲後退出登入
           setTimeout(() => {
             logout();
           }, 2000);
@@ -290,10 +290,10 @@ export function getSettingsCode() {
     }
 
     /**
-     * 加载偏好设置
+     * 載入偏好設定
      */
     async function loadPreferences() {
-      // 主题模式
+      // 主題模式
       const requestId = ++preferencesLoadRequestId;
       const formatVersionAtStart = defaultExportFormatChangeVersion;
       const languageVersionAtStart = languagePreferenceSaveVersion;
@@ -326,7 +326,7 @@ export function getSettingsCode() {
         langSelect.value = localLanguage;
       }
 
-      // 导出偏好格式、语言偏好、登录有效期和备份保留数量（从服务器读取）
+      // 匯出偏好格式、語言偏好、登入有效期和備份保留數量（從伺服器讀取）
       try {
         const resp = await authenticatedFetch('/api/settings');
         if (resp.ok) {
@@ -355,13 +355,13 @@ export function getSettingsCode() {
           });
         }
       } catch {
-        // 加载失败静默处理
+        // 載入失敗靜默處理
       }
     }
 
     /**
-     * 应用主题设置
-     * @param {string} theme - 主题名称
+     * 應用主題設定
+     * @param {string} theme - 主題名稱
      */
     function applyThemeFromSettings(theme) {
       localStorage.setItem('theme', theme);
@@ -369,8 +369,8 @@ export function getSettingsCode() {
     }
 
     /**
-     * 应用验证码切换动效
-     * @param {string} mode - 动效模式
+     * 應用驗證碼切換動效
+     * @param {string} mode - 動效模式
      */
     function applyOTPAnimationFromSettings(mode) {
       const appliedMode = setOTPAnimationMode(mode);
@@ -381,7 +381,7 @@ export function getSettingsCode() {
     }
 
     /**
-     * 保存导出偏好格式
+     * 儲存匯出偏好格式
      */
     async function saveDefaultExportFormat() {
       const formatSelect = document.getElementById('settingsDefaultExportFormat');
@@ -418,8 +418,8 @@ export function getSettingsCode() {
     }
 
     /**
-     * 保存界面语言偏好
-     * @param {string} selectedLang - 选中的语言代码
+     * 儲存介面語言偏好
+     * @param {string} selectedLang - 選中的語言程式碼
      */
     function chooseQuickLanguage(selectedLang) {
       const languageControl = document.getElementById('quickLanguageControl');
@@ -566,7 +566,7 @@ export function getSettingsCode() {
       return saveNumericPreference('maxBackups');
     }
 
-    // ==================== 通行密钥 (Passkey / Touch ID) 管理 ====================
+    // ==================== 通行金鑰 (Passkey / Touch ID) 管理 ====================
 
     async function loadPasskeys() {
       const listEl = document.getElementById('passkeyList');

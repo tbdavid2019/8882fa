@@ -1,50 +1,50 @@
 /**
- * 认证模块
- * 包含认证相关函数
+ * 認證模組
+ * 包含認證相關函式
  */
 
 /**
- * 获取认证相关代码
- * @returns {string} 认证 JavaScript 代码
+ * 獲取認證相關程式碼
+ * @returns {string} 認證 JavaScript 程式碼
  */
 export function getAuthCode() {
-	return `    // ========== 认证相关函数 ==========
-    // 注意：现在使用 HttpOnly Cookie 存储 token，不再使用 localStorage
+	return `    // ========== 認證相關函式 ==========
+    // 注意：現在使用 HttpOnly Cookie 儲存 token，不再使用 localStorage
     let loginModalHideTimer = null;
 
-    // 获取存储的令牌（已弃用 - Cookie 自动管理）
+    // 獲取儲存的令牌（已棄用 - Cookie 自動管理）
     function getAuthToken() {
-      // Cookie 由浏览器自动管理，前端无需访问
+      // Cookie 由瀏覽器自動管理，前端無需訪問
       return null;
     }
 
-    // 保存令牌（已弃用 - Cookie 自动设置）
+    // 儲存令牌（已棄用 - Cookie 自動設定）
     function saveAuthToken(token, expiresAt = null) {
-      // HttpOnly Cookie 在服务端设置，前端无需操作
-      // 保留此函数仅为向后兼容
+      // HttpOnly Cookie 在服務端設定，前端無需操作
+      // 保留此函式僅為向後相容
     }
 
-    // 清除令牌（已弃用 - Cookie 自动管理）
+    // 清除令牌（已棄用 - Cookie 自動管理）
     function clearAuthToken() {
-      // Cookie 由服务端管理（通过设置过期的 Cookie）
-      // 前端无需手动清除
+      // Cookie 由服務端管理（通過設定過期的 Cookie）
+      // 前端無需手動清除
     }
 
-    // 检查 token 是否即将过期（已弃用）
+    // 檢查 token 是否即將過期（已棄用）
     function isTokenExpiringSoon() {
-      // Cookie 过期由浏览器自动管理
+      // Cookie 過期由瀏覽器自動管理
       return false;
     }
 
-    // 检查 token 是否已过期（已弃用）
+    // 檢查 token 是否已過期（已棄用）
     function isTokenExpired() {
-      // Cookie 过期由浏览器自动管理
+      // Cookie 過期由瀏覽器自動管理
       return false;
     }
 
-    // 刷新 Token
+    // 重新整理 Token
     async function refreshAuthToken() {
-      // Token 由 Cookie 管理，刷新请求会自动携带 Cookie
+      // Token 由 Cookie 管理，重新整理請求會自動攜帶 Cookie
       try {
         console.log('🔄 正在刷新 Token...');
         const response = await fetch('/api/refresh-token', {
@@ -93,8 +93,8 @@ export function getAuthCode() {
       setLoginPasswordVisibility(tokenInput.type === 'password');
     }
 
-    // 检测是否处于无法保存 Secure Cookie 的不安全上下文（HTTP 且非本机地址）
-    // 登录 Cookie 带有 Secure 属性，HTTP 访问时浏览器会拒绝保存，导致反复要求登录
+    // 檢測是否處於無法儲存 Secure Cookie 的不安全上下文（HTTP 且非本機地址）
+    // 登入 Cookie 帶有 Secure 屬性，HTTP 訪問時瀏覽器會拒絕儲存，導致反覆要求登入
     function isInsecureCookieContext() {
       if (typeof window.isSecureContext === 'boolean') {
         return !window.isSecureContext;
@@ -103,7 +103,7 @@ export function getAuthCode() {
       return location.protocol === 'http:' && !localHosts.includes(location.hostname);
     }
 
-    // 显示登录模态框
+    // 顯示登入模態框
     function showLoginModal() {
       const modal = document.getElementById('loginModal');
       const tokenInput = document.getElementById('loginToken');
@@ -137,10 +137,10 @@ export function getAuthCode() {
 
       setTimeout(() => tokenInput.focus(), 100);
 
-      // 回车键提交由 <form> 原生 submit 事件处理（loginForm 的 onsubmit）
+      // 回車鍵提交由 <form> 原生 submit 事件處理（loginForm 的 onsubmit）
     }
 
-    // 隐藏登录模态框
+    // 隱藏登入模態框
     function hideLoginModal() {
       const modal = document.getElementById('loginModal');
       if (!modal) {
@@ -158,7 +158,7 @@ export function getAuthCode() {
       }, 300);
     }
 
-    // 处理登录提交
+    // 處理登入提交
     async function handleLoginSubmit() {
       const tokenInput = document.getElementById('loginToken');
       const errorDiv = document.getElementById('loginError');
@@ -183,20 +183,20 @@ export function getAuthCode() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          // 登录成功 - token 已通过 HttpOnly Cookie 自动设置
+          // 登入成功 - token 已通過 HttpOnly Cookie 自動設定
           hideLoginModal();
 
-          // 显示登录成功信息（包含过期时间）
+          // 顯示登入成功資訊（包含過期時間）
           if (data.expiresIn) {
             showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: data.expiresIn }) : null) || ('Login successful, valid for ' + data.expiresIn));
           } else {
             showCenterToast('✅', (typeof t === 'function' ? t('loginSuccess') : null) || 'Login successful');
           }
 
-          // 重新加载密钥列表
+          // 重新載入金鑰列表
           loadSecrets();
         } else {
-          // 登录失败
+          // 登入失敗
           errorDiv.textContent = data.message || ((typeof t === 'function' ? t('loginFailedInvalidPassword') : null) || 'Incorrect password, please try again');
           errorDiv.style.display = 'block';
           tokenInput.value = '';
@@ -209,7 +209,7 @@ export function getAuthCode() {
       }
     }
 
-    // 使用 Passkey / Touch ID 登录
+    // 使用 Passkey / Touch ID 登入
     async function handlePasskeyLogin() {
       const errorDiv = document.getElementById('loginError');
       const passkeyBtn = document.getElementById('passkeyLoginBtn');
@@ -316,27 +316,27 @@ export function getAuthCode() {
       window.handlePasskeyLogin = handlePasskeyLogin;
     }
 
-    // 检查认证状态
+    // 檢查認證狀態
     function checkAuth() {
-      // 🍪 Cookie 认证由服务器验证
-      // 前端无法直接检查 HttpOnly Cookie
-      // 如果 Cookie 无效，API 请求会返回 401，触发登录
-      // 为了更好的用户体验，总是先尝试加载，让服务器决定
+      // 🍪 Cookie 認證由伺服器驗證
+      // 前端無法直接檢查 HttpOnly Cookie
+      // 如果 Cookie 無效，API 請求會返回 401，觸發登入
+      // 為了更好的使用者體驗，總是先嚐試載入，讓伺服器決定
       return true;
     }
     
-    // 定时检查 token 过期（每小时检查一次）
-    // 启动 Token 过期检查（已弃用 - Cookie 自动管理）
+    // 定時檢查 token 過期（每小時檢查一次）
+    // 啟動 Token 過期檢查（已棄用 - Cookie 自動管理）
     function startTokenExpiryCheck() {
-      // HttpOnly Cookie 过期由浏览器自动管理
-      // 保留此函数仅为向后兼容
+      // HttpOnly Cookie 過期由瀏覽器自動管理
+      // 保留此函式僅為向後相容
     }
 
-    // 处理未授权响应
+    // 處理未授權響應
     function handleUnauthorized() {
       clearAuthToken();
 
-      // 清除缓存的密钥数据（安全考虑）
+      // 清除快取的金鑰資料（安全考慮）
       try {
         localStorage.removeItem('2fa-secrets-cache');
       } catch (e) {
@@ -374,12 +374,12 @@ export function getAuthCode() {
       }, 1500);
     }
 
-    // 退出登录
+    // 退出登入
     async function logout() {
       let serverSuccess = false;
       let serverErrorMessage = '';
 
-      // 1. 尝试通知服务端清除 Cookie；记录结果但不因失败中止
+      // 1. 嘗試通知服務端清除 Cookie；記錄結果但不因失敗中止
       try {
         const response = await fetch('/api/logout', {
           method: 'POST',
@@ -392,18 +392,18 @@ export function getAuthCode() {
         if (response.ok) {
           serverSuccess = true;
         } else {
-          // 透传服务端错误信息（包括 403 CSRF 拒绝、429 限流等）
+          // 透傳服務端錯誤資訊（包括 403 CSRF 拒絕、429 限流等）
           const data = await response.json().catch(() => ({}));
           serverErrorMessage = data.message || ('Server returned ' + response.status);
           console.warn('退出登录服务端响应异常:', response.status, serverErrorMessage);
         }
       } catch (error) {
-        // 网络错误不阻塞本地登出；HttpOnly Cookie 由浏览器最终随过期清除
+        // 網路錯誤不阻塞本地登出；HttpOnly Cookie 由瀏覽器最終隨過期清除
         console.error('退出登录网络错误:', error);
         serverErrorMessage = error.message || 'Network error';
       }
 
-      // 2. 无论服务端是否确认，都清理本地状态，确保用户视觉上已登出
+      // 2. 無論服務端是否確認，都清理本地狀態，確保使用者視覺上已登出
       try {
         localStorage.removeItem('2fa-secrets-cache');
       } catch (e) {
@@ -440,7 +440,7 @@ export function getAuthCode() {
         hideSettingsModal();
       }
 
-      // 3. 反馈给用户
+      // 3. 反饋給使用者
       if (serverSuccess) {
         showCenterToast('👋', (typeof t === 'function' ? t('loggedOut') : null) || 'Logged out');
       } else {
@@ -458,19 +458,19 @@ export function getAuthCode() {
       window.logout = logout;
     }
 
-    // 为 fetch 请求添加认证（使用 Cookie）并支持自动续期
+    // 為 fetch 請求新增認證（使用 Cookie）並支援自動續期
     async function authenticatedFetch(url, options = {}) {
-      // 🍪 使用 HttpOnly Cookie 进行认证，浏览器自动携带
+      // 🍪 使用 HttpOnly Cookie 進行認證，瀏覽器自動攜帶
       options.credentials = 'include'; // 自动携带 Cookie
       
       const response = await fetch(url, options);
       
-      // 🔄 自动续期：检查响应头中是否有刷新标记
+      // 🔄 自動續期：檢查響應頭中是否有重新整理標記
       if (response.headers.get('X-Token-Refresh-Needed') === 'true') {
         const remainingDays = response.headers.get('X-Token-Remaining-Days');
         console.log('⏰ Token 即将过期（剩余 ' + remainingDays + ' 天），正在自动刷新...');
         
-        // 异步刷新 Token（不阻塞当前请求）
+        // 非同步重新整理 Token（不阻塞當前請求）
         refreshAuthToken().then(success => {
           if (success) {
             console.log('✅ Token 自动续期成功，已延长30天');

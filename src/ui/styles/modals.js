@@ -1,5 +1,5 @@
 /**
- * 弹窗样式模块
+ * 彈窗樣式模組
  */
 export function getModalStyles() {
 	return `    .modal {
@@ -35,12 +35,12 @@ export function getModalStyles() {
       transform: scale(0.95);
       opacity: 0;
       transition: all 0.3s ease;
-      /* 修复模态框滚动条破坏圆角的问题 */
+      /* 修復模態框捲軸破壞圓角的問題 */
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     }
 
-    /* FAB 链路弹窗统一宽度 */
+    /* FAB 鏈路彈窗統一寬度 */
     .fab-modal .modal-content,
     .modal-content.fab-modal-content {
       max-width: var(--fab-modal-max-width, 600px);
@@ -56,7 +56,7 @@ export function getModalStyles() {
       max-width: var(--fab-modal-lg-max-width, 680px);
     }
 
-    /* 模态框滚动条样式 */
+    /* 模態框捲軸樣式 */
     .modal-content::-webkit-scrollbar {
       width: 8px;
     }
@@ -139,7 +139,7 @@ export function getModalStyles() {
       border-top: 1px solid var(--modal-header-border);
     }
 
-    /* 按钮样式 - 添加outline和active状态支持 */
+    /* 按鈕樣式 - 新增outline和active狀態支援 */
     .btn-outline {
       background: transparent !important;
       border: 2px solid var(--border-primary) !important;
@@ -173,7 +173,7 @@ export function getModalStyles() {
       justify-content: center;
     }
 
-    /* P1.6 手机端 close 按钮触控面积提升到 44px */
+    /* P1.6 手機端 close 按鈕觸控面積提升到 44px */
     @media (max-width: 768px) {
       .close-btn {
         width: 44px;
@@ -234,7 +234,7 @@ export function getModalStyles() {
       box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
 
-    /* 高级选项样式 */
+    /* 進階選項樣式 */
     .form-section {
       margin: 25px 0;
       border: 2px solid var(--border-primary);
@@ -356,7 +356,7 @@ export function getModalStyles() {
       margin-right: 4px;
     }
 
-    /* 响应式设计 */
+    /* 響應式設計 */
     @media (max-width: 600px) {
       .form-row {
         grid-template-columns: 1fr;
@@ -441,8 +441,8 @@ export function getModalStyles() {
       background: #b91c1c;
     }
 
-    /* ========== 扫码 Modal 溢出修复 ========== */
-    /* 让底部的“选择图片/粘贴截图/连续扫描”在 modal 滚动时始终可见 */
+    /* ========== 掃碼 Modal 溢位修復 ========== */
+    /* 讓底部的“選擇圖片/貼上截圖/連續掃描”在 modal 滾動時始終可見 */
     #qrScanModal .modal-content {
       position: relative;
       max-height: 90vh;
@@ -475,7 +475,7 @@ export function getModalStyles() {
       padding: 4px 0;
     }
 
-    /* 矮屏（常见笔记本 900×600 窗口化）缩小摄像头预览避免滚动 */
+    /* 矮屏（常見筆記本 900×600 視窗化）縮小攝像頭預覽避免滾動 */
     @media (max-height: 820px) {
       #qrScanModal .video-wrapper {
         width: 280px !important;
@@ -493,7 +493,7 @@ export function getModalStyles() {
       }
     }
 
-    /* 自定义确认对话框 */
+    /* 自定義確認對話方塊 */
     .confirm-dialog-modal {
       z-index: 100010;
     }
@@ -555,7 +555,7 @@ export function getModalStyles() {
       }
     }
 
-    /* 登录模态框 */
+    /* 登入模態框 */
     .login-modal {
       z-index: 100001;
     }
@@ -685,7 +685,7 @@ export function getModalStyles() {
       font-weight: 600;
     }
 
-    /* Passkey 登录按钮与分割线 */
+    /* Passkey 登入按鈕與分割線 */
     .passkey-login-container {
       margin-top: 14px;
     }
@@ -738,7 +738,7 @@ export function getModalStyles() {
       flex-shrink: 0;
     }
 
-    /* Passkey 凭据管理列表 */
+    /* Passkey 憑據管理列表 */
     .settings-section-header-flex {
       display: flex;
       align-items: center;
@@ -825,7 +825,7 @@ export function getModalStyles() {
       color: var(--text-tertiary);
     }
 
-    /* 导入模态框样式 */
+    /* 匯入模態框樣式 */
     .import-instructions {
       background: var(--import-instructions-bg);
       border-radius: var(--radius-sm);
@@ -907,7 +907,7 @@ export function getModalStyles() {
       border: 1px solid var(--border-primary);
     }
 
-    /* 实用工具模态框样式 */
+    /* 實用工具模態框樣式 */
     .tools-list {
       background: var(--tool-bg);
       border-radius: var(--radius-md);
@@ -1020,12 +1020,12 @@ export function getModalStyles() {
       max-height: 350px;
       overflow-y: auto;
       box-shadow: var(--shadow-sm);
-      /* 修复滚动条破坏圆角的问题 */
+      /* 修復捲軸破壞圓角的問題 */
       scrollbar-width: thin;
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     }
 
-    /* Webkit浏览器的滚动条样式 */
+    /* Webkit瀏覽器的捲軸樣式 */
     .import-preview::-webkit-scrollbar {
       width: 8px;
     }
@@ -1139,7 +1139,7 @@ export function getModalStyles() {
       border-color: var(--info);
     }
 
-    /* 二维码模态框样式 - 已移除，使用标准模态框样式 */
+    /* 二維碼模態框樣式 - 已移除，使用標準模態框樣式 */
 
     .qr-code-container {
       background: var(--bg-secondary);
@@ -1188,9 +1188,9 @@ export function getModalStyles() {
     }
 
 
-    /* 扫描器相关样式 - 已更新，使用新的样式 */
+    /* 掃描器相關樣式 - 已更新，使用新的樣式 */
 
-    /* 小屏幕手机适配 */
+    /* 小螢幕手機適配 */
     @media (max-width: 480px) {
       body {
         padding: 0;
@@ -1209,7 +1209,7 @@ export function getModalStyles() {
         padding: 0 16px 20px 16px;
       }
 
-      /* 二维码专用样式 */
+      /* 二維碼專用樣式 */
       .qr-subtitle-section {
         text-align: center;
         margin-bottom: 20px;
@@ -1228,7 +1228,7 @@ export function getModalStyles() {
 
 
 
-      /* 模态框移动端优化 */
+      /* 模態框移動端最佳化 */
       .modal {
         padding: 10px;
       }
@@ -1237,7 +1237,7 @@ export function getModalStyles() {
         padding: 20px;
         max-height: 90vh;
         border-radius: 6px;
-        /* 移动端模态框滚动条样式 */
+        /* 移動端模態框捲軸樣式 */
         scrollbar-width: thin;
         scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
       }
@@ -1324,13 +1324,13 @@ export function getModalStyles() {
         max-width: 150px;
       }
 
-      /* 批量导入移动端优化 */
+      /* 批次匯入移動端最佳化 */
       .import-instructions {
         padding: 15px;
         margin-bottom: 20px;
       }
 
-      /* 还原配置移动端优化 */
+      /* 還原配置移動端最佳化 */
       .restore-content {
         flex-direction: column;
         gap: 20px;
@@ -1385,7 +1385,7 @@ export function getModalStyles() {
         display: block;
       }
 
-      /* 强制 option 元素不换行并正确显示 */
+      /* 強制 option 元素不換行並正確顯示 */
       .backup-select option {
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -1472,10 +1472,10 @@ export function getModalStyles() {
         font-size: 9px;
       }
 
-      /* 移动端深色主题表格边框 */
+      /* 移動端深色主題表格邊框 */
     }
 
-    /* ==================== 导出格式选择 - 紧凑网格布局 ==================== */
+    /* ==================== 匯出格式選擇 - 緊湊網格佈局 ==================== */
     .export-modal-compact {
       max-width: var(--fab-modal-max-width, 600px);
     }
@@ -1648,7 +1648,7 @@ export function getModalStyles() {
       min-width: 70px;
     }
 
-    /* 导出格式响应式 - 手机端 */
+    /* 匯出格式響應式 - 手機端 */
     @media (max-width: 480px) {
       .export-modal-compact {
         max-width: 100%;
@@ -1713,7 +1713,7 @@ export function getModalStyles() {
       }
     }
 
-    /* P1.5 导出格式网格：平板 3 列 / 481-767 手机大屏 2 列（481-767 的 2 列与 ≤480 同规则重复但不冲突） */
+    /* P1.5 匯出格式網格：平板 3 列 / 481-767 手機大屏 2 列（481-767 的 2 列與 ≤480 同規則重複但不衝突） */
     @media (min-width: 768px) and (max-width: 1279px) {
       .format-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1727,12 +1727,12 @@ export function getModalStyles() {
       }
     }
 
-    /* ==================== 导入模态框 - 紧凑优化布局 ==================== */
+    /* ==================== 匯入模態框 - 緊湊最佳化佈局 ==================== */
     .import-modal-compact {
       max-width: var(--fab-modal-max-width, 600px);
     }
 
-    /* ==================== 智能输入区样式 ==================== */
+    /* ==================== 智慧輸入區樣式 ==================== */
     .smart-import-zone {
       margin-bottom: 12px;
     }
@@ -1781,7 +1781,7 @@ export function getModalStyles() {
       border-style: solid;
     }
 
-    /* 选择文件按钮区域 */
+    /* 選擇檔案按鈕區域 */
     .import-file-btn-wrapper {
       display: flex;
       flex-direction: row;
@@ -1811,7 +1811,7 @@ export function getModalStyles() {
       text-align: left;
     }
 
-    /* 已选文件信息徽章 */
+    /* 已選檔案資訊徽章 */
     .file-info-badge {
       display: flex;
       align-items: center;
@@ -1861,7 +1861,7 @@ export function getModalStyles() {
       color: var(--danger-darker);
     }
 
-    /* 导入小提示 */
+    /* 匯入小提示 */
     .import-tips {
       display: flex;
       align-items: center;
@@ -1891,7 +1891,7 @@ export function getModalStyles() {
       color: var(--border-primary);
     }
 
-    /* 格式说明折叠区 */
+    /* 格式說明摺疊區 */
     .import-format-details {
       margin: 8px 0;
       border: 1px solid var(--border-primary);
@@ -1950,7 +1950,7 @@ export function getModalStyles() {
       border: 1px solid var(--border-primary);
     }
 
-    /* 紧凑预览区 */
+    /* 緊湊預覽區 */
     .import-preview-compact {
       background: var(--bg-secondary);
       border-radius: var(--radius-md);
@@ -2091,13 +2091,13 @@ export function getModalStyles() {
       color: var(--text-tertiary);
     }
 
-    /* 导入响应式 - 手机端 */
+    /* 匯入響應式 - 手機端 */
     @media (max-width: 480px) {
       .import-modal-compact {
         max-width: 100%;
       }
 
-      /* 智能输入区响应式 */
+      /* 智慧輸入區響應式 */
       .import-textarea-smart {
         min-height: 120px;
         padding: 12px 14px;
@@ -2159,7 +2159,7 @@ export function getModalStyles() {
       }
     }
 
-    /* 导入响应式 - 超小屏幕 */
+    /* 匯入響應式 - 超小螢幕 */
     @media (max-width: 360px) {
       .import-textarea-smart {
         min-height: 100px;
@@ -2183,9 +2183,9 @@ export function getModalStyles() {
       }
     }
 
-    /* ==================== 二级格式选择模态框 ==================== */
+    /* ==================== 二級格式選擇模態框 ==================== */
 
-    /* 二级格式选择模态框 */
+    /* 二級格式選擇模態框 */
     .sub-format-modal {
       max-width: var(--fab-modal-sm-max-width, 450px);
     }
@@ -2249,7 +2249,7 @@ export function getModalStyles() {
       color: var(--text-tertiary);
     }
 
-    /* 二级格式选择 - 移动端适配 */
+    /* 二級格式選擇 - 移動端適配 */
     @media (max-width: 480px) {
       .sub-format-modal {
         max-width: 100%;
@@ -2266,7 +2266,7 @@ export function getModalStyles() {
       }
     }
 
-    /* ==================== 设置模态框样式 ==================== */
+    /* ==================== 設定模態框樣式 ==================== */
 
     .modal-content.settings-modal-content {
       max-width: var(--fab-modal-lg-max-width, 680px);
@@ -2429,7 +2429,7 @@ export function getModalStyles() {
       border: 1px solid rgba(76, 175, 80, 0.2);
     }
 
-    /* 同步设置卡片 */
+    /* 同步設定卡片 */
     .sync-card {
       background: var(--bg-secondary);
       border: 1px solid var(--border-primary);
@@ -2501,7 +2501,7 @@ export function getModalStyles() {
       line-height: 1.6;
     }
 
-    /* 主题选项 */
+    /* 主題選項 */
     .theme-options {
       display: flex;
       flex-direction: column;
@@ -2533,7 +2533,7 @@ export function getModalStyles() {
       color: var(--text-primary);
     }
 
-    /* 设置下拉选择框 */
+    /* 設定下拉選擇框 */
     .settings-select {
       width: 100%;
       padding: 10px 12px;
@@ -2592,8 +2592,8 @@ export function getModalStyles() {
       color: var(--error-color, #f44336);
     }
 
-    /* ========== P1.1 手机端 Bottom Sheet ========== */
-    /* Modal 从屏幕底部滑入，贴底全宽展示（排除 confirm-dialog 等小对话框） */
+    /* ========== P1.1 手機端 Bottom Sheet ========== */
+    /* Modal 從螢幕底部滑入，貼底全寬展示（排除 confirm-dialog 等小對話方塊） */
     @media (max-width: 640px) {
       .modal:not(.confirm-dialog-modal) {
         align-items: flex-end;
@@ -2606,7 +2606,7 @@ export function getModalStyles() {
         border-radius: 16px 16px 0 0;
         max-height: 90vh;
         margin: 0;
-        /* 覆盖桌面的 scale 动画，改为 slideUp */
+        /* 覆蓋桌面的 scale 動畫，改為 slideUp */
         transform: translateY(100%);
         opacity: 0;
         transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease;
@@ -2617,7 +2617,7 @@ export function getModalStyles() {
         opacity: 1;
       }
 
-      /* 贴边 header / actions：长表单中始终可见 */
+      /* 貼邊 header / actions：長表單中始終可見 */
       .modal:not(.confirm-dialog-modal):not(#qrScanModal) .modal-content > .modal-header {
         position: sticky;
         top: 0;
@@ -2635,7 +2635,7 @@ export function getModalStyles() {
       }
     }
 
-    /* 设置模态框移动端适配 */
+    /* 設定模態框移動端適配 */
     @media (max-width: 600px) {
       .settings-layout {
         flex-direction: column;
@@ -2669,7 +2669,7 @@ export function getModalStyles() {
         border-bottom-color: var(--accent-color, #2196F3);
       }
 
-      /* P1.4 手机端 Tab 保留图标+文字同行（旧版仅显示图标太抽象） */
+      /* P1.4 手機端 Tab 保留圖示+文字同行（舊版僅顯示圖示太抽象） */
       .settings-tab-text {
         display: inline;
         white-space: nowrap;
@@ -2691,7 +2691,7 @@ export function getModalStyles() {
       }
     }
 
-    /* 超窄屏（<360px）Tab 回退为仅图标，避免横向滚动 */
+    /* 超窄屏（<360px）Tab 回退為僅圖示，避免橫向滾動 */
     @media (max-width: 359px) {
       .settings-tab-text {
         display: none;

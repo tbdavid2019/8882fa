@@ -1,6 +1,6 @@
 /**
- * 导出模块入口
- * 组合所有导出子模块，提供完整的导出功能
+ * 匯出模組入口
+ * 組合所有匯出子模組，提供完整的匯出功能
  */
 
 import { getExportUICode } from './ui.js';
@@ -8,15 +8,15 @@ import { getExportConfigCode } from './config.js';
 import { getStandardFormatsCode } from './formats.js';
 
 /**
- * 获取所有导出相关代码（向后兼容）
- * 注意：由于原始 export.js 包含大量第三方格式导出代码（约1700行），
- * 完整拆分需要创建更多子模块。当前仅拆分了核心部分作为示例。
- * @returns {string} 完整的导出 JavaScript 代码
+ * 獲取所有匯出相關程式碼（向後相容）
+ * 注意：由於原始 export.js 包含大量第三方格式匯出程式碼（約1700行），
+ * 完整拆分需要建立更多子模組。當前僅拆分了核心部分作為示例。
+ * @returns {string} 完整的匯出 JavaScript 程式碼
  */
 export function getExportCode() {
-	// 组合所有子模块的代码
+	// 組合所有子模組的程式碼
 	return ['// ========== 导出功能模块 ==========', getExportConfigCode(), getExportUICode(), getStandardFormatsCode()].join('\n');
 }
 
-// 导出子模块函数，支持按需加载
+// 匯出子模組函式，支援按需載入
 export { getExportUICode, getExportConfigCode, getStandardFormatsCode };

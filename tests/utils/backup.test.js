@@ -1,6 +1,6 @@
 /**
- * Backup 备份系统测试
- * 测试智能备份、防抖机制、加密、自动清理
+ * Backup 備份系統測試
+ * 測試智慧備份、防抖機制、加密、自動清理
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -14,7 +14,7 @@ import {
 } from '../../src/utils/backup.js';
 import { generateBackupKey } from '../../src/utils/backup-format.js';
 
-// ==================== Mock 模块 ====================
+// ==================== Mock 模組 ====================
 
 // Mock encryption
 vi.mock('../../src/utils/encryption.js', () => ({
@@ -63,7 +63,7 @@ vi.mock('../../src/utils/gdrive.js', () => ({
 // ==================== Mock 工具 ====================
 
 /**
- * 创建 Mock Environment
+ * 建立 Mock Environment
  */
 function createMockEnv({ withEncryption = true } = {}) {
   return {
@@ -78,7 +78,7 @@ function createMockEnv({ withEncryption = true } = {}) {
 }
 
 /**
- * 创建测试密钥数据
+ * 建立測試金鑰資料
  */
 function createTestSecrets(count = 3) {
   const validSecrets = [
@@ -127,7 +127,7 @@ function countBackupIndexDeleteCalls(kv) {
   return kv.delete.mock.calls.filter(([key]) => String(key).startsWith('backupidx_')).length;
 }
 
-// ==================== 测试套件 ====================
+// ==================== 測試套件 ====================
 
 describe('Backup System', () => {
 
@@ -485,12 +485,12 @@ describe('Backup System', () => {
 
       const promise = manager.executeBackup(secrets, 'test');
 
-      // 备份进行中
+      // 備份進行中
       expect(manager.backupInProgress).toBe(true);
 
       await promise;
 
-      // 备份完成后
+      // 備份完成後
       expect(manager.backupInProgress).toBe(false);
     });
 
@@ -652,7 +652,7 @@ describe('Backup System', () => {
       const manager = new BackupManager(env);
       const secrets = createTestSecrets(1);
 
-      // 设置备份进行中
+      // 設定備份進行中
       manager.backupInProgress = true;
 
       const result = await manager.triggerBackup(secrets, { reason: 'test' });
@@ -665,7 +665,7 @@ describe('Backup System', () => {
     });
 
     it('事件驱动未启用时应该跳过', async () => {
-      // 临时禁用事件驱动备份
+      // 臨時停用事件驅動備份
       const originalConfig = BACKUP_CONFIG.EVENT_DRIVEN_ENABLED;
       BACKUP_CONFIG.EVENT_DRIVEN_ENABLED = false;
 
@@ -681,7 +681,7 @@ describe('Backup System', () => {
         expect.any(Object)
       );
 
-      // 恢复配置
+      // 恢復配置
       BACKUP_CONFIG.EVENT_DRIVEN_ENABLED = originalConfig;
     });
 
@@ -727,7 +727,7 @@ describe('Backup System', () => {
     it('应该生成正确格式的备份文件名', () => {
       const key = generateBackupKey('json', { includeUtcMarker: true });
 
-      // 格式: backup_YYYY-MM-DD_HH-MM-SS-mmm-UTC-xxxx.json（含毫秒和UTC标记）
+      // 格式: backup_YYYY-MM-DD_HH-MM-SS-mmm-UTC-xxxx.json（含毫秒和UTC標記）
       expect(key).toMatch(/^backup_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}-UTC-[a-z0-9]{4}\.json$/);
     });
 
@@ -756,7 +756,7 @@ describe('Backup System', () => {
       const env = createMockEnv();
       const manager = new BackupManager(env);
 
-      // Mock 50个备份文件（未超过100）
+      // Mock 50個備份檔案（未超過100）
       const mockKeys = Array.from({ length: 50 }, (_, i) => ({
         name: `backup_2024-01-${String(i + 1).padStart(2, '0')}_12-00-00.json`
       }));
@@ -775,7 +775,7 @@ describe('Backup System', () => {
       const env = createMockEnv();
       const manager = new BackupManager(env);
 
-      // Mock 150个备份文件（超过100）
+      // Mock 150個備份檔案（超過100）
       const mockKeys = Array.from({ length: 150 }, (_, i) => ({
         name: `backup_2024-01-01_${String(i).padStart(2, '0')}-00-00.json`
       }));
@@ -783,7 +783,7 @@ describe('Backup System', () => {
 
       await manager._cleanupOldBackupsAsync();
 
-      // 应该删除50个旧备份
+      // 應該刪除50箇舊備份
       expect(countBackupDeleteCalls(env.SECRETS_KV)).toBe(50);
       expect(countBackupIndexDeleteCalls(env.SECRETS_KV)).toBe(50);
       expect(manager.logger.info).toHaveBeenCalledWith(
@@ -797,13 +797,13 @@ describe('Backup System', () => {
       const manager = new BackupManager(env);
 
       const mockKeys = [
-        { name: 'backup_2024-01-01_12-00-00.json' },  // 旧
+        { name: 'backup_2024-01-01_12-00-00.json' },  // 舊
         { name: 'backup_2024-01-03_12-00-00.json' },  // 最新
-        { name: 'backup_2024-01-02_12-00-00.json' }   // 中间
+        { name: 'backup_2024-01-02_12-00-00.json' }   // 中間
       ];
       env.SECRETS_KV.list.mockResolvedValueOnce({ keys: mockKeys });
 
-      // 通过 KV 设置限制为1，只保留最新的
+      // 通過 KV 設定限制為1，只保留最新的
       env.SECRETS_KV.get.mockImplementation(async (key) => {
         if (key === 'settings') {
           return JSON.stringify({ maxBackups: 1 });
@@ -813,7 +813,7 @@ describe('Backup System', () => {
 
       await manager._cleanupOldBackupsAsync();
 
-      // 应该删除2个旧备份
+      // 應該刪除2箇舊備份
       expect(env.SECRETS_KV.delete).toHaveBeenCalledWith('backup_2024-01-01_12-00-00.json');
       expect(env.SECRETS_KV.delete).toHaveBeenCalledWith('backup_2024-01-02_12-00-00.json');
       expect(env.SECRETS_KV.delete).not.toHaveBeenCalledWith('backup_2024-01-03_12-00-00.json');
@@ -823,7 +823,7 @@ describe('Backup System', () => {
       const env = createMockEnv();
       const manager = new BackupManager(env);
 
-      // 用户设置 maxBackups 为 2
+      // 使用者設定 maxBackups 為 2
       env.SECRETS_KV.get.mockImplementation(async (key) => {
         if (key === 'settings') {
           return JSON.stringify({ maxBackups: 2 });
@@ -838,7 +838,7 @@ describe('Backup System', () => {
 
       await manager._cleanupOldBackupsAsync();
 
-      // 保留最新2个，删除3个
+      // 保留最新2個，刪除3個
       expect(countBackupDeleteCalls(env.SECRETS_KV)).toBe(3);
     });
 
@@ -870,7 +870,7 @@ describe('Backup System', () => {
         return null;
       });
 
-      // 50 个备份，默认 100，不应清理
+      // 50 個備份，預設 100，不應清理
       const mockKeys = Array.from({ length: 50 }, (_, i) => ({
         name: `backup_2024-01-${String(i + 1).padStart(2, '0')}_12-00-00.json`
       }));
@@ -885,7 +885,7 @@ describe('Backup System', () => {
       const env = createMockEnv();
       const manager = new BackupManager(env);
 
-      // KV 被手工写入负数
+      // KV 被手工寫入負數
       env.SECRETS_KV.get.mockImplementation(async (key) => {
         if (key === 'settings') {
           return JSON.stringify({ maxBackups: -5 });
@@ -893,7 +893,7 @@ describe('Backup System', () => {
         return null;
       });
 
-      // 50 个备份，回退默认 100，不应清理
+      // 50 個備份，回退預設 100，不應清理
       const mockKeys = Array.from({ length: 50 }, (_, i) => ({
         name: `backup_2024-01-${String(i + 1).padStart(2, '0')}_12-00-00.json`
       }));
@@ -910,14 +910,14 @@ describe('Backup System', () => {
 
       const mockKeys = [
         { name: 'backup_2024-01-01_12-00-00.json' },
-        { name: 'secrets' },  // 非备份文件
-        { name: 'other_file.json' }  // 非备份文件
+        { name: 'secrets' },  // 非備份檔案
+        { name: 'other_file.json' }  // 非備份檔案
       ];
       env.SECRETS_KV.list.mockResolvedValueOnce({ keys: mockKeys });
 
       await manager._cleanupOldBackupsAsync();
 
-      // 不应该删除非备份文件
+      // 不應該刪除非備份檔案
       expect(env.SECRETS_KV.delete).not.toHaveBeenCalledWith('secrets');
       expect(env.SECRETS_KV.delete).not.toHaveBeenCalledWith('other_file.json');
     });
@@ -928,7 +928,7 @@ describe('Backup System', () => {
 
       const manager = new BackupManager(env);
 
-      // 不应该抛出错误
+      // 不應該丟擲錯誤
       await expect(
         manager._cleanupOldBackupsAsync()
       ).resolves.toBeUndefined();
@@ -949,14 +949,14 @@ describe('Backup System', () => {
       }));
       env.SECRETS_KV.list.mockResolvedValueOnce({ keys: mockKeys });
 
-      // Mock 第一次删除失败，后续成功
+      // Mock 第一次刪除失敗，後續成功
       env.SECRETS_KV.delete
         .mockRejectedValueOnce(new Error('Delete failed'))
         .mockResolvedValue();
 
       await manager._cleanupOldBackupsAsync();
 
-      // 应该尝试删除所有5个
+      // 應該嘗試刪除所有5個
       expect(countBackupDeleteCalls(env.SECRETS_KV)).toBe(5);
       expect(manager.logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('删除备份失败'),
@@ -1117,34 +1117,34 @@ describe('Backup System', () => {
       const env = createMockEnv();
       const secrets = createTestSecrets(3);
 
-      // 1. 首次备份（应该立即执行）
+      // 1. 首次備份（應該立即執行）
       const result1 = await triggerBackup(secrets, env, { reason: 'first' });
       expect(result1.success).toBe(true);
 
-      // 2. 再次触发（不在进行中，也应该立即执行）
+      // 2. 再次觸發（不在進行中，也應該立即執行）
       const result2 = await triggerBackup(secrets, env, { reason: 'second' });
       expect(result2.success).toBe(true);
 
-      // 3. 立即备份
+      // 3. 立即備份
       const result3 = await triggerBackup(secrets, env, {
         immediate: true,
         reason: 'third'
       });
       expect(result3.success).toBe(true);
 
-      // 4. 验证 KV 写入 3 次
+      // 4. 驗證 KV 寫入 3 次
       expect(countBackupPutCalls(env.SECRETS_KV)).toBe(3);
     });
 
     it('加密和明文备份对比', async () => {
       const secrets = createTestSecrets(2);
 
-      // 有加密密钥
+      // 有加密金鑰
       const envWithEncryption = createMockEnv({ withEncryption: true });
       const result1 = await executeImmediateBackup(secrets, envWithEncryption, 'encrypted');
       expect(result1.encrypted).toBe(true);
 
-      // 无加密密钥
+      // 無加密金鑰
       const envWithoutEncryption = createMockEnv({ withEncryption: false });
       const result2 = await executeImmediateBackup(secrets, envWithoutEncryption, 'plain');
       expect(result2.encrypted).toBe(false);
@@ -1156,16 +1156,16 @@ describe('Backup System', () => {
       const secrets1 = createTestSecrets(1);
       const secrets2 = createTestSecrets(2);
 
-      // 1. 首次备份
+      // 1. 首次備份
       const result1 = await manager.executeBackup(secrets1, 'first');
       expect(result1.success).toBe(true);
 
-      // 2. 第二次备份（不在进行中，立即执行）
+      // 2. 第二次備份（不在進行中，立即執行）
       vi.advanceTimersByTime(1);
       const result2 = await manager.triggerBackup(secrets2, { reason: 'second' });
       expect(result2.success).toBe(true);
 
-      // 3. 验证 KV 存储了两次
+      // 3. 驗證 KV 儲存了兩次
       expect(countBackupPutCalls(env.SECRETS_KV)).toBe(2);
     });
   });
@@ -1220,7 +1220,7 @@ describe('Backup System', () => {
       const manager = new BackupManager(env);
       const secrets = createTestSecrets(1);
 
-      // 应该成功完成备份
+      // 應該成功完成備份
       const result = await manager.executeBackup(secrets, 'test');
 
       expect(result.success).toBe(true);
@@ -1262,7 +1262,7 @@ describe('Backup System', () => {
 
   describe('性能测试', () => {
     it('备份操作应该快速完成', async () => {
-      vi.useRealTimers(); // 使用真实计时器
+      vi.useRealTimers(); // 使用真實計時器
 
       const env = createMockEnv();
       const secrets = createTestSecrets(10);
@@ -1273,7 +1273,7 @@ describe('Backup System', () => {
 
       expect(end - start).toBeLessThan(1000); // < 1秒
 
-      vi.useFakeTimers(); // 恢复假计时器
+      vi.useFakeTimers(); // 恢復假計時器
     });
 
     it('备份文件名生成应该高效', () => {

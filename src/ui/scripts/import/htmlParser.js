@@ -1,34 +1,34 @@
 /**
- * HTML 解析器模块
+ * HTML 解析器模組
  * 包含 Aegis、2FA、Ente Auth 等 HTML 格式的解析
  */
 
 /**
- * 获取 HTML 解析器代码
- * @returns {string} JavaScript 代码
+ * 獲取 HTML 解析器程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getHTMLParserCode() {
 	return `
     // ========== HTML 解析器 ==========
 
     /**
-     * 解析HTML格式的导入数据
-     * 支持三种格式:
-     * 1. Aegis Authenticator HTML 导出格式
-     * 2. 2FA HTML 导出格式
-     * 3. Ente Auth HTML 导出格式 (.html.txt)
-     * @param {string} htmlContent - HTML内容
-     * @returns {Array<string>} - 转换为 otpauth:// URL 格式的数组
+     * 解析HTML格式的匯入資料
+     * 支援三種格式:
+     * 1. Aegis Authenticator HTML 匯出格式
+     * 2. 2FA HTML 匯出格式
+     * 3. Ente Auth HTML 匯出格式 (.html.txt)
+     * @param {string} htmlContent - HTML內容
+     * @returns {Array<string>} - 轉換為 otpauth:// URL 格式的陣列
      */
     function parseHTMLImport(htmlContent) {
       const otpauthUrls = [];
 
       try {
-        // 创建临时DOM来解析HTML
+        // 建立臨時DOM來解析HTML
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlContent, 'text/html');
 
-        // 查找所有table元素
+        // 查詢所有table元素
         const tables = doc.querySelectorAll('table');
 
         if (tables.length === 0) {
@@ -36,7 +36,7 @@ export function getHTMLParserCode() {
           return otpauthUrls;
         }
 
-        // 检测 Ente Auth 格式: 带有 class="otp-entry" 的表格
+        // 檢測 Ente Auth 格式: 帶有 class="otp-entry" 的表格
         const enteAuthTables = doc.querySelectorAll('table.otp-entry');
         if (enteAuthTables.length > 0) {
           console.log('检测到 Ente Auth HTML 格式');
@@ -46,7 +46,7 @@ export function getHTMLParserCode() {
               const firstCell = table.querySelector('td');
               if (!firstCell) return;
 
-              // 获取所有 <p> 元素
+              // 獲取所有 <p> 元素
               const paragraphs = firstCell.querySelectorAll('p');
               if (paragraphs.length < 4) {
                 console.warn('Ente Auth 条目字段不足，跳过');
@@ -79,16 +79,16 @@ export function getHTMLParserCode() {
                 }
               });
 
-              // 验证必要数据
+              // 驗證必要資料
               if (!secret) {
                 console.warn('跳过无密钥的 Ente Auth 条目 (索引 ' + index + ')');
                 return;
               }
 
-              // 清理密钥
+              // 清理金鑰
               secret = secret.replace(/\\s+/g, '').toUpperCase();
 
-              // 构建 otpauth:// URL
+              // 構建 otpauth:// URL
               let label = '';
               if (issuer && account) {
                 label = encodeURIComponent(issuer) + ':' + encodeURIComponent(account);
@@ -121,7 +121,7 @@ export function getHTMLParserCode() {
           return otpauthUrls;
         }
 
-        // 检测 Aegis/2FA HTML 格式
+        // 檢測 Aegis/2FA HTML 格式
         tables.forEach((table, tableIndex) => {
           const rows = table.querySelectorAll('tr');
 
@@ -130,10 +130,10 @@ export function getHTMLParserCode() {
               const cells = row.querySelectorAll('td');
               if (cells.length < 2) return;
 
-              // 尝试提取服务名、账户、密钥
+              // 嘗試提取服務名、賬戶、金鑰
               let issuer = '', account = '', secret = '';
 
-              // Aegis 格式: 服务名 | 账户 | 密钥
+              // Aegis 格式: 服務名 | 賬戶 | 金鑰
               if (cells.length >= 3) {
                 issuer = cells[0].textContent.trim();
                 account = cells[1].textContent.trim();
@@ -145,10 +145,10 @@ export function getHTMLParserCode() {
 
               if (!secret) return;
 
-              // 清理密钥
+              // 清理金鑰
               secret = secret.replace(/\\s+/g, '').toUpperCase();
 
-              // 构建 otpauth:// URL
+              // 構建 otpauth:// URL
               let label = '';
               if (issuer && account) {
                 label = encodeURIComponent(issuer) + ':' + encodeURIComponent(account);

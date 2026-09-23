@@ -1,30 +1,30 @@
-# 贡献指南
+# 貢獻指南
 
-感谢你对 2FA Manager 项目的关注！我们欢迎任何形式的贡献。
+感謝你對 2FA Manager 專案的關注！我們歡迎任何形式的貢獻。
 
-## 如何贡献
+## 如何貢獻
 
-### 报告 Bug
+### 報告 Bug
 
-如果你发现了 Bug，请：
+如果你發現了 Bug，請：
 
-1. 检查 [Issues](https://github.com/tbdavid2019/8882fa/issues) 中是否已有类似问题
-2. 如果没有，创建新的 Issue，使用 "Bug 报告" 模板
-3. 提供详细的复现步骤、环境信息和截图
+1. 檢查 [Issues](https://github.com/tbdavid2019/8882fa/issues) 中是否已有類似問題
+2. 如果沒有，建立新的 Issue，使用 "Bug 報告" 模板
+3. 提供詳細的復現步驟、環境資訊和截圖
 
-### 提出功能建议
+### 提出功能建議
 
 如果你有新功能的想法：
 
-1. 查看现有的 [Feature Requests](https://github.com/tbdavid2019/8882fa/labels/enhancement)
-2. 创建新的 Issue，使用 "功能请求" 模板
-3. 清楚描述功能的用途和预期收益
+1. 檢視現有的 [Feature Requests](https://github.com/tbdavid2019/8882fa/labels/enhancement)
+2. 建立新的 Issue，使用 "功能請求" 模板
+3. 清楚描述功能的用途和預期收益
 
-## 提交代码
+## 提交程式碼
 
 ### 基本流程
 
-1. **Fork** 仓库并克隆到本地
+1. **Fork** 倉庫並克隆到本地
 
    ```bash
    git clone https://github.com/YOUR_USERNAME/2fa.git
@@ -32,7 +32,7 @@
    npm install
    ```
 
-2. **创建分支**
+2. **建立分支**
 
    ```bash
    git checkout -b feature/your-feature-name
@@ -40,82 +40,82 @@
    git checkout -b fix/your-bug-fix
    ```
 
-3. **开发和测试** — 完成代码修改并确保测试通过
+3. **開發和測試** — 完成程式碼修改並確保測試通過
 
-4. **提交代码**
+4. **提交程式碼**
 
    ```bash
    git add .
-   git commit -m "feat: 添加新功能"
+   git commit -m "feat: 新增新功能"
    ```
 
-5. **推送并创建 PR**
+5. **推送並建立 PR**
    ```bash
    git push origin feature/your-feature-name
    ```
-   在 GitHub 上创建 Pull Request，填写 PR 模板，等待代码审核。
+   在 GitHub 上建立 Pull Request，填寫 PR 模板，等待程式碼稽核。
 
-> 详细的开发环境配置、代码规范和测试指南请参考 [开发文档](../docs/DEVELOPMENT.md)。
-> 部署相关信息请参考 [部署文档](../docs/DEPLOYMENT.md)。
-> 项目架构详情请参考 [架构文档](../docs/ARCHITECTURE.md)。
+> 詳細的開發環境配置、程式碼規範和測試指南請參考 [開發文件](../docs/DEVELOPMENT.md)。
+> 部署相關資訊請參考 [部署文件](../docs/DEPLOYMENT.md)。
+> 專案架構詳情請參考 [架構文件](../docs/ARCHITECTURE.md)。
 
-## 提交信息格式
+## 提交資訊格式
 
-使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+使用 [Conventional Commits](https://www.conventionalcommits.org/) 規範：
 
 - `feat:` 新功能
-- `fix:` Bug 修复
-- `docs:` 文档更新
-- `style:` 代码格式调整
-- `refactor:` 代码重构
-- `test:` 测试相关
-- `chore:` 构建/配置相关
+- `fix:` Bug 修復
+- `docs:` 文件更新
+- `style:` 程式碼格式調整
+- `refactor:` 程式碼重構
+- `test:` 測試相關
+- `chore:` 構建/配置相關
 
-## 代码审核
+## 程式碼稽核
 
-### 审核标准
+### 稽核標準
 
-- 代码功能正确
-- 有适当的测试覆盖
-- 代码风格一致
-- 有必要的注释和文档
-- 没有引入新的安全问题
-- 性能没有明显下降
+- 程式碼功能正確
+- 有適當的測試覆蓋
+- 程式碼風格一致
+- 有必要的註釋和文件
+- 沒有引入新的安全問題
+- 效能沒有明顯下降
 
-### 审核流程
+### 稽核流程
 
-1. 提交 PR 后，项目维护者会审核代码
-2. 如有修改建议，请及时响应
-3. 审核通过后会合并到主分支
+1. 提交 PR 後，專案維護者會稽核程式碼
+2. 如有修改建議，請及時響應
+3. 稽核通過後會合併到主分支
 
 ## 安全
 
-### 报告安全问题
+### 報告安全問題
 
-如果发现安全漏洞，请：
+如果發現安全漏洞，請：
 
-1. **不要**公开披露
-2. 通过 [GitHub Security Advisories](https://github.com/tbdavid2019/8882fa/security/advisories/new) 私密报告
-3. 或发送邮件到项目维护者
+1. **不要**公開披露
+2. 通過 [GitHub Security Advisories](https://github.com/tbdavid2019/8882fa/security/advisories/new) 私密報告
+3. 或傳送郵件到專案維護者
 
-### 安全最佳实践
+### 安全最佳實踐
 
-- 永远不要提交敏感信息（密码、API Key、密钥等）
-- 使用 `.gitignore` 忽略敏感文件
-- 加密敏感数据
-- 定期更新依赖
+- 永遠不要提交敏感資訊（密碼、API Key、金鑰等）
+- 使用 `.gitignore` 忽略敏感檔案
+- 加密敏感資料
+- 定期更新依賴
 
-## 行为准则
+## 行為準則
 
-- 尊重所有贡献者
-- 建设性的反馈
-- 保持专业和友好
-- 欢迎新手提问
+- 尊重所有貢獻者
+- 建設性的反饋
+- 保持專業和友好
+- 歡迎新手提問
 
-## 许可证
+## 許可證
 
-贡献的代码将遵循项目的 [MIT License](../LICENSE)。
+貢獻的程式碼將遵循專案的 [MIT License](../LICENSE)。
 
 ---
 
-再次感谢你的贡献！如有任何疑问，请查看 [项目文档](../README.md) 或在 [Discussions](https://github.com/tbdavid2019/8882fa/discussions) 中提问。
+再次感謝你的貢獻！如有任何疑問，請檢視 [專案文件](../README.md) 或在 [Discussions](https://github.com/tbdavid2019/8882fa/discussions) 中提問。

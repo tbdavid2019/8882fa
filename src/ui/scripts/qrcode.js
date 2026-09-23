@@ -1,25 +1,25 @@
 /**
- * 二维码模块
- * 包含所有二维码生成、扫描和处理功能
+ * 二維碼模組
+ * 包含所有二維碼生成、掃描和處理功能
  */
 
 /**
- * 获取二维码相关代码
- * @returns {string} 二维码 JavaScript 代码
+ * 獲取二維碼相關程式碼
+ * @returns {string} 二維碼 JavaScript 程式碼
  */
 export function getQRCodeCode() {
-	return `    // ========== 二维码功能模块 ==========
+	return `    // ========== 二維碼功能模組 ==========
 
-    // 连续扫描模式状态
+    // 連續掃描模式狀態
     let continuousScanMode = false;
     let continuousScanCount = 0;
 
-    // 切换连续扫描模式
+    // 切換連續掃描模式
     function toggleContinuousScan() {
       const toggle = document.getElementById('continuousScanToggle');
       continuousScanMode = toggle.checked;
 
-      // 更新计数器显示
+      // 更新計數器顯示
       const counter = document.getElementById('scanCounter');
       if (continuousScanMode) {
         counter.style.display = 'block';
@@ -32,13 +32,13 @@ export function getQRCodeCode() {
       console.log('连续扫描模式:', continuousScanMode ? '开启' : '关闭');
     }
 
-    // 更新扫描计数
+    // 更新掃描計數
     function updateScanCount() {
       continuousScanCount++;
       document.getElementById('scanCountNum').textContent = continuousScanCount;
     }
 
-    // 显示二维码
+    // 顯示二維碼
     function showQRCode(secretId) {
       console.log('showQRCode called with secretId:', secretId);
       const secret = secrets.find(s => s.id === secretId);
@@ -58,7 +58,7 @@ export function getQRCodeCode() {
         label = encodeURIComponent(serviceName);
       }
 
-      // 根据类型构建不同的参数
+      // 根據型別構建不同的引數
       const type = secret.type || 'TOTP';
       let params;
 
@@ -84,7 +84,7 @@ export function getQRCodeCode() {
           break;
       }
 
-      // 根据类型选择正确的scheme
+      // 根據型別選擇正確的scheme
       const scheme = type.toUpperCase() === 'HOTP' ? 'hotp' : 'totp';
       currentOTPAuthURL = 'otpauth://' + scheme + '/' + label + '?' + params.toString();
 
@@ -100,12 +100,12 @@ export function getQRCodeCode() {
       disableBodyScroll();
     }
 
-    // 为模态框生成二维码
+    // 為模態框生成二維碼
     async function generateQRCodeForModal(text) {
       const container = document.querySelector('.qr-code-container');
       container.innerHTML = '';
 
-      // 显示加载状态
+      // 顯示載入狀態
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'dialog-qr-state';
       loadingDiv.setAttribute('role', 'status');
@@ -118,14 +118,14 @@ export function getQRCodeCode() {
 
         console.log('开始生成二维码（客户端）...');
 
-        // 使用客户端本地生成二维码（隐私安全）
+        // 使用客戶端本地生成二維碼（隱私安全）
         qrDataURL = await generateQRCodeDataURL(text, {
           width: 200,
           height: 200
         });
         generationMethod = 'client_local';
 
-        // 创建图片元素
+        // 建立圖片元素
         const img = document.createElement('img');
         img.src = qrDataURL;
         img.alt = (typeof t === 'function' ? t('qrCodeAlt') : null) || '2FA QR Code';
@@ -165,18 +165,18 @@ export function getQRCodeCode() {
       }
     }
 
-    // 显示二维码扫描器
+    // 顯示二維碼掃描器
     function showQRScanner() {
-      // 后台预加载 jsQR；用户在 UI 上等待相机权限/选图过程时即可下载完成
+      // 後臺預載入 jsQR；使用者在 UI 上等待相機許可權/選圖過程時即可下載完成
       if (typeof ensureJsQR === 'function') {
-        ensureJsQR().catch(() => {/* 失败时下游 typeof jsQR 检查会兜底提示 */});
+        ensureJsQR().catch(() => {/* 失敗時下游 typeof jsQR 檢查會兜底提示 */});
       }
       const modal = document.getElementById('qrScanModal');
       modal.style.display = 'flex';
       setTimeout(() => modal.classList.add('show'), 10);
       initScanModalDragPaste();
 
-      // 重置连续扫描状态
+      // 重置連續掃描狀態
       continuousScanMode = false;
       continuousScanCount = 0;
       const toggle = document.getElementById('continuousScanToggle');
@@ -191,7 +191,7 @@ export function getQRCodeCode() {
       disableBodyScroll();
     }
 
-    // 隐藏二维码扫描器
+    // 隱藏二維碼掃描器
     function hideQRScanner() {
       const modal = document.getElementById('qrScanModal');
       if (!modal || !modal.classList.contains('show')) return;
@@ -200,7 +200,7 @@ export function getQRCodeCode() {
       stopQRScanner();
       enableBodyScroll();
 
-      // 重置连续扫描状态
+      // 重置連續掃描狀態
       continuousScanMode = false;
       continuousScanCount = 0;
       const toggle = document.getElementById('continuousScanToggle');
@@ -211,14 +211,14 @@ export function getQRCodeCode() {
         document.getElementById('scanCountNum').textContent = '0';
       }
 
-      // 重置文件输入框，确保下次可以选择同一个文件
+      // 重置檔案輸入框，確保下次可以選擇同一個檔案
       const fileInput = document.getElementById('qrImageInput');
       if (fileInput) {
         fileInput.value = '';
       }
     }
 
-    // 启动二维码扫描器
+    // 啟動二維碼掃描器
     async function startQRScanner() {
       const video = document.getElementById('scannerVideo');
       const status = document.getElementById('scannerStatus');
@@ -229,11 +229,11 @@ export function getQRCodeCode() {
         status.textContent = (typeof t === 'function' ? t('startingCamera') : null) || 'Starting camera...';
         status.style.display = 'block';
 
-        // 检查浏览器支持 - 增强iPad兼容性
+        // 檢查瀏覽器支援 - 增強iPad相容性
         if (!navigator.mediaDevices) {
-          // 尝试 polyfill for older browsers
+          // 嘗試 polyfill for older browsers
           if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
-            // 为旧版浏览器创建 polyfill
+            // 為舊版瀏覽器建立 polyfill
             navigator.mediaDevices = {};
             navigator.mediaDevices.getUserMedia = function(constraints) {
               const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -253,7 +253,7 @@ export function getQRCodeCode() {
           throw new Error((typeof t === 'function' ? t('browserNoCameraSupport') : null) || 'Your browser does not support camera functions, please use a modern browser');
         }
 
-        // iPad 特殊处理：检查设备类型和权限
+        // iPad 特殊處理：檢查裝置型別和許可權
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isIPad = /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -271,7 +271,7 @@ export function getQRCodeCode() {
           scanStream = null;
         }
 
-        // 尝试不同的摄像头配置 - iPad 优化
+        // 嘗試不同的攝像頭配置 - iPad 最佳化
         let configs;
 
         if (isIPad || isIOS) {
@@ -302,7 +302,7 @@ export function getQRCodeCode() {
             }
           ];
         } else {
-          // 其他设备的标准配置
+          // 其他裝置的標準配置
           configs = [
             {
               video: {
@@ -346,7 +346,7 @@ export function getQRCodeCode() {
         scanStream = stream;
         video.srcObject = scanStream;
 
-        // 等待视频加载并播放
+        // 等待影片載入並播放
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             reject(new Error((typeof t === 'function' ? t('qrCameraLoadTimeout') : null) || 'Camera load timeout'));
@@ -372,14 +372,14 @@ export function getQRCodeCode() {
         status.style.display = 'none';
         isScanning = true;
 
-        // 创建画布用于分析图像
+        // 建立畫布用於分析影像
         if (!scannerCanvas) {
           scannerCanvas = document.createElement('canvas');
           scannerContext = scannerCanvas.getContext('2d');
           console.log('画布创建成功');
         }
 
-        // 延迟开始扫描，确保视频稳定
+        // 延遲開始掃描，確保影片穩定
         setTimeout(() => {
           if (isScanning) {
             console.log('开始二维码扫描循环');
@@ -400,7 +400,7 @@ export function getQRCodeCode() {
 
         let errorMsg = ((typeof t === 'function' ? t('cameraErrorWithReason', { error: err.message }) : null) || ('Failed to start camera: ' + err.message));
 
-        // iPad 特殊错误处理
+        // iPad 特殊錯誤處理
         const isIPad = /iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
         if (err.name === 'NotAllowedError') {
@@ -437,7 +437,7 @@ export function getQRCodeCode() {
       }
     }
 
-    // 停止二维码扫描器
+    // 停止二維碼掃描器
     function stopQRScanner() {
       isScanning = false;
       if (scanInterval) {
@@ -450,13 +450,13 @@ export function getQRCodeCode() {
       }
     }
 
-    // 重试启动摄像头
+    // 重試啟動攝像頭
     function retryCamera() {
       document.getElementById('scannerError').style.display = 'none';
       startQRScanner();
     }
 
-    // 显示扫描器错误
+    // 顯示掃描器錯誤
     function showScannerError(message) {
       const error = document.getElementById('scannerError');
       const errorMessage = document.getElementById('errorMessage');
@@ -467,7 +467,7 @@ export function getQRCodeCode() {
       error.style.display = 'block';
     }
 
-    // 扫描二维码
+    // 掃描二維碼
     function scanForQRCode() {
       if (!isScanning) return;
 
@@ -476,7 +476,7 @@ export function getQRCodeCode() {
 
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         try {
-          // 设置画布尺寸
+          // 設定畫布尺寸
           const videoWidth = video.videoWidth;
           const videoHeight = video.videoHeight;
 
@@ -484,13 +484,13 @@ export function getQRCodeCode() {
             scannerCanvas.width = videoWidth;
             scannerCanvas.height = videoHeight;
 
-            // 绘制当前帧到画布
+            // 繪製當前幀到畫布
             scannerContext.drawImage(video, 0, 0, videoWidth, videoHeight);
 
-            // 获取图像数据
+            // 獲取影像資料
             const imageData = scannerContext.getImageData(0, 0, videoWidth, videoHeight);
 
-            // 尝试解析二维码
+            // 嘗試解析二維碼
             const qrCode = decodeQRCode(imageData);
 
             if (qrCode) {
@@ -503,24 +503,24 @@ export function getQRCodeCode() {
           console.error('扫描过程出错:', error);
         }
       } else {
-        // 视频还未准备好
+        // 影片還未準備好
         status.textContent = (typeof t === 'function' ? t('startingCamera') : null) || 'Starting camera...';
       }
 
-      // 继续扫描（提高频率到60fps）
+      // 繼續掃描（提高頻率到60fps）
       requestAnimationFrame(scanForQRCode);
     }
 
-    // 使用jsQR库进行二维码解码
+    // 使用jsQR庫進行二維碼解碼
     function decodeQRCode(imageData) {
       try {
-        // 检查jsQR库是否已加载
+        // 檢查jsQR庫是否已載入
         if (typeof jsQR === 'undefined') {
           console.warn('jsQR库未加载，无法解析二维码');
           return null;
         }
 
-        // 使用jsQR库进行解析
+        // 使用jsQR庫進行解析
         const qrResult = jsQR(imageData.data, imageData.width, imageData.height, {
           inversionAttempts: "dontInvert", // 提高性能
         });
@@ -537,18 +537,18 @@ export function getQRCodeCode() {
       }
     }
 
-    // 处理扫描到的二维码
+    // 處理掃描到的二維碼
     function processScannedQRCode(qrCodeData) {
       try {
         console.log('扫描到二维码:', qrCodeData);
 
-        // 检查是否是 Google Authenticator 迁移格式
+        // 檢查是否是 Google Authenticator 遷移格式
         if (qrCodeData.startsWith('otpauth-migration://')) {
           processGoogleMigration(qrCodeData);
           return;
         }
 
-        // 检查是否是有效的 OTP Auth URL
+        // 檢查是否是有效的 OTP Auth URL
         if (!qrCodeData.startsWith('otpauth://totp/') && !qrCodeData.startsWith('otpauth://hotp/')) {
           showScannerError((typeof t === 'function' ? t('invalid2faQrCode') : null) || 'Not a valid 2FA QR code');
           return;
@@ -559,12 +559,12 @@ export function getQRCodeCode() {
         const pathParts = url.pathname.substring(1).split(':');
         const params = new URLSearchParams(url.search);
 
-        // 对URL编码的部分进行解码
+        // 對URL編碼的部分進行解碼
         const issuer = decodeURIComponent(params.get('issuer') || (pathParts.length > 1 ? pathParts[0] : ''));
         const account = decodeURIComponent(pathParts.length > 1 ? pathParts[1] : pathParts[0]);
         const secret = params.get('secret');
 
-        // 解析类型和高级参数
+        // 解析型別和高階引數
         const urlType = url.protocol.replace(':', '').split('//')[1]; // 提取协议后的类型
         let type = 'TOTP';
         if (urlType === 'hotp') {
@@ -581,8 +581,8 @@ export function getQRCodeCode() {
           return;
         }
 
-        // 直接保存密钥（不显示编辑界面）
-        // 连续扫描模式下不关闭扫描器，在保存成功后继续扫描
+        // 直接儲存金鑰（不顯示編輯介面）
+        // 連續掃描模式下不關閉掃描器，在儲存成功後繼續掃描
         directSaveFromQR(issuer, account, secret, { type, digits, period, algorithm, counter });
 
       } catch (error) {
@@ -591,7 +591,7 @@ export function getQRCodeCode() {
       }
     }
 
-    // 直接保存扫描到的密钥（不显示编辑界面）
+    // 直接儲存掃描到的金鑰（不顯示編輯介面）
     async function directSaveFromQR(issuer, account, secret, options = {}) {
       const newSecret = {
         name: issuer || account || ((typeof t === 'function' ? t('secretUnnamed') : null) || 'Unnamed'),
@@ -619,14 +619,14 @@ export function getQRCodeCode() {
           const result = await response.json();
           console.log('密钥保存成功:', result);
           showCenterToast('✅', (typeof t === 'function' ? t('secretSavedSuccess', { name: newSecret.name }) : null) || ('Key added successfully: ' + newSecret.name));
-          // 刷新密钥列表
+          // 重新整理金鑰列表
           loadSecrets();
 
-          // 连续扫描模式处理
+          // 連續掃描模式處理
           if (continuousScanMode) {
-            // 更新计数
+            // 更新計數
             updateScanCount();
-            // 继续扫描（延迟一下让用户看到提示）
+            // 繼續掃描（延遲一下讓使用者看到提示）
             setTimeout(() => {
               if (isScanning && continuousScanMode) {
                 console.log('连续扫描模式：继续扫描下一个二维码');
@@ -634,13 +634,13 @@ export function getQRCodeCode() {
               }
             }, 800);
           } else {
-            // 非连续模式，关闭扫描器
+            // 非連續模式，關閉掃描器
             hideQRScanner();
           }
         } else {
           const errorText = await response.text();
           console.error('保存密钥失败:', response.status, errorText);
-          // 解析错误信息，只显示简短提示
+          // 解析錯誤資訊，只顯示簡短提示
           let errorMsg = (typeof t === 'function' ? t('saveFailed') : null) || 'Failed to save';
           try {
             const errorJson = JSON.parse(errorText);
@@ -653,7 +653,7 @@ export function getQRCodeCode() {
             errorMsg = errorText;
           }
           showCenterToast('❌', errorMsg);
-          // 失败时也继续扫描（如果是连续模式）
+          // 失敗時也繼續掃描（如果是連續模式）
           if (continuousScanMode && isScanning) {
             setTimeout(() => scanForQRCode(), 1000);
           }
@@ -661,18 +661,18 @@ export function getQRCodeCode() {
       } catch (error) {
         console.error('保存密钥出错:', error);
         showCenterToast('❌', (typeof t === 'function' ? t('saveFailedWithReason', { error: error.message }) : null) || ('Failed to save: ' + error.message));
-        // 出错时也继续扫描（如果是连续模式）
+        // 出錯時也繼續掃描（如果是連續模式）
         if (continuousScanMode && isScanning) {
           setTimeout(() => scanForQRCode(), 1000);
         }
       }
     }
 
-    // ========== 通用：从 <img> 解码二维码（双通道分辨率回退）==========
-    // 先按接近原始的分辨率尝试（上限 2500px，避免相机大图把内存吃满），失败再
-    // 回退到 1000px 缩放后再尝试。Google Authenticator 迁移码这类高密度 QR 在
-    // 单遍 1000px 缩放下单模块只剩 3-4 像素，jsQR 解不出来；保留一次高分辨率
-    // 尝试可以让稠密码先解出来，同时对手机截图正常 QR 走第一遍即返回。
+    // ========== 通用：從 <img> 解碼二維碼（雙通道解析度回退）==========
+    // 先按接近原始的解析度嘗試（上限 2500px，避免相機大圖把記憶體吃滿），失敗再
+    // 回退到 1000px 縮放後再嘗試。Google Authenticator 遷移碼這類高密度 QR 在
+    // 單遍 1000px 縮放下單模組只剩 3-4 畫素，jsQR 解不出來；保留一次高解析度
+    // 嘗試可以讓稠密碼先解出來，同時對手機截圖正常 QR 走第一遍即返回。
     async function tryDecodeQRFromImage(img) {
       if (typeof jsQR === 'undefined') {
         try { await ensureJsQR(); } catch (_) {}
@@ -686,7 +686,7 @@ export function getQRCodeCode() {
         { inversionAttempts: "attemptBoth", margin: 5 }
       ];
 
-      // naturalWidth/Height 优先：避免被 DOM 显示尺寸覆盖；零尺寸/未解码图直接放弃
+      // naturalWidth/Height 優先：避免被 DOM 顯示尺寸覆蓋；零尺寸/未解碼圖直接放棄
       const srcW = img.naturalWidth || img.width;
       const srcH = img.naturalHeight || img.height;
       const maxDim = Math.max(srcW, srcH);
@@ -734,7 +734,7 @@ export function getQRCodeCode() {
       return null;
     }
 
-    // 上传图片扫描二维码
+    // 上傳圖片掃描二維碼
     function uploadImageForScan() {
       const input = document.createElement('input');
       input.type = 'file';
@@ -779,7 +779,7 @@ export function getQRCodeCode() {
       input.click();
     }
 
-    // 处理图片上传和解析
+    // 處理圖片上傳和解析
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) {
@@ -789,19 +789,19 @@ export function getQRCodeCode() {
 
       console.log('选择了文件:', file.name, file.type, file.size);
 
-      // 检查文件类型
+      // 檢查檔案型別
       if (!file.type.startsWith('image/')) {
         showScannerError((typeof t === 'function' ? t('pleaseSelectImageFile') : null) || 'Please select an image file (JPG, PNG, GIF, WebP, etc.)');
         return;
       }
 
-      // 检查文件大小（限制为10MB）
+      // 檢查檔案大小（限制為10MB）
       if (file.size > 10 * 1024 * 1024) {
         showScannerError((typeof t === 'function' ? t('imageFileTooLarge') : null) || 'Image file is too large. Please select an image smaller than 10MB.');
         return;
       }
 
-      // 显示加载状态
+      // 顯示載入狀態
       const status = document.getElementById('scannerStatus');
       const error = document.getElementById('scannerError');
       const originalText = status.textContent;
@@ -813,21 +813,21 @@ export function getQRCodeCode() {
 
       console.log('开始处理图片文件...');
 
-      // 创建 FileReader
+      // 建立 FileReader
       const reader = new FileReader();
 
       reader.onload = function(e) {
         console.log('FileReader加载完成');
 
         try {
-          // 创建图片元素
+          // 建立圖片元素
           const img = new Image();
 
           img.onload = async function() {
             console.log('图片加载成功，尺寸:', img.width + 'x' + img.height);
 
             try {
-              // 按需加载 jsQR
+              // 按需載入 jsQR
               if (typeof jsQR === 'undefined') {
                 try { await ensureJsQR(); } catch (_) {}
               }
@@ -835,7 +835,7 @@ export function getQRCodeCode() {
                 throw new Error((typeof t === 'function' ? t('qrLibraryNotLoaded') : null) || 'QR code decoder library is not loaded, please refresh page');
               }
 
-              // 创建 canvas 来处理图片（实际渲染与多分辨率回退在 helper 里完成）
+              // 建立 canvas 來處理圖片（實際渲染與多解析度回退在 helper 裡完成）
               status.textContent = (typeof t === 'function' ? t('analyzingImage') : null) || 'Decoding QR code...';
               const qrCode = await tryDecodeQRFromImage(img);
 
@@ -845,7 +845,7 @@ export function getQRCodeCode() {
 
                 console.log('成功解析到二维码:', qrCode);
 
-                // 处理解析到的二维码
+                // 處理解析到的二維碼
                 setTimeout(() => {
                   processScannedQRCode(qrCode);
                 }, 1000);
@@ -864,7 +864,7 @@ export function getQRCodeCode() {
             showScannerError((typeof t === 'function' ? t('imageLoadFailed') : null) || ('Failed to load image, please choose a valid image file\\nSupported formats: JPG, PNG, GIF, WebP'));
           };
 
-          // 设置图片源
+          // 設定圖片源
           img.src = e.target.result;
 
         } catch (error) {
@@ -885,16 +885,16 @@ export function getQRCodeCode() {
         }
       };
 
-      // 读取文件为 data URL
+      // 讀取檔案為 data URL
       reader.readAsDataURL(file);
 
-      // 清空文件输入，允许重复选择同一文件
+      // 清空檔案輸入，允許重複選擇同一檔案
       event.target.value = '';
     }
 
-    // ========== 剪贴板粘贴识别二维码 ==========
+    // ========== 剪貼簿貼上識別二維碼 ==========
 
-    // 从剪贴板读取图片并识别二维码
+    // 從剪貼簿讀取圖片並識別二維碼
     async function pasteImageForScan() {
       try {
         const clipboardItems = await navigator.clipboard.read();
@@ -923,7 +923,7 @@ export function getQRCodeCode() {
       }
     }
 
-    // 处理图片 Blob 并识别二维码（粘贴/拖拽共用）
+    // 處理圖片 Blob 並識別二維碼（貼上/拖拽共用）
     function processImageBlobForScan(blob) {
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -953,9 +953,9 @@ export function getQRCodeCode() {
       reader.readAsDataURL(blob);
     }
 
-    // ========== 拖拽 + Ctrl+V 事件监听 ==========
+    // ========== 拖拽 + Ctrl+V 事件監聽 ==========
 
-    // 初始化扫描模态框的拖拽和粘贴事件
+    // 初始化掃描模態框的拖拽和貼上事件
     function initScanModalDragPaste() {
       const modal = document.getElementById('qrScanModal');
       if (!modal || modal.dataset.dragPasteInit) return;
@@ -990,7 +990,7 @@ export function getQRCodeCode() {
       });
     }
 
-    // Ctrl+V 粘贴事件监听（仅处理扫描模态框）
+    // Ctrl+V 貼上事件監聽（僅處理掃描模態框）
     document.addEventListener('paste', function(e) {
       const scanModal = document.getElementById('qrScanModal');
       if (!scanModal || !scanModal.classList.contains('show')) return;

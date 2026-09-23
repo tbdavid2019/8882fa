@@ -1,19 +1,19 @@
 /**
- * 导入核心逻辑模块
- * 包含 previewImport 和 executeImport 核心函数
+ * 匯入核心邏輯模組
+ * 包含 previewImport 和 executeImport 核心函式
  */
 
 import { LIMITS } from '../../../utils/constants.js';
 
 /**
- * 获取预览导入代码
- * @returns {string} JavaScript 代码
+ * 獲取預覽匯入程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getPreviewImportCode() {
 	return `
-    // ========== 预览导入 ==========
+    // ========== 預覽匯入 ==========
 
-    // 预览导入
+    // 預覽匯入
     function previewImport() {
       const text = document.getElementById('importText').value.trim();
       if (!text) {
@@ -29,15 +29,15 @@ export function getPreviewImportCode() {
       previewList.innerHTML = '';
       importPreviewData = [];
       resetImportRetryState();
-      // 新一轮预览必须把上一轮残留的进度条/累计成功失败计数也一起清掉，
-      // 否则"部分导入后不关模态框直接改文本重新预览"的场景里，旧数据会继续显示在新预览旁边误导用户
+      // 新一輪預覽必須把上一輪殘留的進度條/累計成功失敗計數也一起清掉，
+      // 否則"部分匯入後不關模態框直接改文本重新預覽"的場景裡，舊資料會繼續顯示在新預覽旁邊誤導使用者
       resetImportProgress();
 
       let validCount = 0;
       let invalidCount = 0;
       let skippedCount = 0;
 
-      // 检测 FreeOTP 加密备份格式
+      // 檢測 FreeOTP 加密備份格式
       const freeotpData = parseFreeOTPBackup(text);
       if (freeotpData) {
         freeotpBackupData = freeotpData;
@@ -93,7 +93,7 @@ export function getPreviewImportCode() {
         return;
       }
 
-      // 检测 TOTP Authenticator 加密备份格式
+      // 檢測 TOTP Authenticator 加密備份格式
       if (isTOTPAuthenticatorBackup(text)) {
         totpAuthBackupData = text;
 
@@ -120,7 +120,7 @@ export function getPreviewImportCode() {
         return;
       }
 
-      // 检测并解析HTML格式
+      // 檢測並解析HTML格式
       const trimmedText = text.trim().toLowerCase();
       const isHtmlFormat = trimmedText.startsWith('<!doctype html') ||
                           trimmedText.startsWith('<html') ||
@@ -134,7 +134,7 @@ export function getPreviewImportCode() {
         }
         lines = htmlLines;
       }
-      // 检测并解析JSON格式
+      // 檢測並解析JSON格式
       else if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
         let jsonData;
 
@@ -158,7 +158,7 @@ export function getPreviewImportCode() {
           }
         }
       }
-      // 检测并解析CSV格式
+      // 檢測並解析CSV格式
       else if (text.includes('服务名称,账户信息,密钥') ||
                parseCSVLine(text.split('\\n')[0]).some(column => column.trim().toLowerCase() === 'login_totp') ||
                (text.toLowerCase().includes('service') && text.toLowerCase().includes('secret') && text.includes(','))) {
@@ -189,7 +189,7 @@ export function getPreviewImportCode() {
             const period = parseInt(url.searchParams.get('period')) || 30;
             const counter = parseInt(url.searchParams.get('counter')) || 0;
 
-            // 检查 Ente Auth 格式的已删除标记
+            // 檢查 Ente Auth 格式的已刪除標記
             const codeDisplayParam = url.searchParams.get('codeDisplay');
             let isDeleted = false;
             if (codeDisplayParam) {
@@ -228,7 +228,7 @@ export function getPreviewImportCode() {
               }
             }
 
-            // 清理密钥中的空格和分隔符
+            // 清理金鑰中的空格和分隔符
             const cleanedSecret = secret ? secret.replace(/[\\s\\-+]/g, '') : secret;
 
             if (cleanedSecret && serviceName) {
@@ -296,15 +296,15 @@ export function getPreviewImportCode() {
 }
 
 /**
- * 获取执行导入代码
- * @returns {string} JavaScript 代码
+ * 獲取執行匯入程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getExecuteImportCode() {
 	return `
-    // ========== 执行导入 ==========
+    // ========== 執行匯入 ==========
 
-    // 执行导入
-    // 由构建期从 LIMITS.BULK_IMPORT_CHUNK_SIZE 注入，与后端 batch.js/validation.js 保持一致
+    // 執行匯入
+    // 由構建期從 LIMITS.BULK_IMPORT_CHUNK_SIZE 注入，與後端 batch.js/validation.js 保持一致
     const BULK_IMPORT_CHUNK_SIZE = ${LIMITS.BULK_IMPORT_CHUNK_SIZE};
 
     function buildBatchImportPayload(item) {
@@ -369,10 +369,10 @@ export function getExecuteImportCode() {
       executeBtn.disabled = true;
       executeBtn.textContent = (typeof t === 'function' ? t('importExecuting') : null) || '⏳ Importing...';
 
-      // 跨轮累计的进度坐标系：
-      //   - 首轮把当前 validItems.length 记为整批原始总数
-      //   - 续传时沿用首轮总数，priorProcessed 代表之前各轮累计已处理的条数
-      // 面板上 totalItems/processedItems/successCount/failCount 都在这个累计坐标系下显示
+      // 跨輪累計的進度座標系：
+      //   - 首輪把當前 validItems.length 記為整批原始總數
+      //   - 續傳時沿用首輪總數，priorProcessed 代表之前各輪累計已處理的條數
+      // 面板上 totalItems/processedItems/successCount/failCount 都在這個累計座標系下顯示
       const originalTotalItems = isRetryingPendingItems && pendingImportOriginalTotalItems > 0
         ? pendingImportOriginalTotalItems
         : validItems.length;
@@ -394,8 +394,8 @@ export function getExecuteImportCode() {
         chunkCount: totalChunks
       });
 
-      // 把分片返回的结果数组转成失败明细（{line, name, error}），其中 line 取自原始文本；
-      // validItemsForResults 是该轮调用时传给分片函数的 items，索引需要相对该数组解析
+      // 把分片返回的結果陣列轉成失敗明細（{line, name, error}），其中 line 取自原始文本；
+      // validItemsForResults 是該輪呼叫時傳給分片函式的 items，索引需要相對該陣列解析
       function collectFailureDetails(results, validItemsForResults) {
         const failures = [];
         if (!Array.isArray(results)) return failures;
@@ -411,7 +411,7 @@ export function getExecuteImportCode() {
         return failures;
       }
 
-      // 本轮进入时从 prior 状态继承（续传时非零）；完成/部分失败时再写回
+      // 本輪進入時從 prior 狀態繼承（續傳時非零）；完成/部分失敗時再寫回
       const priorSuccessCountAtStart = pendingImportPriorSuccessCount;
       const priorFailCountAtStart = pendingImportPriorFailCount;
       const priorFailuresAtStart = pendingImportPriorFailures.slice();
@@ -423,8 +423,8 @@ export function getExecuteImportCode() {
       try {
         console.log('Starting batch import of ' + validItems.length + ' keys');
 
-        // importSecretsInChunks 的 progressState 以"本轮"为坐标，这里把它重映射到"整批累计"坐标系，
-        // 让进度面板的 totalItems/processedItems 与 successCount/failCount 保持同一口径
+        // importSecretsInChunks 的 progressState 以"本輪"為座標，這裡把它重對映到"整批累計"座標系，
+        // 讓進度面板的 totalItems/processedItems 與 successCount/failCount 保持同一口徑
         const importResult = await importSecretsInChunks(validItems, function(progressState) {
           updateImportProgress(Object.assign({}, progressState, {
             totalItems: originalTotalItems,
@@ -439,8 +439,8 @@ export function getExecuteImportCode() {
         importResult.results.forEach(function(itemResult) {
           const resultIndex = typeof itemResult.index === 'number' ? itemResult.index : 0;
           const fallbackItem = validItems[resultIndex];
-          // 优先用原始文本里的行号（预览阶段写入 item.line），续传时仍指向正确的来源行；
-          // 若缺失（如来自 Google 迁移 protobuf 的无行号项），退回到 validItems 下标 + 1
+          // 優先用原始文本里的行號（預覽階段寫入 item.line），續傳時仍指向正確的來源行；
+          // 若缺失（如來自 Google 遷移 protobuf 的無行號項），退回到 validItems 下標 + 1
           const lineNumber = fallbackItem && typeof fallbackItem.line === 'number'
             ? fallbackItem.line
             : resultIndex + 1;
@@ -466,12 +466,12 @@ export function getExecuteImportCode() {
         if (processedValidItems > 0) {
           const remainingRetryItems = validItems.slice(processedValidItems);
           pendingImportRetryItems = remainingRetryItems.length > 0 ? remainingRetryItems : null;
-          // 把本轮已完成分片中的失败项并入累积状态，续传成功后再一次性汇总给用户
+          // 把本輪已完成分片中的失敗項併入累積狀態，續傳成功後再一次性彙總給使用者
           const newFailures = collectFailureDetails(error.results, validItems);
           pendingImportPriorSuccessCount = priorSuccessCountAtStart + partialSuccessCount;
           pendingImportPriorFailCount = priorFailCountAtStart + partialFailCount;
           pendingImportPriorFailures = priorFailuresAtStart.concat(newFailures);
-          // 跨轮累计的"已处理"计数：下一轮读它重建进度面板
+          // 跨輪累計的"已處理"計數：下一輪讀它重建進度面板
           pendingImportPriorProcessedItems = priorProcessedItems + processedValidItems;
 
           const aggregateSuccess = pendingImportPriorSuccessCount;
@@ -493,8 +493,8 @@ export function getExecuteImportCode() {
           return;
         }
 
-        // 完全失败时：若本次本来就是续传（validItems 来自 pendingImportRetryItems），
-        // 保留剩余列表和累计明细，便于用户再次点击"继续导入剩余项"重试；否则全清
+        // 完全失敗時：若本次本來就是續傳（validItems 來自 pendingImportRetryItems），
+        // 保留剩餘列表和累計明細，便於使用者再次點選"繼續匯入剩餘項"重試；否則全清
         if (!isRetryingPendingItems) {
           resetImportRetryState();
         }
@@ -504,7 +504,7 @@ export function getExecuteImportCode() {
         return;
       }
 
-      // 本轮成功：与之前续传累计状态合并，得到整批汇总
+      // 本輪成功：與之前續傳累計狀態合併，得到整批匯總
       const aggregateSuccess = priorSuccessCountAtStart + successCount;
       const aggregateFailures = priorFailuresAtStart.concat(thisRunFailures);
       const aggregateFail = priorFailCountAtStart + failCount;
@@ -525,7 +525,7 @@ export function getExecuteImportCode() {
         showCenterToast('✅', (typeof t === 'function' ? t('importSuccessCount', { count: aggregateSuccess }) : null) || ('Successfully imported ' + aggregateSuccess + ' keys'));
       } else {
         showCenterToast('⚠️', (typeof t === 'function' ? t('importResultSummary', { success: aggregateSuccess, fail: aggregateFail }) : null) || ('Import finished: ' + aggregateSuccess + ' succeeded, ' + aggregateFail + ' failed'));
-        // 把累计失败明细打印出来，方便用户在 devtools 里核对（UI 层没有专门的汇总模态框）
+        // 把累計失敗明細打印出來，方便使用者在 devtools 裡核對（UI 層沒有專門的彙總模態框）
         aggregateFailures.forEach(function(f) {
           console.error('❌ Line ' + f.line + ' import failed (cumulative):', f.name, f.error);
         });
@@ -606,8 +606,8 @@ export function getExecuteImportCode() {
             continue;
           }
 
-          // 所有非 2xx 响应和网络异常走同一处错误出口，
-          // 由 catch 统一附加 partial 进度元数据，避免在多处重复组装同样的 meta
+          // 所有非 2xx 響應和網路異常走同一處錯誤出口，
+          // 由 catch 統一附加 partial 進度後設資料，避免在多處重複組裝同樣的 meta
           let errorMessage;
           if (response.status === 429) {
             errorMessage = (typeof t === 'function' ? t('importRateLimited') : null) || 'Batch import was rate-limited. Submissions paused. Please try again later.';

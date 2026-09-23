@@ -1,14 +1,14 @@
 /**
- * Base32 编解码工具模块
+ * Base32 編解碼工具模組
  */
 
 /**
- * 获取 Base32 工具代码
- * @returns {string} Base32 工具 JavaScript 代码
+ * 獲取 Base32 工具程式碼
+ * @returns {string} Base32 工具 JavaScript 程式碼
  */
 export function getBase32ToolCode() {
 	return `
-    // ==================== Base32编解码工具 ====================
+    // ==================== Base32編解碼工具 ====================
 
     function showBase32Modal() {
       showModal('base32Modal', () => {
@@ -23,10 +23,10 @@ export function getBase32ToolCode() {
       hideModal('base32Modal');
     }
 
-    // Base32字符集
+    // Base32字元集
     const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
-    // UTF-8编码函数
+    // UTF-8編碼函式
     function utf8Encode(str) {
       const bytes = [];
       for (let i = 0; i < str.length; i++) {
@@ -41,7 +41,7 @@ export function getBase32ToolCode() {
           bytes.push(0x80 | ((code >> 6) & 0x3f));
           bytes.push(0x80 | (code & 0x3f));
         } else {
-          // 处理UTF-16代理对
+          // 處理UTF-16代理對
           i++;
           const c2 = str.charCodeAt(i);
           const cp = 0x10000 + ((code & 0x3ff) << 10) + (c2 & 0x3ff);
@@ -54,7 +54,7 @@ export function getBase32ToolCode() {
       return bytes;
     }
 
-    // UTF-8解码函数
+    // UTF-8解碼函式
     function utf8Decode(bytes) {
       let str = '';
       for (let i = 0; i < bytes.length;) {
@@ -93,31 +93,31 @@ export function getBase32ToolCode() {
       }
 
       try {
-        // 先将文本转换为UTF-8字节数组
+        // 先將文本轉換為UTF-8位元組陣列
         const bytes = utf8Encode(text);
         let bits = 0;
         let bitsLength = 0;
         let result = '';
 
-        // 处理每个字节
+        // 處理每個位元組
         for (let i = 0; i < bytes.length; i++) {
           bits = (bits << 8) | bytes[i];
           bitsLength += 8;
 
-          // 每5位生成一个Base32字符
+          // 每5位生成一個Base32字元
           while (bitsLength >= 5) {
             bitsLength -= 5;
             result += base32Chars[(bits >>> bitsLength) & 31];
           }
         }
 
-        // 处理剩余的位
+        // 處理剩餘的位
         if (bitsLength > 0) {
           bits = bits << (5 - bitsLength);
           result += base32Chars[bits & 31];
         }
 
-        // 添加填充
+        // 新增填充
         while (result.length % 8 !== 0) {
           result += '=';
         }
@@ -142,7 +142,7 @@ export function getBase32ToolCode() {
         // 移除填充
         const cleaned = base32Text.replace(/=/g, '');
 
-        // 验证字符集
+        // 驗證字元集
         if (!/^[A-Z2-7]+$/.test(cleaned)) {
           throw new Error('Contains invalid Base32 characters');
         }
@@ -151,7 +151,7 @@ export function getBase32ToolCode() {
         let bitsLength = 0;
         let bytes = [];
 
-        // 处理每个Base32字符
+        // 處理每個Base32字元
         for (let i = 0; i < cleaned.length; i++) {
           const char = cleaned[i];
           const value = base32Chars.indexOf(char);
@@ -163,14 +163,14 @@ export function getBase32ToolCode() {
           bits = (bits << 5) | value;
           bitsLength += 5;
 
-          // 每8位生成一个字节
+          // 每8位生成一個位元組
           while (bitsLength >= 8) {
             bitsLength -= 8;
             bytes.push((bits >>> bitsLength) & 255);
           }
         }
 
-        // 解码UTF-8字节数组
+        // 解碼UTF-8位元組陣列
         const result = utf8Decode(bytes);
         const resultElement = document.getElementById('decodedResult');
         resultElement.textContent = result;

@@ -1,17 +1,17 @@
 /**
- * 导出模块 - UI 交互
- * 包含模态框显示/隐藏等 UI 相关功能
+ * 匯出模組 - UI 互動
+ * 包含模態框顯示/隱藏等 UI 相關功能
  */
 
 /**
- * 获取导出 UI 代码
- * @returns {string} JavaScript 代码
+ * 獲取匯出 UI 程式碼
+ * @returns {string} JavaScript 程式碼
  */
 export function getExportUICode() {
 	return `
-    // ========== 导出 UI 模块 ==========
+    // ========== 匯出 UI 模組 ==========
 
-    // 导出所有密钥 - 显示格式选择
+    // 匯出所有金鑰 - 顯示格式選擇
     function exportAllSecrets() {
       if (secrets.length === 0) {
         showCenterToast('❌', ((typeof t === 'function' ? t('noSecretsToExport') : null) || 'No secrets available to export'));
@@ -20,7 +20,7 @@ export function getExportUICode() {
       showExportFormatModal();
     }
 
-    // 显示导出格式选择模态框
+    // 顯示匯出格式選擇模態框
     function showExportFormatModal() {
       showModal('exportFormatModal', () => {
         const exportCount = document.getElementById('exportCount');
@@ -28,12 +28,12 @@ export function getExportUICode() {
       });
     }
 
-    // 隐藏导出格式选择模态框
+    // 隱藏匯出格式選擇模態框
     function hideExportFormatModal() {
       hideModal('exportFormatModal');
     }
 
-    // 显示二级格式选择模态框
+    // 顯示二級格式選擇模態框
     function showSubFormatModal(multiFormatId) {
       const config = subFormatConfigs[multiFormatId];
       if (!config) {
@@ -65,19 +65,19 @@ export function getExportUICode() {
       showModal('subFormatModal');
     }
 
-    // 隐藏二级格式选择模态框
+    // 隱藏二級格式選擇模態框
     function hideSubFormatModal() {
       hideModal('subFormatModal');
     }
 
-    // 选择二级格式
+    // 選擇二級格式
     function selectSubFormat(formatId) {
       hideSubFormatModal();
       hideExportFormatModal();
       selectExportFormat(formatId);
     }
 
-    // 显示 FreeOTP 导出模态框
+    // 顯示 FreeOTP 匯出模態框
     function showFreeOTPExportModal() {
       showModal('freeotpExportModal', () => {
         const passwordInput = document.getElementById('freeotpExportPassword');
@@ -88,12 +88,12 @@ export function getExportUICode() {
       });
     }
 
-    // 隐藏 FreeOTP 导出模态框
+    // 隱藏 FreeOTP 匯出模態框
     function hideFreeOTPExportModal() {
       hideModal('freeotpExportModal');
     }
 
-    // 显示 TOTP Authenticator 导出模态框
+    // 顯示 TOTP Authenticator 匯出模態框
     function showTOTPAuthExportModal() {
       showModal('totpAuthExportModal', () => {
         const passwordInput = document.getElementById('totpAuthExportPassword');
@@ -104,12 +104,12 @@ export function getExportUICode() {
       });
     }
 
-    // 隐藏 TOTP Authenticator 导出模态框
+    // 隱藏 TOTP Authenticator 匯出模態框
     function hideTOTPAuthExportModal() {
       hideModal('totpAuthExportModal');
     }
 
-    // 显示导出成功提示
+    // 顯示匯出成功提示
     function showExportSuccess(count, format) {
       showCenterToast('✅', ((typeof t === 'function' ? t('exportSuccessWithCount', { count: count, format: format }) : null) || ('Exported ' + count + ' keys (' + format + ')')));
     }

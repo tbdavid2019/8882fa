@@ -1,12 +1,12 @@
 /**
- * 防回归：模板字符串生成的前端脚本必须语法合法。
+ * 防迴歸：模板字串生成的前端指令碼必須語法合法。
  *
- * 历史问题：src/ui/scripts/googleMigration.js 某处 `.join('\n')` 写在普通模板字面量里，
- * `\n` 被提前解释成真换行，最终产物是非法 JS（字符串字面量里夹真换行）。
- * 该 bug 只在运行时载入脚本时才会暴露，import-code.test.js 只解析 getImportCode()，
- * 覆盖不到 Google Migration 和整包脚本。
+ * 歷史問題：src/ui/scripts/googleMigration.js 某處 `.join('\n')` 寫在普通模板字面量裡，
+ * `\n` 被提前解釋成真換行，最終產物是非法 JS（字串字面量裡夾真換行）。
+ * 該 bug 只在執行時載入指令碼時才會暴露，import-code.test.js 只解析 getImportCode()，
+ * 覆蓋不到 Google Migration 和整包指令碼。
  *
- * 这组测试对每个生成脚本的 module getter 和 index.js 的组合入口做 new Function() parse。
+ * 這組測試對每個生成指令碼的 module getter 和 index.js 的組合入口做 new Function() parse。
  */
 
 import { describe, expect, it } from 'vitest';
@@ -103,11 +103,11 @@ describe('emitted script aggregators parse as valid JavaScript', () => {
 
 describe('googleMigration specific regression guards', () => {
 	it('does not emit a raw LF inside a single-quoted JS string literal', () => {
-		// 典型症状：}).join('
-		// ');  ← 模板字面量里的 \n 被提前展开成真换行
+		// 典型症狀：}).join('
+		// ');  ← 模板字面量裡的 \n 被提前展開成真換行
 		const code = getGoogleMigrationCode();
 		expect(/'\n'/.test(code)).toBe(false);
-		// 期望是字面的 backslash+n（两个字符），JS 运行时才解析为换行
+		// 期望是字面的 backslash+n（兩個字元），JS 執行時才解析為換行
 		expect(code).toContain("join('\\n')");
 	});
 });

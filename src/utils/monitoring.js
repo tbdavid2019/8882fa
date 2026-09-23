@@ -1,13 +1,13 @@
 /**
- * 错误监控和追踪系统
- * 自定义错误追踪、性能监控
+ * 錯誤監控和追蹤系統
+ * 自定義錯誤追蹤、效能監控
  */
 
 import { getLogger } from './logger.js';
 import { APP_VERSION } from './version.js';
 
 /**
- * 错误严重程度级别
+ * 錯誤嚴重程度級別
  */
 export const ErrorSeverity = {
 	DEBUG: 'debug',
@@ -18,17 +18,17 @@ export const ErrorSeverity = {
 };
 
 /**
- * 监控配置类
+ * 監控配置類
  */
 class MonitoringConfig {
 	constructor(options = {}) {
-		// 性能监控配置
+		// 效能監控配置
 		this.enablePerformanceMonitoring = options.enablePerformanceMonitoring !== false;
-		// 显式校验数值：既保留合法的 0（耗时 > 0ms 的请求均视为慢请求），又让 NaN / 负数 / 非数字回退默认值
+		// 顯式校驗數值：既保留合法的 0（耗時 > 0ms 的請求均視為慢請求），又讓 NaN / 負數 / 非數字回退預設值
 		this.slowRequestThreshold =
 			Number.isFinite(options.slowRequestThreshold) && options.slowRequestThreshold >= 0 ? options.slowRequestThreshold : 3000; // 3秒
 
-		// 自定义配置
+		// 自定義配置
 		this.environment = options.environment || 'production';
 		this.serviceName = options.serviceName || '2fa';
 		this.version = options.version || APP_VERSION;
@@ -36,7 +36,7 @@ class MonitoringConfig {
 }
 
 /**
- * 错误监控类
+ * 錯誤監控類
  */
 class ErrorMonitor {
 	constructor(config, env = null) {
@@ -45,10 +45,10 @@ class ErrorMonitor {
 	}
 
 	/**
-	 * 捕获错误
+	 * 捕獲錯誤
 	 */
 	captureError(error, context = {}, severity = ErrorSeverity.ERROR) {
-		// 记录到日志
+		// 記錄到日誌
 		this.logger.error(
 			'Error captured',
 			{
@@ -74,7 +74,7 @@ class ErrorMonitor {
 	}
 
 	/**
-	 * 捕获异常消息（非 Error 对象）
+	 * 捕獲異常訊息（非 Error 物件）
 	 */
 	captureMessage(message, level = ErrorSeverity.INFO, context = {}) {
 		this.logger.info('Message captured', {
@@ -85,7 +85,7 @@ class ErrorMonitor {
 	}
 
 	/**
-	 * 生成唯一的错误 ID
+	 * 生成唯一的錯誤 ID
 	 * @private
 	 */
 	_generateErrorId() {
@@ -93,7 +93,7 @@ class ErrorMonitor {
 	}
 
 	/**
-	 * 添加面包屑（用户操作轨迹）
+	 * 新增麵包屑（使用者操作軌跡）
 	 */
 	addBreadcrumb(message, category = 'default', data = {}) {
 		this.logger.debug('Breadcrumb', {
@@ -105,7 +105,7 @@ class ErrorMonitor {
 }
 
 /**
- * 性能监控类
+ * 效能監控類
  */
 class PerformanceMonitor {
 	constructor(config, env = null) {
@@ -115,7 +115,7 @@ class PerformanceMonitor {
 	}
 
 	/**
-	 * 开始性能追踪
+	 * 開始效能追蹤
 	 */
 	startTrace(name, context = {}) {
 		if (!this.config.enablePerformanceMonitoring) {
@@ -144,7 +144,7 @@ class PerformanceMonitor {
 	}
 
 	/**
-	 * 添加 Span（子追踪）
+	 * 新增 Span（子追蹤）
 	 */
 	addSpan(traceId, spanName, duration = null) {
 		const trace = this.metrics.get(traceId);
@@ -168,7 +168,7 @@ class PerformanceMonitor {
 	}
 
 	/**
-	 * 结束性能追踪
+	 * 結束效能追蹤
 	 */
 	endTrace(traceId, metadata = {}) {
 		const trace = this.metrics.get(traceId);
@@ -184,7 +184,7 @@ class PerformanceMonitor {
 			metadata,
 		};
 
-		// 检查是否为慢请求
+		// 檢查是否為慢請求
 		const isSlow = duration > this.config.slowRequestThreshold;
 
 		if (isSlow) {
@@ -213,7 +213,7 @@ class PerformanceMonitor {
 	}
 
 	/**
-	 * 记录自定义指标
+	 * 記錄自定義指標
 	 */
 	recordMetric(name, value, unit = 'ms', tags = {}) {
 		this.logger.info('📊 Metric recorded', {
@@ -223,12 +223,12 @@ class PerformanceMonitor {
 			...tags,
 		});
 
-		// 可以发送到监控系统（如 Prometheus、DataDog）
-		// 这里只记录到日志
+		// 可以傳送到監控系統（如 Prometheus、DataDog）
+		// 這裡只記錄到日誌
 	}
 
 	/**
-	 * 获取当前活跃的追踪数量
+	 * 獲取當前活躍的追蹤數量
 	 */
 	getActiveTracesCount() {
 		return this.metrics.size;
@@ -236,7 +236,7 @@ class PerformanceMonitor {
 }
 
 /**
- * 统一的监控管理器
+ * 統一的監控管理器
  */
 class MonitoringManager {
 	constructor(config, env = null) {
@@ -247,7 +247,7 @@ class MonitoringManager {
 	}
 
 	/**
-	 * 初始化监控系统
+	 * 初始化監控系統
 	 */
 	async initialize() {
 		this.logger.info('🚀 Initializing monitoring system', {
@@ -257,21 +257,21 @@ class MonitoringManager {
 	}
 
 	/**
-	 * 获取错误监控器
+	 * 獲取錯誤監控器
 	 */
 	getErrorMonitor() {
 		return this.errorMonitor;
 	}
 
 	/**
-	 * 获取性能监控器
+	 * 獲取效能監控器
 	 */
 	getPerformanceMonitor() {
 		return this.performanceMonitor;
 	}
 
 	/**
-	 * 创建监控中间件（用于 Worker）
+	 * 建立監控中介軟體（用於 Worker）
 	 */
 	createMiddleware() {
 		return async (request, env, ctx, next) => {
@@ -281,10 +281,10 @@ class MonitoringManager {
 			});
 
 			try {
-				// 执行请求处理
+				// 執行請求處理
 				const response = await next(request, env, ctx);
 
-				// 记录性能
+				// 記錄效能
 				this.performanceMonitor.endTrace(traceId, {
 					status: response?.status,
 					success: true,
@@ -292,7 +292,7 @@ class MonitoringManager {
 
 				return response;
 			} catch (error) {
-				// 捕获错误
+				// 捕獲錯誤
 				const errorInfo = this.errorMonitor.captureError(
 					error,
 					{
@@ -303,13 +303,13 @@ class MonitoringManager {
 					ErrorSeverity.ERROR,
 				);
 
-				// 记录失败的追踪
+				// 記錄失敗的追蹤
 				this.performanceMonitor.endTrace(traceId, {
 					success: false,
 					errorId: errorInfo.errorId,
 				});
 
-				// 重新抛出错误
+				// 重新丟擲錯誤
 				throw error;
 			}
 		};
@@ -317,13 +317,13 @@ class MonitoringManager {
 }
 
 /**
- * 默认监控实例
+ * 預設監控例項
  */
 let defaultMonitoring = null;
-let defaultMonitoringConfigured = false; // 单例是否已用运行时 env 完成配置
+let defaultMonitoringConfigured = false; // 單例是否已用執行時 env 完成配置
 
 /**
- * 根据环境变量解析监控配置
+ * 根據環境變數解析監控配置
  * @private
  */
 function resolveMonitoringOptions(env) {
@@ -337,11 +337,11 @@ function resolveMonitoringOptions(env) {
 }
 
 /**
- * 获取默认监控实例
+ * 獲取預設監控例項
  *
- * 与 getLogger 同理：单例可能先被无 env 的快捷方法调用创建，
- * 因此首次携带 env 的调用会就地更新 config，
- * 保证已持有该 config 引用的 ErrorMonitor / PerformanceMonitor 同样生效。
+ * 與 getLogger 同理：單例可能先被無 env 的快捷方法呼叫建立，
+ * 因此首次攜帶 env 的呼叫會就地更新 config，
+ * 保證已持有該 config 引用的 ErrorMonitor / PerformanceMonitor 同樣生效。
  */
 export function getMonitoring(env = null) {
 	if (!defaultMonitoring) {
@@ -349,7 +349,7 @@ export function getMonitoring(env = null) {
 		defaultMonitoringConfigured = Boolean(env);
 	} else if (env && !defaultMonitoringConfigured) {
 		Object.assign(defaultMonitoring.config, new MonitoringConfig(resolveMonitoringOptions(env)));
-		// 内部监控器持有的 logger 也可能是无 env 创建的单例，一并触发其配置更新
+		// 內部監控器持有的 logger 也可能是無 env 建立的單例，一併觸發其配置更新
 		getLogger(env);
 		defaultMonitoringConfigured = true;
 	}
@@ -358,7 +358,7 @@ export function getMonitoring(env = null) {
 }
 
 /**
- * 重置默认监控实例（主要用于测试）
+ * 重置預設監控例項（主要用於測試）
  */
 export function resetMonitoring() {
 	defaultMonitoring = null;
@@ -370,42 +370,42 @@ export function resetMonitoring() {
  */
 export const monitoring = {
 	/**
-	 * 捕获错误
+	 * 捕獲錯誤
 	 */
 	captureError: (error, context, severity) => {
 		return getMonitoring().getErrorMonitor().captureError(error, context, severity);
 	},
 
 	/**
-	 * 捕获消息
+	 * 捕獲訊息
 	 */
 	captureMessage: (message, level, context) => {
 		return getMonitoring().getErrorMonitor().captureMessage(message, level, context);
 	},
 
 	/**
-	 * 添加面包屑
+	 * 新增麵包屑
 	 */
 	addBreadcrumb: (message, category, data) => {
 		return getMonitoring().getErrorMonitor().addBreadcrumb(message, category, data);
 	},
 
 	/**
-	 * 开始性能追踪
+	 * 開始效能追蹤
 	 */
 	startTrace: (name, context) => {
 		return getMonitoring().getPerformanceMonitor().startTrace(name, context);
 	},
 
 	/**
-	 * 结束性能追踪
+	 * 結束效能追蹤
 	 */
 	endTrace: (traceId, metadata) => {
 		return getMonitoring().getPerformanceMonitor().endTrace(traceId, metadata);
 	},
 
 	/**
-	 * 记录指标
+	 * 記錄指標
 	 */
 	recordMetric: (name, value, unit, tags) => {
 		return getMonitoring().getPerformanceMonitor().recordMetric(name, value, unit, tags);
@@ -413,18 +413,18 @@ export const monitoring = {
 };
 
 /**
- * 导出类和配置
+ * 匯出類和配置
  */
 export { MonitoringConfig, MonitoringManager, ErrorMonitor, PerformanceMonitor };
 
 /**
  * 使用示例：
  *
- * // 初始化监控
+ * // 初始化監控
  * const monitoring = getMonitoring(env);
  * await monitoring.initialize();
  *
- * // 捕获错误
+ * // 捕獲錯誤
  * try {
  *   // ... 操作 ...
  * } catch (error) {
@@ -434,12 +434,12 @@ export { MonitoringConfig, MonitoringManager, ErrorMonitor, PerformanceMonitor }
  *   });
  * }
  *
- * // 性能追踪
+ * // 效能追蹤
  * const traceId = monitoring.getPerformanceMonitor().startTrace('DatabaseQuery');
- * // ... 执行查询 ...
+ * // ... 執行查詢 ...
  * monitoring.getPerformanceMonitor().endTrace(traceId, { rows: 10 });
  *
- * // 面包屑
+ * // 麵包屑
  * monitoring.getErrorMonitor().addBreadcrumb('User clicked button', 'user-action', {
  *   buttonId: 'add-secret'
  * });

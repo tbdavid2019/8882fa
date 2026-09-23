@@ -1,5 +1,5 @@
 /**
- * Change Password API 单元测试
+ * Change Password API 單元測試
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -63,7 +63,7 @@ function createMockRequest(body = {}) {
 }
 
 /**
- * 使用 PBKDF2 加密密码（测试辅助函数，与 auth.js 中的逻辑一致）
+ * 使用 PBKDF2 加密密碼（測試輔助函式，與 auth.js 中的邏輯一致）
  */
 async function hashPasswordForTest(password) {
 	const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -99,7 +99,7 @@ describe('Change Password API', () => {
 		const currentPassword = 'OldPass123!';
 		const newPassword = 'NewPass456@';
 
-		// 设置当前密码哈希
+		// 設定當前密碼雜湊
 		const storedHash = await hashPasswordForTest(currentPassword);
 		await env.SECRETS_KV.put('user_password', storedHash);
 
@@ -116,7 +116,7 @@ describe('Change Password API', () => {
 		expect(data.success).toBe(true);
 		expect(data.message).toContain('密码修改成功');
 
-		// 验证密码已更新（新哈希不同于旧哈希）
+		// 驗證密碼已更新（新雜湊不同於舊雜湊）
 		const newHash = await env.SECRETS_KV.get('user_password');
 		expect(newHash).not.toBe(storedHash);
 	});
@@ -217,7 +217,7 @@ describe('Change Password API', () => {
 	});
 
 	it('未设置密码时应该返回 500', async () => {
-		// KV 存在但没有存储密码
+		// KV 存在但沒有儲存密碼
 		const request = createMockRequest({
 			currentPassword: 'OldPass123!',
 			newPassword: 'NewPass456@',
@@ -236,7 +236,7 @@ describe('Change Password API', () => {
 		const storedHash = await hashPasswordForTest(currentPassword);
 		await env.SECRETS_KV.put('user_password', storedHash);
 
-		// 发送超过限制的请求（sensitive preset: 10/min）
+		// 傳送超過限制的請求（sensitive preset: 10/min）
 		let rateLimited = false;
 		for (let i = 0; i < 12; i++) {
 			const request = createMockRequest({

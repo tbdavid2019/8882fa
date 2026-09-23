@@ -1,15 +1,15 @@
 /**
- * WebDAV 同步工具模块
- * 提供多目标 WebDAV 配置管理 UI
+ * WebDAV 同步工具模組
+ * 提供多目標 WebDAV 配置管理 UI
  */
 
 /**
- * 获取 WebDAV 工具代码
- * @returns {string} WebDAV 工具 JavaScript 代码
+ * 獲取 WebDAV 工具程式碼
+ * @returns {string} WebDAV 工具 JavaScript 程式碼
  */
 export function getWebdavToolCode() {
 	return `
-    // ==================== WebDAV 同步工具（多目标） ====================
+    // ==================== WebDAV 同步工具（多目標） ====================
 
     let _webdavOnClose = null;
 
@@ -34,17 +34,17 @@ export function getWebdavToolCode() {
         const response = await authenticatedFetch('/api/webdav/config');
         const data = await response.json();
 
-        // 渲染目标列表
+        // 渲染目標列表
         if (data.destinations && data.destinations.length > 0) {
           listEl.innerHTML = data.destinations.map(dest => _renderWebdavCard(dest)).join('');
         } else {
           listEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: var(--dialog-caption-size);">' + ((typeof t === 'function' ? t('webdavEmptyList') : null) || 'No WebDAV targets. Click button below to add') + '</div>';
         }
 
-        // 达到上限时隐藏添加按钮
+        // 達到上限時隱藏新增按鈕
         addBtn.dataset.canAdd = data.count < data.maxAllowed ? 'true' : 'false';
 
-        // 隐藏表单
+        // 隱藏表單
         hideWebdavForm();
       } catch (error) {
         console.error('加载 WebDAV 配置失败:', error);
@@ -101,7 +101,7 @@ export function getWebdavToolCode() {
       addBtn.style.display = 'none';
 
       if (!id) {
-        // 新增模式：清空表单
+        // 新增模式：清空表單
         document.getElementById('webdavEditId').value = '';
         document.getElementById('webdavName').value = '';
         document.getElementById('webdavUrl').value = '';
