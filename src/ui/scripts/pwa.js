@@ -144,14 +144,92 @@ export function getPWACode() {
 
     /**
      * 监听PWA安装提示事件
-     * 仅保存事件，实际触发通过系统设置 › 偏好中的按钮
      */
     let deferredPrompt = null;
+    const PWA_BANNER_DISMISS_KEY = 'pwa-banner-dismissed';
+    const PWA_BANNER_DISMISS_DAYS = 7;
+
+    function isPwaBannerDismissed() {
+      try {
+        const dismissedAt = localStorage.getItem(PWA_BANNER_DISMISS_KEY);
+        if (!dismissedAt) return false;
+        const timeDiff = Date.now() - parseInt(dismissedAt, 10);
+        return timeDiff < PWA_BANNER_DISMISS_DAYS * 24 * 60 * 60 * 1000;
+      } catch {
+        return false;
+      }
+    }
+
+    function dismissPwaBanner() {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => { banner.style.display = 'none'; }, 400);
+      }
+      try {
+        localStorage.setItem(PWA_BANNER_DISMISS_KEY, Date.now().toString());
+      } catch {}
+    }
+
+    function checkAndShowPwaBanner() {
+      if (isPWAMode()) return;
+      if (isPwaBannerDismissed()) return;
+
+      const banner = document.getElementById('pwaInstallBanner');
+      if (!banner) return;
+
+      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+      if (isIos && isSafari) {
+        // iOS Safari: 提示通过分享按钮“加入主画面”
+        const descEl = document.getElementById('pwaBannerDesc');
+        const actionBtn = document.getElementById('pwaBannerActionBtn');
+        if (descEl) {
+          descEl.textContent = (typeof t === 'function' ? t('pwaBannerIosPrompt') : null) || 'Tap Share below, then select "Add to Home Screen"';
+        }
+        if (actionBtn) {
+          actionBtn.style.display = 'none';
+        }
+        banner.style.display = 'flex';
+        requestAnimationFrame(() => banner.classList.add('show'));
+        return;
+      }
+
+      if (deferredPrompt) {
+        // Chromium / Android / Edge: 提示原生安装
+        banner.style.display = 'flex';
+        requestAnimationFrame(() => banner.classList.add('show'));
+      }
+    }
+
+    async function handlePwaBannerInstall() {
+      if (!deferredPrompt) return;
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('PWA banner user choice:', outcome);
+        if (outcome === 'accepted') {
+          dismissPwaBanner();
+        }
+      } catch (err) {
+        console.warn('PWA banner install error:', err);
+      } finally {
+        deferredPrompt = null;
+        updateSettingsPwaInstallButton();
+      }
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('💡 PWA 安装提示事件触发');
       e.preventDefault();
       deferredPrompt = e;
       updateSettingsPwaInstallButton();
+      setTimeout(checkAndShowPwaBanner, 1500);
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(checkAndShowPwaBanner, 3000);
     });
 
     /**
@@ -201,6 +279,7 @@ export function getPWACode() {
 
         if (outcome === 'accepted') {
           showCenterToast('✅', (typeof t === 'function' ? t('pwaInstallStarted') : null) || 'Install started');
+          dismissPwaBanner();
         } else {
           showCenterToast('❌', (typeof t === 'function' ? t('pwaInstallCancelled') : null) || 'Install cancelled');
         }
@@ -217,6 +296,7 @@ export function getPWACode() {
       console.log('✅ PWA 应用已成功安装');
       deferredPrompt = null;
       updateSettingsPwaInstallButton();
+      dismissPwaBanner();
       showCenterToast('✅', (typeof t === 'function' ? t('pwaInstallSuccess') : null) || 'App installed successfully');
     });
 
@@ -231,6 +311,11 @@ export function getPWACode() {
     if (isPWAMode()) {
       console.log('🚀 应用正在 PWA 模式下运行');
       // 可以根据PWA模式调整UI
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dismissPwaBanner = dismissPwaBanner;
+      window.handlePwaBannerInstall = handlePwaBannerInstall;
     }
 
     /**

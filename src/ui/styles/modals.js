@@ -685,6 +685,129 @@ export function getModalStyles() {
       font-weight: 600;
     }
 
+    /* Passkey 登录按钮与分割线 */
+    .passkey-login-container {
+      margin-top: 14px;
+    }
+
+    .login-modal-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 16px 0;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .login-modal-divider::before,
+    .login-modal-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .login-modal-divider span {
+      padding: 0 10px;
+    }
+
+    .passkey-login-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--surface);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .passkey-login-btn:hover {
+      background: var(--hover-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .passkey-icon {
+      flex-shrink: 0;
+    }
+
+    /* Passkey 凭据管理列表 */
+    .settings-section-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .settings-section-header-flex .settings-section-title {
+      margin-bottom: 0;
+    }
+
+    .passkey-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .passkey-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      transition: border-color 0.2s;
+    }
+
+    .passkey-item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .passkey-item-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      background: rgba(var(--primary-rgb, 59, 130, 246), 0.1);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .passkey-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .passkey-item-date {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .passkey-empty,
+    .passkey-loading {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px dashed var(--border-primary);
+      border-radius: var(--radius-md);
+    }
+
     .empty-state {
       text-align: center;
       padding: 40px 20px;

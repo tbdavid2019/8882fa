@@ -47,6 +47,14 @@ import {
 import { handleChangePassword } from '../api/password.js';
 import { handleGetSettings, handleSaveSettings } from '../api/settings.js';
 import { handleGetTime } from '../api/time.js';
+import {
+	handleWebAuthnRegisterOptions,
+	handleWebAuthnRegister,
+	handleWebAuthnLoginOptions,
+	handleWebAuthnLogin,
+	handleWebAuthnListCredentials,
+	handleWebAuthnDeleteCredential,
+} from '../api/webauthn.js';
 
 // UI 页面生成器
 import { createMainPage } from '../ui/page.js';
@@ -512,6 +520,48 @@ async function handleApiRequest(pathname, method, request, env, ctx) {
 	if (pathname === '/api/gdrive/oauth/callback') {
 		if (method === 'GET') {
 			return handleGoogleDriveOAuthCallback(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+
+	// WebAuthn / Passkey API
+	if (pathname === '/api/webauthn/login-options') {
+		if (method === 'GET') {
+			return handleWebAuthnLoginOptions(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+	if (pathname === '/api/webauthn/login') {
+		if (method === 'POST') {
+			return handleWebAuthnLogin(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+	if (pathname === '/api/webauthn/register-options') {
+		if (method === 'GET') {
+			return handleWebAuthnRegisterOptions(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+	if (pathname === '/api/webauthn/register') {
+		if (method === 'POST') {
+			return handleWebAuthnRegister(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+	if (pathname === '/api/webauthn/credentials') {
+		if (method === 'GET') {
+			return handleWebAuthnListCredentials(request, env);
+		}
+		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
+	}
+	if (pathname.startsWith('/api/webauthn/credentials/')) {
+		const credId = pathname.substring('/api/webauthn/credentials/'.length);
+		if (!credId) {
+			return createErrorResponse('无效路径', '缺少凭据ID', 400, request);
+		}
+		if (method === 'DELETE') {
+			return handleWebAuthnDeleteCredential(request, env, credId);
 		}
 		return createErrorResponse('方法不允许', `不支持的HTTP方法: ${method}`, 405, request);
 	}

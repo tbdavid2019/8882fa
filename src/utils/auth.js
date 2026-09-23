@@ -966,6 +966,8 @@ export function requiresAuth(pathname) {
 		'/otp', // OTP 生成页面（无参数）
 		'/api/onedrive/oauth/callback',
 		'/api/gdrive/oauth/callback',
+		'/api/webauthn/login-options', // WebAuthn 登录 Challenge 生成
+		'/api/webauthn/login', // WebAuthn 登录验证
 	];
 
 	// 精确匹配公开路径

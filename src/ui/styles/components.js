@@ -1058,6 +1058,115 @@ export function getComponentStyles() {
       }
     }
 
+    /* ========== PWA 浮动安装横幅 ========== */
+    .pwa-install-banner {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      z-index: 99990;
+      max-width: 480px;
+      width: calc(100% - 32px);
+      background: var(--modal-bg);
+      border: 1px solid var(--modal-border);
+      box-shadow: var(--shadow-xl);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .pwa-install-banner.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .pwa-banner-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .pwa-banner-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .pwa-banner-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pwa-banner-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .pwa-banner-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    .pwa-banner-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .pwa-banner-install-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .pwa-banner-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .pwa-banner-close-btn:hover {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 480px) {
+      .pwa-install-banner {
+        bottom: 16px;
+        padding: 12px 14px;
+        gap: 10px;
+      }
+      .pwa-banner-icon {
+        width: 38px;
+        height: 38px;
+      }
+      .pwa-banner-install-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+
     /* 超宽屏幕 */
     @media (min-width: 1440px) {
       .action-menu-float {

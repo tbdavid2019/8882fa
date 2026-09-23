@@ -1195,6 +1195,19 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
             </div>
             <div class="settings-divider"></div>
             <div class="settings-section">
+              <div class="settings-section-header-flex">
+                <h3 class="settings-section-title" data-i18n="passkeyTitle">Passkeys & Touch ID</h3>
+                <button type="button" class="btn btn-secondary btn-sm" id="addPasskeyBtn" onclick="registerCurrentDevicePasskey()">
+                  <span>+</span> <span data-i18n="addPasskeyBtn">Add Passkey</span>
+                </button>
+              </div>
+              <p class="settings-desc" data-i18n="passkeyDesc">Log in quickly and securely with Touch ID, Face ID, or your device security key without typing your master password.</p>
+              <div id="passkeyList" class="passkey-list">
+                <div class="passkey-loading" data-i18n="passkeyLoading">Loading passkeys...</div>
+              </div>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-section">
               <h3 class="settings-section-title" data-i18n="logoutTitle">Log Out</h3>
               <p class="settings-desc" data-i18n="logoutDesc">Sign out of the current account; password required to log in again.</p>
               <button class="btn btn-danger" onclick="logout()" style="width: 100%;" data-i18n="logoutBtn">Log Out</button>
@@ -1712,6 +1725,21 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         <button type="submit" class="btn btn-primary login-modal-submit-btn" data-i18n="loginSubmitBtn">Log In</button>
       </div>
       </form>
+      <div id="passkeyLoginContainer" class="passkey-login-container" style="display: none;">
+        <div class="login-modal-divider">
+          <span data-i18n="orDivider">OR</span>
+        </div>
+        <button type="button" id="passkeyLoginBtn" class="passkey-login-btn" onclick="handlePasskeyLogin()">
+          <svg class="passkey-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 11c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"/>
+            <path d="m11 13 4.5 4.5"/>
+            <path d="m13.5 15.5 2 2"/>
+            <path d="m15.5 13.5 2 2"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          <span data-i18n="loginWithPasskey">Sign in with Touch ID / Passkey</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1778,6 +1806,25 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
     </div>
   </div>
 
+  <!-- PWA 浮动安装横幅 -->
+  <aside id="pwaInstallBanner" class="pwa-install-banner" role="banner" aria-label="Install App" style="display: none;">
+    <div class="pwa-banner-icon">
+      <img src="/apple-touch-icon.png" alt="888 2FA Icon" width="44" height="44">
+    </div>
+    <div class="pwa-banner-content">
+      <div class="pwa-banner-title" data-i18n="pwaBannerTitle">Install 888 2FA</div>
+      <div class="pwa-banner-desc" id="pwaBannerDesc" data-i18n="pwaBannerDesc">Install as an app for fast access, offline codes, and native experience.</div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button type="button" id="pwaBannerActionBtn" class="btn btn-primary pwa-banner-install-btn" onclick="handlePwaBannerInstall()" data-i18n="pwaBannerInstallBtn">Install</button>
+      <button type="button" class="pwa-banner-close-btn" onclick="dismissPwaBanner()" aria-label="Dismiss banner" title="Dismiss" data-i18n-title="pwaBannerDismiss">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </aside>
 `;
 }
 

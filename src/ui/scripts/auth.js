@@ -118,6 +118,11 @@ export function getAuthCode() {
         insecureWarning.style.display = isInsecureCookieContext() ? 'block' : 'none';
       }
 
+      const passkeyContainer = document.getElementById('passkeyLoginContainer');
+      if (passkeyContainer) {
+        passkeyContainer.style.display = (window.PublicKeyCredential && typeof window.PublicKeyCredential === 'function') ? 'block' : 'none';
+      }
+
       if (loginModalHideTimer) {
         clearTimeout(loginModalHideTimer);
         loginModalHideTimer = null;
@@ -202,6 +207,113 @@ export function getAuthCode() {
         errorDiv.textContent = ((typeof t === 'function' ? t('loginFailedPrefix') : null) || 'Login failed: ') + error.message;
         errorDiv.style.display = 'block';
       }
+    }
+
+    // 使用 Passkey / Touch ID 登录
+    async function handlePasskeyLogin() {
+      const errorDiv = document.getElementById('loginError');
+      const passkeyBtn = document.getElementById('passkeyLoginBtn');
+      if (!window.PublicKeyCredential) {
+        if (errorDiv) {
+          errorDiv.textContent = (typeof t === 'function' ? t('passkeyNotSupported') : null) || 'WebAuthn / Passkey is not supported in this browser';
+          errorDiv.style.display = 'block';
+        }
+        return;
+      }
+
+      if (passkeyBtn) passkeyBtn.disabled = true;
+      if (errorDiv) errorDiv.style.display = 'none';
+
+      try {
+        const optRes = await fetch('/api/webauthn/login-options');
+        if (!optRes.ok) {
+          throw new Error('Failed to fetch login options');
+        }
+        const options = await optRes.json();
+        if (!options.hasCredentials) {
+          const msg = (typeof t === 'function' ? t('passkeyNoCredentials') : null) || 'No passkeys found for this server. Please log in with password first to add one in Settings.';
+          if (errorDiv) {
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
+          }
+          return;
+        }
+
+        const challengeBytes = base64UrlToBytes(options.challenge);
+        const allowCredentials = (options.allowCredentials || []).map(c => ({
+          id: base64UrlToBytes(c.id),
+          type: 'public-key',
+          transports: c.transports
+        }));
+
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge: challengeBytes,
+            timeout: options.timeout || 60000,
+            rpId: options.rpId,
+            allowCredentials: allowCredentials.length > 0 ? allowCredentials : undefined,
+            userVerification: 'preferred'
+          }
+        });
+
+        if (!assertion) {
+          throw new Error('No credential returned');
+        }
+
+        const payload = {
+          id: assertion.id,
+          rawId: bytesToBase64Url(assertion.rawId),
+          response: {
+            authenticatorData: bytesToBase64Url(assertion.response.authenticatorData),
+            clientDataJSON: bytesToBase64Url(assertion.response.clientDataJSON),
+            signature: bytesToBase64Url(assertion.response.signature),
+            userHandle: assertion.response.userHandle ? bytesToBase64Url(assertion.response.userHandle) : null
+          }
+        };
+
+        const verifyRes = await fetch('/api/webauthn/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+
+        const verifyData = await verifyRes.json();
+        if (verifyRes.ok && verifyData.success) {
+          hideLoginModal();
+          if (verifyData.expiresIn) {
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: verifyData.expiresIn }) : null) || ('Login successful, valid for ' + verifyData.expiresIn));
+          } else {
+            showCenterToast('✅', (typeof t === 'function' ? t('loginSuccess') : null) || 'Login successful');
+          }
+          loadSecrets();
+        } else {
+          if (errorDiv) {
+            errorDiv.textContent = verifyData.message || 'Passkey verification failed';
+            errorDiv.style.display = 'block';
+          }
+        }
+      } catch (err) {
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          console.log('User cancelled passkey operation:', err.message);
+          if (errorDiv) {
+            errorDiv.textContent = (typeof t === 'function' ? t('passkeyLoginCancelled') : null) || 'Passkey sign-in cancelled or timed out';
+            errorDiv.style.display = 'block';
+          }
+        } else {
+          console.error('Passkey login error:', err);
+          if (errorDiv) {
+            errorDiv.textContent = err.message || 'Failed to sign in with passkey';
+            errorDiv.style.display = 'block';
+          }
+        }
+      } finally {
+        if (passkeyBtn) passkeyBtn.disabled = false;
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.handlePasskeyLogin = handlePasskeyLogin;
     }
 
     // 检查认证状态

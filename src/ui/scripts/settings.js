@@ -60,6 +60,11 @@ export function getSettingsCode() {
         settingsContent.scrollTop = 0;
       }
 
+      // 安全设置标签页打开时加载 Passkeys
+      if (tabName === 'security') {
+        loadPasskeys();
+      }
+
       // 同步设置标签页打开时加载配置
       if (tabName === 'sync') {
         loadSyncStatus();
@@ -545,6 +550,171 @@ export function getSettingsCode() {
 
     function saveMaxBackups() {
       return saveNumericPreference('maxBackups');
+    }
+
+    // ==================== 通行密钥 (Passkey / Touch ID) 管理 ====================
+
+    async function loadPasskeys() {
+      const listEl = document.getElementById('passkeyList');
+      const addBtn = document.getElementById('addPasskeyBtn');
+      if (!listEl) return;
+
+      if (!window.PublicKeyCredential) {
+        if (addBtn) addBtn.style.display = 'none';
+        listEl.innerHTML = '<div class="passkey-empty">' + ((typeof t === 'function' ? t('passkeyNotSupported') : null) || 'WebAuthn / Passkey is not supported in this browser') + '</div>';
+        return;
+      }
+
+      try {
+        listEl.innerHTML = '<div class="passkey-loading">' + ((typeof t === 'function' ? t('passkeyLoading') : null) || 'Loading passkeys...') + '</div>';
+        const res = await authenticatedFetch('/api/webauthn/credentials');
+        if (!res.ok) throw new Error('Failed to load passkeys');
+        const data = await res.json();
+        const creds = data.credentials || [];
+
+        if (creds.length === 0) {
+          listEl.innerHTML = '<div class="passkey-empty">' + ((typeof t === 'function' ? t('passkeyNone') : null) || 'No passkeys added yet. Add this device to enable fast Touch ID / Passkey sign-in.') + '</div>';
+          return;
+        }
+
+        listEl.innerHTML = creds.map(c => {
+          const dateStr = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '';
+          const safeName = escapeHTML(c.name || 'Passkey');
+          const safeId = escapeHTML(c.id);
+          const delLabel = (typeof t === 'function' ? t('delete') : null) || 'Delete';
+          return '<div class="passkey-item">' +
+            '<div class="passkey-item-info">' +
+              '<div class="passkey-item-icon">' +
+                '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                  '<path d="M12 11c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"/>' +
+                  '<path d="m11 13 4.5 4.5"/>' +
+                  '<path d="m13.5 15.5 2 2"/>' +
+                  '<path d="m15.5 13.5 2 2"/>' +
+                  '<circle cx="12" cy="12" r="10"/>' +
+                '</svg>' +
+              '</div>' +
+              '<div>' +
+                '<div class="passkey-item-name">' + safeName + '</div>' +
+                '<div class="passkey-item-date">' + dateStr + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-danger btn-sm" onclick="deletePasskey(\\'' + safeId + '\\', \\'' + safeName.replace(/'/g, "\\\\'") + '\\')">' +
+              delLabel +
+            '</button>' +
+          '</div>';
+        }).join('');
+      } catch (err) {
+        console.error('Failed to load passkeys:', err);
+        listEl.innerHTML = '<div class="passkey-empty" style="color:var(--danger);">' + err.message + '</div>';
+      }
+    }
+
+    async function registerCurrentDevicePasskey() {
+      if (!window.PublicKeyCredential) {
+        alert((typeof t === 'function' ? t('passkeyNotSupported') : null) || 'WebAuthn / Passkey is not supported in this browser');
+        return;
+      }
+
+      let defaultDeviceName = 'My Device';
+      const ua = navigator.userAgent;
+      if (/Macintosh/i.test(ua)) defaultDeviceName = 'Mac (Touch ID)';
+      else if (/iPhone|iPad/i.test(ua)) defaultDeviceName = 'iOS (Face ID / Touch ID)';
+      else if (/Android/i.test(ua)) defaultDeviceName = 'Android (Biometrics)';
+      else if (/Windows/i.test(ua)) defaultDeviceName = 'Windows Hello';
+
+      const deviceNamePrompt = (typeof t === 'function' ? t('passkeyNamePrompt') : null) || 'Enter a label for this device passkey:';
+      const deviceName = prompt(deviceNamePrompt, defaultDeviceName);
+      if (deviceName === null) return; // cancelled
+
+      const addBtn = document.getElementById('addPasskeyBtn');
+      if (addBtn) addBtn.disabled = true;
+
+      try {
+        const optRes = await authenticatedFetch('/api/webauthn/register-options');
+        if (!optRes.ok) throw new Error('Failed to get registration options');
+        const options = await optRes.json();
+
+        const challengeBytes = base64UrlToBytes(options.challenge);
+        const userIdBytes = base64UrlToBytes(options.user.id);
+
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: challengeBytes,
+            rp: options.rp,
+            user: {
+              id: userIdBytes,
+              name: options.user.name,
+              displayName: options.user.displayName
+            },
+            pubKeyCredParams: options.pubKeyCredParams,
+            authenticatorSelection: options.authenticatorSelection,
+            timeout: options.timeout || 60000,
+            attestation: 'none'
+          }
+        });
+
+        if (!credential) throw new Error('No credential returned');
+
+        const regPayload = {
+          deviceName: deviceName.trim() || defaultDeviceName,
+          id: credential.id,
+          rawId: bytesToBase64Url(credential.rawId),
+          response: {
+            attestationObject: bytesToBase64Url(credential.response.attestationObject),
+            clientDataJSON: bytesToBase64Url(credential.response.clientDataJSON)
+          }
+        };
+
+        const regRes = await authenticatedFetch('/api/webauthn/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(regPayload)
+        });
+
+        const regData = await regRes.json();
+        if (regRes.ok && regData.success) {
+          showCenterToast('✅', (typeof t === 'function' ? t('passkeyCreated') : null) || 'Passkey added successfully!');
+          loadPasskeys();
+        } else {
+          throw new Error(regData.message || 'Registration failed');
+        }
+      } catch (err) {
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          console.log('User cancelled passkey registration:', err.message);
+        } else {
+          console.error('Passkey registration error:', err);
+          alert(err.message || 'Failed to register passkey');
+        }
+      } finally {
+        if (addBtn) addBtn.disabled = false;
+      }
+    }
+
+    async function deletePasskey(credId, name) {
+      const confirmMsg = (typeof t === 'function' ? t('passkeyDeleteConfirm', { name }) : null) || ('Are you sure you want to remove this passkey "' + name + '"?');
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await authenticatedFetch('/api/webauthn/credentials/' + encodeURIComponent(credId), {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showCenterToast('🗑️', (typeof t === 'function' ? t('passkeyDeleted') : null) || 'Passkey removed');
+          loadPasskeys();
+        } else {
+          throw new Error(data.message || 'Failed to delete passkey');
+        }
+      } catch (err) {
+        console.error('Delete passkey error:', err);
+        alert(err.message || 'Failed to delete passkey');
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.loadPasskeys = loadPasskeys;
+      window.registerCurrentDevicePasskey = registerCurrentDevicePasskey;
+      window.deletePasskey = deletePasskey;
     }
   `;
 }
