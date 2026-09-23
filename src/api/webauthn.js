@@ -3,14 +3,8 @@
  * 提供基于纯 Web Crypto API 的无依赖 Passkey 认证与管理
  */
 
-import {
-	getMasterPasswordHash,
-	getJwtExpiryDays,
-	generateJWT,
-	createSetCookieHeader,
-	getSecurityHeaders,
-	verifyAuthWithDetails,
-} from '../utils/auth.js';
+import { getJwtExpiryDays, generateJWT, createSetCookieHeader, verifyAuthWithDetails } from '../utils/auth.js';
+import { getSecurityHeaders } from '../utils/security.js';
 import { getClientIdentifier, checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS } from '../utils/rateLimit.js';
 import { createJsonResponse, createErrorResponse } from '../utils/response.js';
 import { getLogger } from '../utils/logger.js';
@@ -473,7 +467,10 @@ export async function handleWebAuthnLogin(request, env) {
 	}
 
 	// 验证成功，签发标准 JWT 会话
-	const storedPasswordHash = await getMasterPasswordHash(env);
+	const storedPasswordHash =
+		env.SECRETS_KV && typeof env.SECRETS_KV.get === 'function'
+			? (await env.SECRETS_KV.get('user_password')) || 'webauthn-fallback-secret'
+			: 'webauthn-fallback-secret';
 	const jwtExpiryDays = await getJwtExpiryDays(env);
 	const jwtToken = await generateJWT(
 		{

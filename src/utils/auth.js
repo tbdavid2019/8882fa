@@ -35,7 +35,7 @@ const KV_SETTINGS_KEY = 'settings';
  * @param {Object} env - 环境变量对象
  * @returns {Promise<number>} JWT 过期天数
  */
-async function getJwtExpiryDays(env) {
+export async function getJwtExpiryDays(env) {
 	if (env && env.SECRETS_KV) {
 		try {
 			const raw = await env.SECRETS_KV.get(KV_SETTINGS_KEY);
@@ -212,7 +212,7 @@ export async function verifyPassword(password, storedHash, env = null) {
  * @param {number} expiryDays - 过期天数
  * @returns {Promise<string>} JWT token
  */
-async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_DEFAULT) {
+export async function generateJWT(payload, secret, expiryDays = JWT_EXPIRY_DAYS_DEFAULT) {
 	const header = {
 		alg: JWT_ALGORITHM,
 		typ: 'JWT',
@@ -329,7 +329,7 @@ async function verifyJWT(token, secret, env = null) {
  * @param {number} maxAge - Cookie 最大有效期（秒）
  * @returns {string} Set-Cookie header 值
  */
-function createSetCookieHeader(token, maxAge) {
+export function createSetCookieHeader(token, maxAge) {
 	const cookieAttributes = [
 		`${COOKIE_NAME}=${token}`,
 		`Max-Age=${maxAge}`,
