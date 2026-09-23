@@ -1,207 +1,102 @@
-# 🔐 888 2FA (8882fa)
+# 🔐 888 2FA
 
-A two-factor authentication key management system built on Cloudflare Workers. Free to deploy, globally accelerated, with PWA offline support.
+A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powered by Cloudflare Workers. Free edge deployment, global acceleration, comprehensive PWA offline capabilities, and instant WebAuthn / Passkey biometric sign-in.
 
-![Version](https://img.shields.io/badge/version-1.9.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange)
+**[繁體中文](README.md) · [English](README_EN.md)**
 
-**[繁體中文](README_TC.md)** · **[简体中文](README.md)**
+[![Version](https://img.shields.io/badge/version-1.9.0-blue.svg)](CHANGELOG.md)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 
-**Key Features:** TOTP/HOTP code auto-generation · QR code scanning/image recognition/paste screenshot/drag & drop image to add keys · AES-GCM 256-bit encrypted storage · Bulk import from Google Authenticator, Aegis, 2FAS, Bitwarden, etc. · Multi-format export (TXT/JSON/CSV/HTML/Google migration QR codes) · Auto backup & restore · WebDAV/S3/OneDrive/Google Drive remote backup sync · Security/sync/preference settings · Multi-language support (Traditional Chinese / Simplified Chinese / English, with auto-detection) · Light/dark/follow-system themes · Fluent 2-inspired responsive UI
+> 💖 **Acknowledgements**: This project is built upon the wonderful foundation of [wuzf/2fa](https://github.com/wuzf/2fa) by [wuzf](https://github.com/wuzf). Deepest gratitude to the original author for the outstanding design and open-source contribution!
 
-## 📸 Screenshots
+---
 
-|                    Desktop                     |                    Tablet                    |                    Mobile                    |
+## 🌟 Key Features
+
+- 🛡️ **WebAuthn / Passkey / Touch ID Biometric Sign-in**:
+  Native zero-dependency FIDO2 authentication running directly on Cloudflare Workers edge using Web Crypto API. Sign in seamlessly with Apple Touch ID, Face ID, Windows Hello, Android Biometrics, or YubiKey hardware keys. Manage multiple registered devices under Settings.
+- 📱 **Native-Grade PWA & Smart Install Banner**:
+  Full Progressive Web App offline support. Generates TOTP/HOTP verification codes locally even when offline. Includes an intelligent install banner (Chromium/Android one-click prompt, iOS Safari "Add to Home Screen" instructions, and automatic concealment in standalone mode).
+- 🎨 **888 Brand Identity & 100/100 SEO / Open Graph**:
+  Modern deep blue gradient with 888 padlock icon. Generates scalable vector SVG, crisp 32x32 & 16x16 Favicons, Apple Touch Icon (180x180), high-res PWA icons, and 1200x630 social cards (`/og-image.jpg`) with schema.org JSON-LD structured metadata.
+- ☁️ **Multi-Cloud Backup & Real-Time Sync**:
+  Automatic push and restore across WebDAV (Nextcloud, Synology), S3-compatible storage (Cloudflare R2, AWS S3, MinIO), Microsoft OneDrive, and Google Drive.
+- ⏱️ **Precision Server Time Calibration (`/api/time`)**:
+  Zero-latency stateless time sync endpoint automatically offsets device clock discrepancies, eliminating OTP code invalidation caused by inaccurate system clocks.
+- 🔒 **End-to-End Security & Hardened Privacy**:
+  Zero-knowledge client-side AES-GCM 256-bit encryption for keys and backups; sliding-window rate limiting against brute force; secure HttpOnly SameSite=Strict Cookie JWT sessions with automatic silent renewal.
+- 🔄 **Universal Migration & Multi-Format Import/Export**:
+  Import and export Google Authenticator migration QR codes, Aegis, 2FAS, Bitwarden, and FreeOTP. Supports HTML (with or without embedded QR codes), JSON, CSV, and plain TXT.
+
+---
+
+## 📸 Interface Preview
+
+|                   Desktop UI                   |                  Tablet UI                   |                  Mobile UI                   |
 | :--------------------------------------------: | :------------------------------------------: | :------------------------------------------: |
 | ![Desktop](docs/images/screenshot-desktop.png) | ![Tablet](docs/images/screenshot-tablet.png) | ![Mobile](docs/images/screenshot-mobile.png) |
 
-## 🚀 Quick Deployment
+---
 
-### One-Click Deploy (Recommended)
+## 🚀 Quick Deployment to Cloudflare Workers
+
+### Option 1: One-Click Deploy (Recommended)
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/tbdavid2019/8882fa)
 
-> One-click deploy is recommended. All users should upgrade in-place via the **Sync Upstream** workflow. Do not upgrade by deleting the Worker, deleting the repository, or reinstalling.
+1. Click the deploy button and authorize with GitHub.
+2. Sign in to Cloudflare and click **Deploy**. KV storage (`SECRETS_KV`) will be initialized automatically.
+3. Open your deployed Worker URL, set your master password, and start securing your accounts!
 
-1. Click the button above, log in with GitHub and authorize
-2. Log in to your Cloudflare account, click **Deploy** and wait for deployment to complete (KV storage is created automatically)
-3. Open the Workers URL provided by Cloudflare, **set your admin password** and start using
+---
 
-> Git auto-build uses the `wrangler.toml` from the repository directly. The current config explicitly declares `SECRETS_KV`, and Wrangler will automatically create the required KV on first deploy and continue reusing the resource bound to the current Worker on subsequent deploys.
-> If you manually configure Git build commands in the Cloudflare Dashboard, **use `npm run deploy` as the deploy command, not `npx wrangler deploy` directly**, to preserve the version injection flow and stay consistent with the repository's default deploy entry.
-
-#### Recommended: Enable Data Encryption
-
-After deployment, add a Secret `ENCRYPTION_KEY` in **Cloudflare Dashboard → Worker → Settings → Variables**:
+### Option 2: Local CLI Deployment
 
 ```bash
-# Generate encryption key (choose one)
+# 1. Clone repository
+git clone https://github.com/tbdavid2019/8882fa.git
+cd 8882fa
+
+# 2. Install dependencies
+npm install
+
+# 3. Local development
+npm run dev
+
+# 4. Deploy to Cloudflare Workers
+npm run deploy
+```
+
+---
+
+### Recommended: Enable Master Data Encryption
+
+Add secret variable `ENCRYPTION_KEY` in **Cloudflare Dashboard → Workers → Your 8882fa Worker → Settings → Variables**:
+
+```bash
+# Generate 256-bit Base64 secret key
 openssl rand -base64 32
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
-> `ENCRYPTION_KEY` is the master key for decrypting existing data. **Recommended to set up**, provided you immediately save the original value to a password manager, offline backup, or other secure location.
->
-> If you cannot ensure the original value is saved, **it's better to not set it at all than to set it and lose it**:
->
-> - Once set: Secret list, auto backups, and WebDAV/S3/OneDrive/Google Drive credentials are all encrypted
-> - If lost: Cloudflare will not show the original value again; existing encrypted data and encrypted backups cannot be read or restored
-> - Current behavior: When encrypted data is detected but `ENCRYPTION_KEY` is missing, the system locks reads and writes to prevent accidental overwriting of old data
+---
 
-#### Version Updates
+## 🔑 Passkey & Touch ID Enrollment
 
-This repository (`tbdavid2019/8882fa`) is maintained independently.
-
-> ⚠️ **Always back up your data before upgrading**: Before performing a version update, export your current data via **Bulk Export** or **Restore Config → Export Backup** to prevent data loss in case of unexpected issues.
-
-To update:
-
-1. Pull the latest code locally: `git pull origin main`
-2. Deploy: `npm run deploy`, or push to your GitHub repository to trigger automatic Cloudflare deployment.
-
-Upgrades do not affect existing Workers, KV bindings, or Secrets. **If you've already set `ENCRYPTION_KEY`, you don't need to re-enter it.**
-
-## 📖 User Guide
-
-### Adding Keys
-
-Click the **➕** floating button in the bottom right:
-
-- **Scan QR Code** — Camera scan of 2FA QR codes, auto-fill
-- **Select Image** — Upload a QR code screenshot, auto-recognize
-- **Paste Screenshot** — Ctrl+V to paste QR code screenshots from clipboard (great for PC users without cameras)
-- **Drag & Drop Image** — Drag QR code images directly into the dialog, auto-recognize
-- **Manual Add** — Enter service name and Base32 secret (expand advanced settings to adjust digits/period/algorithm)
-
-### Daily Use
-
-- **Copy Code**: Click the code digits directly
-- **Manage Keys**: Click **⋯** on the top right of a card → View QR Code / Copy URI / Copy page link / Edit / Delete
-- **Search**: Real-time search by service name or account name in the top search bar
-- **Smart grouping**: Automatically group related services and multiple accounts, with an option to switch back to a flat list
-- **Sort**: Sort by add time or name
-- **Theme**: Floating action button → **Settings → Preferences → Theme Mode**, then choose light, dark, or follow system
-
-### Bulk Import
-
-Click the floating button → **📥 Bulk Import**, supports file import or text paste.
-
-**Compatible Formats:**
-
-| Source                 | Format                                     |
-| ---------------------- | ------------------------------------------ |
-| Universal              | `otpauth://` URI text (TXT), CSV, HTML     |
-| Google Authenticator   | Migration QR code (`otpauth-migration://`) |
-| Aegis                  | JSON export file                           |
-| 2FAS                   | `.2fas` export file                        |
-| Bitwarden              | JSON or Authenticator CSV export           |
-| LastPass Authenticator | JSON export file                           |
-| andOTP                 | JSON export file                           |
-| Ente Auth              | Export file                                |
-
-### Bulk Export
-
-Click the floating button → **📤 Bulk Export**, supports TXT, JSON, CSV, HTML formats, as well as generating **Google Authenticator migration QR codes** (can be scanned to import directly).
-Standard TXT / JSON / CSV / HTML exports prefer the unified backend format while online, and automatically fall back to a compatible local export when offline or when the request body is too large.
-
-### Backup & Restore
-
-The system backs up automatically (triggered on data changes + daily scheduled check), keeping the latest 100 backups (adjustable in settings).
-New backup files follow **Settings → Default Export Format**. Remote auto-backups use the same extension (`txt`, `json`, `csv`, or `html`).
-
-Click the floating button → **🔄 Restore Config** to view backup list, preview content, restore, or export; you can also upload a `backup_*.(txt|json|csv|html)` file downloaded from WebDAV/S3/OneDrive/Google Drive to preview and restore it.
-
-#### Remote Backup
-
-Supports syncing backups to remote storage, automatically pushing on data changes, with multiple backup targets configurable:
-
-- **WebDAV** — Supports standard WebDAV protocol cloud drives or self-hosted services (⚠️ Does not support Cloudflare-proxied services like Nutstore/jianguoyun, which trigger 520 loop errors)
-- **S3-Compatible Storage** — Supports AWS S3, Cloudflare R2, MinIO, Alibaba Cloud OSS, and other S3-compatible services
-- **OneDrive** — After Microsoft OAuth authorization, backups are written into a subfolder inside the app-specific OneDrive folder
-- **Google Drive** — After Google OAuth authorization, backups are written into the configured Google Drive folder
-
-Add and manage remote backup targets in **Settings → Sync Settings**.
-
-Remote backups store the same backup content generated by the app. If `ENCRYPTION_KEY` was configured when the backup was created, the remote file is encrypted ciphertext too; restoring it requires keeping the same `ENCRYPTION_KEY` in the Worker.
-
-Detailed setup steps: [Cloud Drive Setup](docs/CLOUD_DRIVE_SETUP.md) (currently Chinese).
-
-### Settings
-
-Click the floating button → **⚙️ Settings**:
-
-- **Change Password** — Change the admin password
-- **Theme Mode** — Choose light, dark, or follow system
-- **Code Transition Animation** — Disable animations or choose flow, flip, or spotlight
-- **Login Validity** — Customize JWT expiration time
-- **Default Export Format** — Controls the default export choice and the extension used for newly created backups and remote auto-backups
-- **Backup Retention Count** — Adjust auto backup retention count
-- **Remote Backup** — Configure WebDAV/S3/OneDrive/Google Drive backup targets
-- **Sign Out** — One-click clear of the current session cookie and local cache; still works locally when the server is unreachable
-
-### Install as Mobile App (PWA)
-
-- **iOS**: Open in Safari → Share button → Add to Home Screen
-- **Android**: Open in Chrome → Menu (⋮) → Add to Home Screen
-
-After installation, use it like a native app in full screen with offline access support.
-
-## 🔒 Security
-
-- **Password**: PBKDF2-SHA256 (100,000 iterations) salted hash, JWT stored in HttpOnly + Secure + SameSite=Strict cookies
-- **Data Encryption**: With `ENCRYPTION_KEY` configured, all secrets, backups, and WebDAV/S3/OneDrive/Google Drive credentials are encrypted with AES-GCM 256-bit; make sure to save the original key — encrypted data cannot be decrypted if lost
-- **Transport**: HTTPS throughout, TLS 1.2+
-- **Privacy**: OTP generated client-side, no usage data collected, fully open source
-- **Login Validity**: Default 30 days, customizable in settings, auto-renewed on active use (auto-extended when < 7 days remaining)
-
-## 🔗 Public OTP API
-
-Generate verification codes directly via URL without logging in:
-
-```
-https://your-worker.workers.dev/otp/YOUR_SECRET_KEY
-https://your-worker.workers.dev/otp/YOUR_SECRET_KEY?digits=8&period=60
-https://your-worker.workers.dev/otp/YOUR_SECRET_KEY?type=hotp&counter=5
-```
-
-Parameters: `type` (totp/hotp), `digits` (6/8), `period` (30/60/120), `algorithm` (sha1/sha256/sha512), `counter` (for HOTP)
-
-TOTP pages show both the current and next codes, each available to copy, and update in place when the period ends. HOTP pages use the counter specified in the link; copying does not advance it.
-
-## 📚 More Documentation
-
-| Document                                       | Description                                   |
-| ---------------------------------------------- | --------------------------------------------- |
-| [Deployment Guide](docs/DEPLOYMENT.md)         | Manual deployment, KV config, Secrets         |
-| [Cloud Drive Setup](docs/CLOUD_DRIVE_SETUP.md) | OneDrive / Google Drive setup steps (Chinese) |
-| [API Reference](docs/API_REFERENCE.md)         | Complete API endpoint documentation           |
-| [Architecture](docs/ARCHITECTURE.md)           | System architecture & technical design        |
-| [Development Guide](docs/DEVELOPMENT.md)       | Local development, testing, code style        |
-| [PWA Guide](docs/PWA_GUIDE.md)                 | PWA installation & offline features           |
-
-## 🤝 Contributing
-
-Welcome to submit [Issues](https://github.com/tbdavid2019/8882fa/issues) and [Pull Requests](https://github.com/tbdavid2019/8882fa/pulls). For development details, see the [Development Guide](docs/DEVELOPMENT.md).
-
-## 📄 License
-
-[MIT License](LICENSE)
-
-## 🌟 Star History
-
-<p align="center">
-  <a href="https://github.com/tbdavid2019/8882fa/tree/star-history">
-    <img alt="Star History Chart" src="https://raw.githubusercontent.com/tbdavid2019/8882fa/refs/heads/star-history/star-history.svg" />
-  </a>
-</p>
+1. Sign in with your master password, then open **Settings** (gear icon) in the floating action menu.
+2. In the **Security** tab, locate **Passkeys & Touch ID**.
+3. Click **Add Passkey** and provide a friendly name (e.g. `MacBook Pro Touch ID` or `iPhone Face ID`).
+4. Follow your browser's prompt to verify your biometric fingerprint or face.
+5. On subsequent visits, click **Sign in with Touch ID / Passkey** on the login modal to log in instantly!
 
 ---
 
-<div align="center">
+## 📄 License
 
-**If this project helps you, please give it a ⭐**
+This project is licensed under the **[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)**.
 
-Made with ❤️ by [tbdavid2019](https://github.com/tbdavid2019) (originally based on [wuzf/2fa](https://github.com/wuzf/2fa))
-
-</div>
+```text
+Copyright (C) 2026 tbdavid2019 <https://github.com/tbdavid2019>
+Portions Copyright (C) 2024 wuzf <https://github.com/wuzf>
+```

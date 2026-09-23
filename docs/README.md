@@ -1,49 +1,40 @@
-# 📚 888 2FA 项目文档
+# 📚 888 2FA 專案文件
 
-> 完整的项目文档、部署指南和开发文档。
+> 完整的專案說明、部署教學與開發文件。
 
-## 🚀 快速导航
+## 🚀 快速導覽
 
-### 新用户
+### 使用者專區
 
-- **[部署指南](DEPLOYMENT.md)** - 一键部署到 Cloudflare Workers
-- **[PWA 安装指南](PWA_GUIDE.md)** - 安装 PWA 到手机和桌面
-- **[网盘备份配置指南](CLOUD_DRIVE_SETUP.md)** - 配置 OneDrive / Google Drive 远程备份
+- **[部署指南](DEPLOYMENT.md)** - 一鍵快速部署至 Cloudflare Workers
+- **[PWA 安裝指南](PWA_GUIDE.md)** - 將 PWA 安裝至手機主畫面與桌面端
+- **[雲端備份設定指南](CLOUD_DRIVE_SETUP.md)** - 設定 OneDrive / Google Drive / S3 / WebDAV 遠端備份
 
-### 开发者
+### 開發者專區
 
-- **[开发文档](DEVELOPMENT.md)** - 本地开发、测试、部署流程
-- **[架构文档](ARCHITECTURE.md)** - 系统设计和技术架构
-- **[API 参考](API_REFERENCE.md)** - API 端点和集成文档
+- **[開發文件](DEVELOPMENT.md)** - 本機開發、測試與自動化部署流程
+- **[架構文件](ARCHITECTURE.md)** - 系統設計、安全模型與技術架構
+- **[API 參考](API_REFERENCE.md)** - API 端點與整合文件
 
-## 📦 文档列表
+## 📦 文件清單
 
-| 文档                                         | 说明         | 适用对象        |
-| -------------------------------------------- | ------------ | --------------- |
-| [DEPLOYMENT.md](DEPLOYMENT.md)               | 部署指南     | 所有用户        |
-| [CLOUD_DRIVE_SETUP.md](CLOUD_DRIVE_SETUP.md) | 网盘备份配置 | 部署者 / 管理员 |
-| [DEVELOPMENT.md](DEVELOPMENT.md)             | 开发文档     | 开发者          |
-| [ARCHITECTURE.md](ARCHITECTURE.md)           | 架构文档     | 开发者          |
-| [API_REFERENCE.md](API_REFERENCE.md)         | API 参考     | 集成开发者      |
-| [PWA_GUIDE.md](PWA_GUIDE.md)                 | PWA 指南     | 终端用户        |
+| 文件                                         | 說明             | 適用對象        |
+| :------------------------------------------- | :--------------- | :-------------- |
+| [DEPLOYMENT.md](DEPLOYMENT.md)               | 部署指南         | 所有使用者      |
+| [CLOUD_DRIVE_SETUP.md](CLOUD_DRIVE_SETUP.md) | 雲端硬碟備份設定 | 部署者 / 管理員 |
+| [DEVELOPMENT.md](DEVELOPMENT.md)             | 開發文件         | 開發者          |
+| [ARCHITECTURE.md](ARCHITECTURE.md)           | 架構文件         | 開發者          |
+| [API_REFERENCE.md](API_REFERENCE.md)         | API 參考         | 整合開發者      |
+| [PWA_GUIDE.md](PWA_GUIDE.md)                 | PWA 指南         | 終端使用者      |
 
-## 📌 我想...
+## 🔗 其他資源
 
-- **部署应用** → [DEPLOYMENT.md](DEPLOYMENT.md)
-- **配置 OneDrive / Google Drive 备份** → [CLOUD_DRIVE_SETUP.md](CLOUD_DRIVE_SETUP.md)
-- **本地开发** → [DEVELOPMENT.md](DEVELOPMENT.md#️-开发环境)
-- **了解架构** → [ARCHITECTURE.md](ARCHITECTURE.md)
-- **调用 API** → [API_REFERENCE.md](API_REFERENCE.md)
-- **安装 PWA** → [PWA_GUIDE.md](PWA_GUIDE.md)
-- **运行测试** → [DEVELOPMENT.md](DEVELOPMENT.md#-测试指南)
-- **故障排查** → [DEVELOPMENT.md](DEVELOPMENT.md#-故障排查)
-
-## 🔗 其他资源
-
-- [项目主 README](../README.md) - 项目介绍和特性
-- [GitHub Issues](https://github.com/tbdavid2019/8882fa/issues) - 问题反馈
+- [專案主 README](../README.md) - 專案特色與部署說明
+- [更新日誌](../CHANGELOG.md) - 版本更新紀錄
+- [GitHub Issues](https://github.com/tbdavid2019/8882fa/issues) - 問題回報與建議
 
 ---
 
-**维护者**: tbdavid2019
-**许可证**: MIT
+**維護者**: tbdavid2019  
+**原作者**: wuzf  
+**開源授權**: GNU AGPL-3.0

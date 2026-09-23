@@ -49,11 +49,6 @@ const SYNC_TARGETS = [
 		pattern: /(badge\/version-)\d+\.\d+\.\d+(-blue)/,
 		replacement: (v) => `$1${v}$2`,
 	},
-	{
-		file: 'README_TC.md',
-		pattern: /(badge\/version-)\d+\.\d+\.\d+(-blue)/,
-		replacement: (v) => `$1${v}$2`,
-	},
 ];
 
 /** 发版 commit 包含的全部文件 */
