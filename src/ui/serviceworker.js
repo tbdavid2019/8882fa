@@ -54,7 +54,10 @@ const STATIC_RESOURCES = [
   '/',
   '/manifest.json',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/fonts/maple-mono-regular.woff2',
+  '/fonts/maple-mono-bold.woff2',
+  '/fonts/maple-mono-cjk.css'
   // 注意：API 请求不缓存，因为需要实时数据
 ];
 

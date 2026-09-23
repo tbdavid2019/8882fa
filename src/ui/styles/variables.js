@@ -7,9 +7,24 @@ import { PROGRESS_GRADIENT, PROGRESS_HEIGHT } from './progress.js';
 export function getVariables() {
 	return `
     /* ========== CSS 变量系统 ========== */
+    @font-face {
+      font-family: 'Maple Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/fonts/maple-mono-regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Maple Mono';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('/fonts/maple-mono-bold.woff2') format('woff2');
+    }
 
     /* 浅色模式变量定义 */
     :root {
+      --font-ui: 'Maple Mono', 'JetBrains Mono', 'Maple Mono CN', 'SF Mono', 'Cascadia Mono', monospace;
       /* === 主题过渡动画 === */
       --theme-transition-duration: 0.18s;
       --theme-transition:

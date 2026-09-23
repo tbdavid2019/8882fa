@@ -82,12 +82,14 @@ function syncVersion(version) {
 	for (const { file, pattern, replacement } of SYNC_TARGETS) {
 		const path = join(ROOT, file);
 		const content = readFileSync(path, 'utf-8');
-		if (!pattern.test(content)) {
+		const globalPattern = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`);
+		if (!globalPattern.test(content)) {
 			console.error(`❌ ${file}: 未匹配到版本号模式 ${pattern}，请检查文件内容或更新 SYNC_TARGETS`);
 			failed = true;
 			continue;
 		}
-		const updated = content.replace(pattern, replacement(version));
+		globalPattern.lastIndex = 0;
+		const updated = content.replace(globalPattern, replacement(version));
 		if (updated === content) {
 			console.log(`✓  ${file} 已是 ${version}`);
 		} else {

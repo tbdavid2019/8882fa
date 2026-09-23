@@ -1,6 +1,6 @@
 {
   "name": "8882fa",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "type": "module",
   "private": true,
   "description": "888 2FA - Two Factor Authenticator using Cloudflare Workers (繁體中文 / 簡體中文 / English)",

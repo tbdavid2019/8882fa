@@ -401,7 +401,7 @@ export function getComponentStyles() {
     }
 
     .otp-code {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'SF Pro Display', monospace;
+      font-family: var(--font-ui);
       font-size: 42px;
       font-weight: 300;
       color: var(--otp-text);
@@ -454,7 +454,7 @@ export function getComponentStyles() {
     }
 
     .otp-next-code {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 16px;
       font-weight: 600;
       color: var(--otp-next-text);
@@ -656,7 +656,7 @@ export function getComponentStyles() {
       margin: 0;
       padding: 0;
       color: var(--otp-text);
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'SF Pro Display', monospace;
+      font-family: var(--font-ui);
       font-size: 42px;
       font-weight: 300;
       letter-spacing: 6px;
@@ -956,7 +956,7 @@ export function getComponentStyles() {
     }
 
     .footer-version {
-      font-family: monospace;
+      font-family: var(--font-ui);
       color: var(--text-tertiary);
       user-select: text;
     }

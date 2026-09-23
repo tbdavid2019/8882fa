@@ -963,6 +963,9 @@ export function requiresAuth(pathname) {
 		'/apple-touch-icon-precomposed.png', // iOS 兼容图标
 		'/og-image.jpg', // Open Graph / Twitter 分享封面图
 		'/og-image.png', // Open Graph PNG 别名
+		'/fonts/maple-mono-regular.woff2', // UI webfont
+		'/fonts/maple-mono-bold.woff2', // UI webfont
+		'/fonts/maple-mono-cjk.css', // Maple Mono CJK glyph subsets
 		'/otp', // OTP 生成页面（无参数）
 		'/api/onedrive/oauth/callback',
 		'/api/gdrive/oauth/callback',
@@ -977,6 +980,9 @@ export function requiresAuth(pathname) {
 
 	// OTP 生成路径不需要认证（公开访问）
 	if (pathname.startsWith('/otp/')) {
+		return false;
+	}
+	if (pathname.startsWith('/fonts/cjk/')) {
 		return false;
 	}
 

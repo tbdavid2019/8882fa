@@ -4,7 +4,7 @@ A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powere
 
 **[繁體中文](README.md) · [English](README_EN.md)**
 
-[![Version](https://img.shields.io/badge/version-1.9.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-blue.svg)](CHANGELOG.md)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 

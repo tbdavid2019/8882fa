@@ -61,6 +61,7 @@ import { createMainPage } from '../ui/page.js';
 import { createSetupPage } from '../ui/setupPage.js';
 import { createManifest } from '../ui/manifest.js';
 import { createBrandAssetResponse } from '../ui/assets/brandAssets.js';
+import { createFontAssetResponse, createMapleMonoCjkStylesheet } from '../ui/assets/fontAssets.js';
 import { createServiceWorker } from '../ui/serviceworker.js';
 import { getModuleCode } from '../ui/scripts/index.js';
 
@@ -166,6 +167,18 @@ export async function handleRequest(request, env, ctx) {
 		}
 
 		// Favicon & PWA Icons & Open Graph Assets
+		if (pathname === '/fonts/maple-mono-regular.woff2') {
+			return createFontAssetResponse('regular');
+		}
+		if (pathname === '/fonts/maple-mono-bold.woff2') {
+			return createFontAssetResponse('bold');
+		}
+		if (pathname === '/fonts/maple-mono-cjk.css') {
+			return createMapleMonoCjkStylesheet();
+		}
+		if (pathname.startsWith('/fonts/cjk/')) {
+			return createFontAssetResponse(pathname.slice('/fonts/'.length));
+		}
 		if (pathname === '/favicon.svg') {
 			return createBrandAssetResponse('svg');
 		}

@@ -9,7 +9,8 @@ export function getBaseStyles() {
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+      font-family: var(--font-ui);
+      font-variant-ligatures: none;
       background: var(--bg-primary);
       min-height: 100vh;
       padding: 0;

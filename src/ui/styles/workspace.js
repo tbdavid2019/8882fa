@@ -2,16 +2,17 @@
 export function getWorkspaceStyles() {
 	return `
     .fluent-app {
-      --workspace-bg: #fafafa;
-      --workspace-surface: #ffffff;
-      --workspace-hover: #f0f0f0;
-      --workspace-selected: #eff6fc;
-      --workspace-brand: #0f6cbd;
-      --workspace-warning: #8a3707;
-      --workspace-text: #242424;
-      --workspace-muted: #616161;
-      --workspace-line: #e0e0e0;
-      --workspace-stroke: #d1d1d1;
+      /* Pantone 17-1230 Mocha Mousse / Relaxed Elegance inspired neutrals. */
+      --workspace-bg: #f7f4ef;
+      --workspace-surface: #fffdfa;
+      --workspace-hover: #eee8df;
+      --workspace-selected: #efe5da;
+      --workspace-brand: #76543f;
+      --workspace-warning: #76543f;
+      --workspace-text: #302820;
+      --workspace-muted: #675b50;
+      --workspace-line: #e4dbd0;
+      --workspace-stroke: #cfc2b4;
       --workspace-shadow: 0 2px 4px #0000000a, 0 0 2px #0000000a;
       --workspace-menu-shadow: 0 8px 24px #0000001f, 0 1px 4px #00000014;
       --bg-primary: var(--workspace-bg);
@@ -54,39 +55,71 @@ export function getWorkspaceStyles() {
       --footer-border: var(--workspace-line);
       --primary: var(--workspace-brand);
       --accent-color: var(--workspace-brand);
+      --btn-primary-bg: var(--workspace-brand);
+      --btn-primary-hover: #61432f;
+      --btn-primary-text: #ffffff;
+      --btn-secondary-bg: #8b7969;
+      --btn-secondary-hover: #756454;
       --danger: #b10e1c;
       --danger-light: #fdf3f4;
-      font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      font-family: var(--font-ui);
+      font-variant-ligatures: none;
       font-size: 14px;
-      background: #ffffff;
+      background: var(--workspace-bg);
       color: var(--workspace-text);
       color-scheme: light;
       padding: 0;
     }
     [data-theme="dark"] .fluent-app {
-      --workspace-bg: #1f1f1f;
-      --workspace-surface: #292929;
-      --workspace-hover: #383838;
-      --workspace-selected: #20384c;
-      --workspace-brand: #62abf5;
-      --workspace-warning: #f5b894;
-      --workspace-text: #ffffff;
-      --workspace-muted: #bdbdbd;
-      --workspace-line: #424242;
-      --workspace-stroke: #666666;
+      --workspace-bg: #211d1a;
+      --workspace-surface: #2b2521;
+      --workspace-hover: #3a312b;
+      --workspace-selected: #49382d;
+      --workspace-brand: #d5b49a;
+      --workspace-warning: #e1b88d;
+      --workspace-text: #f4eee8;
+      --workspace-muted: #c7b9ad;
+      --workspace-line: #4a3e35;
+      --workspace-stroke: #756254;
       --workspace-shadow: 0 2px 4px #00000020;
       --workspace-menu-shadow: 0 8px 24px #00000055, 0 1px 4px #00000033;
       --danger: #ff9a9f;
       --danger-light: #3b2529;
+      --btn-primary-bg: var(--workspace-brand);
+      --btn-primary-hover: #e7cdb7;
+      --btn-primary-text: #211d1a;
+      --btn-secondary-bg: #756254;
+      --btn-secondary-hover: #8d7866;
       background: var(--workspace-bg);
       color-scheme: dark;
     }
+    [data-theme="dark"] .fluent-app :is(.main-action-button, .workspace-action) { color: #211d1a; }
+    [data-theme="dark"] .fluent-app :is(.main-action-button:hover, .main-action-button.active, .workspace-action:hover) { background: #e7cdb7; border-color: #e7cdb7; }
     .fluent-app > .container { max-width: 1400px; }
     .fluent-app .content { padding: 24px 24px 40px; text-align: left; }
     .fluent-app .search-section { margin-bottom: 24px; }
     .fluent-app .clock-warning { background: var(--workspace-surface); border: 1px solid var(--workspace-line); border-left: 3px solid var(--workspace-warning); border-radius: 4px; }
     .fluent-app .clock-warning-icon { color: var(--workspace-warning); display: flex; }
     .fluent-app .search-action-row { gap: 12px; }
+    .fluent-app .sort-controls { display: flex; align-items: center; gap: 8px; }
+    .fluent-app .quick-language-control { position: relative; flex: 0 0 auto; }
+    .fluent-app .quick-language-control > summary { display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 58px; height: 42px; box-sizing: border-box; list-style: none; border: 1px solid var(--workspace-stroke); border-radius: 4px; background: var(--workspace-surface); color: var(--workspace-muted); cursor: pointer; }
+    .fluent-app .quick-language-control > summary::-webkit-details-marker { display: none; }
+    .fluent-app .quick-language-control > summary::marker { content: ''; }
+    .fluent-app .quick-language-control > summary svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .fluent-app #quickLanguageCurrent { min-width: 1em; color: var(--workspace-text); font-size: 12px; font-weight: 600; text-align: center; }
+    .fluent-app .quick-language-control > summary:hover { background: var(--workspace-hover); }
+    .fluent-app .quick-language-control:focus-within > summary { outline: 2px solid var(--workspace-brand); outline-offset: 2px; }
+    .fluent-app .quick-language-menu { position: absolute; z-index: 1004; top: calc(100% + 6px); right: 0; display: grid; min-width: 176px; padding: 4px; border: 1px solid var(--workspace-line); border-radius: 6px; background: var(--workspace-surface); box-shadow: var(--workspace-menu-shadow); }
+    .fluent-app .quick-language-menu button { min-height: 44px; padding: 8px 12px; border: 0; border-radius: 4px; background: transparent; color: var(--workspace-text); font: inherit; text-align: left; cursor: pointer; }
+    .fluent-app .quick-language-menu button:hover, .fluent-app .quick-language-menu button[aria-pressed="true"] { background: var(--workspace-selected); color: var(--workspace-brand); }
+    .fluent-app .quick-language-menu button:focus-visible { outline: 2px solid var(--workspace-brand); outline-offset: -2px; }
+    .fluent-app .quick-theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 42px; padding: 0; border: 1px solid var(--workspace-stroke); border-radius: 4px; background: var(--workspace-surface); color: var(--workspace-brand); cursor: pointer; }
+    .fluent-app .quick-theme-toggle:hover { background: var(--workspace-hover); }
+    .fluent-app .quick-theme-toggle[data-current-theme="dark"] { background: var(--workspace-selected); border-color: var(--workspace-brand); }
+    .fluent-app .quick-theme-icon { display: inline-flex; color: inherit; }
+    .fluent-app .quick-theme-icon svg { display: block; width: 18px; height: 18px; }
+    .fluent-app .quick-theme-toggle:focus-visible { outline: 2px solid var(--workspace-brand); outline-offset: 2px; }
     .fluent-app .search-input-wrapper { border: 1px solid var(--search-border); border-bottom-color: #8a8a8a; border-radius: 4px; }
     .fluent-app .search-input-wrapper:focus-within { border-color: var(--workspace-brand); box-shadow: inset 0 -1px var(--workspace-brand); }
     .fluent-app .search-input, .fluent-app .search-icon, .fluent-app .search-clear { height: 40px; }
@@ -139,17 +172,17 @@ export function getWorkspaceStyles() {
     .fluent-app .card-menu-dropdown .menu-item:hover { background: var(--workspace-hover); }
     .fluent-app .otp-preview { margin-top: auto; padding: 4px 0 16px; }
     .fluent-app .otp-main { gap: 12px; }
-    .fluent-app .otp-code { font-family: 'Segoe UI Variable Display','Segoe UI','Microsoft YaHei',sans-serif; font-size: 32px; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 40px; letter-spacing: 1.5px; margin: 0; padding: 0; border-radius: 4px; white-space: nowrap; }
+    .fluent-app .otp-code { font-family: var(--font-ui); font-size: 32px; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 40px; letter-spacing: 1.5px; margin: 0; padding: 0; border-radius: 4px; white-space: nowrap; }
     .fluent-app .otp-code:hover { color: var(--workspace-brand); }
     .fluent-app .otp-next-container { min-width: 64px; padding: 4px 6px; border: 0; border-radius: 4px; font-family: inherit; background: var(--otp-next-bg); color: var(--workspace-muted); }
     .fluent-app .otp-next-container:hover { background: var(--otp-next-bg-hover); }
     .fluent-app .otp-next-label { display: none; }
-    .fluent-app .otp-next-code { font-family: 'Segoe UI Variable Text','Segoe UI',sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 500; line-height: 20px; letter-spacing: .5px; }
+    .fluent-app .otp-next-code { font-family: var(--font-ui); font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 400; line-height: 20px; letter-spacing: .5px; }
     .fluent-app .progress-top { left: 16px; right: 16px; top: -1px; border-radius: 0; }
     .fluent-app .progress-top-fill { background: var(--progress-fill); }
-    .fluent-app .main-action-button { --action-btn-shadow: 0 2px 8px #00000026; background: #8e44ad; border: 1px solid #8e44ad; border-radius: 50%; color: #fff; box-shadow: var(--action-btn-shadow); transition: background .12s ease, transform .16s ease; }
-    .fluent-app .main-action-button:hover { background: #7d3c98; border-color: #7d3c98; box-shadow: 0 2px 8px #00000026; transform: none; }
-    .fluent-app .main-action-button.active { transform: none; background: #7d3c98; border-color: #7d3c98; }
+    .fluent-app .main-action-button { --action-btn-shadow: 0 2px 8px #00000026; background: var(--workspace-brand); border: 1px solid var(--workspace-brand); border-radius: 50%; color: #fff; box-shadow: var(--action-btn-shadow); transition: background .12s ease, transform .16s ease; }
+    .fluent-app .main-action-button:hover { background: #61432f; border-color: #61432f; box-shadow: 0 2px 8px #00000026; transform: none; }
+    .fluent-app .main-action-button.active { transform: none; background: #61432f; border-color: #61432f; }
     .fluent-app .main-action-button .dialog-icon { width: 24px; height: 24px; transition: transform .16s ease; }
     .fluent-app .main-action-button.active .dialog-icon { transform: rotate(45deg); }
     .fluent-app .action-submenu { padding: 4px; }
@@ -162,18 +195,21 @@ export function getWorkspaceStyles() {
     .fluent-app .empty-state .icon svg { width: 36px; height: 36px; }
     .fluent-app .empty-state h3 { font-size: 20px; font-weight: 600; color: var(--workspace-text); margin-bottom: 8px; }
     .fluent-app .empty-state p { font-size: 14px; line-height: 22px; }
-    .fluent-app .workspace-action { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 6px 16px; margin-top: 20px; border: 1px solid #0f6cbd; border-radius: 4px; background: #0f6cbd; color: #fff; font: 600 14px/20px 'Segoe UI','Microsoft YaHei',sans-serif; cursor: pointer; }
-    .fluent-app .workspace-action:hover { background: #115ea3; }
+    .fluent-app .workspace-action { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 6px 16px; margin-top: 20px; border: 1px solid var(--workspace-brand); border-radius: 4px; background: var(--workspace-brand); color: #fff; font: 600 14px/20px 'Segoe UI','Microsoft YaHei',sans-serif; cursor: pointer; }
+    .fluent-app .workspace-action:hover { background: #61432f; }
     .fluent-app .page-footer { background: transparent; font-size: 12px; padding-bottom: 28px; border-top: 1px solid var(--workspace-line); }
     .fluent-app .footer-link, .fluent-app .footer-info { color: var(--workspace-muted); }
     .fluent-app .footer-link:hover { color: var(--workspace-brand); }
-    .fluent-app :is(.search-clear,.sort-trigger,.card-menu-trigger,.menu-item,.submenu-item,.main-action-button,.otp-code,.otp-next-container,.workspace-action):focus-visible { outline: 2px solid var(--workspace-brand); outline-offset: 3px; }
+    .fluent-app :is(.search-clear,.sort-trigger,.quick-theme-toggle,.card-menu-trigger,.menu-item,.submenu-item,.main-action-button,.otp-code,.otp-next-container,.workspace-action):focus-visible { outline: 2px solid var(--workspace-brand); outline-offset: 3px; }
     @media (max-width: 768px) {
       .fluent-app .content { padding: 16px 16px 32px; }
       .fluent-app .search-section { margin-bottom: 20px; }
       .fluent-app .search-input { font-size: 16px; }
       .fluent-app .search-input, .fluent-app .search-icon, .fluent-app .search-clear { height: 42px; }
       .fluent-app .sort-trigger { height: 44px; width: 44px; }
+      .fluent-app .quick-language-control > summary { height: 44px; }
+      .fluent-app .quick-theme-toggle { height: 44px; }
+      .fluent-app .quick-theme-icon svg { width: 20px; height: 20px; }
       .fluent-app .secrets-list, .fluent-app .service-group-grid { grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 12px; }
       .fluent-app .secret-card { padding: 16px; }
       .fluent-app .card-menu, .fluent-app .card-menu-trigger { min-width: 44px; min-height: 44px; width: 44px; height: 44px; }
@@ -187,6 +223,11 @@ export function getWorkspaceStyles() {
       .fluent-app .secrets-list, .fluent-app .service-group-grid { grid-template-columns: minmax(0,1fr); }
       .fluent-app .secret-card { padding: 14px; }
       .fluent-app .otp-code { font-size: 28px; letter-spacing: .5px; }
+    }
+    @media (max-width: 600px) {
+      .fluent-app .search-action-row { flex-wrap: wrap; gap: 8px; }
+      .fluent-app .search-input-wrapper { flex: 1 0 100%; width: 100%; }
+      .fluent-app .sort-controls { flex: 1 0 100%; width: 100%; justify-content: flex-end; gap: 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .fluent-app .secret-card, .fluent-app .main-action-button, .fluent-app .main-action-button .dialog-icon { transition: none; }

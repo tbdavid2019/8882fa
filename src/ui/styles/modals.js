@@ -899,7 +899,7 @@ export function getModalStyles() {
       background: var(--card-bg);
       padding: 4px 6px;
       border-radius: var(--radius-sm);
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-family: var(--font-ui);
       word-break: break-all;
       display: block;
       margin-top: 6px;
@@ -983,7 +983,7 @@ export function getModalStyles() {
     .import-textarea {
       border-radius: var(--radius-sm);
       border: 2px solid var(--input-border);
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-family: var(--font-ui);
       font-size: 13px;
       line-height: 1.5;
       background: var(--input-bg-focus);
@@ -1127,7 +1127,7 @@ export function getModalStyles() {
       border: 2px solid var(--input-border);
       border-radius: var(--radius-sm);
       font-size: 14px;
-      font-family: monospace;
+      font-family: var(--font-ui);
       resize: vertical;
       min-height: 120px;
       background: var(--input-bg-focus);

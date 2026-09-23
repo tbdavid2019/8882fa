@@ -135,6 +135,7 @@ export const en = {
 	themeLight: 'Light Mode',
 	themeDark: 'Dark Mode',
 	themeAuto: 'System',
+	themePaletteNote: 'Palette inspired by PANTONE 17-1230 Mocha Mousse and the Relaxed Elegance palette.',
 	languageTitle: 'Interface Language',
 	langAuto: 'System (Auto)',
 	langZhTW: '繁體中文',

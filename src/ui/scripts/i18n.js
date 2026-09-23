@@ -58,6 +58,7 @@ export function getI18nCode() {
       if (langSelect) {
         langSelect.value = currentLanguagePreference;
       }
+      updateQuickLanguageControl();
     }
 
     function getLanguage() {
@@ -66,6 +67,19 @@ export function getI18nCode() {
 
     function getLanguagePreference() {
       return currentLanguagePreference;
+    }
+
+    function updateQuickLanguageControl() {
+      if (typeof document === 'undefined') return;
+      const current = document.getElementById('quickLanguageCurrent');
+      if (current) {
+        current.textContent = currentLanguagePreference === 'auto'
+          ? 'A'
+          : currentResolvedLanguage === 'en' ? 'EN' : currentResolvedLanguage === 'zh-CN' ? '简' : '繁';
+      }
+      document.querySelectorAll('#quickLanguageControl [data-language]').forEach(option => {
+        option.setAttribute('aria-pressed', String(option.dataset.language === currentLanguagePreference));
+      });
     }
 
     function t(key, params) {
@@ -148,6 +162,7 @@ export function getI18nCode() {
       if (langSelect && langSelect.value !== currentLanguagePreference) {
         langSelect.value = currentLanguagePreference;
       }
+      updateQuickLanguageControl();
 
       // 重新渲染当前可能处于活动状态的动态列表
       if (typeof renderSecrets === 'function' && Array.isArray(secrets) && secrets.length > 0) {
@@ -176,6 +191,7 @@ export function getI18nCode() {
         if (langSelect) {
           langSelect.value = currentLanguagePreference;
         }
+        updateQuickLanguageControl();
       };
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', onReady);

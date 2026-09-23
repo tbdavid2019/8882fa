@@ -135,6 +135,7 @@ export const zhTW = {
 	themeLight: '淺色模式',
 	themeDark: '深色模式',
 	themeAuto: '跟隨系統',
+	themePaletteNote: '配色靈感來自 PANTONE 17-1230 Mocha Mousse 與 Relaxed Elegance 公開調色板。',
 	languageTitle: '介面語言',
 	langAuto: '跟隨系統 (Auto)',
 	langZhTW: '繁體中文',

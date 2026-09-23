@@ -4,7 +4,7 @@
 
 **[繁體中文](#-888-2fa) · [English](#-888-2fa-english)**
 
-[![Version](https://img.shields.io/badge/version-1.9.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-blue.svg)](CHANGELOG.md)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 
@@ -115,7 +115,7 @@ Portions Copyright (C) 2024 wuzf <https://github.com/wuzf>
 
 A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powered by Cloudflare Workers. Free edge deployment, global acceleration, comprehensive PWA offline capabilities, and instant WebAuthn / Passkey biometric sign-in.
 
-[![Version](https://img.shields.io/badge/version-1.9.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.1-blue.svg)](CHANGELOG.md)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloudflare%20Workers-orange.svg)](https://workers.cloudflare.com/)
 

@@ -16,6 +16,7 @@ export function getSettingsCode() {
     let preferencesLoadRequestId = 0;
     let defaultExportFormatChangeVersion = 0;
     let defaultExportFormatSaveRequestId = 0;
+    let languagePreferenceSaveVersion = 0;
     let preferenceSaveQueue = Promise.resolve();
     const NUMERIC_PREFERENCE_SAVE_DELAY = 500;
     const numericPreferences = {
@@ -295,6 +296,7 @@ export function getSettingsCode() {
       // 主题模式
       const requestId = ++preferencesLoadRequestId;
       const formatVersionAtStart = defaultExportFormatChangeVersion;
+      const languageVersionAtStart = languagePreferenceSaveVersion;
       const numericVersionsAtStart = {};
       Object.keys(numericPreferences).forEach(key => {
         const state = numericPreferences[key];
@@ -337,7 +339,7 @@ export function getSettingsCode() {
             formatSelect.value = data.defaultExportFormat;
             localStorage.setItem('defaultExportFormat', data.defaultExportFormat);
           }
-          if (langSelect && data.language) {
+          if (langSelect && data.language && languagePreferenceSaveVersion === languageVersionAtStart) {
             langSelect.value = data.language;
             if (typeof setLanguage === 'function') {
               setLanguage(data.language);
@@ -419,7 +421,14 @@ export function getSettingsCode() {
      * 保存界面语言偏好
      * @param {string} selectedLang - 选中的语言代码
      */
+    function chooseQuickLanguage(selectedLang) {
+      const languageControl = document.getElementById('quickLanguageControl');
+      if (languageControl) languageControl.open = false;
+      saveLanguagePreference(selectedLang);
+    }
+
     async function saveLanguagePreference(selectedLang) {
+      const saveVersion = ++languagePreferenceSaveVersion;
       if (typeof setLanguage === 'function') {
         setLanguage(selectedLang);
       }
@@ -430,14 +439,19 @@ export function getSettingsCode() {
           body: JSON.stringify({ language: selectedLang }),
         }));
         const data = await resp.json();
+        if (saveVersion !== languagePreferenceSaveVersion) return;
         if (resp.ok && data.success) {
           const msg = (typeof t === 'function' ? t('languageSaved') : null) || 'Language preference saved';
           if (typeof showCenterToast === 'function') {
             showCenterToast('✅', msg);
           }
+        } else if (typeof showCenterToast === 'function') {
+          showCenterToast('❌', data.message || (typeof t === 'function' ? t('networkErrorRetry') : null) || 'Language preference could not be saved. Please try again.');
         }
-      } catch (e) {
-        // 静默网络异常或保持当前界面语言
+      } catch {
+        if (saveVersion === languagePreferenceSaveVersion && typeof showCenterToast === 'function') {
+          showCenterToast('❌', (typeof t === 'function' ? t('networkErrorRetry') : null) || 'Network error. Language preference was not saved. Please retry later.');
+        }
       }
     }
 

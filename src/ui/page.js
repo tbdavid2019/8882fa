@@ -49,6 +49,7 @@ function getHTMLStart() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>888 2FA - Two-Factor Authentication Manager</title>
+  <link rel="stylesheet" href="/fonts/maple-mono-cjk.css">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://2fa.david888.com">
@@ -263,6 +264,25 @@ function getHTMLBody() {
             <button class="search-clear" aria-label="Clear search" data-i18n-aria-label="searchClearAriaLabel" id="searchClear" onclick="clearSearch()" style="display: none;">${dialogIcon('close')}</button>
       </div>
           <div class="sort-controls">
+            <details class="quick-language-control" id="quickLanguageControl">
+              <summary aria-label="Interface language" data-i18n-aria-label="languageTitle" title="Interface language" data-i18n-title="languageTitle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                  <path d="M2 12h20"></path>
+                </svg>
+                <span id="quickLanguageCurrent" aria-hidden="true">繁</span>
+              </summary>
+              <div class="quick-language-menu" aria-label="Interface language" data-i18n-aria-label="languageTitle">
+                <button type="button" data-language="zh-TW" aria-pressed="false" onclick="chooseQuickLanguage('zh-TW')" data-i18n="langZhTW">繁體中文</button>
+                <button type="button" data-language="zh-CN" aria-pressed="false" onclick="chooseQuickLanguage('zh-CN')" data-i18n="langZhCN">简体中文</button>
+                <button type="button" data-language="en" aria-pressed="false" onclick="chooseQuickLanguage('en')" data-i18n="langEn">English</button>
+                <button type="button" data-language="auto" aria-pressed="false" onclick="chooseQuickLanguage('auto')" data-i18n="langAuto">System (Auto)</button>
+              </div>
+            </details>
+            <button type="button" class="quick-theme-toggle" id="quickThemeToggle" onclick="toggleQuickTheme()" aria-label="Dark Mode" title="Dark Mode" data-i18n-title="themeDark" data-i18n-aria-label="themeDark" data-current-theme="light">
+              <span class="quick-theme-icon" id="quickThemeIcon" aria-hidden="true">${dialogIcon('moon')}</span>
+            </button>
             <details class="sort-dropdown" id="sortDropdown">
               <summary class="sort-trigger" aria-label="View & Sort" title="View & Sort" data-i18n-aria-label="sortTriggerLabel" data-i18n-title="sortTriggerLabel">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -699,7 +719,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
             id="qrContentInput"
             class="content-input"
             placeholder="Enter content to generate QR code" data-i18n-placeholder="qrGenInputPlaceholder"
-            rows="6" style="width: 100%; font-family: monospace; resize: vertical;"
+            rows="6" style="width: 100%; font-family: var(--font-ui); resize: vertical;"
             autocomplete="off"
           ></textarea>
         </div>
@@ -708,7 +728,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       <div class="tool-section" id="qrResultSection" style="display: none;">
         <div class="section-title" data-i18n="qrGenResultSection">Generated QR Code</div>
         <div class="qr-display">
-          <img id="generatedQRCode" class="qr-image" style="max-width: 300px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+          <img id="generatedQRCode" class="qr-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="max-width: 300px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
           <div class="qr-tip" data-i18n="qrGenSaveTip" style="margin-top: 10px; font-size: var(--dialog-caption-size); color: var(--text-tertiary);">Long press or right-click to save image</div>
         </div>
       </div>
@@ -733,14 +753,14 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
           <textarea
             id="plainTextInput"
             placeholder="Enter plain text" data-i18n-placeholder="base32InputPlaceholder"
-            rows="4" style="width: 100%; font-family: monospace; resize: vertical;"
+            rows="4" style="width: 100%; font-family: var(--font-ui); resize: vertical;"
             autocomplete="off"
           ></textarea>
           <div class="button-area" style="margin-top: 10px; display: flex; gap: 10px;">
             <button class="btn btn-primary" data-i18n="base32EncodeBtn" onclick="encodeBase32()">Encode</button>
             <button class="btn btn-info" data-i18n="base32CopyBtn" onclick="copyEncodedText()">Copy</button>
           </div>
-          <div id="encodedResult" class="result-text" style="margin-top: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-family: monospace; font-size: var(--dialog-caption-size); min-height: 0; word-break: break-all; display: none; color: var(--text-primary);"></div>
+          <div id="encodedResult" class="result-text" style="margin-top: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-family: var(--font-ui); font-size: var(--dialog-caption-size); min-height: 0; word-break: break-all; display: none; color: var(--text-primary);"></div>
         </div>
       </div>
       
@@ -752,14 +772,14 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
           <textarea
             id="base32TextInput"
             placeholder="Enter Base32 text" data-i18n-placeholder="base32InputEncodedPlaceholder"
-            rows="4" style="width: 100%; font-family: monospace; resize: vertical;"
+            rows="4" style="width: 100%; font-family: var(--font-ui); resize: vertical;"
             autocomplete="off"
           ></textarea>
           <div class="button-area" style="margin-top: 10px; display: flex; gap: 10px;">
             <button class="btn btn-primary" data-i18n="base32DecodeBtn" onclick="decodeBase32()">Decode</button>
             <button class="btn btn-info" data-i18n="base32CopyBtn" onclick="copyDecodedText()">Copy</button>
           </div>
-          <div id="decodedResult" class="result-text" style="margin-top: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-family: monospace; font-size: var(--dialog-caption-size); min-height: 0; word-break: break-all; display: none; color: var(--text-primary);"></div>
+          <div id="decodedResult" class="result-text" style="margin-top: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-family: var(--font-ui); font-size: var(--dialog-caption-size); min-height: 0; word-break: break-all; display: none; color: var(--text-primary);"></div>
         </div>
       </div>
       
@@ -780,19 +800,19 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         <div class="time-info" style="background: var(--bg-secondary); padding: 15px; border-radius: 4px; margin-bottom: 15px;">
           <div class="info-item" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span class="label" data-i18n="timestampCurrentLabel" style="font-weight: 600; color: var(--text-primary);">Current Timestamp:</span>
-            <span class="value" id="currentTimestamp" style="font-family: monospace; color: var(--text-primary);"></span>
+            <span class="value" id="currentTimestamp" style="font-family: var(--font-ui); color: var(--text-primary);"></span>
           </div>
           <div class="info-item" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span class="label" data-i18n="timestampPeriodLabel" style="font-weight: 600; color: var(--text-primary);">TOTP Period:</span>
-            <span class="value" id="totpPeriod" style="font-family: monospace; color: var(--text-primary);"></span>
+            <span class="value" id="totpPeriod" style="font-family: var(--font-ui); color: var(--text-primary);"></span>
           </div>
           <div class="info-item" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span class="label" data-i18n="timestampCounterLabel" style="font-weight: 600; color: var(--text-primary);">Current Counter:</span>
-            <span class="value" id="totpCounter" style="font-family: monospace; color: var(--text-primary);"></span>
+            <span class="value" id="totpCounter" style="font-family: var(--font-ui); color: var(--text-primary);"></span>
           </div>
           <div class="info-item" style="display: flex; justify-content: space-between;">
             <span class="label" data-i18n="timestampRemainingLabel" style="font-weight: 600; color: var(--text-primary);">Remaining Time:</span>
-            <span class="value" id="remainingTime" style="font-family: monospace; color: var(--text-primary);"></span>
+            <span class="value" id="remainingTime" style="font-family: var(--font-ui); color: var(--text-primary);"></span>
           </div>
         </div>
         <div class="progress-bar timestamp-progress-track">
@@ -827,7 +847,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
           <textarea
             id="keyCheckInput"
             placeholder="Enter secret key to inspect" data-i18n-placeholder="keyCheckInputPlaceholder"
-            rows="4" style="width: 100%; font-family: monospace; resize: vertical;"
+            rows="4" style="width: 100%; font-family: var(--font-ui); resize: vertical;"
             autocomplete="off"
           ></textarea>
           <button class="btn btn-primary" data-i18n="keyCheckSubmitBtn" onclick="checkSecret()" style="margin-top: 10px;">Inspect Key</button>
@@ -882,7 +902,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       <div class="tool-section" id="decodeResultSection" style="display: none;">
         <div class="section-title" data-i18n="qrDecodeResultSection">Decoded Result</div>
         <div class="decode-result" style="background: var(--bg-secondary); padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-          <div class="result-content" id="decodeResultContent" style="font-family: monospace; font-size: var(--dialog-body-size); word-break: break-all; line-height: 1.5; max-height: 200px; overflow-y: auto; color: var(--text-primary);"></div>
+          <div class="result-content" id="decodeResultContent" style="font-family: var(--font-ui); font-size: var(--dialog-body-size); word-break: break-all; line-height: 1.5; max-height: 200px; overflow-y: auto; color: var(--text-primary);"></div>
           <div class="result-actions" style="display: flex; gap: 10px; margin-top: 15px;">
             <button class="btn btn-info" data-i18n="qrDecodeCopyBtn" onclick="copyDecodeResult()" style="flex: 1;">Copy Content</button>
             <button class="btn btn-primary" data-i18n="qrDecodeRegenBtn" onclick="generateDecodeQRCode()" style="flex: 1;">Generate QR Code</button>
@@ -890,7 +910,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
         </div>
         <div class="qr-section" id="decodeQRSection" style="display: none; text-align: center;">
           <div class="qr-title" data-i18n="qrDecodeRegenTitle" style="font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Regenerated QR Code</div>
-          <img id="decodeQRCode" class="qr-code" style="max-width: 200px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+          <img id="decodeQRCode" class="qr-code" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="max-width: 200px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
           <div class="qr-tip" data-i18n="qrDecodePreviewTip" style="margin-top: 8px; font-size: var(--dialog-caption-size); color: var(--text-tertiary);">Click QR code to preview</div>
         </div>
       </div>
@@ -924,7 +944,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       <div class="tool-section" id="keyResultSection" style="display: none;">
         <div class="section-title" data-i18n="keyGenResultSection">Generated Secret</div>
         <div class="key-result" style="padding: 15px; border-radius: 4px; margin-bottom: 15px; background: var(--bg-secondary);">
-          <div class="key-text" id="generatedKeyText" style="font-family: monospace; font-size: var(--dialog-body-size); font-weight: 600; text-align: center; margin-bottom: 15px; word-break: break-all; color: var(--text-primary);"></div>
+          <div class="key-text" id="generatedKeyText" style="font-family: var(--font-ui); font-size: var(--dialog-body-size); font-weight: 600; text-align: center; margin-bottom: 15px; word-break: break-all; color: var(--text-primary);"></div>
           <div class="key-actions" style="display: flex; justify-content: center;">
             <button class="btn btn-info" data-i18n="keyGenCopyBtn" onclick="copyGeneratedKey()">Copy Secret</button>
           </div>
@@ -1293,6 +1313,7 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
                   <span class="theme-option-label" data-i18n="themeAuto">System</span>
                 </label>
               </div>
+              <p class="settings-desc" data-i18n="themePaletteNote">Palette inspired by PANTONE 17-1230 Mocha Mousse and the Relaxed Elegance palette.</p>
             </div>
             <div class="settings-divider"></div>
             <div class="settings-section">
