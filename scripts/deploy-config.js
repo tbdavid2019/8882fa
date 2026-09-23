@@ -93,3 +93,39 @@ export function injectKvNamespaceId(configText, id, envName = null) {
 
 	return lines.join('\n');
 }
+
+/**
+ * 注入自定义域名路由配置（用于消除版本切换时的边缘路由空窗期）
+ * 若已存在 routes 则不覆盖
+ */
+export function injectCustomDomain(configText, domain) {
+	if (!domain || typeof domain !== 'string') return configText;
+	const trimmedDomain = domain.trim();
+	if (!trimmedDomain) return configText;
+
+	if (/routes\s*=\s*\[/.test(configText)) {
+		return configText;
+	}
+
+	const routeBlock = `\nroutes = [\n\t{ pattern = "${trimmedDomain}", custom_domain = true }\n]\n`;
+	if (/workers_dev\s*=\s*true/.test(configText)) {
+		return configText.replace(/(workers_dev\s*=\s*true)/, `$1\n${routeBlock}`);
+	}
+	return configText + '\n' + routeBlock;
+}
+
+/**
+ * 注入 Cloudflare Account ID（多账号环境下自动锁定目标账号，避免交互提示）
+ */
+export function injectAccountId(configText, accountId) {
+	if (!accountId || typeof accountId !== 'string') return configText;
+	const trimmedId = accountId.trim();
+	if (!trimmedId) return configText;
+
+	if (/account_id\s*=\s*"/.test(configText)) {
+		return configText.replace(/account_id\s*=\s*"[^"]*"/, `account_id = "${trimmedId}"`);
+	}
+
+	return configText.replace(/^(name\s*=\s*"[^"]*")/m, `$1\naccount_id = "${trimmedId}"`);
+}
+

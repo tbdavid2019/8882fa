@@ -1,0 +1,54 @@
+# ========================================================
+# 888 2FA - Wrangler 配置範本 (wrangler.toml.template)
+# 適用於 Cloudflare Workers 部署
+# ========================================================
+
+name = "8882fa"
+main = "src/worker.js"
+compatibility_date = "2024-01-13"
+workers_dev = true
+
+# ========================================================
+# 帳戶 ID 與自訂網域配置（選填）
+# 
+# 提示：為了保護隱私並保持代碼倉庫公開乾淨，
+# 建議將以下設定寫在本地 `.env` 檔案中，由 deploy 腳本自動套用：
+#   CLOUDFLARE_ACCOUNT_ID=your_account_id
+#   CUSTOM_DOMAIN=2fa.yourdomain.com
+# 
+# 若習慣直接寫在 wrangler.toml，可取消下方註解：
+# ========================================================
+# account_id = "your-cloudflare-account-id"
+#
+# routes = [
+#   { pattern = "2fa.yourdomain.com", custom_domain = true }
+# ]
+
+# ========================================================
+# KV 命名空間綁定
+# ========================================================
+# 宣告 SECRETS_KV 儲存金鑰與設定資料。
+# Wrangler 會在首次部署時自動建立或關聯已有的 KV 空間。
+[[kv_namespaces]]
+binding = "SECRETS_KV"
+# id = "your-kv-namespace-id" # 可選：手動固定 KV ID
+
+# ========================================================
+# 應用變數 (Vars)
+# ========================================================
+[vars]
+SW_VERSION = "v1"
+ENVIRONMENT = "production"
+
+# ========================================================
+# 開發/測試環境配置 (可透過 npm run dev 調用)
+# ========================================================
+[env.development]
+name = "8882fa-dev"
+
+[[env.development.kv_namespaces]]
+binding = "SECRETS_KV"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+SW_VERSION = "v1"

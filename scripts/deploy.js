@@ -16,11 +16,17 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-import { extractWorkerName, injectKvNamespaceId, injectWorkerVersion } from './deploy-config.js';
+import {
+  extractWorkerName,
+  injectAccountId,
+  injectCustomDomain,
+  injectKvNamespaceId,
+  injectWorkerVersion,
+} from './deploy-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,13 +38,14 @@ const versionStrategy = args.includes('--git') ? '--git' :
 
 const envIndex = args.indexOf('--env');
 const envName = envIndex !== -1 && args[envIndex + 1] ? args[envIndex + 1] : null;
-const envArg = envName ? `--env ${envName}` : '';
+const envArg = envName ? `--env ${envName}` : '--env=""';
 
 console.log('');
 console.log('🚀 ========================================');
 console.log('   2FA Manager 自动化部署');
 console.log('========================================');
 console.log('');
+loadLocalEnv();
 
 try {
   const version = generateVersion(versionStrategy);
@@ -64,6 +71,20 @@ try {
     console.log(`   ✅ 复用已有 KV: ${existingKv.title} (${existingKv.id})`);
   } else {
     console.log('   ℹ️ 未检测到已有 KV，将由 Wrangler 自动创建');
+  }
+  console.log('');
+
+  // Step 2.6: 从本地环境或 .env 中注入 Account ID 和自订网域（保持公开仓库乾净）
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  if (accountId) {
+    modifiedConfig = injectAccountId(modifiedConfig, accountId);
+    console.log(`   ✅ 鎖定 Account ID: ${accountId}`);
+  }
+
+  const customDomain = process.env.CUSTOM_DOMAIN;
+  if (customDomain) {
+    modifiedConfig = injectCustomDomain(modifiedConfig, customDomain);
+    console.log(`   ✅ 自動綁定自訂網域路由: ${customDomain}`);
   }
   console.log('');
 
@@ -175,3 +196,36 @@ function findExistingKvId(workerName, envName = null) {
 
   return fuzzy ? { id: fuzzy.id, title: fuzzy.title } : null;
 }
+
+/**
+ * 讀取本地 .env 或 .env.local（若存在，提供本地專用配置，如 ACCOUNT_ID、CUSTOM_DOMAIN）
+ */
+function loadLocalEnv() {
+  const envFiles = ['.env', '.env.local'];
+  for (const file of envFiles) {
+    const filePath = join(__dirname, '..', file);
+    if (existsSync(filePath)) {
+      try {
+        const content = readFileSync(filePath, 'utf-8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const eqIdx = trimmed.indexOf('=');
+          if (eqIdx > 0) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            let val = trimmed.slice(eqIdx + 1).trim();
+            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+              val = val.slice(1, -1);
+            }
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+      } catch {
+        // 忽略讀取異常
+      }
+    }
+  }
+}
+

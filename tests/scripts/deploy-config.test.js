@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { extractWorkerName, injectKvNamespaceId, injectWorkerVersion } from '../../scripts/deploy-config.js';
+import {
+	extractWorkerName,
+	injectAccountId,
+	injectCustomDomain,
+	injectKvNamespaceId,
+	injectWorkerVersion,
+} from '../../scripts/deploy-config.js';
 
 describe('injectWorkerVersion', () => {
 	it('replaces SW_VERSION without touching KV bindings', () => {
@@ -164,5 +170,74 @@ binding = "SECRETS_KV"
 		const result = injectKvNamespaceId(configWithStaging, 'dev-id', 'development');
 		const stagingBlock = result.split('[[env.staging.kv_namespaces]]')[1];
 		expect(stagingBlock).not.toContain('id = "dev-id"');
+	});
+});
+
+describe('injectCustomDomain', () => {
+	const baseConfig = `name = "8882fa"
+main = "src/worker.js"
+compatibility_date = "2024-01-13"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "SECRETS_KV"
+`;
+
+	it('injects custom domain route after workers_dev = true', () => {
+		const updated = injectCustomDomain(baseConfig, '2fa.david888.com');
+		expect(updated).toContain('routes = [\n\t{ pattern = "2fa.david888.com", custom_domain = true }\n]');
+	});
+
+	it('appends route at bottom if workers_dev is not present', () => {
+		const configWithoutWorkersDev = `name = "8882fa"
+main = "src/worker.js"
+`;
+		const updated = injectCustomDomain(configWithoutWorkersDev, '2fa.david888.com');
+		expect(updated).toContain('routes = [\n\t{ pattern = "2fa.david888.com", custom_domain = true }\n]');
+	});
+
+	it('does not overwrite existing routes block', () => {
+		const configWithRoute = `name = "8882fa"
+routes = [
+\t{ pattern = "existing.domain.com", custom_domain = true }
+]
+`;
+		const updated = injectCustomDomain(configWithRoute, 'new.domain.com');
+		expect(updated).toBe(configWithRoute);
+	});
+
+	it('returns original config if domain is empty or invalid', () => {
+		expect(injectCustomDomain(baseConfig, '')).toBe(baseConfig);
+		expect(injectCustomDomain(baseConfig, '   ')).toBe(baseConfig);
+		expect(injectCustomDomain(baseConfig, null)).toBe(baseConfig);
+		expect(injectCustomDomain(baseConfig, undefined)).toBe(baseConfig);
+	});
+});
+
+describe('injectAccountId', () => {
+	const baseConfig = `name = "8882fa"
+main = "src/worker.js"
+`;
+
+	it('injects account_id after name when none exists', () => {
+		const updated = injectAccountId(baseConfig, 'test-account-123');
+		expect(updated).toContain('name = "8882fa"\naccount_id = "test-account-123"');
+	});
+
+	it('replaces existing account_id', () => {
+		const configWithId = `name = "8882fa"
+account_id = "old-account-456"
+main = "src/worker.js"
+`;
+		const updated = injectAccountId(configWithId, 'new-account-789');
+		expect(updated).toContain('account_id = "new-account-789"');
+		expect(updated).not.toContain('old-account-456');
+	});
+
+	it('returns original config if accountId is empty or invalid', () => {
+		expect(injectAccountId(baseConfig, '')).toBe(baseConfig);
+		expect(injectAccountId(baseConfig, '   ')).toBe(baseConfig);
+		expect(injectAccountId(baseConfig, null)).toBe(baseConfig);
+		expect(injectAccountId(baseConfig, undefined)).toBe(baseConfig);
 	});
 });
