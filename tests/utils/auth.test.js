@@ -691,6 +691,10 @@ describe('JWT Authentication Utils', () => {
     it('其他路径不需要认证', () => {
       expect(requiresAuth('/manifest.json')).toBe(false);
       expect(requiresAuth('/favicon.ico')).toBe(false);
+      expect(requiresAuth('/favicon.svg')).toBe(false);
+      expect(requiresAuth('/favicon-32x32.png')).toBe(false);
+      expect(requiresAuth('/apple-touch-icon.png')).toBe(false);
+      expect(requiresAuth('/og-image.jpg')).toBe(false);
       expect(requiresAuth('/sw.js')).toBe(false);
     });
   });

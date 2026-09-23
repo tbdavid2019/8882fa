@@ -23,6 +23,7 @@ export const zhCN = {
 	info: '提示',
 	networkError: '网络错误，请稍后重试',
 	completed: '完成',
+	appHeading: '888 2FA - 两步验证密钥管理器',
 	appTitle: '2FA - 密钥管理器',
 	clockWarningText: '本地时间可能不准确，验证码可能无效。',
 	clockSyncRetryButton: '重新校时',

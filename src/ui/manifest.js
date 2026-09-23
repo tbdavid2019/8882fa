@@ -3,65 +3,89 @@
  * 提供 Web App Manifest 用于支持 PWA 安装和 WebAPK
  */
 
+import { BRAND_SVG, createBrandAssetResponse } from './assets/brandAssets.js';
+
 /**
  * 生成 Web App Manifest
- * @param {Request} request - HTTP 请求对象（用于获取主机名）
+ * @param {Request} request - HTTP 请求对象（用于获取主机名和语系偏好）
  * @returns {Response} Manifest JSON 响应
  */
 export function createManifest(request) {
 	const url = new URL(request.url);
 	const baseUrl = `${url.protocol}//${url.host}`;
 
-	// 簡化的 Manifest 配置，確保最佳相容性
+	const acceptLang = request.headers ? (request.headers.get('accept-language') || '').toLowerCase() : '';
+	const isZh = acceptLang.includes('zh');
+
 	const manifest = {
-		name: '888 2FA - 兩步驟驗證金鑰管理器',
+		name: isZh ? '888 2FA - 兩步驟驗證金鑰管理器' : '888 2FA - Two-Factor Authentication Manager',
 		short_name: '888 2FA',
-		description: '安全的兩步驟驗證金鑰管理器，支援 TOTP、HOTP 驗證碼生成',
+		description: isZh
+			? '安全、零知識的兩步驟驗證 (2FA) 金鑰管理器，支援 TOTP 與 HOTP 驗證碼生成'
+			: 'Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation',
 		start_url: '/',
 		display: 'standalone',
-		background_color: '#ffffff',
-		theme_color: '#2196F3',
+		background_color: '#0F172A',
+		theme_color: '#2563EB',
 		orientation: 'portrait-primary',
 		scope: '/',
 
-		// 使用 SVG 格式图标（声明为 any 类型以提高兼容性）
 		icons: [
+			{
+				src: `${baseUrl}/favicon.svg`,
+				sizes: 'any',
+				type: 'image/svg+xml',
+				purpose: 'any',
+			},
 			{
 				src: `${baseUrl}/icon-192.png`,
 				sizes: '192x192',
-				type: 'image/svg+xml',
+				type: 'image/png',
 				purpose: 'any',
 			},
 			{
 				src: `${baseUrl}/icon-512.png`,
 				sizes: '512x512',
-				type: 'image/svg+xml',
+				type: 'image/png',
 				purpose: 'any',
 			},
 			{
 				src: `${baseUrl}/icon-192.png`,
 				sizes: '192x192',
-				type: 'image/svg+xml',
+				type: 'image/png',
 				purpose: 'maskable',
+			},
+			{
+				src: `${baseUrl}/icon-512.png`,
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'maskable',
+			},
+		],
+
+		screenshots: [
+			{
+				src: `${baseUrl}/og-image.jpg`,
+				sizes: '1200x630',
+				type: 'image/jpeg',
+				form_factor: 'wide',
+				label: '888 2FA Two-Factor Authenticator',
 			},
 		],
 
 		categories: ['productivity', 'utilities', 'security'],
 
-		// 移除 screenshots（非必需）
-
-		// 簡化的快捷方式
 		shortcuts: [
 			{
-				name: '新增金鑰',
-				short_name: '新增',
-				description: '快速新增 2FA 金鑰',
+				name: isZh ? '新增金鑰' : 'Add Key',
+				short_name: isZh ? '新增' : 'Add',
+				description: isZh ? '快速新增 2FA 金鑰' : 'Quickly add a 2FA key',
 				url: '/?action=add',
 			},
 			{
-				name: '掃描 QR Code',
-				short_name: '掃描',
-				description: '掃描 QR Code 新增金鑰',
+				name: isZh ? '掃描 QR Code' : 'Scan QR Code',
+				short_name: isZh ? '掃描' : 'Scan',
+				description: isZh ? '掃描 QR Code 新增金鑰' : 'Scan QR Code to add key',
 				url: '/?action=scan',
 			},
 		],
@@ -69,10 +93,8 @@ export function createManifest(request) {
 		related_applications: [],
 		prefer_related_applications: false,
 
-		// 显示模式（从最佳到降级）
 		display_override: ['standalone', 'minimal-ui'],
 
-		// 简化的协议处理器
 		protocol_handlers: [
 			{
 				protocol: 'web+otpauth',
@@ -92,59 +114,24 @@ export function createManifest(request) {
 }
 
 /**
- * 生成默认图标（Base64 SVG）
- * 如果没有实际图标文件，可以使用这个作为后备
+ * 生成默认图标
  * @param {number} size - 图标大小
- * @returns {Response} PNG 图标响应
+ * @returns {Response} 图标响应
  */
 export function createDefaultIcon(size = 192) {
-	// 创建一个简单的 SVG 图标
-	const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1976D2;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- 背景 -->
-  <rect width="${size}" height="${size}" rx="${size * 0.15}" fill="url(#grad)"/>
-  
-  <!-- 锁图标 -->
-  <g transform="translate(${size * 0.3}, ${size * 0.25})">
-    <!-- 锁身 -->
-    <rect x="0" y="${size * 0.2}" width="${size * 0.4}" height="${size * 0.3}"
-          rx="${size * 0.05}" fill="white" opacity="0.95"/>
-
-    <!-- 锁扣 -->
-    <path d="M ${size * 0.05} ${size * 0.2}
-             L ${size * 0.05} ${size * 0.15}
-             A ${size * 0.1} ${size * 0.1} 0 0 1 ${size * 0.35} ${size * 0.15}
-             L ${size * 0.35} ${size * 0.2}"
-          fill="none" stroke="white" stroke-width="${size * 0.04}"
-          stroke-linecap="round" opacity="0.95"/>
-    
-    <!-- 钥匙孔 -->
-    <circle cx="${size * 0.2}" cy="${size * 0.32}" r="${size * 0.04}" fill="#2196F3"/>
-    <rect x="${size * 0.18}" y="${size * 0.32}" width="${size * 0.04}" height="${size * 0.08}" 
-          rx="${size * 0.01}" fill="#2196F3"/>
-  </g>
-  
-  <!-- 2FA 文字 -->
-  <text x="${size / 2}" y="${size * 0.85}" 
-        font-family="Arial, sans-serif" 
-        font-size="${size * 0.12}" 
-        font-weight="bold" 
-        fill="white" 
-        text-anchor="middle" 
-        opacity="0.95">2FA</text>
-</svg>`;
-
-	return new Response(svg, {
+	if (size <= 32) {
+		return createBrandAssetResponse('favicon-32');
+	}
+	if (size <= 192) {
+		return createBrandAssetResponse('icon-192');
+	}
+	if (size > 192) {
+		return createBrandAssetResponse('icon-512');
+	}
+	return new Response(BRAND_SVG, {
 		status: 200,
 		headers: {
-			'Content-Type': 'image/svg+xml',
+			'Content-Type': 'image/svg+xml; charset=utf-8',
 			'Cache-Control': 'public, max-age=86400',
 			'Access-Control-Allow-Origin': '*',
 		},

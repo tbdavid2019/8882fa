@@ -73,10 +73,19 @@ describe('emitted script modules parse as valid JavaScript', () => {
 describe('emitted script aggregators parse as valid JavaScript', () => {
 	it('keeps nested exported HTML from terminating the main page script tag', async () => {
 		const html = await (await createMainPage({ lazyLoad: false })).text();
-		const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+		const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
 		expect(scripts.length).toBeGreaterThan(0);
 		for (const [index, script] of scripts.entries()) {
-			if (script[1].trim()) {assertParses(`inline script ${index}`, script[1]);}
+			const attrs = script[1] || '';
+			const body = script[2].trim();
+			if (!body) {
+				continue;
+			}
+			if (attrs.includes('application/ld+json')) {
+				expect(() => JSON.parse(body)).not.toThrow();
+			} else {
+				assertParses(`inline script ${index}`, body);
+			}
 		}
 	});
 	it('getScripts (full inline bundle)', () => {

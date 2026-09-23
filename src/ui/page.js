@@ -48,41 +48,89 @@ function getHTMLStart() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>888 2FA - Authenticator</title>
+  <title>888 2FA - Two-Factor Authentication Manager</title>
 
-  <!-- PWA Manifest -->
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://2fa.david888.com">
+
+  <!-- Primary SEO Meta Tags -->
+  <meta name="title" content="888 2FA - Two-Factor Authentication Manager">
+  <meta name="description" content="Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation. Powered by Cloudflare Workers edge computing with offline PWA support.">
+  <meta name="author" content="David">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook / LinkedIn / Discord / Slack -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://2fa.david888.com">
+  <meta property="og:site_name" content="888 2FA">
+  <meta property="og:title" content="888 2FA - Two-Factor Authentication Manager">
+  <meta property="og:description" content="Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation. Powered by Cloudflare Workers edge computing with offline PWA support.">
+  <meta property="og:image" content="https://2fa.david888.com/og-image.jpg">
+  <meta property="og:image:secure_url" content="https://2fa.david888.com/og-image.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="888 2FA - Two-Factor Authentication Manager">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_TW">
+  <meta property="og:locale:alternate" content="zh_CN">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://2fa.david888.com">
+  <meta name="twitter:site" content="@tbdavid2019">
+  <meta name="twitter:creator" content="@tbdavid2019">
+  <meta name="twitter:title" content="888 2FA - Two-Factor Authentication Manager">
+  <meta name="twitter:description" content="Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation. Powered by Cloudflare Workers edge computing with offline PWA support.">
+  <meta name="twitter:image" content="https://2fa.david888.com/og-image.jpg">
+  <meta name="twitter:image:alt" content="888 2FA - Two-Factor Authentication Manager">
+
+  <!-- Favicons & App Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- PWA Manifest & Web App Settings -->
   <link rel="manifest" href="/manifest.json">
-
-  <!-- PWA Meta Tags -->
   <meta name="application-name" content="888 2FA">
-  <meta name="description" content="Secure two-factor authentication (2FA) manager supporting TOTP and HOTP code generation">
-  <meta name="theme-color" content="#2196F3">
+  <meta name="theme-color" content="#2563EB">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="888 2FA">
-  
-  <!-- iOS Icons -->
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/icon-192.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/icon-192.png">
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
-  <link rel="shortcut icon" href="/icon-192.png">
-  
-  <!-- Microsoft Tiles -->
-  <meta name="msapplication-TileColor" content="#2196F3">
+  <meta name="msapplication-TileColor" content="#2563EB">
   <meta name="msapplication-TileImage" content="/icon-192.png">
   <meta name="msapplication-config" content="none">
-  
-  <!-- PWA Display -->
   <meta name="display" content="standalone">
-  
-  <!-- Security -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "888 2FA",
+    "alternateName": "888 2FA Authenticator",
+    "url": "https://2fa.david888.com",
+    "description": "Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation. Powered by Cloudflare Workers edge computing with offline PWA support.",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires HTML5 Web Crypto API support",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "David",
+      "url": "https://github.com/tbdavid2019"
+    }
+  }
+  </script>
 
   <!-- Theme & Language Initialization - Must run before CSS to prevent FOUC -->
   <script>
@@ -158,6 +206,7 @@ function getHTMLStart() {
 function getHTMLBody() {
 	return `
 <body class="fluent-app">
+  <h1 class="sr-only" data-i18n="appHeading">888 2FA - Two-Factor Authentication Manager</h1>
   <div class="container">
     <div class="content">
       <div

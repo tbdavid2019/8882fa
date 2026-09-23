@@ -23,6 +23,7 @@ export const en = {
 	info: 'Notice',
 	networkError: 'Network error. Please try again later.',
 	completed: 'Done',
+	appHeading: '888 2FA - Two-Factor Authentication Manager',
 	appTitle: '2FA - Authenticator',
 	clockWarningText: 'Local clock may be inaccurate; OTP codes may be invalid.',
 	clockSyncRetryButton: 'Sync Time',

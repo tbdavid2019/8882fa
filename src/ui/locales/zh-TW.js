@@ -23,6 +23,7 @@ export const zhTW = {
 	info: '提示',
 	networkError: '網路錯誤，請稍後重試',
 	completed: '完成',
+	appHeading: '888 2FA - 兩步驟驗證金鑰管理器',
 	appTitle: '2FA - 金鑰管理器',
 	clockWarningText: '本機時間可能不準確，驗證碼可能無效。',
 	clockSyncRetryButton: '重新校時',

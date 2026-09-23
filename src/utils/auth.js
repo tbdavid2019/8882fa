@@ -956,6 +956,13 @@ export function requiresAuth(pathname) {
 		'/icon-192.png', // PWA 图标
 		'/icon-512.png', // PWA 图标
 		'/favicon.ico', // 网站图标
+		'/favicon.svg', // 网站矢量图标
+		'/favicon-32x32.png', // 32x32 图标
+		'/favicon-16x16.png', // 16x16 图标
+		'/apple-touch-icon.png', // iOS 桌面图标
+		'/apple-touch-icon-precomposed.png', // iOS 兼容图标
+		'/og-image.jpg', // Open Graph / Twitter 分享封面图
+		'/og-image.png', // Open Graph PNG 别名
 		'/otp', // OTP 生成页面（无参数）
 		'/api/onedrive/oauth/callback',
 		'/api/gdrive/oauth/callback',

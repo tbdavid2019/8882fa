@@ -51,7 +51,8 @@ import { handleGetTime } from '../api/time.js';
 // UI 页面生成器
 import { createMainPage } from '../ui/page.js';
 import { createSetupPage } from '../ui/setupPage.js';
-import { createManifest, createDefaultIcon } from '../ui/manifest.js';
+import { createManifest } from '../ui/manifest.js';
+import { createBrandAssetResponse } from '../ui/assets/brandAssets.js';
 import { createServiceWorker } from '../ui/serviceworker.js';
 import { getModuleCode } from '../ui/scripts/index.js';
 
@@ -156,15 +157,30 @@ export async function handleRequest(request, env, ctx) {
 			return createServiceWorker(env);
 		}
 
-		// PWA 图标（使用默认SVG图标）
-		if (pathname === '/icon-192.png' || pathname === '/icon-512.png') {
-			const size = pathname.includes('512') ? 512 : 192;
-			return createDefaultIcon(size);
+		// Favicon & PWA Icons & Open Graph Assets
+		if (pathname === '/favicon.svg') {
+			return createBrandAssetResponse('svg');
 		}
-
-		// 浏览器自动请求 /favicon.ico —— 复用 192 默认图标避免 404
+		if (pathname === '/favicon-32x32.png') {
+			return createBrandAssetResponse('favicon-32');
+		}
+		if (pathname === '/favicon-16x16.png') {
+			return createBrandAssetResponse('favicon-16');
+		}
 		if (pathname === '/favicon.ico') {
-			return createDefaultIcon(32);
+			return createBrandAssetResponse('favicon-ico');
+		}
+		if (pathname === '/apple-touch-icon.png' || pathname === '/apple-touch-icon-precomposed.png') {
+			return createBrandAssetResponse('apple-touch-icon');
+		}
+		if (pathname === '/icon-192.png') {
+			return createBrandAssetResponse('icon-192');
+		}
+		if (pathname === '/icon-512.png') {
+			return createBrandAssetResponse('icon-512');
+		}
+		if (pathname === '/og-image.jpg' || pathname === '/og-image.png') {
+			return createBrandAssetResponse('og-image');
 		}
 
 		// 懒加载模块路由（需要认证）
