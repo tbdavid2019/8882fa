@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title description">
   <title id="title">tbdavid2019/8882fa Star History</title>
-  <desc id="description">GitHub stars over time, last updated 2026-09-25</desc>
+  <desc id="description">GitHub stars over time, last updated 2026-09-26</desc>
   <style>
     .background { fill: #ffffff; }
     .grid { fill: none; stroke: #d8dee4; stroke-width: 1; }
@@ -25,11 +25,11 @@
   </style>
   <rect class="background" width="960" height="520" rx="8"/>
   <text class="heading" x="76" y="38">tbdavid2019/8882fa Star History</text>
-  <text class="subtitle" x="76" y="62">GitHub stars over time &#183; updated 2026-09-25</text>
+  <text class="subtitle" x="76" y="62">GitHub stars over time &#183; updated 2026-09-26</text>
   <text class="value" x="928" y="40" text-anchor="end">0 stars</text>
   <path class="grid" d="M 76 456.0 H 928"/><text class="label" x="64" y="460.0" text-anchor="end">0</text><path class="grid" d="M 76 383.2 H 928"/><text class="label" x="64" y="387.2" text-anchor="end">1</text><path class="grid" d="M 76 310.4 H 928"/><text class="label" x="64" y="314.4" text-anchor="end">2</text><path class="grid" d="M 76 237.6 H 928"/><text class="label" x="64" y="241.6" text-anchor="end">3</text><path class="grid" d="M 76 164.8 H 928"/><text class="label" x="64" y="168.8" text-anchor="end">4</text><path class="grid" d="M 76 92.0 H 928"/><text class="label" x="64" y="96.0" text-anchor="end">5</text>
   
-  <path class="area" d="M 76.0 456.0 H 360.0 V 456.0 H 644.0 V 456.0 H 928.0 V 456.0 V 456 H 76.0 Z"/>
-  <path class="line" d="M 76.0 456.0 H 360.0 V 456.0 H 644.0 V 456.0 H 928.0 V 456.0"/>
+  <path class="area" d="M 76.0 456.0 H 289.0 V 456.0 H 502.0 V 456.0 H 715.0 V 456.0 H 928.0 V 456.0 V 456 H 76.0 Z"/>
+  <path class="line" d="M 76.0 456.0 H 289.0 V 456.0 H 502.0 V 456.0 H 715.0 V 456.0 H 928.0 V 456.0"/>
   <circle class="point" cx="928.0" cy="456.0" r="5"/>
 </svg>
