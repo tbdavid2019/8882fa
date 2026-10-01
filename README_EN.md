@@ -19,7 +19,7 @@ A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powere
 - 📱 **Native-Grade PWA & Smart Install Banner**:
   Full Progressive Web App offline support. Generates TOTP/HOTP verification codes locally even when offline. Includes an intelligent install banner (Chromium/Android one-click prompt, iOS Safari "Add to Home Screen" instructions, and automatic concealment in standalone mode).
 - 🎨 **888 Brand Identity & 100/100 SEO / Open Graph**:
-  Modern deep blue gradient with 888 padlock icon. Generates scalable vector SVG, crisp 32x32 & 16x16 Favicons, Apple Touch Icon (180x180), high-res PWA icons, and 1200x630 social cards (`/og-image.jpg`) with schema.org JSON-LD structured metadata.
+  Unified modern orange gradient with 888 2FA security shield and biometric fingerprint icon. Generates scalable vector SVG, crisp 32x32 & 16x16 Favicons, Apple Touch Icon (180x180), high-res PWA icons, and 1200x630 social cards (`/og-image.jpg`) with schema.org JSON-LD structured metadata.
 - ☁️ **Multi-Cloud Backup & Real-Time Sync**:
   Automatic push and restore across WebDAV (Nextcloud, Synology), S3-compatible storage (Cloudflare R2, AWS S3, MinIO), Microsoft OneDrive, and Google Drive.
 - ⏱️ **Precision Server Time Calibration (`/api/time`)**:

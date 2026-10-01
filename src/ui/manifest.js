@@ -26,7 +26,7 @@ export function createManifest(request) {
 		start_url: '/',
 		display: 'standalone',
 		background_color: '#0F172A',
-		theme_color: '#2563EB',
+		theme_color: '#FF5A00',
 		orientation: 'portrait-primary',
 		scope: '/',
 

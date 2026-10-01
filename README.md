@@ -19,7 +19,7 @@
 - 📱 **原生級 PWA 離線體驗與智慧安裝提示**：
   支援完整 PWA 離線運作，即使完全斷網亦可在本機即時計算 TOTP / HOTP 驗證碼；內建智慧浮動安裝提示條（Chromium / Android 一鍵呼叫原生安裝、iOS Safari 加入主畫面指引、獨立視窗 Standalone 模式自動適配）。
 - 🎨 **全新 888 品牌識別與 100/100 SEO & Open Graph**：
-  具現代深藍漸層與科技質感的 888 專屬鎖頭圖示，自動輸出向量 SVG、高解析 Favicon (32x32 / 16x16)、Apple Touch Icon (180x180) 以及 1200x630 社群分享封面圖（`/og-image.jpg`），並完整支援 Schema.org JSON-LD 結構化資料。
+  具現代活力橘漸層與安全指紋護盾識別的 888 2FA 專屬圖示，自動輸出向量 SVG、高解析 Favicon (32x32 / 16x16)、Apple Touch Icon (180x180) 以及 1200x630 社群分享封面圖（`/og-image.jpg`），並完整支援 Schema.org JSON-LD 結構化資料。
 - ☁️ **全能雲端備份與多端同步**：
   支援 WebDAV（Nextcloud、Synology、堅果雲等）、Amazon S3 相容儲存（Cloudflare R2、AWS S3、MinIO）、Microsoft OneDrive 與 Google Drive 自動背景推播與還原。
 - ⏱️ **極致精確的客戶端時間校準 (`/api/time`)**：
@@ -130,7 +130,7 @@ A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powere
 - 📱 **Native-Grade PWA & Smart Install Banner**:
   Full Progressive Web App offline support. Generates TOTP/HOTP verification codes locally even when offline. Includes an intelligent install banner (Chromium/Android one-click prompt, iOS Safari "Add to Home Screen" instructions, and automatic concealment in standalone mode).
 - 🎨 **888 Brand Identity & 100/100 SEO / Open Graph**:
-  Modern deep blue gradient with 888 padlock icon. Generates scalable vector SVG, crisp 32x32 & 16x16 Favicons, Apple Touch Icon (180x180), high-res PWA icons, and 1200x630 social cards (`/og-image.jpg`) with schema.org JSON-LD structured metadata.
+  Unified modern orange gradient with 888 2FA security shield and biometric fingerprint icon. Generates scalable vector SVG, crisp 32x32 & 16x16 Favicons, Apple Touch Icon (180x180), high-res PWA icons, and 1200x630 social cards (`/og-image.jpg`) with schema.org JSON-LD structured metadata.
 - ☁️ **Multi-Cloud Backup & Real-Time Sync**:
   Automatic push and restore across WebDAV (Nextcloud, Synology), S3-compatible storage (Cloudflare R2, AWS S3, MinIO), Microsoft OneDrive, and Google Drive.
 - ⏱️ **Precision Server Time Calibration (`/api/time`)**:

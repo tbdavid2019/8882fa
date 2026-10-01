@@ -97,12 +97,12 @@ function getHTMLStart() {
   <!-- PWA Manifest & Web App Settings -->
   <link rel="manifest" href="/manifest.json">
   <meta name="application-name" content="888 2FA">
-  <meta name="theme-color" content="#2563EB">
+  <meta name="theme-color" content="#FF5A00">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="888 2FA">
-  <meta name="msapplication-TileColor" content="#2563EB">
+  <meta name="msapplication-TileColor" content="#FF5A00">
   <meta name="msapplication-TileImage" content="/icon-192.png">
   <meta name="msapplication-config" content="none">
   <meta name="display" content="standalone">
