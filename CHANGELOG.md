@@ -4,6 +4,18 @@
 
 ---
 
+## [v2026.10.09] - 2026-10-09
+
+### 變更 (Changed)
+
+- **品牌圖示全面重構為極簡素色 Cyber Orange（888 / 2FA）**：
+  - 延續 888 家族一致的極簡設計語彙，捨棄指紋盾牌、剪貼畫與複雜裝飾圖形，回歸純粹俐落的高科技美學。
+  - 採用純素色活力 Cyber Orange 圓角磚（`#F95700`，Squircle），搭配居中對齊、高對比的純白粗體字型（上方 `888`、下方 `2FA`）。
+  - 自動更新向量 SVG (`/favicon.svg`)、32x32 及 16x16 圖示、Apple Touch Icon (180x180)、PWA Icon (192x192 / 512x512) 以及社群 Open Graph 分享封面 (`/og-image.jpg`)。
+  - 同步更新 PWA Manifest (`src/ui/manifest.js`) 與首頁 HTML (`src/ui/page.js`) 之 `theme-color` 與 `TileColor` 為 `#F95700`。
+
+---
+
 ## [v2026.09.23] - 2026-09-23
 
 ### 新增 (Added)
