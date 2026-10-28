@@ -54,6 +54,10 @@ function getHTMLStart() {
   <!-- Canonical URL -->
   <link rel="canonical" href="https://2fa.david888.com">
 
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script>window.__TURNSTILE_SITE_KEY__ = "0x4AAAAAAEvqf7unH6MrhIv2";</script>
+
   <!-- Primary SEO Meta Tags -->
   <meta name="title" content="888 2FA - Two-Factor Authentication Manager">
   <meta name="description" content="Secure, zero-knowledge two-factor authentication (2FA) manager supporting TOTP and HOTP code generation. Powered by Cloudflare Workers edge computing with offline PWA support.">
@@ -1846,6 +1850,9 @@ Supports OTPAuth, JSON, CSV, HTML and other formats"
       </button>
     </div>
   </aside>
+
+  <!-- Cloudflare Turnstile 零打擾浮動驗證容器 -->
+  <div id="cf-turnstile-global" class="turnstile-floating-container" aria-hidden="true"></div>
 `;
 }
 

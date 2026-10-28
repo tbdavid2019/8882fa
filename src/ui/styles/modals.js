@@ -2700,5 +2700,39 @@ export function getModalStyles() {
         font-size: 20px;
       }
     }
+
+    /* Cloudflare Turnstile 零打擾浮動卡片 */
+    .turnstile-floating-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100002;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(14px) scale(0.96);
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .turnstile-floating-container.is-interactive {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      background: var(--modal-bg, #ffffff);
+      border: 1px solid var(--modal-border, rgba(0, 0, 0, 0.12));
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+      padding: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 480px) {
+      .turnstile-floating-container {
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        display: flex;
+        justify-content: center;
+      }
+    }
   `;
 }

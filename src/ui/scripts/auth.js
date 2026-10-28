@@ -11,6 +11,94 @@ export function getAuthCode() {
 	return `    // ========== 認證相關函式 ==========
     // 注意：現在使用 HttpOnly Cookie 儲存 token，不再使用 localStorage
     let loginModalHideTimer = null;
+    let turnstileWidgetId = null;
+
+    // 檢查是否有有效通關記錄（零打擾快路徑）
+    function hasTurnstileClearance() {
+      try {
+        if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('2fa_turnstile_cleared') === '1') {
+          return true;
+        }
+        if (typeof document !== 'undefined' && document.cookie) {
+          return document.cookie.split('; ').some(function(c) {
+            return c.trim().indexOf('2fa_turnstile_cleared=') === 0;
+          });
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    function markTurnstileClearance() {
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('2fa_turnstile_cleared', '1');
+        }
+      } catch (e) {}
+    }
+
+    async function acquireTurnstileToken() {
+      if (hasTurnstileClearance()) {
+        return null;
+      }
+
+      const siteKey = (typeof window !== 'undefined' && window.__TURNSTILE_SITE_KEY__) || '0x4AAAAAAEvqf7unH6MrhIv2';
+      const container = typeof document !== 'undefined' ? document.getElementById('cf-turnstile-global') : null;
+      if (!siteKey || !container || typeof window === 'undefined' || !window.turnstile) {
+        return null;
+      }
+
+      return new Promise(function(resolve) {
+        let isResolved = false;
+        function finish(token) {
+          if (isResolved) return;
+          isResolved = true;
+          if (container) {
+            container.classList.remove('is-interactive');
+            container.setAttribute('aria-hidden', 'true');
+          }
+          if (token) {
+            markTurnstileClearance();
+          }
+          resolve(token);
+        }
+
+        const timer = setTimeout(function() {
+          finish(null);
+        }, 5000);
+
+        try {
+          if (turnstileWidgetId !== null) {
+            try { window.turnstile.reset(turnstileWidgetId); } catch (e) {}
+          }
+          container.innerHTML = '';
+          turnstileWidgetId = window.turnstile.render(container, {
+            sitekey: siteKey,
+            theme: (document.documentElement && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light',
+            appearance: 'interaction-only',
+            callback: function(token) {
+              clearTimeout(timer);
+              finish(token);
+            },
+            'error-callback': function() {
+              clearTimeout(timer);
+              finish(null);
+            },
+            'expired-callback': function() {
+              try { window.turnstile.reset(turnstileWidgetId); } catch (e) {}
+            },
+            'before-interactive-callback': function() {
+              if (container) {
+                container.classList.add('is-interactive');
+                container.setAttribute('aria-hidden', 'false');
+              }
+            }
+          });
+        } catch (err) {
+          clearTimeout(timer);
+          finish(null);
+        }
+      });
+    }
 
     // 獲取儲存的令牌（已棄用 - Cookie 自動管理）
     function getAuthToken() {
@@ -162,27 +250,38 @@ export function getAuthCode() {
     async function handleLoginSubmit() {
       const tokenInput = document.getElementById('loginToken');
       const errorDiv = document.getElementById('loginError');
-      const credential = tokenInput.value.trim();
+      const credential = tokenInput ? tokenInput.value.trim() : '';
 
       if (!credential) {
-        errorDiv.textContent = (typeof t === 'function' ? t('loginErrorEmpty') : null) || 'Please enter password';
-        errorDiv.style.display = 'block';
+        if (errorDiv) {
+          errorDiv.textContent = (typeof t === 'function' ? t('loginErrorEmpty') : null) || 'Please enter password';
+          errorDiv.style.display = 'block';
+        }
         return;
       }
 
       try {
+        const turnstileToken = await acquireTurnstileToken();
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        const payload = { credential: credential };
+        if (turnstileToken) {
+          headers['cf-turnstile-response'] = turnstileToken;
+          payload.turnstileToken = turnstileToken;
+        }
+
         const response = await fetch('/api/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: headers,
           credentials: 'include', // 🍪 携带 Cookie
-          body: JSON.stringify({ credential })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
 
         if (response.ok && data.success) {
+          markTurnstileClearance();
           // 登入成功 - token 已通過 HttpOnly Cookie 自動設定
           hideLoginModal();
 
@@ -271,15 +370,26 @@ export function getAuthCode() {
           }
         };
 
+        const turnstileToken = await acquireTurnstileToken();
+        if (turnstileToken) {
+          payload.turnstileToken = turnstileToken;
+        }
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (turnstileToken) {
+          headers['cf-turnstile-response'] = turnstileToken;
+        }
+
         const verifyRes = await fetch('/api/webauthn/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           credentials: 'include',
           body: JSON.stringify(payload)
         });
 
         const verifyData = await verifyRes.json();
         if (verifyRes.ok && verifyData.success) {
+          markTurnstileClearance();
           hideLoginModal();
           if (verifyData.expiresIn) {
             showCenterToast('✅', (typeof t === 'function' ? t('loginSuccessExpires', { expiresIn: verifyData.expiresIn }) : null) || ('Login successful, valid for ' + verifyData.expiresIn));

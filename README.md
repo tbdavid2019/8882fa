@@ -26,6 +26,8 @@
   內建輕量無狀態時間同步端點，自動修正使用者裝置時鐘偏差，徹底解決本機時間不準造成驗證碼失效的問題。
 - 🔒 **端到端軍規級安全保護**：
   支援 AES-GCM 256 位元金鑰儲存加密；防暴力破解滑動視窗限流（Rate Limiting）；登入憑證採用 HttpOnly、SameSite=Strict 安全 Cookie，具備背景自動靜默續期機制。
+- 🤖 **Cloudflare Turnstile 零打擾機器人防禦**：
+  針對管理員登入、首次設定與 Passkey 認證端點提供智慧邊緣防護。支援 HMAC 簽名通關 Cookie（有效期限 2 小時零打擾無感通行）與 Fail-Open 降階容錯機制，在保護 API 免受暴力破解的同時維持極致流暢的使用體驗。
 - 🔄 **主流驗證器無縫遷移與多格式匯入匯出**：
   支援 Google Authenticator 轉移 QR Code 掃描與產生，相容 Aegis、2FAS、Bitwarden、FreeOTP，支援 JSON、CSV、TXT、HTML（可選內嵌或不含 QR Code）備份檔。
 
@@ -85,6 +87,19 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 > ⚠️ **重要提醒**：請務必將此金鑰妥善儲存於離線安全密碼庫中。設定後，金鑰庫、雲端同步備份與憑證均會以 AES-GCM 256 位元加密；若遺失此金鑰，舊有加密資料將無法復原。
+
+### 推薦安全設定：Cloudflare Turnstile 機器人防禦
+
+若需啟用智慧防撞庫與防機器人暴力破解，可在 Cloudflare Dashboard 建立 Turnstile 託管小工具，並寫入環境變數：
+
+```bash
+# 寫入 Turnstile 私密金鑰
+npx wrangler secret put TURNSTILE_SECRET
+
+# 在 wrangler.toml 的 [vars] 配置站點金鑰
+TURNSTILE_SITE_KEY = "0x4AAAAAA..."
+TURNSTILE_FAIL_OPEN = "1" # 啟用雲端異常時自動放行降階
+```
 
 ---
 

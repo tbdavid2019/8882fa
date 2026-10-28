@@ -39,6 +39,8 @@ binding = "SECRETS_KV"
 [vars]
 SW_VERSION = "v1"
 ENVIRONMENT = "production"
+TURNSTILE_SITE_KEY = "0x4AAAAAAEvqf7unH6MrhIv2"
+TURNSTILE_FAIL_OPEN = "1"
 
 # ========================================================
 # 開發/測試環境配置 (可透過 npm run dev 調用)
@@ -52,3 +54,5 @@ binding = "SECRETS_KV"
 [env.development.vars]
 ENVIRONMENT = "development"
 SW_VERSION = "v1"
+TURNSTILE_SITE_KEY = "0x4AAAAAAEvqf7unH6MrhIv2"
+TURNSTILE_FAIL_OPEN = "1"

@@ -7,6 +7,7 @@ import { createErrorResponse } from './response.js';
 import { checkRateLimit, createRateLimitResponse, getClientIdentifier, RATE_LIMIT_PRESETS } from './rateLimit.js';
 import { getAllowedOrigin, getSecurityHeaders } from './security.js';
 import { getLogger } from './logger.js';
+import { verifyTurnstileAccess, createTurnstileClearanceCookie } from './turnstile.js';
 import {
 	ValidationError,
 	AuthenticationError,
@@ -567,7 +568,20 @@ export async function handleFirstTimeSetup(request, env) {
 			return createRateLimitResponse(rateLimitInfo, request);
 		}
 
-		const { password, confirmPassword } = await request.json();
+		const body = await request.json().catch(() => ({}));
+		const { password, confirmPassword, turnstileToken } = body;
+
+		// 🤖 Cloudflare Turnstile 驗證
+		const turnstileResult = await verifyTurnstileAccess({
+			request,
+			env,
+			token: turnstileToken,
+			clientIP,
+		});
+		if (!turnstileResult.ok) {
+			logger.warn('首次设置 Turnstile 验证失败', { clientIP, error: turnstileResult.error });
+			return createErrorResponse('人机验证失败', turnstileResult.error || 'Turnstile verification required', 403, request);
+		}
 
 		// 驗證密碼
 		if (!password || !confirmPassword) {
@@ -625,8 +639,24 @@ export async function handleFirstTimeSetup(request, env) {
 
 		const expiryDate = new Date(Date.now() + jwtExpiryDays * 24 * 60 * 60 * 1000);
 
-		// 🍪 使用 HttpOnly Cookie 儲存 JWT token
+		// 🍪 使用 HttpOnly Cookie 儲存 JWT token，並簽發零打擾通關 Cookie
 		const securityHeaders = getSecurityHeaders(request);
+		const clearanceCookie =
+			turnstileResult.shouldSetClearance && env?.TURNSTILE_SECRET
+				? await createTurnstileClearanceCookie({ secretKey: env.TURNSTILE_SECRET })
+				: null;
+
+		const responseHeaders = new Headers({
+			...securityHeaders,
+			'Content-Type': 'application/json',
+			'X-RateLimit-Limit': rateLimitInfo.limit.toString(),
+			'X-RateLimit-Remaining': rateLimitInfo.remaining.toString(),
+			'X-RateLimit-Reset': rateLimitInfo.resetAt.toString(),
+		});
+		responseHeaders.append('Set-Cookie', createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60));
+		if (clearanceCookie) {
+			responseHeaders.append('Set-Cookie', clearanceCookie);
+		}
 
 		return new Response(
 			JSON.stringify({
@@ -637,14 +667,7 @@ export async function handleFirstTimeSetup(request, env) {
 			}),
 			{
 				status: 200,
-				headers: {
-					...securityHeaders,
-					'Content-Type': 'application/json',
-					'Set-Cookie': createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60),
-					'X-RateLimit-Limit': rateLimitInfo.limit.toString(),
-					'X-RateLimit-Remaining': rateLimitInfo.remaining.toString(),
-					'X-RateLimit-Reset': rateLimitInfo.resetAt.toString(),
-				},
+				headers: responseHeaders,
 			},
 		);
 	} catch (error) {
@@ -700,7 +723,20 @@ export async function handleLogin(request, env) {
 			return createRateLimitResponse(rateLimitInfo, request);
 		}
 
-		const { credential } = await request.json();
+		const body = await request.json().catch(() => ({}));
+		const { credential, turnstileToken } = body;
+
+		// 🤖 Cloudflare Turnstile 驗證
+		const turnstileResult = await verifyTurnstileAccess({
+			request,
+			env,
+			token: turnstileToken,
+			clientIP,
+		});
+		if (!turnstileResult.ok) {
+			logger.warn('登录 Turnstile 验证失败', { clientIP, error: turnstileResult.error });
+			return createErrorResponse('人机验证失败', turnstileResult.error || 'Turnstile verification required', 403, request);
+		}
 
 		if (!credential) {
 			throw new ValidationError('请提供密码', {
@@ -746,6 +782,22 @@ export async function handleLogin(request, env) {
 
 		const expiryDate = new Date(Date.now() + jwtExpiryDays * 24 * 60 * 60 * 1000);
 		const securityHeaders = getSecurityHeaders(request);
+		const clearanceCookie =
+			turnstileResult.shouldSetClearance && env?.TURNSTILE_SECRET
+				? await createTurnstileClearanceCookie({ secretKey: env.TURNSTILE_SECRET })
+				: null;
+
+		const responseHeaders = new Headers({
+			...securityHeaders,
+			'Content-Type': 'application/json',
+			'X-RateLimit-Limit': rateLimitInfo.limit.toString(),
+			'X-RateLimit-Remaining': rateLimitInfo.remaining.toString(),
+			'X-RateLimit-Reset': rateLimitInfo.resetAt.toString(),
+		});
+		responseHeaders.append('Set-Cookie', createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60));
+		if (clearanceCookie) {
+			responseHeaders.append('Set-Cookie', clearanceCookie);
+		}
 
 		return new Response(
 			JSON.stringify({
@@ -757,14 +809,7 @@ export async function handleLogin(request, env) {
 			}),
 			{
 				status: 200,
-				headers: {
-					...securityHeaders,
-					'Content-Type': 'application/json',
-					'Set-Cookie': createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60),
-					'X-RateLimit-Limit': rateLimitInfo.limit.toString(),
-					'X-RateLimit-Remaining': rateLimitInfo.remaining.toString(),
-					'X-RateLimit-Reset': rateLimitInfo.resetAt.toString(),
-				},
+				headers: responseHeaders,
 			},
 		);
 	} catch (error) {

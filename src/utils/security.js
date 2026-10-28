@@ -36,10 +36,11 @@
  */
 const CONTENT_SECURITY_POLICY = [
 	"default-src 'self'",
-	"script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+	"script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://challenges.cloudflare.com",
+	"frame-src 'self' https://challenges.cloudflare.com",
 	"style-src 'self' 'unsafe-inline'",
 	"img-src 'self' data: blob: https://logo.clearbit.com https://www.google.com https:",
-	"connect-src 'self'",
+	"connect-src 'self' https://challenges.cloudflare.com",
 	"font-src 'self'",
 	"object-src 'none'",
 	"base-uri 'self'",

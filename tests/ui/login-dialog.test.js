@@ -7,7 +7,7 @@ import { getAuthCode } from '../../src/ui/scripts/auth.js';
 
 async function createLoginHarness() {
 	const html = await (await createMainPage()).text();
-	const loginMarkup = html.match(/<div\b[^>]*\bid="loginModal"[\s\S]*?(?=<!-- 页面底部链接 -->)/)?.[0];
+	const loginMarkup = html.match(/<div\b[^>]*\bid="loginModal"[\s\S]*?(?=<!-- (?:頁面底部連結|页面底部链接) -->)/)?.[0];
 	expect(loginMarkup).toBeDefined();
 
 	const elements = new Map();

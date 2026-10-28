@@ -5,7 +5,7 @@ import { getTimestampToolCode } from '../../src/ui/scripts/tools/timestampTool.j
 
 async function createHarness(initialTime) {
 	const html = await (await createMainPage()).text();
-	const markup = html.match(/<div id="timestampModal"[\s\S]*?(?=<!-- 密钥检查器模态框 -->)/)[0];
+	const markup = html.match(/<div id="timestampModal"[\s\S]*?(?=<!-- (?:金鑰檢查器模態框|密钥检查器模态框) -->)/)[0];
 	const elements = new Map();
 	for (const match of markup.matchAll(/\bid="([^"]+)"/g)) {
 		const classes = new Set();

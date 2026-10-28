@@ -8,6 +8,7 @@ import { getSecurityHeaders } from '../utils/security.js';
 import { getClientIdentifier, checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS } from '../utils/rateLimit.js';
 import { createJsonResponse, createErrorResponse } from '../utils/response.js';
 import { getLogger } from '../utils/logger.js';
+import { verifyTurnstileAccess, createTurnstileClearanceCookie } from '../utils/turnstile.js';
 
 // ==================== Base64URL 工具函式 ====================
 
@@ -419,9 +420,20 @@ export async function handleWebAuthnLogin(request, env) {
 	}
 
 	const body = await request.json();
-	const { id, response } = body;
+	const { id, response, turnstileToken } = body;
 	if (!id || !response || !response.authenticatorData || !response.clientDataJSON || !response.signature) {
 		return createErrorResponse('Bad Request', 'Invalid WebAuthn assertion payload', 400, request);
+	}
+
+	const turnstileResult = await verifyTurnstileAccess({
+		request,
+		env,
+		token: turnstileToken,
+		clientIP,
+	});
+	if (!turnstileResult.ok) {
+		logger.warn('WebAuthn 登录 Turnstile 验证失败', { clientIP, error: turnstileResult.error });
+		return createErrorResponse('人机验证失败', turnstileResult.error || 'Turnstile verification required', 403, request);
 	}
 
 	// 提取 Challenge
@@ -485,6 +497,19 @@ export async function handleWebAuthnLogin(request, env) {
 
 	const expiryDate = new Date(Date.now() + jwtExpiryDays * 24 * 60 * 60 * 1000);
 	const securityHeaders = getSecurityHeaders(request);
+	const clearanceCookie =
+		turnstileResult.shouldSetClearance && env?.TURNSTILE_SECRET
+			? await createTurnstileClearanceCookie({ secretKey: env.TURNSTILE_SECRET })
+			: null;
+
+	const responseHeaders = new Headers({
+		...securityHeaders,
+		'Content-Type': 'application/json',
+	});
+	responseHeaders.append('Set-Cookie', createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60));
+	if (clearanceCookie) {
+		responseHeaders.append('Set-Cookie', clearanceCookie);
+	}
 
 	return new Response(
 		JSON.stringify({
@@ -496,11 +521,7 @@ export async function handleWebAuthnLogin(request, env) {
 		}),
 		{
 			status: 200,
-			headers: {
-				...securityHeaders,
-				'Content-Type': 'application/json',
-				'Set-Cookie': createSetCookieHeader(jwtToken, jwtExpiryDays * 24 * 60 * 60),
-			},
+			headers: responseHeaders,
 		},
 	);
 }

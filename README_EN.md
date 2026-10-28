@@ -26,6 +26,8 @@ A fast, modern, and privacy-first Two-Factor Authentication (2FA) manager powere
   Zero-latency stateless time sync endpoint automatically offsets device clock discrepancies, eliminating OTP code invalidation caused by inaccurate system clocks.
 - 🔒 **End-to-End Security & Hardened Privacy**:
   Zero-knowledge client-side AES-GCM 256-bit encryption for keys and backups; sliding-window rate limiting against brute force; secure HttpOnly SameSite=Strict Cookie JWT sessions with automatic silent renewal.
+- 🤖 **Cloudflare Turnstile Zero-Disturbance Bot Defense**:
+  Intelligent edge bot mitigation for Admin Login, First-Time Setup, and WebAuthn Passkey sign-in. Features HMAC-signed clearance cookies (2-hour frictionless fast-path) and graceful fail-open fallback with 5s upstream timeout to preserve legitimate user access.
 - 🔄 **Universal Migration & Multi-Format Import/Export**:
   Import and export Google Authenticator migration QR codes, Aegis, 2FAS, Bitwarden, and FreeOTP. Supports HTML (with or without embedded QR codes), JSON, CSV, and plain TXT.
 
@@ -78,6 +80,19 @@ Add secret variable `ENCRYPTION_KEY` in **Cloudflare Dashboard → Workers → Y
 # Generate 256-bit Base64 secret key
 openssl rand -base64 32
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+### Recommended: Cloudflare Turnstile Bot Defense
+
+To prevent credential stuffing and brute-force attacks, configure Cloudflare Turnstile:
+
+```bash
+# Upload Turnstile Secret Key to Cloudflare Workers
+npx wrangler secret put TURNSTILE_SECRET
+
+# Set Turnstile Site Key in wrangler.toml under [vars]
+TURNSTILE_SITE_KEY = "0x4AAAAAA..."
+TURNSTILE_FAIL_OPEN = "1"
 ```
 
 ---

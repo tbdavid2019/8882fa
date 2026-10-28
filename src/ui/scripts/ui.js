@@ -142,6 +142,7 @@ export function getUICode() {
     }
 
     function updateQuickThemeToggle(theme) {
+      if (!document || typeof document.getElementById !== 'function') return;
       const button = document.getElementById('quickThemeToggle');
       if (!button) return;
       const isDark = theme === 'dark';

@@ -47,6 +47,9 @@ export async function createSetupPage() {
     })();
   </script>
 
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script>window.__TURNSTILE_SITE_KEY__ = "0x4AAAAAAEvqf7unH6MrhIv2";</script>
+
   <style>
     ${getSetupStyles()}
   </style>
@@ -370,14 +373,53 @@ export async function createSetupPage() {
       submitButton.innerHTML = '<span class="loading-spinner"></span>' + t('setupSubmitting');
 
       try {
+        let turnstileToken = null;
+        if (window.turnstile && window.__TURNSTILE_SITE_KEY__) {
+          const container = document.getElementById('cf-turnstile-global');
+          turnstileToken = await new Promise((resolve) => {
+            let done = false;
+            const finish = (t) => {
+              if (done) return;
+              done = true;
+              if (container) {
+                container.classList.remove('is-interactive');
+                container.setAttribute('aria-hidden', 'true');
+              }
+              resolve(t);
+            };
+            const timer = setTimeout(() => finish(null), 5000);
+            try {
+              if (container) container.innerHTML = '';
+              window.turnstile.render(container, {
+                sitekey: window.__TURNSTILE_SITE_KEY__,
+                theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
+                appearance: 'interaction-only',
+                callback: (tok) => { clearTimeout(timer); finish(tok); },
+                'error-callback': () => { clearTimeout(timer); finish(null); },
+                'before-interactive-callback': () => {
+                  if (container) {
+                    container.classList.add('is-interactive');
+                    container.setAttribute('aria-hidden', 'false');
+                  }
+                }
+              });
+            } catch (e) {
+              clearTimeout(timer);
+              finish(null);
+            }
+          });
+        }
+
         const response = await fetch('/api/setup', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(turnstileToken ? { 'cf-turnstile-response': turnstileToken } : {})
           },
           body: JSON.stringify({
             password: password,
-            confirmPassword: confirmPassword
+            confirmPassword: confirmPassword,
+            turnstileToken: turnstileToken
           })
         });
 
@@ -403,6 +445,8 @@ export async function createSetupPage() {
       }
     }
   </script>
+  <!-- Cloudflare Turnstile 零打擾浮動驗證容器 -->
+  <div id="cf-turnstile-global" class="turnstile-floating-container" aria-hidden="true"></div>
 </body>
 </html>`;
 

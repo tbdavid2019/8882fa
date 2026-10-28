@@ -8,6 +8,12 @@
 
 ### 安全性 (Security)
 
+- **整合 Cloudflare Turnstile 零打擾防護與站點驗證機制**：
+  - 針對管理員登入 (`POST /api/login`)、首次設定 (`POST /api/setup`) 與 Passkey 登入 (`POST /api/webauthn/login`) 啟用 Turnstile 機器人防禦。
+  - **零打擾通關快路徑（Clearance Fast-Path）**：驗證成功後簽發 HMAC-SHA256 簽署之 `2fa_turnstile_cleared` Cookie 與 `sessionStorage` 標記，有效期限 2 小時內免重複呼叫驗證，達成 0 延遲無感通行。
+  - **優雅降階容錯（Fail-Open Fallback）**：服務端支援 5 秒 Upstream Timeout 與 `TURNSTILE_FAIL_OPEN` 開關。當 Cloudflare 站點驗證異常或超時時，自動放行不阻斷合法用戶存取。
+  - **浮動卡片無痕互動**：前端採用 `#cf-turnstile-global` 全域浮動卡片，平時無感知，僅於高風險強制互動挑戰時在右下角以極簡懸浮卡片展示，絕不破壞原表單排版。
+  - **內容安全策略 (CSP) 更新**：放行 `https://challenges.cloudflare.com` 於 `script-src`、`frame-src` 與 `connect-src`。
 - 更新 npm 相依套件至已修補版本，清除 Dependabot 公告的弱點，涵蓋 Wrangler、Vitest、Vite、Sharp、undici 與其傳遞依賴。
 - 升級 `@cloudflare/workers-types` 至 5.x，以符合新版 Wrangler 的 peer dependency 要求。
 
