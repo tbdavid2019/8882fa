@@ -4,7 +4,7 @@
  * 發版時與 package.json、git tag 一起更新
  */
 
-export const APP_VERSION = '2026.9.23';
+export const APP_VERSION = '2026.10.28';
 
 export function formatVersionForDisplay(version) {
 	const match = String(version).match(/^(\d{4})\.(\d{1,2})\.(\d{1,2})$/);

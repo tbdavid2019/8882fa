@@ -4,6 +4,15 @@
 
 ---
 
+## [v2026.10.28] - 2026-10-28
+
+### 安全性 (Security)
+
+- 更新 npm 相依套件至已修補版本，清除 Dependabot 公告的弱點，涵蓋 Wrangler、Vitest、Vite、Sharp、undici 與其傳遞依賴。
+- 升級 `@cloudflare/workers-types` 至 5.x，以符合新版 Wrangler 的 peer dependency 要求。
+
+---
+
 ## [v2026.10.09] - 2026-10-09
 
 ### 變更 (Changed)
